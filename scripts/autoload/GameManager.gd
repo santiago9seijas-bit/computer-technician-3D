@@ -100,10 +100,6 @@ func register_repair(points: int = 100, time_bonus: float = 10.0) -> void:
 	time_left += time_bonus
 	score_updated.emit(score, points)
 	time_updated.emit(time_left, time_bonus)
-	
-	computers_fixed += 1
-	if computers_fixed >= total_computers:
-		win_level()
 
 func register_error(time_penalty: float = 5.0) -> void:
 	if not timer_active:

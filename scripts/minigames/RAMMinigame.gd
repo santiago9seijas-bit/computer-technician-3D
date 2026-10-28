@@ -294,7 +294,9 @@ func _check_both_locked() -> void:
 		tween.tween_callback(func():
 			lbl_center.text = "DDR5 - 16GB [ASEGURADA]"
 			lbl_center.modulate = Color(0, 1, 0.5, 1)
-			await get_tree().create_timer(0.9).timeout
+		)
+		tween.tween_interval(0.25)
+		tween.tween_callback(func():
 			minigame_finished.emit(true)
 		)
 

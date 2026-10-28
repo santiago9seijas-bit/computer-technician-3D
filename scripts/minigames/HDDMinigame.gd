@@ -195,8 +195,11 @@ func _on_screw_pressed(btn: Button) -> void:
 		if screws_tightened >= 4:
 			current_state = State.COMPLETED
 			_update_ui_state()
-			await get_tree().create_timer(0.9).timeout
-			minigame_finished.emit(true)
+			var tween = create_tween()
+			tween.tween_interval(0.25)
+			tween.tween_callback(func():
+				minigame_finished.emit(true)
+			)
 
 func _on_sata_pressed() -> void:
 	if current_state == State.DISCONNECT_SATA:
