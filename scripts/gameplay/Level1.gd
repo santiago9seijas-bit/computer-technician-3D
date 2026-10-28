@@ -1,17 +1,15 @@
 extends Node3D
 
 @onready var player: CharacterBody3D = $Player
-@onready var hud: Control = $CanvasLayer/HUD
-@onready var pause_menu: Control = $CanvasLayer/PauseMenu
+@onready var hud: Control = $CanvasLayerHUD/HUD
+@onready var pause_menu: Control = $CanvasLayerPause/PauseMenu
 
 func _ready() -> void:
 	if player and hud:
 		player.hud_node = hud
 		
-	# Reiniciar o arrancar nivel
 	GameManager.start_level(120.0)
 	
-	# Conectar botones de victoria / derrota del HUD
 	var btn_reintentar = hud.get_node_or_null("GameOverPanel/VBox/BtnReiniciarGO") as Button
 	if btn_reintentar:
 		btn_reintentar.pressed.connect(_on_reintentar)

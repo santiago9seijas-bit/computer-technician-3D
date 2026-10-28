@@ -1,4 +1,4 @@
-extends Control
+extends CanvasLayer
 
 signal inspection_closed()
 
@@ -6,19 +6,21 @@ var current_pc = null
 var ram_minigame_scene: PackedScene = preload("res://scenes/minigames/RAMMinigame.tscn")
 var hdd_minigame_scene: PackedScene = preload("res://scenes/minigames/HDDMinigame.tscn")
 
-@onready var title_label: Label = $Panel/VBox/Header/TitleLabel
-@onready var status_summary: Label = $Panel/VBox/Header/StatusSummary
+@onready var modal_control: Control = $ModalControl
+@onready var title_label: Label = $ModalControl/Panel/VBox/Header/TitleLabel
+@onready var status_summary: Label = $ModalControl/Panel/VBox/Header/StatusSummary
 
-@onready var btn_comp_ram: Button = $Panel/VBox/GridContainer/BtnRAM
-@onready var btn_comp_hdd: Button = $Panel/VBox/GridContainer/BtnHDD
-@onready var btn_comp_gpu: Button = $Panel/VBox/GridContainer/BtnGPU
-@onready var btn_comp_psu: Button = $Panel/VBox/GridContainer/BtnPSU
-@onready var btn_comp_mobo: Button = $Panel/VBox/GridContainer/BtnMOBO
+@onready var btn_comp_ram: Button = $ModalControl/Panel/VBox/GridContainer/BtnRAM
+@onready var btn_comp_hdd: Button = $ModalControl/Panel/VBox/GridContainer/BtnHDD
+@onready var btn_comp_gpu: Button = $ModalControl/Panel/VBox/GridContainer/BtnGPU
+@onready var btn_comp_psu: Button = $ModalControl/Panel/VBox/GridContainer/BtnPSU
+@onready var btn_comp_mobo: Button = $ModalControl/Panel/VBox/GridContainer/BtnMOBO
 
-@onready var pc_state_badge: Label = $Panel/VBox/GridContainer/ChassisCard/Margin/VBox/BadgeLabel
-@onready var btn_volver: Button = $Panel/VBox/Footer/BtnVolver
+@onready var pc_state_badge: Label = $ModalControl/Panel/VBox/GridContainer/ChassisCard/Margin/VBox/BadgeLabel
+@onready var btn_volver: Button = $ModalControl/Panel/VBox/Footer/BtnVolver
 
 func _ready() -> void:
+	layer = 10 # Prioridad por encima del HUD (layer 1)
 	btn_volver.pressed.connect(_on_volver_pressed)
 	
 	btn_comp_ram.pressed.connect(_on_ram_clicked)
@@ -39,7 +41,7 @@ func _refresh_ui() -> void:
 	var ram_status = current_pc.components.get("RAM", "ok")
 	var hdd_status = current_pc.components.get("Disco Duro", "ok")
 	
-	# Cuadro 1: Memoria RAM (NO revela si está rota de antemano)
+	# Cuadro 1: Memoria RAM (NO revela la falla)
 	match ram_status:
 		"empty":
 			btn_comp_ram.text = "MEMORIA RAM\n\n[ SLOT VACÍO ]\n▶ Clic para instalar repuesto"
@@ -51,7 +53,7 @@ func _refresh_ui() -> void:
 			btn_comp_ram.text = "MEMORIA RAM\n\nDDR5 16GB\n[ INSTALADA EN ZÓCALO ]"
 			btn_comp_ram.modulate = Color(0.15, 0.85, 1.0, 0.9)
 			
-	# Cuadro 2: Disco Duro (NO revela si está roto de antemano)
+	# Cuadro 2: Disco Duro (NO revela la falla)
 	match hdd_status:
 		"empty":
 			btn_comp_hdd.text = "DISCO DURO\n\n[ BAHÍA VACÍA ]\n▶ Clic para instalar repuesto"
@@ -73,7 +75,7 @@ func _refresh_ui() -> void:
 	btn_comp_mobo.text = "PLACA MADRE\n\nCHIPSET Z790\n[ INSTALADA ]"
 	btn_comp_mobo.modulate = Color(0.15, 0.85, 1.0, 0.9)
 	
-	# Mostrar el reporte del cliente en el resumen
+	# Mostrar el reporte del cliente
 	if current_pc.is_fully_repaired():
 		pc_state_badge.text = "PC COMPLETAMENTE REPARADA\nLISTA PARA ENTREGA ✓"
 		pc_state_badge.modulate = Color(0, 1, 0.5, 1)
@@ -93,16 +95,14 @@ func _on_ram_clicked() -> void:
 		_show_feedback("La Memoria RAM ya fue cambiada y funciona sin errores.", true)
 		return
 		
-	# Si la RAM está vacía O si la falla de este equipo era la RAM:
 	if ram_status == "empty" or current_pc.target_fault_component == "RAM":
 		_open_ram_minigame(ram_status == "empty")
 	else:
-		# Diagnóstico erróneo: la RAM no era la causa
 		GameManager.register_error(2.0)
 		_show_feedback("❌ Diagnóstico incorrecto: La Memoria RAM pasó los tests de paridad. No causa este síntoma.", false)
 
 func _open_ram_minigame(is_empty: bool) -> void:
-	visible = false
+	modal_control.visible = false
 	var minigame = ram_minigame_scene.instantiate()
 	minigame.start_as_empty_slot = is_empty
 	get_tree().root.add_child(minigame)
@@ -114,7 +114,7 @@ func _open_ram_minigame(is_empty: bool) -> void:
 	
 	minigame.connect("minigame_finished", func(success: bool):
 		minigame.queue_free()
-		visible = true
+		modal_control.visible = true
 		if success:
 			current_pc.components["RAM"] = "fixed"
 			current_pc.update_3d_state()
@@ -130,16 +130,14 @@ func _on_hdd_clicked() -> void:
 		_show_feedback("El Disco Duro ya fue cambiado y funciona sin errores.", true)
 		return
 		
-	# Si la bahía está vacía O si la falla de este equipo era el Disco Duro:
 	if hdd_status == "empty" or current_pc.target_fault_component == "Disco Duro":
 		_open_hdd_minigame(hdd_status == "empty")
 	else:
-		# Diagnóstico erróneo
 		GameManager.register_error(2.0)
 		_show_feedback("❌ Diagnóstico incorrecto: El Disco Duro responde al SMART al 100%. No causa este síntoma.", false)
 
 func _open_hdd_minigame(is_empty: bool) -> void:
-	visible = false
+	modal_control.visible = false
 	var minigame = hdd_minigame_scene.instantiate()
 	minigame.start_as_empty_slot = is_empty
 	if current_pc.saved_screw_type != "":
@@ -155,7 +153,7 @@ func _open_hdd_minigame(is_empty: bool) -> void:
 	
 	minigame.connect("minigame_finished", func(success: bool):
 		minigame.queue_free()
-		visible = true
+		modal_control.visible = true
 		if success:
 			current_pc.components["Disco Duro"] = "fixed"
 			current_pc.update_3d_state()

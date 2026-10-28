@@ -4,8 +4,11 @@
 [ext_resource type="Script" path="res://scripts/menus/CyberButton.gd" id="2_cbtn"]
 [ext_resource type="Theme" path="res://styles/cyberpunk_theme.tres" id="3_theme"]
 
-[node name="HDDMinigame" type="Control"]
-process_mode = 3
+[node name="HDDMinigame" type="CanvasLayer"]
+layer = 12
+script = ExtResource("1_hdd")
+
+[node name="ModalControl" type="Control" parent="."]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -13,18 +16,17 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("3_theme")
-script = ExtResource("1_hdd")
 
-[node name="DimOverlay" type="ColorRect" parent="."]
+[node name="DimOverlay" type="ColorRect" parent="ModalControl"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.04, 0.01, 0.08, 0.90)
+color = Color(0.04, 0.01, 0.08, 0.94)
 
-[node name="Panel" type="PanelContainer" parent="."]
+[node name="Panel" type="PanelContainer" parent="ModalControl"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -38,45 +40,45 @@ offset_bottom = 250.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="VBox" type="VBoxContainer" parent="Panel"]
+[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel"]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="Header" type="VBoxContainer" parent="Panel/VBox"]
+[node name="Header" type="VBoxContainer" parent="ModalControl/Panel/VBox"]
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="Titulo" type="Label" parent="Panel/VBox/Header"]
+[node name="Titulo" type="Label" parent="ModalControl/Panel/VBox/Header"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0.95, 1, 1)
 theme_override_font_sizes/font_size = 20
 text = "REPARACIÓN: BAHÍA DE DISCO DURO"
 horizontal_alignment = 1
 
-[node name="StatusLabel" type="Label" parent="Panel/VBox/Header"]
+[node name="StatusLabel" type="Label" parent="ModalControl/Panel/VBox/Header"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
 theme_override_font_sizes/font_size = 13
 text = "Paso 1: Equipa el destornillador correcto y quita el tornillo."
 horizontal_alignment = 1
 
-[node name="HSeparator" type="HSeparator" parent="Panel/VBox"]
+[node name="HSeparator" type="HSeparator" parent="ModalControl/Panel/VBox"]
 layout_mode = 2
 
-[node name="ContentHBox" type="HBoxContainer" parent="Panel/VBox"]
+[node name="ContentHBox" type="HBoxContainer" parent="ModalControl/Panel/VBox"]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 14
 
-[node name="DiskAreaContainer" type="PanelContainer" parent="Panel/VBox/ContentHBox"]
+[node name="DiskAreaContainer" type="PanelContainer" parent="ModalControl/Panel/VBox/ContentHBox"]
 custom_minimum_size = Vector2(530, 270)
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="DiskArea" type="Control" parent="Panel/VBox/ContentHBox/DiskAreaContainer"]
+[node name="DiskArea" type="Control" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer"]
 layout_mode = 2
 
-[node name="BayBase" type="Panel" parent="Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea"]
+[node name="BayBase" type="Panel" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea"]
 custom_minimum_size = Vector2(440, 200)
 layout_mode = 1
 anchors_preset = 8
@@ -91,7 +93,7 @@ offset_bottom = 100.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="EmptyBayLabel" type="Label" parent="Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/BayBase"]
+[node name="EmptyBayLabel" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/BayBase"]
 visible = false
 layout_mode = 1
 anchors_preset = 15
@@ -105,7 +107,7 @@ text = "[ BAHÍA SATA VACÍA · LISTA PARA DISCO NUEVO ]"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="DiskPanel" type="Panel" parent="Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea"]
+[node name="DiskPanel" type="Panel" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea"]
 custom_minimum_size = Vector2(380, 150)
 layout_mode = 1
 anchors_preset = 8
@@ -120,7 +122,7 @@ offset_bottom = 75.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="DragHint" type="Label" parent="Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/DiskPanel"]
+[node name="DragHint" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/DiskPanel"]
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
@@ -134,7 +136,7 @@ text = "SATA SSD 1TB [DAÑADO]
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="ScrewContainer" type="HBoxContainer" parent="Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/DiskPanel"]
+[node name="ScrewContainer" type="HBoxContainer" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/DiskPanel"]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -150,50 +152,50 @@ grow_vertical = 0
 theme_override_constants/separation = 12
 alignment = 1
 
-[node name="BtnScrew" type="Button" parent="Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/DiskPanel/ScrewContainer"]
+[node name="BtnScrew" type="Button" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/DiskPanel/ScrewContainer"]
 custom_minimum_size = Vector2(50, 48)
 layout_mode = 2
 theme_override_font_sizes/font_size = 22
 text = "✚"
 
-[node name="LblScrewType" type="Label" parent="Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/DiskPanel/ScrewContainer"]
+[node name="LblScrewType" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/DiskPanel/ScrewContainer"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
 theme_override_font_sizes/font_size = 12
 text = "Tornillo de Cruz (Tecla 1)"
 vertical_alignment = 1
 
-[node name="BackpackPanel" type="PanelContainer" parent="Panel/VBox/ContentHBox"]
+[node name="BackpackPanel" type="PanelContainer" parent="ModalControl/Panel/VBox/ContentHBox"]
 custom_minimum_size = Vector2(250, 270)
 layout_mode = 2
 
-[node name="Margin" type="MarginContainer" parent="Panel/VBox/ContentHBox/BackpackPanel"]
+[node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/ContentHBox/BackpackPanel"]
 layout_mode = 2
 theme_override_constants/margin_left = 12
 theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 12
 theme_override_constants/margin_bottom = 10
 
-[node name="VBox" type="VBoxContainer" parent="Panel/VBox/ContentHBox/BackpackPanel/Margin"]
+[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/ContentHBox/BackpackPanel/Margin"]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="Title" type="Label" parent="Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox"]
+[node name="Title" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.08, 0.45, 1)
 theme_override_font_sizes/font_size = 14
 text = "TU MOCHILA"
 horizontal_alignment = 1
 
-[node name="HSep" type="HSeparator" parent="Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox"]
+[node name="HSep" type="HSeparator" parent="ModalControl/Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox"]
 layout_mode = 2
 
-[node name="ItemsContainer" type="VBoxContainer" parent="Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox"]
+[node name="ItemsContainer" type="VBoxContainer" parent="ModalControl/Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox"]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 8
 
-[node name="BackpackHint" type="Label" parent="Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox"]
+[node name="BackpackHint" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.7, 0.7, 0.8, 0.9)
 theme_override_font_sizes/font_size = 11
@@ -201,14 +203,14 @@ text = "Arrastra el disco a la bahía o haz clic"
 horizontal_alignment = 1
 autowrap_mode = 2
 
-[node name="HSeparator2" type="HSeparator" parent="Panel/VBox"]
+[node name="HSeparator2" type="HSeparator" parent="ModalControl/Panel/VBox"]
 layout_mode = 2
 
-[node name="Footer" type="HBoxContainer" parent="Panel/VBox"]
+[node name="Footer" type="HBoxContainer" parent="ModalControl/Panel/VBox"]
 layout_mode = 2
 alignment = 1
 
-[node name="BtnCancel" type="Button" parent="Panel/VBox/Footer"]
+[node name="BtnCancel" type="Button" parent="ModalControl/Panel/VBox/Footer"]
 custom_minimum_size = Vector2(280, 40)
 layout_mode = 2
 text = "◄ SALIR DE LA PC (GUARDAR ESTADO)"

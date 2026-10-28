@@ -94,8 +94,12 @@ spare_type = "Disco Duro"
 [node name="Player" parent="." instance=ExtResource("2_player")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0.8)
 
-[node name="CanvasLayer" type="CanvasLayer" parent="."]
+[node name="CanvasLayerHUD" type="CanvasLayer" parent="."]
+layer = 1
 
-[node name="HUD" parent="CanvasLayer" instance=ExtResource("3_hud")]
+[node name="HUD" parent="CanvasLayerHUD" instance=ExtResource("3_hud")]
 
-[node name="PauseMenu" parent="CanvasLayer" instance=ExtResource("4_pause")]
+[node name="CanvasLayerPause" type="CanvasLayer" parent="."]
+layer = 20
+
+[node name="PauseMenu" parent="CanvasLayerPause" instance=ExtResource("4_pause")]

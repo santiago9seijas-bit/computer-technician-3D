@@ -1,4 +1,4 @@
-extends Control
+extends CanvasLayer
 
 signal minigame_finished(success: bool)
 signal old_part_extracted()
@@ -15,32 +15,31 @@ enum State {
 var current_state: State = State.UNSCREW
 var start_as_empty_slot: bool = false
 
-# Tipo de tornillo: "cruz" (Tecla 1) o "pala" (Tecla 2)
 var screw_type: String = "cruz"
 var required_tool_id: int = 1
 
-# Arrastre del disco
 var is_dragging_disk: bool = false
 var drag_start_y: float = 0.0
 
-# Arrastre desde la mochila
 var is_dragging_backpack_hdd: bool = false
 var backpack_drag_start_x: float = 0.0
 
-@onready var status_label: Label = $Panel/VBox/Header/StatusLabel
-@onready var disk_panel: Panel = $Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/DiskPanel
-@onready var disk_drag_label: Label = $Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/DiskPanel/DragHint
-@onready var empty_bay_label: Label = $Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/BayBase/EmptyBayLabel
+@onready var modal_control: Control = $ModalControl
+@onready var status_label: Label = $ModalControl/Panel/VBox/Header/StatusLabel
+@onready var disk_panel: Panel = $ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/DiskPanel
+@onready var disk_drag_label: Label = $ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/DiskPanel/DragHint
+@onready var empty_bay_label: Label = $ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/BayBase/EmptyBayLabel
 
-@onready var screw_container: Control = $Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/DiskPanel/ScrewContainer
-@onready var btn_screw: Button = $Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/DiskPanel/ScrewContainer/BtnScrew
-@onready var lbl_screw_type: Label = $Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/DiskPanel/ScrewContainer/LblScrewType
+@onready var screw_container: Control = $ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/DiskPanel/ScrewContainer
+@onready var btn_screw: Button = $ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/DiskPanel/ScrewContainer/BtnScrew
+@onready var lbl_screw_type: Label = $ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/DiskPanel/ScrewContainer/LblScrewType
 
-@onready var backpack_items_box: VBoxContainer = $Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox/ItemsContainer
-@onready var backpack_hint: Label = $Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox/BackpackHint
-@onready var btn_cancel: Button = $Panel/VBox/Footer/BtnCancel
+@onready var backpack_items_box: VBoxContainer = $ModalControl/Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox/ItemsContainer
+@onready var backpack_hint: Label = $ModalControl/Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox/BackpackHint
+@onready var btn_cancel: Button = $ModalControl/Panel/VBox/Footer/BtnCancel
 
 func _ready() -> void:
+	layer = 12 # Prioridad por encima de la inspección (layer 10)
 	btn_cancel.pressed.connect(func(): minigame_finished.emit(false))
 	btn_screw.pressed.connect(_on_screw_pressed)
 	empty_bay_label.visible = false
@@ -48,7 +47,6 @@ func _ready() -> void:
 	disk_panel.gui_input.connect(_on_disk_gui_input)
 	GameManager.backpack_updated.connect(_on_backpack_changed)
 	
-	# Si no se pasó un tipo persistente, elegir aleatoriamente
 	if screw_type == "" or (not start_as_empty_slot and screw_type == "cruz"):
 		var rng = RandomNumberGenerator.new()
 		rng.randomize()
@@ -60,7 +58,6 @@ func _ready() -> void:
 	btn_screw.text = icon
 	lbl_screw_type.text = desc
 	
-	# Si la bahía ya estaba vacía (pieza retirada previamente)
 	if start_as_empty_slot:
 		disk_panel.visible = false
 		empty_bay_label.visible = true
@@ -195,7 +192,6 @@ func _on_screw_pressed() -> void:
 		)
 
 func _on_disk_gui_input(event: InputEvent) -> void:
-	# FASE EXTRACCIÓN (Hacia arriba)
 	if current_state == State.EXTRACT_DRAG_UP:
 		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 			if event.pressed:
@@ -214,7 +210,6 @@ func _on_disk_gui_input(event: InputEvent) -> void:
 			var pull = clamp(drag_start_y - event.global_position.y, 0.0, 75.0)
 			disk_panel.position.y = -pull
 			
-	# FASE INSERCIÓN A LA INVERSA (Hacia abajo)
 	elif current_state == State.INSERT_DRAG_DOWN:
 		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 			if event.pressed:

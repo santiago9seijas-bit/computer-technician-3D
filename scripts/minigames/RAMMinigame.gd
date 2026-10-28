@@ -1,4 +1,4 @@
-extends Control
+extends CanvasLayer
 
 signal minigame_finished(success: bool)
 signal old_part_extracted()
@@ -32,25 +32,26 @@ var drag_start_pos: Vector2 = Vector2.ZERO
 var dragging_backpack_item: bool = false
 var backpack_drag_start_pos: Vector2 = Vector2.ZERO
 
-@onready var status_label: Label = $Panel/VBox/Header/StatusLabel
-@onready var socket_area: Control = $Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea
-@onready var socket_base: Panel = $Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea/SocketBase
-@onready var empty_slot_label: Label = $Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea/SocketBase/EmptySlotLabel
-@onready var ram_stick: Panel = $Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea/RAMStick
+@onready var status_label: Label = $ModalControl/Panel/VBox/Header/StatusLabel
+@onready var socket_area: Control = $ModalControl/Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea
+@onready var socket_base: Panel = $ModalControl/Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea/SocketBase
+@onready var empty_slot_label: Label = $ModalControl/Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea/SocketBase/EmptySlotLabel
+@onready var ram_stick: Panel = $ModalControl/Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea/RAMStick
 
-@onready var zone_left: Control = $Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea/RAMStick/ZoneLeft
-@onready var zone_right: Control = $Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea/RAMStick/ZoneRight
-@onready var zone_center: Control = $Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea/RAMStick/ZoneCenter
+@onready var zone_left: Control = $ModalControl/Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea/RAMStick/ZoneLeft
+@onready var zone_right: Control = $ModalControl/Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea/RAMStick/ZoneRight
+@onready var zone_center: Control = $ModalControl/Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea/RAMStick/ZoneCenter
 
-@onready var lbl_left: Label = $Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea/RAMStick/ZoneLeft/LblLeft
-@onready var lbl_right: Label = $Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea/RAMStick/ZoneRight/LblRight
-@onready var lbl_center: Label = $Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea/RAMStick/ZoneCenter/LblCenter
+@onready var lbl_left: Label = $ModalControl/Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea/RAMStick/ZoneLeft/LblLeft
+@onready var lbl_right: Label = $ModalControl/Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea/RAMStick/ZoneRight/LblRight
+@onready var lbl_center: Label = $ModalControl/Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea/RAMStick/ZoneCenter/LblCenter
 
-@onready var backpack_items_box: VBoxContainer = $Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox/ItemsContainer
-@onready var backpack_hint: Label = $Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox/BackpackHint
-@onready var btn_cancel: Button = $Panel/VBox/Footer/BtnCancel
+@onready var backpack_items_box: VBoxContainer = $ModalControl/Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox/ItemsContainer
+@onready var backpack_hint: Label = $ModalControl/Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox/BackpackHint
+@onready var btn_cancel: Button = $ModalControl/Panel/VBox/Footer/BtnCancel
 
 func _ready() -> void:
+	layer = 12 # Prioridad por encima de la inspección (layer 10)
 	btn_cancel.pressed.connect(func(): minigame_finished.emit(false))
 	empty_slot_label.visible = false
 	
@@ -60,7 +61,6 @@ func _ready() -> void:
 	
 	GameManager.backpack_updated.connect(_on_backpack_changed)
 	
-	# Si el slot ya estaba vacío al interactuar
 	if start_as_empty_slot:
 		ram_stick.visible = false
 		empty_slot_label.visible = true
@@ -100,10 +100,8 @@ func _refresh_backpack_ui() -> void:
 				item_btn.text = "⇪ RAM DDR5 (NUEVA)\n[Arrastra o Clic]"
 				item_btn.modulate = Color(0.0, 1.0, 0.6, 1.0)
 				
-				# Permitir clic directo para colocar
 				item_btn.pressed.connect(func(): _insert_ram_from_backpack(i))
 				
-				# Permitir arrastre desde el botón hacia el zócalo
 				item_btn.gui_input.connect(func(event: InputEvent):
 					if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 						if event.pressed:
@@ -112,7 +110,6 @@ func _refresh_backpack_ui() -> void:
 						else:
 							if dragging_backpack_item:
 								dragging_backpack_item = false
-								# Si arrastró hacia la izquierda (hacia el zócalo)
 								var diff_x = backpack_drag_start_pos.x - event.global_position.x
 								if diff_x > 40.0:
 									_insert_ram_from_backpack(i)
@@ -196,7 +193,6 @@ func _handle_zone_input(part: String, event: InputEvent) -> void:
 func _process_drag_release(part: String, delta_y: float) -> void:
 	var threshold = 30.0
 	
-	# FASE 1: EXTRACCIÓN (Hacia ARRIBA -> delta_y negativo)
 	if current_state == State.EXTRACT_SIDES or current_state == State.EXTRACT_CENTER:
 		var pulled_up = -delta_y >= threshold
 		
@@ -223,7 +219,6 @@ func _process_drag_release(part: String, delta_y: float) -> void:
 				status_label.text = "¡Atascado! Primero descalza el lado izquierdo y el derecho hacia arriba."
 				status_label.modulate = Color(1, 0.2, 0.3, 1)
 				
-	# FASE 2: INSERCIÓN A LA INVERSA (Hacia ABAJO -> delta_y positivo)
 	elif current_state == State.INSERT_CENTER:
 		var pushed_down = delta_y >= threshold
 		if part == "center":
@@ -328,7 +323,6 @@ func _insert_ram_from_backpack(index: int) -> void:
 	GameManager.remove_item_from_backpack(index)
 	empty_slot_label.visible = false
 	
-	# Colocar la RAM suspendida sobre el zócalo
 	ram_stick.visible = true
 	ram_stick.modulate = Color(0, 0.95, 1, 1)
 	ram_stick.position.y = -65.0
