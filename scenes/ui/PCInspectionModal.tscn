@@ -1,0 +1,174 @@
+[gd_scene format=3 load_steps=4]
+
+[ext_resource type="Script" path="res://scripts/ui/PCInspectionModal.gd" id="1_modal"]
+[ext_resource type="Script" path="res://scripts/menus/CyberButton.gd" id="2_cbtn"]
+[ext_resource type="Theme" path="res://styles/cyberpunk_theme.tres" id="3_theme"]
+
+[node name="PCInspectionModal" type="Control"]
+process_mode = 3
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("3_theme")
+script = ExtResource("1_modal")
+
+[node name="DimOverlay" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.04, 0.01, 0.08, 0.92)
+
+[node name="Panel" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -460.0
+offset_top = -260.0
+offset_right = 460.0
+offset_bottom = 260.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="Panel"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Header" type="VBoxContainer" parent="Panel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="TitleLabel" type="Label" parent="Panel/VBox/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 22
+text = "INSPECCIÓN DE GABINETE: COMPUTADORA #1"
+horizontal_alignment = 1
+
+[node name="StatusSummary" type="Label" parent="Panel/VBox/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 13
+text = "Selecciona un componente averiado o vacío para trabajar en él."
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="Panel/VBox"]
+layout_mode = 2
+
+[node name="ContentHBox" type="HBoxContainer" parent="Panel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 16
+
+[node name="ComponentsGrid" type="VBoxContainer" parent="Panel/VBox/ContentHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="BtnRAM" type="Button" parent="Panel/VBox/ContentHBox/ComponentsGrid"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "1. MEMORIA RAM: [DAÑADA / QUEMADA]"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 16.0
+
+[node name="BtnHDD" type="Button" parent="Panel/VBox/ContentHBox/ComponentsGrid"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "2. DISCO DURO: [FALLA DE LECTURA SMART]"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 16.0
+
+[node name="BtnPSU" type="Button" parent="Panel/VBox/ContentHBox/ComponentsGrid"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+text = "3. FUENTE DE PODER: [850W GOLD - OK ✓]"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 14.0
+
+[node name="BtnGPU" type="Button" parent="Panel/VBox/ContentHBox/ComponentsGrid"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+text = "4. TARJETA GRÁFICA: [RTX 4070 - OK ✓]"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 14.0
+
+[node name="BtnMOBO" type="Button" parent="Panel/VBox/ContentHBox/ComponentsGrid"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+text = "5. PLACA MADRE: [CHIPSET Z790 - OK ✓]"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 14.0
+
+[node name="PCVisualPanel" type="PanelContainer" parent="Panel/VBox/ContentHBox"]
+custom_minimum_size = Vector2(300, 260)
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="Panel/VBox/ContentHBox/PCVisualPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 14
+
+[node name="VBox" type="VBoxContainer" parent="Panel/VBox/ContentHBox/PCVisualPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="ChassisTitle" type="Label" parent="Panel/VBox/ContentHBox/PCVisualPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.08, 0.45, 1)
+theme_override_font_sizes/font_size = 14
+text = "ESTADO GENERAL"
+horizontal_alignment = 1
+
+[node name="HSep" type="HSeparator" parent="Panel/VBox/ContentHBox/PCVisualPanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="BadgeLabel" type="Label" parent="Panel/VBox/ContentHBox/PCVisualPanel/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(1, 0.8, 0.1, 1)
+theme_override_font_sizes/font_size = 13
+text = "EN PROCESO DE REPARACIÓN
+SE REQUIEREN REPUESTOS"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="SpecHint" type="Label" parent="Panel/VBox/ContentHBox/PCVisualPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.6, 0.7, 0.8)
+theme_override_font_sizes/font_size = 11
+text = "Gabinete Abierto · Torre ATX
+Voltaje: 220V Estable"
+horizontal_alignment = 1
+
+[node name="HSeparator2" type="HSeparator" parent="Panel/VBox"]
+layout_mode = 2
+
+[node name="Footer" type="HBoxContainer" parent="Panel/VBox"]
+layout_mode = 2
+alignment = 1
+
+[node name="BtnVolver" type="Button" parent="Panel/VBox/Footer"]
+custom_minimum_size = Vector2(340, 42)
+layout_mode = 2
+text = "◄ SALIR AL TALLER (CAMINAR / BUSCAR)"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 18.0

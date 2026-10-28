@@ -1,4 +1,4 @@
-[gd_scene format=3 load_steps=18]
+[gd_scene format=3 load_steps=15]
 
 [ext_resource type="Script" path="res://scripts/gameplay/Level1.gd" id="1_lvl"]
 [ext_resource type="PackedScene" path="res://scenes/player/Player.tscn" id="2_player"]
@@ -7,9 +7,7 @@
 [ext_resource type="PackedScene" path="res://scenes/components/TrashBin.tscn" id="5_trash"]
 [ext_resource type="PackedScene" path="res://scenes/components/WallDispenser.tscn" id="6_disp"]
 [ext_resource type="PackedScene" path="res://scenes/components/SparesBox.tscn" id="7_spares"]
-[ext_resource type="PackedScene" path="res://scenes/components/ComponentSlot.tscn" id="8_slot"]
-[ext_resource type="PackedScene" path="res://scenes/minigames/RAMMinigame.tscn" id="9_ram_mg"]
-[ext_resource type="PackedScene" path="res://scenes/minigames/HDDMinigame.tscn" id="10_hdd_mg"]
+[ext_resource type="PackedScene" path="res://scenes/components/ComputerCase.tscn" id="8_pc"]
 
 [sub_resource type="Environment" id="Environment_1"]
 background_mode = 1
@@ -75,19 +73,9 @@ shape = SubResource("BoxShape3D_bench")
 [node name="MeshInstance3D" type="MeshInstance3D" parent="WorkBench"]
 mesh = SubResource("BoxMesh_bench")
 
-[node name="SlotRAM" parent="WorkBench" instance=ExtResource("8_slot")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.7, 0.45, 0)
-component_name = "RAM"
-minigame_scene = ExtResource("9_ram_mg")
-
-[node name="SlotHDD" parent="WorkBench" instance=ExtResource("8_slot")]
+[node name="Computer1" parent="WorkBench" instance=ExtResource("8_pc")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
-component_name = "Disco Duro"
-minigame_scene = ExtResource("10_hdd_mg")
-
-[node name="SlotFuente" parent="WorkBench" instance=ExtResource("8_slot")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7, 0.45, 0)
-component_name = "Fuente"
+pc_id = 1
 
 [node name="TrashBin" parent="." instance=ExtResource("5_trash")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.6, 0.1, -1.2)
