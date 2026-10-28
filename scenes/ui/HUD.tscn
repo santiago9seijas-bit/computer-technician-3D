@@ -1,0 +1,278 @@
+[gd_scene format=3 load_steps=3]
+
+[ext_resource type="Script" path="res://scripts/ui/HUD.gd" id="1_hud"]
+[ext_resource type="Theme" path="res://styles/cyberpunk_theme.tres" id="2_theme"]
+
+[node name="HUD" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme = ExtResource("2_theme")
+script = ExtResource("1_hud")
+
+[node name="TopLeft" type="PanelContainer" parent="."]
+layout_mode = 0
+offset_left = 30.0
+offset_top = 25.0
+offset_right = 240.0
+offset_bottom = 75.0
+
+[node name="LblErrores" type="Label" parent="TopLeft"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.1, 0.25, 1)
+theme_override_font_sizes/font_size = 18
+text = "Errores: 0 / 20"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TopCenter" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -140.0
+offset_top = 20.0
+offset_right = 140.0
+offset_bottom = 80.0
+grow_horizontal = 2
+
+[node name="LblTiempo" type="Label" parent="TopCenter"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(1, 0.08, 0.45, 0.8)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 26
+text = "Tiempo: 02:00"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BottomLeft" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 30.0
+offset_top = -80.0
+offset_right = 210.0
+offset_bottom = -30.0
+grow_vertical = 0
+
+[node name="LblPuntaje" type="Label" parent="BottomLeft"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 18
+text = "Puntaje: 0"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TopRight" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -260.0
+offset_top = 25.0
+offset_right = -30.0
+offset_bottom = 200.0
+grow_horizontal = 0
+
+[node name="BackpackContainer" type="VBoxContainer" parent="TopRight"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="TituloMochila" type="Label" parent="TopRight/BackpackContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.08, 0.45, 1)
+theme_override_font_sizes/font_size = 14
+text = "MOCHILA (3 slots)"
+horizontal_alignment = 1
+
+[node name="BottomCenter" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -340.0
+offset_top = -70.0
+offset_right = 340.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="ToolsBar" type="HBoxContainer" parent="BottomCenter"]
+layout_mode = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="Tool1" type="Button" parent="BottomCenter/ToolsBar"]
+custom_minimum_size = Vector2(125, 36)
+layout_mode = 2
+text = "1. Estrella ★"
+
+[node name="Tool2" type="Button" parent="BottomCenter/ToolsBar"]
+custom_minimum_size = Vector2(125, 36)
+layout_mode = 2
+text = "2. Pala ▬"
+
+[node name="Tool3" type="Button" parent="BottomCenter/ToolsBar"]
+custom_minimum_size = Vector2(125, 36)
+layout_mode = 2
+text = "3. Cautín"
+
+[node name="Tool4" type="Button" parent="BottomCenter/ToolsBar"]
+custom_minimum_size = Vector2(125, 36)
+layout_mode = 2
+text = "4. Multímetro"
+
+[node name="Tool5" type="Button" parent="BottomCenter/ToolsBar"]
+custom_minimum_size = Vector2(125, 36)
+layout_mode = 2
+text = "5. Limpiador"
+
+[node name="Center" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Crosshair" type="ColorRect" parent="Center"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -3.0
+offset_top = -3.0
+offset_right = 3.0
+offset_bottom = 3.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0.9, 1, 0.85)
+
+[node name="PromptLabel" type="Label" parent="Center"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -200.0
+offset_top = 20.0
+offset_right = 200.0
+offset_bottom = 50.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.8)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_font_sizes/font_size = 15
+horizontal_alignment = 1
+
+[node name="FloatingFeedback" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="GameOverPanel" type="PanelContainer" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -240.0
+offset_top = -140.0
+offset_right = 240.0
+offset_bottom = 140.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="GameOverPanel"]
+layout_mode = 2
+theme_override_constants/separation = 14
+alignment = 1
+
+[node name="Titulo" type="Label" parent="GameOverPanel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.1, 0.2, 1)
+theme_override_font_sizes/font_size = 28
+text = "MISIÓN FALLIDA"
+horizontal_alignment = 1
+
+[node name="ReasonLabel" type="Label" parent="GameOverPanel/VBox"]
+layout_mode = 2
+text = "Tiempo agotado"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="BtnReiniciarGO" type="Button" parent="GameOverPanel/VBox"]
+custom_minimum_size = Vector2(180, 42)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "REINTENTAR"
+
+[node name="WinPanel" type="PanelContainer" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -240.0
+offset_top = -140.0
+offset_right = 240.0
+offset_bottom = 140.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="WinPanel"]
+layout_mode = 2
+theme_override_constants/separation = 14
+alignment = 1
+
+[node name="Titulo" type="Label" parent="WinPanel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 28
+text = "¡TRABAJO COMPLETADO!"
+horizontal_alignment = 1
+
+[node name="StarsLabel" type="Label" parent="WinPanel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 32
+text = "★ ★ ★"
+horizontal_alignment = 1
+
+[node name="ScoreLabel" type="Label" parent="WinPanel/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Puntaje Final: 300"
+horizontal_alignment = 1
+
+[node name="BtnSiguiente" type="Button" parent="WinPanel/VBox"]
+custom_minimum_size = Vector2(180, 42)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "CONTINUAR"

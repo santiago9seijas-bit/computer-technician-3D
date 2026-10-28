@@ -1,0 +1,113 @@
+[gd_scene format=3 load_steps=18]
+
+[ext_resource type="Script" path="res://scripts/gameplay/Level1.gd" id="1_lvl"]
+[ext_resource type="PackedScene" path="res://scenes/player/Player.tscn" id="2_player"]
+[ext_resource type="PackedScene" path="res://scenes/ui/HUD.tscn" id="3_hud"]
+[ext_resource type="PackedScene" path="res://scenes/menus/PauseMenu.tscn" id="4_pause"]
+[ext_resource type="PackedScene" path="res://scenes/components/TrashBin.tscn" id="5_trash"]
+[ext_resource type="PackedScene" path="res://scenes/components/WallDispenser.tscn" id="6_disp"]
+[ext_resource type="PackedScene" path="res://scenes/components/SparesBox.tscn" id="7_spares"]
+[ext_resource type="PackedScene" path="res://scenes/components/ComponentSlot.tscn" id="8_slot"]
+[ext_resource type="PackedScene" path="res://scenes/minigames/RAMMinigame.tscn" id="9_ram_mg"]
+[ext_resource type="PackedScene" path="res://scenes/minigames/HDDMinigame.tscn" id="10_hdd_mg"]
+
+[sub_resource type="Environment" id="Environment_1"]
+background_mode = 1
+background_color = Color(0.06, 0.02, 0.12, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.2, 0.1, 0.35, 1)
+ambient_light_energy = 1.2
+glow_enabled = true
+glow_intensity = 0.8
+glow_bloom = 0.2
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
+size = Vector3(14, 0.2, 14)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_floor"]
+albedo_color = Color(0.1, 0.05, 0.16, 1)
+metallic = 0.6
+roughness = 0.4
+
+[sub_resource type="BoxMesh" id="BoxMesh_floor"]
+material = SubResource("StandardMaterial3D_floor")
+size = Vector3(14, 0.2, 14)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_bench"]
+size = Vector3(3.2, 0.9, 1.2)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bench"]
+albedo_color = Color(0.18, 0.1, 0.26, 1)
+metallic = 0.4
+roughness = 0.6
+
+[sub_resource type="BoxMesh" id="BoxMesh_bench"]
+material = SubResource("StandardMaterial3D_bench")
+size = Vector3(3.2, 0.9, 1.2)
+
+[node name="Level1" type="Node3D"]
+script = ExtResource("1_lvl")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_1")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866025, -0.353553, 0.353553, 0, 0.707107, 0.707107, -0.5, -0.612372, 0.612372, 3, 6, 4)
+light_color = Color(0.8, 0.6, 1, 1)
+light_energy = 0.8
+
+[node name="Room" type="Node3D" parent="."]
+
+[node name="Floor" type="StaticBody3D" parent="Room"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Room/Floor"]
+shape = SubResource("BoxShape3D_floor")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Room/Floor"]
+mesh = SubResource("BoxMesh_floor")
+
+[node name="WorkBench" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, -1.8)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="WorkBench"]
+shape = SubResource("BoxShape3D_bench")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="WorkBench"]
+mesh = SubResource("BoxMesh_bench")
+
+[node name="SlotRAM" parent="WorkBench" instance=ExtResource("8_slot")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.7, 0.45, 0)
+component_name = "RAM"
+minigame_scene = ExtResource("9_ram_mg")
+
+[node name="SlotHDD" parent="WorkBench" instance=ExtResource("8_slot")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
+component_name = "Disco Duro"
+minigame_scene = ExtResource("10_hdd_mg")
+
+[node name="SlotFuente" parent="WorkBench" instance=ExtResource("8_slot")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7, 0.45, 0)
+component_name = "Fuente"
+
+[node name="TrashBin" parent="." instance=ExtResource("5_trash")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.6, 0.1, -1.2)
+
+[node name="WallDispenser" parent="." instance=ExtResource("6_disp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.8, -4.5)
+
+[node name="SparesRAM" parent="." instance=ExtResource("7_spares")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5, 0.1, -1.5)
+spare_type = "RAM"
+
+[node name="SparesHDD" parent="." instance=ExtResource("7_spares")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5, 0.1, -0.6)
+spare_type = "Disco Duro"
+
+[node name="Player" parent="." instance=ExtResource("2_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0.8)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="HUD" parent="CanvasLayer" instance=ExtResource("3_hud")]
+
+[node name="PauseMenu" parent="CanvasLayer" instance=ExtResource("4_pause")]

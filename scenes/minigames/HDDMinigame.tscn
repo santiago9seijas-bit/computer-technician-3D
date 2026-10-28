@@ -1,0 +1,171 @@
+[gd_scene format=3 load_steps=3]
+
+[ext_resource type="Script" path="res://scripts/minigames/HDDMinigame.gd" id="1_hdd"]
+[ext_resource type="Theme" path="res://styles/cyberpunk_theme.tres" id="2_theme"]
+
+[node name="HDDMinigame" type="Control"]
+process_mode = 3
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_theme")
+script = ExtResource("1_hdd")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.04, 0.01, 0.08, 0.88)
+
+[node name="Panel" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -320.0
+offset_top = -220.0
+offset_right = 320.0
+offset_bottom = 220.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Titulo" type="Label" parent="Panel"]
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_colors/font_color = Color(0, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 20
+text = "REPARACIÓN: BAHÍA DE DISCO DURO"
+horizontal_alignment = 1
+
+[node name="StatusLabel" type="Label" parent="Panel"]
+layout_mode = 2
+size_flags_vertical = 0
+offset_top = 36.0
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 14
+text = "Paso 1: Equipa la Tecla 1 (Destornillador Estrella) y quita los 4 tornillos."
+horizontal_alignment = 1
+
+[node name="DiskArea" type="Control" parent="Panel"]
+custom_minimum_size = Vector2(480, 240)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="BayBase" type="Panel" parent="Panel/DiskArea"]
+custom_minimum_size = Vector2(360, 200)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -180.0
+offset_top = -100.0
+offset_right = 180.0
+offset_bottom = 100.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="DiskPanel" type="Panel" parent="Panel/DiskArea"]
+custom_minimum_size = Vector2(300, 150)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -150.0
+offset_top = -75.0
+offset_right = 150.0
+offset_bottom = 75.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Label" type="Label" parent="Panel/DiskArea/DiskPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "SATA SSD 1TB
+[UNIDAD PRINCIPAL]"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Screw1" type="Button" parent="Panel/DiskArea"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 0
+offset_left = 40.0
+offset_top = 30.0
+offset_right = 72.0
+offset_bottom = 62.0
+text = "★"
+
+[node name="Screw2" type="Button" parent="Panel/DiskArea"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 0
+offset_left = 410.0
+offset_top = 30.0
+offset_right = 442.0
+offset_bottom = 62.0
+text = "★"
+
+[node name="Screw3" type="Button" parent="Panel/DiskArea"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 0
+offset_left = 40.0
+offset_top = 180.0
+offset_right = 72.0
+offset_bottom = 212.0
+text = "★"
+
+[node name="Screw4" type="Button" parent="Panel/DiskArea"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 0
+offset_left = 410.0
+offset_top = 180.0
+offset_right = 442.0
+offset_bottom = 212.0
+text = "★"
+
+[node name="BtnSATA" type="Button" parent="Panel/DiskArea"]
+custom_minimum_size = Vector2(200, 36)
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -100.0
+offset_top = -25.0
+offset_right = 100.0
+offset_bottom = 11.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "Cable SATA: [CONECTADO]"
+
+[node name="BtnAction" type="Button" parent="Panel"]
+visible = false
+custom_minimum_size = Vector2(280, 42)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 8
+offset_bottom = -50.0
+text = "Extraer Disco Duro"
+
+[node name="BtnCancel" type="Button" parent="Panel"]
+custom_minimum_size = Vector2(140, 36)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 8
+text = "SALIR / CANCELAR"
