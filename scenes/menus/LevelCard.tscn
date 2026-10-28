@@ -1,34 +1,38 @@
-[gd_scene format=3 load_steps=3]
+[gd_scene format=3 load_steps=4]
 
 [ext_resource type="Script" path="res://scripts/menus/LevelCard.gd" id="1_card"]
-[ext_resource type="Theme" path="res://styles/cyberpunk_theme.tres" id="2_theme"]
+[ext_resource type="Script" path="res://scripts/menus/CyberButton.gd" id="2_cbtn"]
+[ext_resource type="Theme" path="res://styles/cyberpunk_theme.tres" id="3_theme"]
 
 [node name="LevelCardModal" type="PanelContainer"]
-custom_minimum_size = Vector2(620, 360)
+custom_minimum_size = Vector2(640, 370)
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -310.0
-offset_top = -180.0
-offset_right = 310.0
-offset_bottom = 180.0
+offset_left = -320.0
+offset_top = -185.0
+offset_right = 320.0
+offset_bottom = 185.0
 grow_horizontal = 2
 grow_vertical = 2
-theme = ExtResource("2_theme")
+theme = ExtResource("3_theme")
 script = ExtResource("1_card")
 
 [node name="BtnClose" type="Button" parent="."]
-custom_minimum_size = Vector2(32, 32)
+custom_minimum_size = Vector2(36, 36)
 layout_mode = 2
 size_flags_horizontal = 8
 size_flags_vertical = 0
 text = "✕"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 8.0
 
 [node name="HBox" type="HBoxContainer" parent="."]
 layout_mode = 2
-theme_override_constants/separation = 24
+theme_override_constants/separation = 26
 
 [node name="BadgeContainer" type="VBoxContainer" parent="HBox"]
 custom_minimum_size = Vector2(160, 0)
@@ -47,8 +51,10 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_colors/font_color = Color(1, 0.2, 0.6, 1)
-theme_override_font_sizes/font_size = 54
+theme_override_colors/font_color = Color(1, 0.15, 0.55, 1)
+theme_override_colors/font_shadow_color = Color(1, 0.08, 0.45, 0.7)
+theme_override_constants/shadow_outline_size = 12
+theme_override_font_sizes/font_size = 56
 text = "1"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -56,6 +62,7 @@ vertical_alignment = 1
 [node name="Dots" type="Label" parent="HBox/BadgeContainer"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.2, 0.6, 0.8)
+theme_override_font_sizes/font_size = 16
 text = "• • •"
 horizontal_alignment = 1
 
@@ -68,12 +75,13 @@ alignment = 1
 [node name="Titulo" type="Label" parent="HBox/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0.9, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0.9, 1, 0.5)
 theme_override_font_sizes/font_size = 20
 text = "NIVEL 1 · MEMORIA Y DISCO"
 
 [node name="Subtitulo" type="Label" parent="HBox/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.8, 0.8, 0.9, 1)
+theme_override_colors/font_color = Color(0.8, 0.8, 0.95, 1)
 theme_override_font_sizes/font_size = 13
 text = "ETAPA BÁSICOS  ☆☆☆ 0/3"
 
@@ -87,20 +95,24 @@ text = "QUÉ HAY EN ESTE NIVEL"
 layout_mode = 2
 theme_override_colors/font_color = Color(0.85, 0.85, 0.95, 1)
 theme_override_font_sizes/font_size = 12
-text = "3 computadoras contra un cronómetro de 120 segundos.
+text = "Nivel 1 - MEMORIA Y DISCO - etapa BÁSICOS.
+3 computadoras contra un cronómetro de 120 segundos.
 Cada reparación suma 100 puntos y devuelve 10 segundos.
-Piezas: RAM, Disco Duro, Fuente, Grafica, Placa Madre.
+Solo aparecen estas piezas: RAM, Disco Duro, Fuente, Grafica, Placa Madre.
 La sala es pequeña: escritorios, cajas de repuestos y papelera cerca."
 autowrap_mode = 2
 
 [node name="Record" type="Label" parent="HBox/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.8, 0.2, 1)
-theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 13
 text = "RÉCORD 300 puntos · DIFICULTAD NORMAL"
 
 [node name="BtnJugarNivel" type="Button" parent="HBox/VBox"]
-custom_minimum_size = Vector2(180, 44)
+custom_minimum_size = Vector2(210, 46)
 layout_mode = 2
 size_flags_horizontal = 4
 text = "JUGAR NIVEL"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 20.0

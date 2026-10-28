@@ -1,7 +1,8 @@
-[gd_scene format=3 load_steps=3]
+[gd_scene format=3 load_steps=4]
 
 [ext_resource type="Script" path="res://scripts/ui/HUD.gd" id="1_hud"]
-[ext_resource type="Theme" path="res://styles/cyberpunk_theme.tres" id="2_theme"]
+[ext_resource type="Script" path="res://scripts/menus/CyberButton.gd" id="2_cbtn"]
+[ext_resource type="Theme" path="res://styles/cyberpunk_theme.tres" id="3_theme"]
 
 [node name="HUD" type="Control"]
 layout_mode = 3
@@ -11,7 +12,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-theme = ExtResource("2_theme")
+theme = ExtResource("3_theme")
 script = ExtResource("1_hud")
 
 [node name="TopLeft" type="PanelContainer" parent="."]
@@ -24,6 +25,8 @@ offset_bottom = 75.0
 [node name="LblErrores" type="Label" parent="TopLeft"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.1, 0.25, 1)
+theme_override_colors/font_shadow_color = Color(1, 0.1, 0.25, 0.6)
+theme_override_constants/shadow_outline_size = 10
 theme_override_font_sizes/font_size = 18
 text = "Errores: 0 / 20"
 horizontal_alignment = 1
@@ -43,9 +46,10 @@ grow_horizontal = 2
 [node name="LblTiempo" type="Label" parent="TopCenter"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_shadow_color = Color(1, 0.08, 0.45, 0.8)
+theme_override_colors/font_shadow_color = Color(1, 0.08, 0.45, 0.85)
 theme_override_constants/shadow_offset_x = 2
 theme_override_constants/shadow_offset_y = 2
+theme_override_constants/shadow_outline_size = 14
 theme_override_font_sizes/font_size = 26
 text = "Tiempo: 02:00"
 horizontal_alignment = 1
@@ -65,6 +69,7 @@ grow_vertical = 0
 [node name="LblPuntaje" type="Label" parent="BottomLeft"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0.9, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0.9, 1, 0.5)
 theme_override_font_sizes/font_size = 18
 text = "Puntaje: 0"
 horizontal_alignment = 1
@@ -115,26 +120,41 @@ alignment = 1
 custom_minimum_size = Vector2(125, 36)
 layout_mode = 2
 text = "1. Estrella ★"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 12.0
 
 [node name="Tool2" type="Button" parent="BottomCenter/ToolsBar"]
 custom_minimum_size = Vector2(125, 36)
 layout_mode = 2
 text = "2. Pala ▬"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 12.0
 
 [node name="Tool3" type="Button" parent="BottomCenter/ToolsBar"]
 custom_minimum_size = Vector2(125, 36)
 layout_mode = 2
 text = "3. Cautín"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 12.0
 
 [node name="Tool4" type="Button" parent="BottomCenter/ToolsBar"]
 custom_minimum_size = Vector2(125, 36)
 layout_mode = 2
 text = "4. Multímetro"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 12.0
 
 [node name="Tool5" type="Button" parent="BottomCenter/ToolsBar"]
 custom_minimum_size = Vector2(125, 36)
 layout_mode = 2
 text = "5. Limpiador"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 12.0
 
 [node name="Center" type="Control" parent="."]
 layout_mode = 1
@@ -161,7 +181,7 @@ offset_bottom = 3.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-color = Color(0, 0.9, 1, 0.85)
+color = Color(0, 0.9, 1, 0.9)
 
 [node name="PromptLabel" type="Label" parent="Center"]
 layout_mode = 1
@@ -177,7 +197,7 @@ offset_bottom = 50.0
 grow_horizontal = 2
 grow_vertical = 0
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.8)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.9)
 theme_override_constants/shadow_offset_x = 1
 theme_override_constants/shadow_offset_y = 1
 theme_override_font_sizes/font_size = 15
@@ -215,6 +235,7 @@ alignment = 1
 [node name="Titulo" type="Label" parent="GameOverPanel/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.1, 0.2, 1)
+theme_override_colors/font_shadow_color = Color(1, 0.1, 0.2, 0.7)
 theme_override_font_sizes/font_size = 28
 text = "MISIÓN FALLIDA"
 horizontal_alignment = 1
@@ -226,10 +247,13 @@ horizontal_alignment = 1
 autowrap_mode = 2
 
 [node name="BtnReiniciarGO" type="Button" parent="GameOverPanel/VBox"]
-custom_minimum_size = Vector2(180, 42)
+custom_minimum_size = Vector2(200, 42)
 layout_mode = 2
 size_flags_horizontal = 4
 text = "REINTENTAR"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 16.0
 
 [node name="WinPanel" type="PanelContainer" parent="."]
 visible = false
@@ -254,6 +278,7 @@ alignment = 1
 [node name="Titulo" type="Label" parent="WinPanel/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0.9, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0.9, 1, 0.7)
 theme_override_font_sizes/font_size = 28
 text = "¡TRABAJO COMPLETADO!"
 horizontal_alignment = 1
@@ -272,7 +297,10 @@ text = "Puntaje Final: 300"
 horizontal_alignment = 1
 
 [node name="BtnSiguiente" type="Button" parent="WinPanel/VBox"]
-custom_minimum_size = Vector2(180, 42)
+custom_minimum_size = Vector2(200, 42)
 layout_mode = 2
 size_flags_horizontal = 4
 text = "CONTINUAR"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 16.0
