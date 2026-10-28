@@ -52,7 +52,7 @@ size_flags_vertical = 0
 offset_top = 38.0
 theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
 theme_override_font_sizes/font_size = 13
-text = "Paso 1: Arrastra hacia arriba el lado IZQUIERDO y DERECHO de la RAM."
+text = "Paso 1: Arrastra hacia ARRIBA el lado IZQUIERDO y DERECHO de la RAM."
 horizontal_alignment = 1
 
 [node name="SocketArea" type="Control" parent="Panel"]
@@ -62,7 +62,7 @@ size_flags_horizontal = 4
 size_flags_vertical = 4
 
 [node name="SocketBase" type="Panel" parent="Panel/SocketArea"]
-custom_minimum_size = Vector2(500, 44)
+custom_minimum_size = Vector2(500, 48)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -70,11 +70,25 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -250.0
-offset_top = 40.0
+offset_top = 35.0
 offset_right = 250.0
-offset_bottom = 84.0
+offset_bottom = 83.0
 grow_horizontal = 2
 grow_vertical = 2
+
+[node name="EmptySlotLabel" type="Label" parent="Panel/SocketArea/SocketBase"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 0.75, 0.1, 0.9)
+theme_override_font_sizes/font_size = 12
+text = "[ ZÓCALO DDR5 VACÍO · PINES EXPUESTOS ]"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="RAMStick" type="Panel" parent="Panel/SocketArea"]
 custom_minimum_size = Vector2(440, 75)
@@ -119,7 +133,7 @@ grow_vertical = 2
 mouse_filter = 2
 theme_override_font_sizes/font_size = 11
 text = "▲ ARRASTRA
-LADO IZQ"
+IZQUIERDA"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -183,7 +197,7 @@ grow_vertical = 2
 mouse_filter = 2
 theme_override_font_sizes/font_size = 11
 text = "▲ ARRASTRA
-LADO DER"
+DERECHA"
 horizontal_alignment = 1
 vertical_alignment = 1
 
