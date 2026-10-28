@@ -31,9 +31,9 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -420.0
+offset_left = -430.0
 offset_top = -250.0
-offset_right = 420.0
+offset_right = 430.0
 offset_bottom = 250.0
 grow_horizontal = 2
 grow_vertical = 2
@@ -57,7 +57,7 @@ horizontal_alignment = 1
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
 theme_override_font_sizes/font_size = 13
-text = "Paso 1: Equipa el destornillador correcto y quita los 4 tornillos."
+text = "Paso 1: Equipa el destornillador correcto y quita el tornillo."
 horizontal_alignment = 1
 
 [node name="HSeparator" type="HSeparator" parent="Panel/VBox"]
@@ -77,17 +77,17 @@ size_flags_horizontal = 3
 layout_mode = 2
 
 [node name="BayBase" type="Panel" parent="Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea"]
-custom_minimum_size = Vector2(400, 210)
+custom_minimum_size = Vector2(440, 200)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -200.0
-offset_top = -105.0
-offset_right = 200.0
-offset_bottom = 105.0
+offset_left = -220.0
+offset_top = -100.0
+offset_right = 220.0
+offset_bottom = 100.0
 grow_horizontal = 2
 grow_vertical = 2
 
@@ -106,88 +106,62 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="DiskPanel" type="Panel" parent="Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea"]
-custom_minimum_size = Vector2(320, 150)
+custom_minimum_size = Vector2(380, 150)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -160.0
+offset_left = -190.0
 offset_top = -75.0
-offset_right = 160.0
+offset_right = 190.0
 offset_bottom = 75.0
 grow_horizontal = 2
 grow_vertical = 2
 
 [node name="DragHint" type="Label" parent="Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/DiskPanel"]
 layout_mode = 1
-anchors_preset = 15
+anchors_preset = 10
 anchor_right = 1.0
-anchor_bottom = 1.0
+offset_top = 15.0
+offset_bottom = 60.0
 grow_horizontal = 2
-grow_vertical = 2
 mouse_filter = 2
 theme_override_font_sizes/font_size = 13
 text = "SATA SSD 1TB [DAÑADO]
-(Desatornilla primero)"
+(Quita el tornillo primero)"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Screw1" type="Button" parent="Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea"]
-custom_minimum_size = Vector2(38, 38)
-layout_mode = 0
-offset_left = 45.0
-offset_top = 22.0
-offset_right = 83.0
-offset_bottom = 60.0
-text = "✚"
-
-[node name="Screw2" type="Button" parent="Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea"]
-custom_minimum_size = Vector2(38, 38)
-layout_mode = 0
-offset_left = 445.0
-offset_top = 22.0
-offset_right = 483.0
-offset_bottom = 60.0
-text = "✚"
-
-[node name="Screw3" type="Button" parent="Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea"]
-custom_minimum_size = Vector2(38, 38)
-layout_mode = 0
-offset_left = 45.0
-offset_top = 180.0
-offset_right = 83.0
-offset_bottom = 218.0
-text = "✚"
-
-[node name="Screw4" type="Button" parent="Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea"]
-custom_minimum_size = Vector2(38, 38)
-layout_mode = 0
-offset_left = 445.0
-offset_top = 180.0
-offset_right = 483.0
-offset_bottom = 218.0
-text = "✚"
-
-[node name="BtnSATA" type="Button" parent="Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea"]
-custom_minimum_size = Vector2(230, 38)
+[node name="ScrewContainer" type="HBoxContainer" parent="Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/DiskPanel"]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -115.0
-offset_top = -22.0
-offset_right = 115.0
-offset_bottom = 16.0
+offset_left = -140.0
+offset_top = -65.0
+offset_right = 140.0
+offset_bottom = -15.0
 grow_horizontal = 2
 grow_vertical = 0
-text = "Cable SATA: [CONECTADO]"
-flat = true
-script = ExtResource("2_cbtn")
-slant = 14.0
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="BtnScrew" type="Button" parent="Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/DiskPanel/ScrewContainer"]
+custom_minimum_size = Vector2(50, 48)
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "✚"
+
+[node name="LblScrewType" type="Label" parent="Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/DiskPanel/ScrewContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 12
+text = "Tornillo de Cruz (Tecla 1)"
+vertical_alignment = 1
 
 [node name="BackpackPanel" type="PanelContainer" parent="Panel/VBox/ContentHBox"]
 custom_minimum_size = Vector2(250, 270)
