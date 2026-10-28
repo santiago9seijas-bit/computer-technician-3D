@@ -1,6 +1,7 @@
 extends Control
 
 signal minigame_finished(success: bool)
+signal old_part_extracted()
 
 enum State {
 	EXTRACT_SIDES,
@@ -12,6 +13,7 @@ enum State {
 }
 
 var current_state: State = State.EXTRACT_SIDES
+var start_as_empty_slot: bool = false
 
 # Estados de extracción de la RAM vieja
 var left_unseated: bool = false
@@ -52,6 +54,12 @@ func _ready() -> void:
 	zone_right.gui_input.connect(func(event): _handle_zone_input("right", event))
 	zone_center.gui_input.connect(func(event): _handle_zone_input("center", event))
 	
+	# Si el slot ya estaba vacío al entrar a la PC
+	if start_as_empty_slot:
+		ram_stick.visible = false
+		empty_slot_label.visible = true
+		current_state = State.EMPTY_SLOT
+		
 	_update_ui_state()
 
 func _update_ui_state() -> void:
@@ -182,7 +190,7 @@ func _process_drag_release(part: String, delta_y: float) -> void:
 			status_label.modulate = Color(1, 0.2, 0.3, 1)
 			
 	elif current_state == State.LOCK_SIDES:
-		var pushed_down = delta_y >= threshold or abs(delta_y) < 10.0 # Permite clic o arrastre hacia abajo
+		var pushed_down = delta_y >= threshold or abs(delta_y) < 10.0
 		
 		if part == "left":
 			if pushed_down and not new_left_locked:
@@ -227,7 +235,7 @@ func _check_both_locked() -> void:
 	_update_ui_state()
 	if new_left_locked and new_right_locked:
 		var tween = create_tween()
-		tween.tween_property(ram_stick, "position:y", 38.0, 0.1) # Asentado final
+		tween.tween_property(ram_stick, "position:y", 38.0, 0.1)
 		tween.tween_callback(func():
 			lbl_center.text = "DDR5 - 16GB [ASEGURADA]"
 			lbl_center.modulate = Color(0, 1, 0.5, 1)
@@ -241,9 +249,10 @@ func _complete_ram_removal() -> void:
 	tween.parallel().tween_property(ram_stick, "modulate:a", 0.0, 0.35)
 	tween.tween_callback(func():
 		ram_stick.visible = false
-		empty_slot_label.visible = true # Dejar visible el slot vacío
+		empty_slot_label.visible = true
 		GameManager.add_item_to_backpack({"name": "RAM", "broken": true})
 		current_state = State.EMPTY_SLOT
+		old_part_extracted.emit() # Notificar al slot de la PC que la pieza fue retirada
 		_update_ui_state()
 	)
 
@@ -267,9 +276,8 @@ func _on_use_spare_pressed() -> void:
 	btn_use_spare.visible = false
 	empty_slot_label.visible = false
 	
-	# Mostrar RAM nueva sobre el slot lista para ser arrastrada al centro
 	ram_stick.visible = true
-	ram_stick.modulate = Color(0, 0.95, 1, 1) # Color cian de componente nuevo
+	ram_stick.modulate = Color(0, 0.95, 1, 1)
 	ram_stick.position.y = -70.0
 	ram_stick.rotation_degrees = 0.0
 	

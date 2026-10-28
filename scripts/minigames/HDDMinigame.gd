@@ -1,6 +1,7 @@
 extends Control
 
 signal minigame_finished(success: bool)
+signal old_part_extracted()
 
 enum State {
 	UNSCREW_4,
@@ -13,11 +14,13 @@ enum State {
 }
 
 var current_state: State = State.UNSCREW_4
+var start_as_empty_slot: bool = false
+
 var screws_left: int = 4
 var screws_tightened: int = 0
 var sata_connected: bool = true
 
-# Tipo aleatorio de tornillos: "cruz" (Tecla 1) o "pala" (Tecla 2)
+# Tipo de tornillos: "cruz" (Tecla 1) o "pala" (Tecla 2)
 var screw_type: String = "cruz"
 var required_tool_id: int = 1
 
@@ -47,21 +50,29 @@ func _ready() -> void:
 	
 	disk_panel.gui_input.connect(_on_disk_gui_input)
 	
-	# Elegir tipo de tornillos aleatoriamente (50% Cruz, 50% Pala)
-	var rng = RandomNumberGenerator.new()
-	rng.randomize()
-	if rng.randf() > 0.5:
-		screw_type = "pala"
-		required_tool_id = 2
-	else:
-		screw_type = "cruz"
-		required_tool_id = 1
+	# Si no se pasó un tipo persistente, elegir aleatoriamente
+	if screw_type == "" or (not start_as_empty_slot and screw_type == "cruz"):
+		var rng = RandomNumberGenerator.new()
+		rng.randomize()
+		screw_type = "pala" if rng.randf() > 0.5 else "cruz"
 		
-	# Configurar apariencia de los 4 tornillos según el tipo
+	required_tool_id = 1 if screw_type == "cruz" else 2
 	var icon = "✚" if screw_type == "cruz" else "▬"
+	
 	for s in screws:
 		s.text = icon
 		s.pressed.connect(func(): _on_screw_pressed(s))
+		
+	# Si la bahía ya estaba vacía (pieza retirada previamente)
+	if start_as_empty_slot:
+		screws_left = 0
+		sata_connected = false
+		disk_panel.visible = false
+		for s in screws:
+			s.visible = false
+		btn_sata.text = "Cable SATA: [DESCONECTADO]"
+		btn_sata.modulate = Color(1, 0.3, 0.3, 1)
+		current_state = State.INSERT_NEW_HDD
 		
 	_update_ui_state()
 
@@ -81,7 +92,7 @@ func _update_ui_state() -> void:
 			disk_drag_label.text = "▲ HAZ CLIC Y ARRASTRA\nHACIA ARRIBA ▲"
 			disk_drag_label.modulate = Color(0, 1, 0.6, 1)
 		State.INSERT_NEW_HDD:
-			status_label.text = "Paso 4: Inserta el Disco Duro nuevo desde tu mochila."
+			status_label.text = "Bahía vacía. Inserta el Disco Duro nuevo desde tu mochila."
 			status_label.modulate = Color(1.0, 0.85, 0.2, 1)
 			_check_spare_in_backpack()
 		State.CONNECT_SATA_NEW:
@@ -111,7 +122,6 @@ func _check_spare_in_backpack() -> void:
 		btn_insert_spare.modulate = Color(1, 0.4, 0.4, 1)
 
 func _on_screw_pressed(btn: Button) -> void:
-	# Validar herramienta
 	if GameManager.equipped_tool != required_tool_id:
 		GameManager.register_error(2.0)
 		var expected = "CRUZ / ESTRELLA (Tecla 1)" if screw_type == "cruz" else "PALA / PLANO (Tecla 2)"
@@ -146,7 +156,6 @@ func _on_sata_pressed() -> void:
 		sata_connected = true
 		btn_sata.text = "Cable SATA: [CONECTADO]"
 		btn_sata.modulate = Color(0, 1, 0.5, 1)
-		# Mostrar tornillos para volver a ajustar
 		for s in screws:
 			s.visible = true
 			s.disabled = false
@@ -179,6 +188,7 @@ func _complete_hdd_removal() -> void:
 		disk_panel.visible = false
 		GameManager.add_item_to_backpack({"name": "Disco Duro", "broken": true})
 		current_state = State.INSERT_NEW_HDD
+		old_part_extracted.emit() # Notificar a la PC que la bahía quedó vacía
 		_update_ui_state()
 	)
 
