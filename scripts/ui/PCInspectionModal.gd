@@ -23,79 +23,88 @@ func _ready() -> void:
 	
 	btn_comp_ram.pressed.connect(_on_ram_clicked)
 	btn_comp_hdd.pressed.connect(_on_hdd_clicked)
-	btn_comp_gpu.pressed.connect(func(): _show_ok_hint("Tarjeta Gráfica RTX 4070"))
-	btn_comp_psu.pressed.connect(func(): _show_ok_hint("Fuente de Poder 850W Gold"))
-	btn_comp_mobo.pressed.connect(func(): _show_ok_hint("Placa Madre Z790"))
+	btn_comp_gpu.pressed.connect(_on_gpu_clicked)
+	btn_comp_psu.pressed.connect(_on_psu_clicked)
+	btn_comp_mobo.pressed.connect(_on_mobo_clicked)
 
 func setup_pc(pc_node) -> void:
 	current_pc = pc_node
-	title_label.text = "INSPECCIÓN DE GABINETE: COMPUTADORA #%d" % current_pc.pc_id
+	title_label.text = "DIAGNÓSTICO TÉCNICO: COMPUTADORA #%d" % current_pc.pc_id
 	_refresh_ui()
 
 func _refresh_ui() -> void:
 	if current_pc == null:
 		return
 		
-	var ram_status = current_pc.components.get("RAM", "broken")
-	var hdd_status = current_pc.components.get("Disco Duro", "broken")
+	var ram_status = current_pc.components.get("RAM", "ok")
+	var hdd_status = current_pc.components.get("Disco Duro", "ok")
 	
-	# Cuadro 1: Memoria RAM
+	# Cuadro 1: Memoria RAM (NO revela si está rota de antemano)
 	match ram_status:
-		"broken":
-			btn_comp_ram.text = "MEMORIA RAM\n\n[ QUEMADA ]\n▶ Clic para desarmar"
-			btn_comp_ram.modulate = Color(1.0, 0.25, 0.45, 1.0)
 		"empty":
-			btn_comp_ram.text = "MEMORIA RAM\n\n[ SLOT VACÍO ]\n▶ Clic para instalar"
+			btn_comp_ram.text = "MEMORIA RAM\n\n[ SLOT VACÍO ]\n▶ Clic para instalar repuesto"
 			btn_comp_ram.modulate = Color(1.0, 0.85, 0.1, 1.0)
 		"fixed":
-			btn_comp_ram.text = "MEMORIA RAM\n\nDDR5 16GB\n[ INSTALADA ✓ ]"
+			btn_comp_ram.text = "MEMORIA RAM\n\nDDR5 16GB\n[ INSTALADA Y TESTEADA ✓ ]"
 			btn_comp_ram.modulate = Color(0.0, 1.0, 0.5, 1.0)
+		_:
+			btn_comp_ram.text = "MEMORIA RAM\n\nDDR5 16GB\n[ INSTALADA EN ZÓCALO ]"
+			btn_comp_ram.modulate = Color(0.15, 0.85, 1.0, 0.9)
 			
-	# Cuadro 2: Disco Duro
+	# Cuadro 2: Disco Duro (NO revela si está roto de antemano)
 	match hdd_status:
-		"broken":
-			btn_comp_hdd.text = "DISCO DURO\n\n[ ERROR SMART ]\n▶ Clic para desarmar"
-			btn_comp_hdd.modulate = Color(1.0, 0.25, 0.45, 1.0)
 		"empty":
-			btn_comp_hdd.text = "DISCO DURO\n\n[ BAHÍA VACÍA ]\n▶ Clic para instalar"
+			btn_comp_hdd.text = "DISCO DURO\n\n[ BAHÍA VACÍA ]\n▶ Clic para instalar repuesto"
 			btn_comp_hdd.modulate = Color(1.0, 0.85, 0.1, 1.0)
 		"fixed":
-			btn_comp_hdd.text = "DISCO DURO\n\nSATA SSD 1TB\n[ INSTALADO ✓ ]"
+			btn_comp_hdd.text = "DISCO DURO\n\nSATA SSD 1TB\n[ INSTALADO Y TESTEADO ✓ ]"
 			btn_comp_hdd.modulate = Color(0.0, 1.0, 0.5, 1.0)
+		_:
+			btn_comp_hdd.text = "DISCO DURO\n\nSATA SSD 1TB\n[ INSTALADO EN BAHÍA ]"
+			btn_comp_hdd.modulate = Color(0.15, 0.85, 1.0, 0.9)
 			
-	# Cuadros sanos (OK)
-	btn_comp_gpu.text = "TARJETA GRÁFICA\n\nRTX 4070 OC\n[ ESTADO OK ✓ ]"
-	btn_comp_gpu.modulate = Color(0.0, 0.85, 0.95, 0.85)
+	# Cuadros sanos (Presentación técnica uniforme)
+	btn_comp_gpu.text = "TARJETA GRÁFICA\n\nRTX 4070 OC\n[ INSTALADA EN PCIE ]"
+	btn_comp_gpu.modulate = Color(0.15, 0.85, 1.0, 0.9)
 	
-	btn_comp_psu.text = "FUENTE DE PODER\n\n850W GOLD\n[ ESTADO OK ✓ ]"
-	btn_comp_psu.modulate = Color(0.0, 0.85, 0.95, 0.85)
+	btn_comp_psu.text = "FUENTE DE PODER\n\n850W GOLD\n[ INSTALADA ]"
+	btn_comp_psu.modulate = Color(0.15, 0.85, 1.0, 0.9)
 	
-	btn_comp_mobo.text = "PLACA MADRE\n\nCHIPSET Z790\n[ ESTADO OK ✓ ]"
-	btn_comp_mobo.modulate = Color(0.0, 0.85, 0.95, 0.85)
+	btn_comp_mobo.text = "PLACA MADRE\n\nCHIPSET Z790\n[ INSTALADA ]"
+	btn_comp_mobo.modulate = Color(0.15, 0.85, 1.0, 0.9)
 	
-	# Cuadro de Estado del Equipo
+	# Mostrar el reporte del cliente en el resumen
 	if current_pc.is_fully_repaired():
 		pc_state_badge.text = "PC COMPLETAMENTE REPARADA\nLISTA PARA ENTREGA ✓"
 		pc_state_badge.modulate = Color(0, 1, 0.5, 1)
-		status_summary.text = "Todos los componentes de este equipo funcionan al 100%."
+		status_summary.text = "¡Diagnóstico y reparación exitosos! La máquina bootea al 100%."
 		status_summary.modulate = Color(0, 1, 0.5, 1)
 	else:
-		pc_state_badge.text = "EN REPARACIÓN\nSE REQUIEREN REPUESTOS"
+		pc_state_badge.text = "FALLA ACTIVA\nDEDUCE EL COMPONENTE"
 		pc_state_badge.modulate = Color(1, 0.8, 0.1, 1)
-		status_summary.text = "Selecciona un componente averiado o vacío para trabajar en él."
+		status_summary.text = current_pc.symptom_report
 		status_summary.modulate = Color(1, 0.85, 0.2, 1)
 
 func _on_ram_clicked() -> void:
 	if current_pc == null:
 		return
-	var ram_status = current_pc.components.get("RAM", "broken")
+	var ram_status = current_pc.components.get("RAM", "ok")
 	if ram_status == "fixed":
-		_show_ok_hint("Memoria RAM")
+		_show_feedback("La Memoria RAM ya fue cambiada y funciona sin errores.", true)
 		return
 		
+	# Si la RAM está vacía O si la falla de este equipo era la RAM:
+	if ram_status == "empty" or current_pc.target_fault_component == "RAM":
+		_open_ram_minigame(ram_status == "empty")
+	else:
+		# Diagnóstico erróneo: la RAM no era la causa
+		GameManager.register_error(2.0)
+		_show_feedback("❌ Diagnóstico incorrecto: La Memoria RAM pasó los tests de paridad. No causa este síntoma.", false)
+
+func _open_ram_minigame(is_empty: bool) -> void:
 	visible = false
 	var minigame = ram_minigame_scene.instantiate()
-	minigame.start_as_empty_slot = (ram_status == "empty")
+	minigame.start_as_empty_slot = is_empty
 	get_tree().root.add_child(minigame)
 	
 	minigame.connect("old_part_extracted", func():
@@ -116,14 +125,23 @@ func _on_ram_clicked() -> void:
 func _on_hdd_clicked() -> void:
 	if current_pc == null:
 		return
-	var hdd_status = current_pc.components.get("Disco Duro", "broken")
+	var hdd_status = current_pc.components.get("Disco Duro", "ok")
 	if hdd_status == "fixed":
-		_show_ok_hint("Disco Duro")
+		_show_feedback("El Disco Duro ya fue cambiado y funciona sin errores.", true)
 		return
 		
+	# Si la bahía está vacía O si la falla de este equipo era el Disco Duro:
+	if hdd_status == "empty" or current_pc.target_fault_component == "Disco Duro":
+		_open_hdd_minigame(hdd_status == "empty")
+	else:
+		# Diagnóstico erróneo
+		GameManager.register_error(2.0)
+		_show_feedback("❌ Diagnóstico incorrecto: El Disco Duro responde al SMART al 100%. No causa este síntoma.", false)
+
+func _open_hdd_minigame(is_empty: bool) -> void:
 	visible = false
 	var minigame = hdd_minigame_scene.instantiate()
-	minigame.start_as_empty_slot = (hdd_status == "empty")
+	minigame.start_as_empty_slot = is_empty
 	if current_pc.saved_screw_type != "":
 		minigame.screw_type = current_pc.saved_screw_type
 		
@@ -145,9 +163,21 @@ func _on_hdd_clicked() -> void:
 		_refresh_ui()
 	)
 
-func _show_ok_hint(comp_name: String) -> void:
-	status_summary.text = "%s: Este componente ya fue testeado y funciona sin errores." % comp_name
-	status_summary.modulate = Color(0, 1, 0.5, 1)
+func _on_gpu_clicked() -> void:
+	GameManager.register_error(2.0)
+	_show_feedback("❌ Diagnóstico incorrecto: La GPU da video y sus voltajes PCIe son normales. No es la causa.", false)
+
+func _on_psu_clicked() -> void:
+	GameManager.register_error(2.0)
+	_show_feedback("❌ Diagnóstico incorrecto: La Fuente de Poder entrega los 12V y 5V estables. No es la causa.", false)
+
+func _on_mobo_clicked() -> void:
+	GameManager.register_error(2.0)
+	_show_feedback("❌ Diagnóstico incorrecto: La Placa Madre no tiene pistas cortadas ni capacitores hinchados.", false)
+
+func _show_feedback(msg: String, is_positive: bool) -> void:
+	status_summary.text = msg
+	status_summary.modulate = Color(0, 1, 0.5, 1) if is_positive else Color(1, 0.2, 0.3, 1)
 
 func _on_volver_pressed() -> void:
 	inspection_closed.emit()
