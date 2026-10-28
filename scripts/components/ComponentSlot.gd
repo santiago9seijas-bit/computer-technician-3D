@@ -34,7 +34,12 @@ func _update_3d_visuals() -> void:
 			arrow_mesh.visible = false
 		if piece_mesh:
 			piece_mesh.visible = true
-			piece_mesh.modulate = Color(0, 0.95, 1, 1)
+			var mat = StandardMaterial3D.new()
+			mat.albedo_color = Color(0.0, 0.95, 0.6, 1.0)
+			mat.emission_enabled = true
+			mat.emission = Color(0.0, 0.95, 0.6, 1.0)
+			mat.emission_energy_multiplier = 0.3
+			piece_mesh.material_override = mat
 	elif is_empty_slot:
 		label_3d.text = "%s [SLOT VACÍO]" % component_name
 		label_3d.modulate = Color(1.0, 0.75, 0.1, 1)
