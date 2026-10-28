@@ -31,10 +31,10 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -460.0
-offset_top = -260.0
-offset_right = 460.0
-offset_bottom = 260.0
+offset_left = -480.0
+offset_top = -280.0
+offset_right = 480.0
+offset_bottom = 280.0
 grow_horizontal = 2
 grow_vertical = 2
 
@@ -57,106 +57,121 @@ horizontal_alignment = 1
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
 theme_override_font_sizes/font_size = 13
-text = "Selecciona un componente averiado o vacío para trabajar en él."
+text = "Selecciona un componente para trabajar en él."
 horizontal_alignment = 1
 
 [node name="HSeparator" type="HSeparator" parent="Panel/VBox"]
 layout_mode = 2
 
-[node name="ContentHBox" type="HBoxContainer" parent="Panel/VBox"]
+[node name="GridContainer" type="GridContainer" parent="Panel/VBox"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/separation = 16
+theme_override_constants/h_separation = 14
+theme_override_constants/v_separation = 14
+columns = 3
 
-[node name="ComponentsGrid" type="VBoxContainer" parent="Panel/VBox/ContentHBox"]
+[node name="BtnRAM" type="Button" parent="Panel/VBox/GridContainer"]
+custom_minimum_size = Vector2(290, 150)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 8
+size_flags_vertical = 3
+text = "MEMORIA RAM
+
+[ QUEMADA ]
+▶ Clic para desarmar"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 10.0
+custom_font_size = 14
+
+[node name="BtnHDD" type="Button" parent="Panel/VBox/GridContainer"]
+custom_minimum_size = Vector2(290, 150)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "DISCO DURO
+
+[ ERROR SMART ]
+▶ Clic para desarmar"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 10.0
+custom_font_size = 14
+
+[node name="BtnGPU" type="Button" parent="Panel/VBox/GridContainer"]
+custom_minimum_size = Vector2(290, 150)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "TARJETA GRÁFICA
+
+RTX 4070 OC
+[ ESTADO OK ✓ ]"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 10.0
+custom_font_size = 14
+
+[node name="BtnPSU" type="Button" parent="Panel/VBox/GridContainer"]
+custom_minimum_size = Vector2(290, 150)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "FUENTE DE PODER
+
+850W GOLD
+[ ESTADO OK ✓ ]"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 10.0
+custom_font_size = 14
+
+[node name="BtnMOBO" type="Button" parent="Panel/VBox/GridContainer"]
+custom_minimum_size = Vector2(290, 150)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "PLACA MADRE
+
+CHIPSET Z790
+[ ESTADO OK ✓ ]"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 10.0
+custom_font_size = 14
+
+[node name="ChassisCard" type="PanelContainer" parent="Panel/VBox/GridContainer"]
+custom_minimum_size = Vector2(290, 150)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Margin" type="MarginContainer" parent="Panel/VBox/GridContainer/ChassisCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 10
+
+[node name="VBox" type="VBoxContainer" parent="Panel/VBox/GridContainer/ChassisCard/Margin"]
+layout_mode = 2
 alignment = 1
 
-[node name="BtnRAM" type="Button" parent="Panel/VBox/ContentHBox/ComponentsGrid"]
-custom_minimum_size = Vector2(0, 44)
-layout_mode = 2
-text = "1. MEMORIA RAM: [DAÑADA / QUEMADA]"
-flat = true
-script = ExtResource("2_cbtn")
-slant = 16.0
-
-[node name="BtnHDD" type="Button" parent="Panel/VBox/ContentHBox/ComponentsGrid"]
-custom_minimum_size = Vector2(0, 44)
-layout_mode = 2
-text = "2. DISCO DURO: [FALLA DE LECTURA SMART]"
-flat = true
-script = ExtResource("2_cbtn")
-slant = 16.0
-
-[node name="BtnPSU" type="Button" parent="Panel/VBox/ContentHBox/ComponentsGrid"]
-custom_minimum_size = Vector2(0, 40)
-layout_mode = 2
-text = "3. FUENTE DE PODER: [850W GOLD - OK ✓]"
-flat = true
-script = ExtResource("2_cbtn")
-slant = 14.0
-
-[node name="BtnGPU" type="Button" parent="Panel/VBox/ContentHBox/ComponentsGrid"]
-custom_minimum_size = Vector2(0, 40)
-layout_mode = 2
-text = "4. TARJETA GRÁFICA: [RTX 4070 - OK ✓]"
-flat = true
-script = ExtResource("2_cbtn")
-slant = 14.0
-
-[node name="BtnMOBO" type="Button" parent="Panel/VBox/ContentHBox/ComponentsGrid"]
-custom_minimum_size = Vector2(0, 40)
-layout_mode = 2
-text = "5. PLACA MADRE: [CHIPSET Z790 - OK ✓]"
-flat = true
-script = ExtResource("2_cbtn")
-slant = 14.0
-
-[node name="PCVisualPanel" type="PanelContainer" parent="Panel/VBox/ContentHBox"]
-custom_minimum_size = Vector2(300, 260)
-layout_mode = 2
-
-[node name="Margin" type="MarginContainer" parent="Panel/VBox/ContentHBox/PCVisualPanel"]
-layout_mode = 2
-theme_override_constants/margin_left = 14
-theme_override_constants/margin_top = 14
-theme_override_constants/margin_right = 14
-theme_override_constants/margin_bottom = 14
-
-[node name="VBox" type="VBoxContainer" parent="Panel/VBox/ContentHBox/PCVisualPanel/Margin"]
-layout_mode = 2
-theme_override_constants/separation = 12
-
-[node name="ChassisTitle" type="Label" parent="Panel/VBox/ContentHBox/PCVisualPanel/Margin/VBox"]
+[node name="ChassisTitle" type="Label" parent="Panel/VBox/GridContainer/ChassisCard/Margin/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.08, 0.45, 1)
-theme_override_font_sizes/font_size = 14
-text = "ESTADO GENERAL"
+theme_override_font_sizes/font_size = 13
+text = "ESTADO DEL EQUIPO"
 horizontal_alignment = 1
 
-[node name="HSep" type="HSeparator" parent="Panel/VBox/ContentHBox/PCVisualPanel/Margin/VBox"]
+[node name="BadgeLabel" type="Label" parent="Panel/VBox/GridContainer/ChassisCard/Margin/VBox"]
 layout_mode = 2
-
-[node name="BadgeLabel" type="Label" parent="Panel/VBox/ContentHBox/PCVisualPanel/Margin/VBox"]
-layout_mode = 2
-size_flags_vertical = 3
 theme_override_colors/font_color = Color(1, 0.8, 0.1, 1)
-theme_override_font_sizes/font_size = 13
-text = "EN PROCESO DE REPARACIÓN
+theme_override_font_sizes/font_size = 12
+text = "EN REPARACIÓN
 SE REQUIEREN REPUESTOS"
 horizontal_alignment = 1
 vertical_alignment = 1
-autowrap_mode = 2
-
-[node name="SpecHint" type="Label" parent="Panel/VBox/ContentHBox/PCVisualPanel/Margin/VBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.6, 0.6, 0.7, 0.8)
-theme_override_font_sizes/font_size = 11
-text = "Gabinete Abierto · Torre ATX
-Voltaje: 220V Estable"
-horizontal_alignment = 1
 
 [node name="HSeparator2" type="HSeparator" parent="Panel/VBox"]
 layout_mode = 2
@@ -166,9 +181,9 @@ layout_mode = 2
 alignment = 1
 
 [node name="BtnVolver" type="Button" parent="Panel/VBox/Footer"]
-custom_minimum_size = Vector2(340, 42)
+custom_minimum_size = Vector2(380, 42)
 layout_mode = 2
-text = "◄ SALIR AL TALLER (CAMINAR / BUSCAR)"
+text = "◄ SALIR AL TALLER (CAMINAR / BUSCAR REPUESTOS)"
 flat = true
 script = ExtResource("2_cbtn")
 slant = 18.0

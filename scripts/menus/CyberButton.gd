@@ -1,14 +1,14 @@
 @tool
 extends Button
 
-@export var slant: float = 22.0
+@export var slant: float = 16.0
 @export var border_color: Color = Color(1.0, 0.08, 0.45, 1.0)
 @export var hover_border_color: Color = Color(0.0, 0.95, 1.0, 1.0)
 @export var fill_color: Color = Color(0.08, 0.02, 0.15, 0.92)
 @export var hover_fill_color: Color = Color(0.18, 0.04, 0.32, 0.98)
 @export var pressed_fill_color: Color = Color(1.0, 0.08, 0.45, 0.85)
 @export var glow_color: Color = Color(1.0, 0.08, 0.45, 0.4)
-@export var custom_font_size: int = 17
+@export var custom_font_size: int = 15
 
 var is_hovered: bool = false
 var hover_t: float = 0.0
@@ -18,7 +18,7 @@ var font: Font = null
 
 func _ready() -> void:
 	flat = true
-	# Ocultar el renderizado de texto por defecto de Button para dibujarlo nosotros con alineación óptica
+	# Ocultar el renderizado por defecto de Button para dibujarlo nosotros con alineación óptica y multilínea
 	add_theme_color_override("font_color", Color(0, 0, 0, 0))
 	add_theme_color_override("font_hover_color", Color(0, 0, 0, 0))
 	add_theme_color_override("font_pressed_color", Color(0, 0, 0, 0))
@@ -43,7 +43,7 @@ func _process(delta: float) -> void:
 	if abs(hover_t - target_t) > 0.001:
 		hover_t = lerp(hover_t, target_t, delta * 15.0)
 		if initialized_base:
-			position.x = base_x + hover_t * 8.0 # Desplazamiento táctil fluido al hover
+			position.x = base_x + hover_t * 6.0 # Desplazamiento fluido al hover
 		queue_redraw()
 
 func _on_mouse_entered() -> void:
@@ -65,7 +65,7 @@ func _draw() -> void:
 			font = ThemeDB.fallback_font
 			
 	# Geometría trapezoidal con corte en el extremo derecho
-	var effective_slant = min(slant, w * 0.35)
+	var effective_slant = min(slant, w * 0.25)
 	var pts: PackedVector2Array = [
 		Vector2(0, 0),
 		Vector2(w - effective_slant, 0),
@@ -94,8 +94,9 @@ func _draw() -> void:
 	draw_polyline(border_pts, current_border, 2.5)
 	
 	# Doble acento de luz en el corte biselado (borde derecho)
-	var slant_line = PackedVector2Array([Vector2(w - effective_slant, 0), Vector2(w, h)])
-	draw_polyline(slant_line, Color(1, 1, 1, 0.4 + hover_t * 0.6), 2.0)
+	if effective_slant > 2.0:
+		var slant_line = PackedVector2Array([Vector2(w - effective_slant, 0), Vector2(w, h)])
+		draw_polyline(slant_line, Color(1, 1, 1, 0.4 + hover_t * 0.6), 2.0)
 	
 	# Indicador de selección lateral (barra de luz en el margen izquierdo al hover)
 	if hover_t > 0.05:
@@ -103,28 +104,36 @@ func _draw() -> void:
 		draw_rect(Rect2(3, 4, 3.5, h - 8), bar_color, true)
 		draw_rect(Rect2(1, 2, 7, h - 4), Color(0.0, 0.95, 1.0, hover_t * 0.35), false, 1.5)
 	
-	# RENDERIZADO DEL TEXTO CON MÁXIMA LEGIBILIDAD
+	# RENDERIZADO DEL TEXTO (SOPORTE MULTILÍNEA COMPLETO Y CENTRADO ÓPTICO)
 	if text != "" and font != null:
 		var f_size = custom_font_size
-		# Centro óptico del área utilizable (descontando el corte diagonal derecho)
 		var usable_width = w - effective_slant
-		var string_size = font.get_string_size(text, HORIZONTAL_ALIGNMENT_CENTER, -1, f_size)
-		var text_x = (usable_width - string_size.x) * 0.5
-		var text_y = (h + string_size.y * 0.65) * 0.5 - 1.0
+		var lines = text.split("\n")
+		var line_gap = 4.0
+		var line_h = f_size + line_gap
+		var total_text_h = lines.size() * line_h - line_gap
+		var start_y = (h - total_text_h) * 0.5 + f_size - 1.0
 		
-		if button_pressed:
-			text_x += 1.0
-			text_y += 1.0
-			
-		var text_pos = Vector2(text_x, text_y)
-		
-		# 1. Sombra / Contorno negro para contraste absoluto contra cualquier fondo
-		draw_string_outline(font, text_pos, text, HORIZONTAL_ALIGNMENT_LEFT, -1, f_size, 4, Color(0.02, 0.01, 0.05, 0.95))
-		
-		# 2. Resplandor / Drop shadow de neón
 		var shadow_col = Color(1.0, 0.08, 0.45, 0.7).lerp(Color(0.0, 0.8, 1.0, 0.8), hover_t)
-		draw_string(font, text_pos + Vector2(1.5, 1.5), text, HORIZONTAL_ALIGNMENT_LEFT, -1, f_size, shadow_col)
-		
-		# 3. Texto frontal nítido (blanco puro en normal -> blanco/cian brillante en hover)
 		var text_col = Color(1.0, 1.0, 1.0, 1.0).lerp(Color(0.9, 1.0, 1.0, 1.0), hover_t)
-		draw_string(font, text_pos, text, HORIZONTAL_ALIGNMENT_LEFT, -1, f_size, text_col)
+		
+		for idx in range(lines.size()):
+			var line = lines[idx]
+			if line == "":
+				continue
+			var string_size = font.get_string_size(line, HORIZONTAL_ALIGNMENT_CENTER, -1, f_size)
+			var text_x = (usable_width - string_size.x) * 0.5
+			var text_y = start_y + idx * line_h
+			
+			if button_pressed:
+				text_x += 1.0
+				text_y += 1.0
+				
+			var text_pos = Vector2(text_x, text_y)
+			
+			# Contorno negro para legibilidad
+			draw_string_outline(font, text_pos, line, HORIZONTAL_ALIGNMENT_LEFT, -1, f_size, 4, Color(0.02, 0.01, 0.05, 0.95))
+			# Sombra neón
+			draw_string(font, text_pos + Vector2(1.5, 1.5), line, HORIZONTAL_ALIGNMENT_LEFT, -1, f_size, shadow_col)
+			# Texto frontal
+			draw_string(font, text_pos, line, HORIZONTAL_ALIGNMENT_LEFT, -1, f_size, text_col)

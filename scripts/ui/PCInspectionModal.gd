@@ -9,13 +9,13 @@ var hdd_minigame_scene: PackedScene = preload("res://scenes/minigames/HDDMinigam
 @onready var title_label: Label = $Panel/VBox/Header/TitleLabel
 @onready var status_summary: Label = $Panel/VBox/Header/StatusSummary
 
-@onready var btn_comp_ram: Button = $Panel/VBox/ContentHBox/ComponentsGrid/BtnRAM
-@onready var btn_comp_hdd: Button = $Panel/VBox/ContentHBox/ComponentsGrid/BtnHDD
-@onready var btn_comp_psu: Button = $Panel/VBox/ContentHBox/ComponentsGrid/BtnPSU
-@onready var btn_comp_gpu: Button = $Panel/VBox/ContentHBox/ComponentsGrid/BtnGPU
-@onready var btn_comp_mobo: Button = $Panel/VBox/ContentHBox/ComponentsGrid/BtnMOBO
+@onready var btn_comp_ram: Button = $Panel/VBox/GridContainer/BtnRAM
+@onready var btn_comp_hdd: Button = $Panel/VBox/GridContainer/BtnHDD
+@onready var btn_comp_gpu: Button = $Panel/VBox/GridContainer/BtnGPU
+@onready var btn_comp_psu: Button = $Panel/VBox/GridContainer/BtnPSU
+@onready var btn_comp_mobo: Button = $Panel/VBox/GridContainer/BtnMOBO
 
-@onready var pc_state_badge: Label = $Panel/VBox/ContentHBox/PCVisualPanel/Margin/VBox/BadgeLabel
+@onready var pc_state_badge: Label = $Panel/VBox/GridContainer/ChassisCard/Margin/VBox/BadgeLabel
 @onready var btn_volver: Button = $Panel/VBox/Footer/BtnVolver
 
 func _ready() -> void:
@@ -23,13 +23,13 @@ func _ready() -> void:
 	
 	btn_comp_ram.pressed.connect(_on_ram_clicked)
 	btn_comp_hdd.pressed.connect(_on_hdd_clicked)
-	btn_comp_psu.pressed.connect(func(): _show_ok_hint("Fuente de Poder"))
-	btn_comp_gpu.pressed.connect(func(): _show_ok_hint("Tarjeta Gráfica"))
-	btn_comp_mobo.pressed.connect(func(): _show_ok_hint("Placa Madre"))
+	btn_comp_gpu.pressed.connect(func(): _show_ok_hint("Tarjeta Gráfica RTX 4070"))
+	btn_comp_psu.pressed.connect(func(): _show_ok_hint("Fuente de Poder 850W Gold"))
+	btn_comp_mobo.pressed.connect(func(): _show_ok_hint("Placa Madre Z790"))
 
 func setup_pc(pc_node) -> void:
 	current_pc = pc_node
-	title_label.text = "INSPECCIÓN DE GABINETE: PC #%d" % current_pc.pc_id
+	title_label.text = "INSPECCIÓN DE GABINETE: COMPUTADORA #%d" % current_pc.pc_id
 	_refresh_ui()
 
 func _refresh_ui() -> void:
@@ -39,48 +39,48 @@ func _refresh_ui() -> void:
 	var ram_status = current_pc.components.get("RAM", "broken")
 	var hdd_status = current_pc.components.get("Disco Duro", "broken")
 	
-	# Botón RAM
+	# Cuadro 1: Memoria RAM
 	match ram_status:
 		"broken":
-			btn_comp_ram.text = "1. MEMORIA RAM: [DAÑADA / QUEMADA]\n▶ Clic para desarmar y extraer"
-			btn_comp_ram.modulate = Color(1.0, 0.2, 0.4, 1.0)
+			btn_comp_ram.text = "MEMORIA RAM\n\n[ QUEMADA ]\n▶ Clic para desarmar"
+			btn_comp_ram.modulate = Color(1.0, 0.25, 0.45, 1.0)
 		"empty":
-			btn_comp_ram.text = "1. MEMORIA RAM: [SLOT VACÍO]\n▶ Clic para instalar repuesto nuevo"
-			btn_comp_ram.modulate = Color(1.0, 0.8, 0.1, 1.0)
+			btn_comp_ram.text = "MEMORIA RAM\n\n[ SLOT VACÍO ]\n▶ Clic para instalar"
+			btn_comp_ram.modulate = Color(1.0, 0.85, 0.1, 1.0)
 		"fixed":
-			btn_comp_ram.text = "1. MEMORIA RAM: [DDR5 INSTALADA Y TESTEADA ✓]"
+			btn_comp_ram.text = "MEMORIA RAM\n\nDDR5 16GB\n[ INSTALADA ✓ ]"
 			btn_comp_ram.modulate = Color(0.0, 1.0, 0.5, 1.0)
 			
-	# Botón HDD
+	# Cuadro 2: Disco Duro
 	match hdd_status:
 		"broken":
-			btn_comp_hdd.text = "2. DISCO DURO: [FALLA DE LECTURA SMART]\n▶ Clic para desarmar y extraer"
-			btn_comp_hdd.modulate = Color(1.0, 0.2, 0.4, 1.0)
+			btn_comp_hdd.text = "DISCO DURO\n\n[ ERROR SMART ]\n▶ Clic para desarmar"
+			btn_comp_hdd.modulate = Color(1.0, 0.25, 0.45, 1.0)
 		"empty":
-			btn_comp_hdd.text = "2. DISCO DURO: [BAHÍA VACÍA]\n▶ Clic para instalar repuesto nuevo"
-			btn_comp_hdd.modulate = Color(1.0, 0.8, 0.1, 1.0)
+			btn_comp_hdd.text = "DISCO DURO\n\n[ BAHÍA VACÍA ]\n▶ Clic para instalar"
+			btn_comp_hdd.modulate = Color(1.0, 0.85, 0.1, 1.0)
 		"fixed":
-			btn_comp_hdd.text = "2. DISCO DURO: [SSD 1TB INSTALADO Y TESTEADO ✓]"
+			btn_comp_hdd.text = "DISCO DURO\n\nSATA SSD 1TB\n[ INSTALADO ✓ ]"
 			btn_comp_hdd.modulate = Color(0.0, 1.0, 0.5, 1.0)
 			
-	# Componentes sanos
-	btn_comp_psu.text = "3. FUENTE DE PODER: [850W GOLD - OK ✓]"
-	btn_comp_psu.modulate = Color(0.0, 0.85, 0.9, 0.8)
+	# Cuadros sanos (OK)
+	btn_comp_gpu.text = "TARJETA GRÁFICA\n\nRTX 4070 OC\n[ ESTADO OK ✓ ]"
+	btn_comp_gpu.modulate = Color(0.0, 0.85, 0.95, 0.85)
 	
-	btn_comp_gpu.text = "4. TARJETA GRÁFICA: [RTX 4070 - OK ✓]"
-	btn_comp_gpu.modulate = Color(0.0, 0.85, 0.9, 0.8)
+	btn_comp_psu.text = "FUENTE DE PODER\n\n850W GOLD\n[ ESTADO OK ✓ ]"
+	btn_comp_psu.modulate = Color(0.0, 0.85, 0.95, 0.85)
 	
-	btn_comp_mobo.text = "5. PLACA MADRE: [CHIPSET Z790 - OK ✓]"
-	btn_comp_mobo.modulate = Color(0.0, 0.85, 0.9, 0.8)
+	btn_comp_mobo.text = "PLACA MADRE\n\nCHIPSET Z790\n[ ESTADO OK ✓ ]"
+	btn_comp_mobo.modulate = Color(0.0, 0.85, 0.95, 0.85)
 	
-	# Resumen y estado general de la PC
+	# Cuadro de Estado del Equipo
 	if current_pc.is_fully_repaired():
-		pc_state_badge.text = "PC COMPLETAMENTE REPARADA\nLISTA PARA ENTREGA"
+		pc_state_badge.text = "PC COMPLETAMENTE REPARADA\nLISTA PARA ENTREGA ✓"
 		pc_state_badge.modulate = Color(0, 1, 0.5, 1)
 		status_summary.text = "Todos los componentes de este equipo funcionan al 100%."
 		status_summary.modulate = Color(0, 1, 0.5, 1)
 	else:
-		pc_state_badge.text = "EN PROCESO DE REPARACIÓN\nSE REQUIEREN REPUESTOS"
+		pc_state_badge.text = "EN REPARACIÓN\nSE REQUIEREN REPUESTOS"
 		pc_state_badge.modulate = Color(1, 0.8, 0.1, 1)
 		status_summary.text = "Selecciona un componente averiado o vacío para trabajar en él."
 		status_summary.modulate = Color(1, 0.85, 0.2, 1)
