@@ -103,11 +103,15 @@ func get_interaction_prompt() -> String:
 
 func interact(player) -> void:
 	player.set_movement_enabled(false)
+	if player.hud_node:
+		player.hud_node.visible = false
 	var modal = inspection_modal_scene.instantiate()
 	get_tree().root.add_child(modal)
 	modal.setup_pc(self)
 	
 	modal.connect("inspection_closed", func():
 		player.set_movement_enabled(true)
+		if player.hud_node:
+			player.hud_node.visible = true
 		update_3d_state()
 	)

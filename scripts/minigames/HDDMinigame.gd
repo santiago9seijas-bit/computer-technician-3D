@@ -26,6 +26,11 @@ var backpack_drag_start_x: float = 0.0
 
 @onready var modal_control: Control = $ModalControl
 @onready var status_label: Label = $ModalControl/Panel/VBox/Header/StatusLabel
+
+# Barra de herramientas interna del minijuego
+@onready var btn_tool_1: Button = $ModalControl/Panel/VBox/Header/ToolBar/BtnTool1
+@onready var btn_tool_2: Button = $ModalControl/Panel/VBox/Header/ToolBar/BtnTool2
+
 @onready var disk_panel: Panel = $ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/DiskPanel
 @onready var disk_drag_label: Label = $ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/DiskPanel/DragHint
 @onready var empty_bay_label: Label = $ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/BayBase/EmptyBayLabel
@@ -39,14 +44,19 @@ var backpack_drag_start_x: float = 0.0
 @onready var btn_cancel: Button = $ModalControl/Panel/VBox/Footer/BtnCancel
 
 func _ready() -> void:
-	layer = 12 # Prioridad por encima de la inspección (layer 10)
+	layer = 12
 	btn_cancel.pressed.connect(func(): minigame_finished.emit(false))
 	btn_screw.pressed.connect(_on_screw_pressed)
 	empty_bay_label.visible = false
 	
+	btn_tool_1.pressed.connect(func(): GameManager.select_tool(1))
+	btn_tool_2.pressed.connect(func(): GameManager.select_tool(2))
+	GameManager.tool_selected.connect(_on_tool_selected)
+	
 	disk_panel.gui_input.connect(_on_disk_gui_input)
 	GameManager.backpack_updated.connect(_on_backpack_changed)
 	
+	# Si no se pasó un tipo persistente, elegir aleatoriamente
 	if screw_type == "" or (not start_as_empty_slot and screw_type == "cruz"):
 		var rng = RandomNumberGenerator.new()
 		rng.randomize()
@@ -63,8 +73,18 @@ func _ready() -> void:
 		empty_bay_label.visible = true
 		current_state = State.EMPTY_BAY
 		
+	_update_tool_buttons(GameManager.equipped_tool)
 	_update_ui_state()
 	_refresh_backpack_ui()
+
+func _on_tool_selected(tool_id: int) -> void:
+	_update_tool_buttons(tool_id)
+
+func _update_tool_buttons(active_id: int) -> void:
+	if btn_tool_1:
+		btn_tool_1.modulate = Color(0, 1, 0.8, 1) if active_id == 1 else Color(0.7, 0.7, 0.7, 0.7)
+	if btn_tool_2:
+		btn_tool_2.modulate = Color(0, 1, 0.8, 1) if active_id == 2 else Color(0.7, 0.7, 0.7, 0.7)
 
 func _on_backpack_changed(_items: Array) -> void:
 	_refresh_backpack_ui()
@@ -129,7 +149,7 @@ func _refresh_backpack_ui() -> void:
 func _update_ui_state() -> void:
 	match current_state:
 		State.UNSCREW:
-			var tool_name = "Tecla 1 (Cruz)" if screw_type == "cruz" else "Tecla 2 (Pala)"
+			var tool_name = "Tecla 1 (Cruz ★)" if screw_type == "cruz" else "Tecla 2 (Pala ▬)"
 			status_label.text = "Paso 1: Equipa %s y haz clic en el tornillo para quitarlo." % tool_name
 			status_label.modulate = Color(1.0, 0.85, 0.2, 1)
 			disk_drag_label.text = "SATA SSD 1TB [DAÑADO]\n(Quita el tornillo primero)"
@@ -137,6 +157,7 @@ func _update_ui_state() -> void:
 			screw_container.visible = true
 			btn_screw.visible = true
 			btn_screw.disabled = false
+			btn_screw.modulate = Color(1, 1, 1, 1)
 		State.EXTRACT_DRAG_UP:
 			status_label.text = "Paso 2: Haz clic sobre el Disco Duro y arrástralo hacia ARRIBA para sacarlo."
 			status_label.modulate = Color(0.0, 1.0, 0.5, 1)
@@ -154,7 +175,7 @@ func _update_ui_state() -> void:
 			disk_drag_label.modulate = Color(0, 0.95, 1, 1)
 			screw_container.visible = false
 		State.SCREW_BACK:
-			var tool_name = "Tecla 1 (Cruz)" if screw_type == "cruz" else "Tecla 2 (Pala)"
+			var tool_name = "Tecla 1 (Cruz ★)" if screw_type == "cruz" else "Tecla 2 (Pala ▬)"
 			status_label.text = "Paso 4: Con %s, haz clic en el tornillo para ajustar el seguro." % tool_name
 			status_label.modulate = Color(1.0, 0.85, 0.2, 1)
 			disk_drag_label.text = "SATA SSD 1TB [CALZADO]\n(Ajusta el tornillo de seguridad)"
@@ -168,6 +189,11 @@ func _update_ui_state() -> void:
 			status_label.modulate = Color(0.0, 1.0, 0.4, 1)
 
 func _on_screw_pressed() -> void:
+	# Si no tenía herramienta equipada, auto-equipamos la correcta para no frustrar al jugador
+	if GameManager.equipped_tool == 0:
+		GameManager.select_tool(required_tool_id)
+		
+	# Si tiene la herramienta opuesta incorrecta equipada:
 	if GameManager.equipped_tool != required_tool_id:
 		GameManager.register_error(2.0)
 		var expected = "CRUZ / ESTRELLA (Tecla 1)" if screw_type == "cruz" else "PALA / PLANO (Tecla 2)"
@@ -175,11 +201,17 @@ func _on_screw_pressed() -> void:
 		status_label.modulate = Color(1, 0.2, 0.3, 1)
 		return
 		
+	# Herramienta correcta: DESATORNILLAR
 	if current_state == State.UNSCREW:
-		btn_screw.visible = false
-		screw_container.visible = false
-		current_state = State.EXTRACT_DRAG_UP
-		_update_ui_state()
+		var tween = create_tween()
+		tween.tween_property(btn_screw, "rotation_degrees", 360.0, 0.2)
+		tween.parallel().tween_property(btn_screw, "modulate:a", 0.0, 0.2)
+		tween.tween_callback(func():
+			btn_screw.visible = false
+			screw_container.visible = false
+			current_state = State.EXTRACT_DRAG_UP
+			_update_ui_state()
+		)
 	elif current_state == State.SCREW_BACK:
 		btn_screw.modulate = Color(0, 1, 0.5, 1)
 		btn_screw.disabled = true

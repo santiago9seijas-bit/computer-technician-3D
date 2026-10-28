@@ -54,19 +54,22 @@ func _process(delta: float) -> void:
 		else:
 			time_updated.emit(time_left, -delta)
 
-	# Entrada de herramientas rápidas 1-5
-	_handle_tool_inputs()
-
-func _handle_tool_inputs() -> void:
-	for i in range(1, 6):
-		if Input.is_action_just_pressed("tool_" + str(i)):
-			select_tool(i)
+func _unhandled_key_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.is_echo():
+		match event.keycode:
+			KEY_1, KEY_KP_1:
+				select_tool(1)
+			KEY_2, KEY_KP_2:
+				select_tool(2)
+			KEY_3, KEY_KP_3:
+				select_tool(3)
+			KEY_4, KEY_KP_4:
+				select_tool(4)
+			KEY_5, KEY_KP_5:
+				select_tool(5)
 
 func select_tool(tool_id: int) -> void:
-	if equipped_tool == tool_id:
-		equipped_tool = 0 # Desequipar al presionar de nuevo
-	else:
-		equipped_tool = tool_id
+	equipped_tool = tool_id
 	tool_selected.emit(equipped_tool)
 
 func start_level(initial_time: float = 120.0) -> void:

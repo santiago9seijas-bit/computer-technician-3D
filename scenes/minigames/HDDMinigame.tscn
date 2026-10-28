@@ -33,16 +33,16 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -430.0
-offset_top = -250.0
-offset_right = 430.0
-offset_bottom = 250.0
+offset_left = -440.0
+offset_top = -260.0
+offset_right = 440.0
+offset_bottom = 260.0
 grow_horizontal = 2
 grow_vertical = 2
 
 [node name="VBox" type="VBoxContainer" parent="ModalControl/Panel"]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 10
 
 [node name="Header" type="VBoxContainer" parent="ModalControl/Panel/VBox"]
 layout_mode = 2
@@ -54,6 +54,29 @@ theme_override_colors/font_color = Color(0, 0.95, 1, 1)
 theme_override_font_sizes/font_size = 20
 text = "REPARACIÓN: BAHÍA DE DISCO DURO"
 horizontal_alignment = 1
+
+[node name="ToolBar" type="HBoxContainer" parent="ModalControl/Panel/VBox/Header"]
+layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="BtnTool1" type="Button" parent="ModalControl/Panel/VBox/Header/ToolBar"]
+custom_minimum_size = Vector2(210, 36)
+layout_mode = 2
+text = "1. Destornillador Cruz ★"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 12.0
+custom_font_size = 12
+
+[node name="BtnTool2" type="Button" parent="ModalControl/Panel/VBox/Header/ToolBar"]
+custom_minimum_size = Vector2(210, 36)
+layout_mode = 2
+text = "2. Destornillador Pala ▬"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 12.0
+custom_font_size = 12
 
 [node name="StatusLabel" type="Label" parent="ModalControl/Panel/VBox/Header"]
 layout_mode = 2
@@ -71,7 +94,7 @@ size_flags_vertical = 3
 theme_override_constants/separation = 14
 
 [node name="DiskAreaContainer" type="PanelContainer" parent="ModalControl/Panel/VBox/ContentHBox"]
-custom_minimum_size = Vector2(530, 270)
+custom_minimum_size = Vector2(530, 260)
 layout_mode = 2
 size_flags_horizontal = 3
 
@@ -166,7 +189,7 @@ text = "Tornillo de Cruz (Tecla 1)"
 vertical_alignment = 1
 
 [node name="BackpackPanel" type="PanelContainer" parent="ModalControl/Panel/VBox/ContentHBox"]
-custom_minimum_size = Vector2(250, 270)
+custom_minimum_size = Vector2(250, 260)
 layout_mode = 2
 
 [node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/ContentHBox/BackpackPanel"]
