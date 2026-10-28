@@ -1,9 +1,10 @@
-[gd_scene format=3 load_steps=5]
+[gd_scene format=3 load_steps=6]
 
 [ext_resource type="Script" path="res://scripts/menus/MainMenu.gd" id="1_main"]
 [ext_resource type="Script" path="res://scripts/menus/SynthwaveBackground.gd" id="2_bg"]
 [ext_resource type="Script" path="res://scripts/menus/CyberBracket.gd" id="3_bracket"]
-[ext_resource type="Theme" path="res://styles/cyberpunk_theme.tres" id="4_theme"]
+[ext_resource type="Script" path="res://scripts/menus/CyberButton.gd" id="4_cyber_btn"]
+[ext_resource type="Theme" path="res://styles/cyberpunk_theme.tres" id="5_theme"]
 
 [node name="MainMenu" type="Control"]
 layout_mode = 3
@@ -12,7 +13,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme = ExtResource("4_theme")
+theme = ExtResource("5_theme")
 script = ExtResource("1_main")
 
 [node name="Background" type="Control" parent="."]
@@ -24,66 +25,113 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("2_bg")
 
-[node name="TitleLabel" type="Label" parent="."]
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -350.0
+[node name="HeaderContainer" type="HBoxContainer" parent="."]
+layout_mode = 0
+offset_left = 220.0
 offset_top = 45.0
-offset_right = 350.0
+offset_right = 900.0
 offset_bottom = 105.0
-grow_horizontal = 2
+theme_override_constants/separation = 16
+alignment = 0
+
+[node name="ArrowIcon" type="Label" parent="HeaderContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.9, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0.9, 1, 0.6)
+theme_override_constants/shadow_outline_size = 10
+theme_override_font_sizes/font_size = 32
+text = "▷"
+vertical_alignment = 1
+
+[node name="TitleLabel" type="Label" parent="HeaderContainer"]
+layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_shadow_color = Color(1, 0.08, 0.45, 0.8)
+theme_override_colors/font_shadow_color = Color(1, 0.08, 0.45, 0.85)
 theme_override_constants/shadow_offset_x = 2
 theme_override_constants/shadow_offset_y = 2
-theme_override_constants/shadow_outline_size = 12
-theme_override_font_sizes/font_size = 36
+theme_override_constants/shadow_outline_size = 14
+theme_override_font_sizes/font_size = 34
 text = "TECNICO DE COMPUTADORAS"
-horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="Bracket" type="Control" parent="."]
 layout_mode = 0
 offset_left = 220.0
-offset_top = 170.0
-offset_right = 600.0
-offset_bottom = 540.0
+offset_top = 175.0
+offset_right = 580.0
+offset_bottom = 545.0
 script = ExtResource("3_bracket")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 layout_mode = 0
-offset_left = 240.0
-offset_top = 190.0
-offset_right = 520.0
-offset_bottom = 520.0
-theme_override_constants/separation = 16
+offset_left = 245.0
+offset_top = 195.0
+offset_right = 535.0
+offset_bottom = 525.0
+theme_override_constants/separation = 14
 
 [node name="BtnJugar" type="Button" parent="VBoxContainer"]
-custom_minimum_size = Vector2(260, 52)
+custom_minimum_size = Vector2(280, 50)
 layout_mode = 2
+size_flags_horizontal = 0
 text = "JUGAR"
+flat = true
+script = ExtResource("4_cyber_btn")
+slant = 24.0
 
 [node name="BtnControles" type="Button" parent="VBoxContainer"]
-custom_minimum_size = Vector2(235, 48)
+custom_minimum_size = Vector2(255, 46)
 layout_mode = 2
+size_flags_horizontal = 0
 text = "CONTROLES"
+flat = true
+script = ExtResource("4_cyber_btn")
+slant = 22.0
 
 [node name="BtnTutoriales" type="Button" parent="VBoxContainer"]
-custom_minimum_size = Vector2(210, 44)
+custom_minimum_size = Vector2(230, 42)
 layout_mode = 2
+size_flags_horizontal = 0
 text = "TUTORIALES"
+flat = true
+script = ExtResource("4_cyber_btn")
+slant = 20.0
 
 [node name="BtnConfiguracion" type="Button" parent="VBoxContainer"]
-custom_minimum_size = Vector2(185, 40)
+custom_minimum_size = Vector2(205, 38)
 layout_mode = 2
+size_flags_horizontal = 0
 text = "CONFIGURACION"
+flat = true
+script = ExtResource("4_cyber_btn")
+slant = 18.0
 
 [node name="BtnSalir" type="Button" parent="VBoxContainer"]
-custom_minimum_size = Vector2(160, 36)
+custom_minimum_size = Vector2(180, 36)
 layout_mode = 2
+size_flags_horizontal = 0
 text = "SALIR"
+flat = true
+script = ExtResource("4_cyber_btn")
+slant = 16.0
+
+[node name="VersionLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -260.0
+offset_top = -40.0
+offset_right = -30.0
+offset_bottom = -15.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.5, 0.5, 0.7, 0.6)
+theme_override_font_sizes/font_size = 12
+text = "SYS_VER 0.2.0-ALPHA · CYBER_OS"
+horizontal_alignment = 2
 
 [node name="ControlsModal" type="PanelContainer" parent="."]
 visible = false
