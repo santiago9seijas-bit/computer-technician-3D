@@ -80,6 +80,14 @@ text = "Selecciona un componente averiado o vacío para trabajar en él."
 horizontal_alignment = 1
 autowrap_mode = 2
 
+[node name="BadgeLabel" type="Label" parent="ModalControl/Panel/VBox/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.8, 0.1, 1)
+theme_override_font_sizes/font_size = 12
+text = "FALLA ACTIVA · DEDUCE EL COMPONENTE"
+horizontal_alignment = 1
+vertical_alignment = 1
+
 [node name="HSeparator" type="HSeparator" parent="ModalControl/Panel/VBox"]
 layout_mode = 2
 
@@ -160,38 +168,19 @@ script = ExtResource("2_cbtn")
 slant = 10.0
 custom_font_size = 14
 
-[node name="ChassisCard" type="PanelContainer" parent="ModalControl/Panel/VBox/GridContainer"]
+[node name="BtnCooler" type="Button" parent="ModalControl/Panel/VBox/GridContainer"]
 custom_minimum_size = Vector2(290, 150)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+text = "FAN COOLER (CPU)
 
-[node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/GridContainer/ChassisCard"]
-layout_mode = 2
-theme_override_constants/margin_left = 12
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 12
-theme_override_constants/margin_bottom = 10
-
-[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/GridContainer/ChassisCard/Margin"]
-layout_mode = 2
-alignment = 1
-
-[node name="ChassisTitle" type="Label" parent="ModalControl/Panel/VBox/GridContainer/ChassisCard/Margin/VBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.08, 0.45, 1)
-theme_override_font_sizes/font_size = 13
-text = "ESTADO DEL EQUIPO"
-horizontal_alignment = 1
-
-[node name="BadgeLabel" type="Label" parent="ModalControl/Panel/VBox/GridContainer/ChassisCard/Margin/VBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.8, 0.1, 1)
-theme_override_font_sizes/font_size = 12
-text = "FALLA ACTIVA
-DEDUCE EL COMPONENTE"
-horizontal_alignment = 1
-vertical_alignment = 1
+DISIPADOR TÉRMICO
+[ INSTALADO CON PASTA ]"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 10.0
+custom_font_size = 14
 
 [node name="HSeparator2" type="HSeparator" parent="ModalControl/Panel/VBox"]
 layout_mode = 2

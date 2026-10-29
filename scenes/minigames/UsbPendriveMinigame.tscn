@@ -1,0 +1,406 @@
+[gd_scene format=3 load_steps=14]
+
+[ext_resource type="Script" path="res://scripts/minigames/UsbPendriveMinigame.gd" id="1_usb"]
+[ext_resource type="Script" path="res://scripts/menus/CyberButton.gd" id="2_cbtn"]
+[ext_resource type="Theme" path="res://styles/cyberpunk_theme.tres" id="3_theme"]
+[ext_resource type="FontFile" uid="uid://dbcug8887dro7" path="res://assets/fonts/Bungee-Regular.ttf" id="4_title_font"]
+[ext_resource type="PackedScene" path="res://scenes/ui/CyberBackgroundFrame.tscn" id="5_bg_frame"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_frame"]
+content_margin_left = 22.0
+content_margin_top = 16.0
+content_margin_right = 22.0
+content_margin_bottom = 16.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_port"]
+bg_color = Color(0.08, 0.1, 0.14, 0.98)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.2, 0.5, 0.8, 0.85)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pendrive"]
+bg_color = Color(0.12, 0.16, 0.22, 0.98)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.1, 0.85, 1, 0.9)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_col"]
+bg_color = Color(0.03, 0.04, 0.07, 0.96)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.2, 0.45, 0.7, 0.7)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dropzone"]
+bg_color = Color(0.06, 0.16, 0.22, 0.4)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.2, 1.0, 0.8, 0.8)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ghost"]
+bg_color = Color(0.08, 0.14, 0.24, 0.92)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.2, 1.0, 0.8, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+shadow_size = 8
+shadow_color = Color(0, 0, 0, 0.6)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_victory"]
+bg_color = Color(0.06, 0.14, 0.1, 0.96)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.2, 1.0, 0.5, 0.9)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_toast"]
+bg_color = Color(0.08, 0.12, 0.16, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.2, 0.9, 1.0, 0.9)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[node name="UsbPendriveMinigame" type="CanvasLayer"]
+layer = 12
+script = ExtResource("1_usb")
+
+[node name="ModalControl" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("3_theme")
+
+[node name="DimOverlay" type="ColorRect" parent="ModalControl"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.02, 0.01, 0.05, 0.93)
+
+[node name="Panel" type="PanelContainer" parent="ModalControl"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -480.0
+offset_top = -290.0
+offset_right = 480.0
+offset_bottom = 290.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_frame")
+
+[node name="CyberBackgroundFrame" parent="ModalControl/Panel" instance=ExtResource("5_bg_frame")]
+layout_mode = 2
+
+[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Header" type="VBoxContainer" parent="ModalControl/Panel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Titulo" type="Label" parent="ModalControl/Panel/VBox/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.15, 0.9, 1.0, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 8
+theme_override_colors/font_shadow_color = Color(0.05, 0.5, 0.8, 0.8)
+theme_override_constants/shadow_outline_size = 8
+theme_override_fonts/font = ExtResource("4_title_font")
+theme_override_font_sizes/font_size = 18
+text = "HERRAMIENTA: PENDRIVE BOOTEABLE & RESPALDO DE DATOS"
+horizontal_alignment = 1
+
+[node name="StepLabel" type="Label" parent="ModalControl/Panel/VBox/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1.0, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 12
+text = "PASO 1 / 4: CONEXIÓN DE LA UNIDAD PENDRIVE"
+horizontal_alignment = 1
+
+[node name="StatusLabel" type="Label" parent="ModalControl/Panel/VBox/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.95, 1)
+theme_override_font_sizes/font_size = 11
+text = "Arrastra el pendrive hacia la izquierda para insertarlo en el puerto USB 3.2 de la PC."
+horizontal_alignment = 1
+
+[node name="HardwareArea" type="Control" parent="ModalControl/Panel/VBox"]
+custom_minimum_size = Vector2(0, 76)
+layout_mode = 2
+
+[node name="PortPanel" type="PanelContainer" parent="ModalControl/Panel/VBox/HardwareArea"]
+layout_mode = 0
+offset_left = 60.0
+offset_top = 10.0
+offset_right = 230.0
+offset_bottom = 64.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_port")
+
+[node name="PortLabel" type="Label" parent="ModalControl/Panel/VBox/HardwareArea/PortPanel"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.7, 1.0, 1)
+theme_override_font_sizes/font_size = 11
+text = "🔌 PUERTO USB 3.2\n[SS 10 Gbps]"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="PendriveBody" type="PanelContainer" parent="ModalControl/Panel/VBox/HardwareArea"]
+layout_mode = 0
+offset_left = 440.0
+offset_top = 10.0
+offset_right = 690.0
+offset_bottom = 64.0
+mouse_default_cursor_shape = 6
+theme_override_styles/panel = SubResource("StyleBoxFlat_pendrive")
+
+[node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/HardwareArea/PendriveBody"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_right = 10
+
+[node name="HBox" type="HBoxContainer" parent="ModalControl/Panel/VBox/HardwareArea/PendriveBody/Margin"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="Led" type="ColorRect" parent="ModalControl/Panel/VBox/HardwareArea/PendriveBody/Margin/HBox"]
+custom_minimum_size = Vector2(10, 10)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+color = Color(0.3, 0.3, 0.35, 1)
+
+[node name="Name" type="Label" parent="ModalControl/Panel/VBox/HardwareArea/PendriveBody/Margin/HBox"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.9, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 11
+text = "💾 CyberDrive 64GB\n(Arrastra aquí)"
+
+[node name="DragHint" type="Label" parent="ModalControl/Panel/VBox/HardwareArea"]
+layout_mode = 0
+offset_left = 420.0
+offset_top = -2.0
+offset_right = 710.0
+offset_bottom = 12.0
+theme_override_colors/font_color = Color(0.2, 1.0, 0.8, 0.9)
+theme_override_font_sizes/font_size = 9
+text = "◀ ARRASTRA HACIA EL PUERTO USB ◀"
+horizontal_alignment = 1
+
+[node name="FilesWorkArea" type="HBoxContainer" parent="ModalControl/Panel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 14
+
+[node name="LeftCol" type="PanelContainer" parent="ModalControl/Panel/VBox/FilesWorkArea"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_col")
+
+[node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/FilesWorkArea/LeftCol"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/FilesWorkArea/LeftCol/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Title" type="Label" parent="ModalControl/Panel/VBox/FilesWorkArea/LeftCol/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.85, 1.0, 1)
+theme_override_font_sizes/font_size = 12
+text = "DISCO LOCAL (C:) - ARRASTRA LOS ARCHIVOS HACIA EL PENDRIVE"
+
+[node name="LocalFilesVBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/FilesWorkArea/LeftCol/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="RightCol" type="PanelContainer" parent="ModalControl/Panel/VBox/FilesWorkArea"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_col")
+
+[node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/FilesWorkArea/RightCol"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/FilesWorkArea/RightCol/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Title" type="Label" parent="ModalControl/Panel/VBox/FilesWorkArea/RightCol/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 1.0, 0.6, 1)
+theme_override_font_sizes/font_size = 12
+text = "INVENTARIO PENDRIVE (E: CyberDrive - 64 GB)"
+
+[node name="LblUSBStorage" type="Label" parent="ModalControl/Panel/VBox/FilesWorkArea/RightCol/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1.0, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 10
+text = "ESPACIO UTILIZADO: 0.00 GB / 64.00 GB"
+
+[node name="DropZoneHint" type="PanelContainer" parent="ModalControl/Panel/VBox/FilesWorkArea/RightCol/Margin/VBox"]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_dropzone")
+
+[node name="Label" type="Label" parent="ModalControl/Panel/VBox/FilesWorkArea/RightCol/Margin/VBox/DropZoneHint"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 1.0, 0.8, 1)
+theme_override_font_sizes/font_size = 10
+text = "⬇ SUELTA AQUÍ EL ARCHIVO PARA COPIARLO ⬇"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="USBInventoryVBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/FilesWorkArea/RightCol/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="TransferControls" type="VBoxContainer" parent="ModalControl/Panel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="BtnStartTransfer" type="Button" parent="ModalControl/Panel/VBox/TransferControls"]
+custom_minimum_size = Vector2(340, 36)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "⚡ INICIAR ESCRITURA Y RESPALDO"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 14.0
+
+[node name="TransferProgress" type="ProgressBar" parent="ModalControl/Panel/VBox/TransferControls"]
+visible = false
+custom_minimum_size = Vector2(0, 14)
+layout_mode = 2
+step = 1.0
+
+[node name="LblTransferStatus" type="Label" parent="ModalControl/Panel/VBox/TransferControls"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.9, 1.0, 1)
+theme_override_font_sizes/font_size = 11
+text = "Estado de escritura..."
+horizontal_alignment = 1
+
+[node name="VictoryBanner" type="PanelContainer" parent="ModalControl/Panel/VBox"]
+visible = false
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_victory")
+
+[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/VictoryBanner"]
+layout_mode = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="Title" type="Label" parent="ModalControl/Panel/VBox/VictoryBanner/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 1.0, 0.5, 1)
+theme_override_fonts/font = ExtResource("4_title_font")
+theme_override_font_sizes/font_size = 14
+text = "✓ ¡HERRAMIENTA USB LISTA Y EXTRAÍDA CON ÉXITO!"
+horizontal_alignment = 1
+
+[node name="Desc" type="Label" parent="ModalControl/Panel/VBox/VictoryBanner/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 11
+text = "Los archivos de instalación y respaldo están verificados.\nLa extracción segura protegió la integridad de la memoria flash."
+horizontal_alignment = 1
+
+[node name="ToastLabel" type="Label" parent="ModalControl/Panel/VBox"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.9, 1.0, 1)
+theme_override_font_sizes/font_size = 11
+theme_override_styles/normal = SubResource("StyleBoxFlat_toast")
+text = "Notificación de USB"
+horizontal_alignment = 1
+
+[node name="Footer" type="HBoxContainer" parent="ModalControl/Panel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="BtnCancel" type="Button" parent="ModalControl/Panel/VBox/Footer"]
+custom_minimum_size = Vector2(200, 36)
+layout_mode = 2
+text = "SALIR"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 14.0
+
+[node name="DragGhost" type="PanelContainer" parent="ModalControl"]
+visible = false
+z_index = 20
+custom_minimum_size = Vector2(260, 38)
+layout_mode = 0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_ghost")
+
+[node name="GhostLabel" type="Label" parent="ModalControl/DragGhost"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 1.0, 0.8, 1)
+theme_override_font_sizes/font_size = 10
+text = "📄 Archivo en arrastre..."
+horizontal_alignment = 1
+vertical_alignment = 1

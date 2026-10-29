@@ -32,6 +32,7 @@ var equipped_tool: int = 0
 var spares_stock: Dictionary = {
 	"RAM": 3,
 	"Disco Duro": 3,
+	"Fan Cooler": 3,
 	"Fuente": 2,
 	"Grafica": 2,
 	"Placa Madre": 2
@@ -85,6 +86,7 @@ func start_level(initial_time: float = 120.0) -> void:
 	spares_stock = {
 		"RAM": 3,
 		"Disco Duro": 3,
+		"Fan Cooler": 3,
 		"Fuente": 2,
 		"Grafica": 2,
 		"Placa Madre": 2
@@ -147,6 +149,7 @@ func request_spares_refill() -> void:
 	spares_stock = {
 		"RAM": 3,
 		"Disco Duro": 3,
+		"Fan Cooler": 3,
 		"Fuente": 2,
 		"Grafica": 2,
 		"Placa Madre": 2

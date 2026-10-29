@@ -382,12 +382,12 @@ grow_vertical = 2
 mouse_filter = 2
 
 [node name="Screw1" type="Button" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/CoolerContainer/ScrewsBox"]
-custom_minimum_size = Vector2(20, 20)
+custom_minimum_size = Vector2(28, 28)
 layout_mode = 0
-offset_left = 8.0
-offset_top = 22.0
-offset_right = 28.0
-offset_bottom = 42.0
+offset_left = 6.0
+offset_top = 18.0
+offset_right = 34.0
+offset_bottom = 46.0
 
 [node name="Icon" type="TextureRect" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/CoolerContainer/ScrewsBox/Screw1"]
 layout_mode = 1
@@ -396,20 +396,22 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+pivot_offset = Vector2(14, 14)
 expand_mode = 1
+stretch_mode = 5
 
 [node name="Screw2" type="Button" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/CoolerContainer/ScrewsBox"]
-custom_minimum_size = Vector2(20, 20)
+custom_minimum_size = Vector2(28, 28)
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_top = 0.0
 anchor_right = 1.0
 anchor_bottom = 0.0
-offset_left = -28.0
-offset_top = 50.0
-offset_right = -8.0
-offset_bottom = 70.0
+offset_left = -34.0
+offset_top = 46.0
+offset_right = -6.0
+offset_bottom = 74.0
 grow_horizontal = 0
 
 [node name="Icon" type="TextureRect" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/CoolerContainer/ScrewsBox/Screw2"]
@@ -419,20 +421,22 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+pivot_offset = Vector2(14, 14)
 expand_mode = 1
+stretch_mode = 5
 
 [node name="Screw3" type="Button" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/CoolerContainer/ScrewsBox"]
-custom_minimum_size = Vector2(20, 20)
+custom_minimum_size = Vector2(28, 28)
 layout_mode = 1
 anchors_preset = 2
 anchor_left = 0.0
 anchor_top = 1.0
 anchor_right = 0.0
 anchor_bottom = 1.0
-offset_left = 8.0
-offset_top = -28.0
-offset_right = 28.0
-offset_bottom = -8.0
+offset_left = 6.0
+offset_top = -34.0
+offset_right = 34.0
+offset_bottom = -6.0
 grow_vertical = 0
 
 [node name="Icon" type="TextureRect" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/CoolerContainer/ScrewsBox/Screw3"]
@@ -442,20 +446,22 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+pivot_offset = Vector2(14, 14)
 expand_mode = 1
+stretch_mode = 5
 
 [node name="Screw4" type="Button" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/CoolerContainer/ScrewsBox"]
-custom_minimum_size = Vector2(20, 20)
+custom_minimum_size = Vector2(28, 28)
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -28.0
-offset_top = -28.0
-offset_right = -8.0
-offset_bottom = -8.0
+offset_left = -34.0
+offset_top = -34.0
+offset_right = -6.0
+offset_bottom = -6.0
 grow_horizontal = 0
 grow_vertical = 0
 
@@ -466,7 +472,9 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+pivot_offset = Vector2(14, 14)
 expand_mode = 1
+stretch_mode = 5
 
 [node name="BtnExtractCooler" type="Button" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/CoolerContainer"]
 layout_mode = 1
@@ -754,12 +762,12 @@ grow_vertical = 2
 mouse_filter = 2
 
 [node name="Standoff1" type="Button" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/StandoffsContainer"]
-custom_minimum_size = Vector2(22, 22)
+custom_minimum_size = Vector2(32, 32)
 layout_mode = 0
-offset_left = 25.0
-offset_top = 25.0
-offset_right = 47.0
-offset_bottom = 47.0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 52.0
+offset_bottom = 52.0
 
 [node name="Icon" type="TextureRect" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/StandoffsContainer/Standoff1"]
 layout_mode = 1
@@ -768,15 +776,17 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+pivot_offset = Vector2(16, 16)
 expand_mode = 1
+stretch_mode = 5
 
 [node name="Standoff2" type="Button" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/StandoffsContainer"]
-custom_minimum_size = Vector2(22, 22)
+custom_minimum_size = Vector2(32, 32)
 layout_mode = 0
-offset_left = 340.0
-offset_top = 25.0
-offset_right = 362.0
-offset_bottom = 47.0
+offset_left = 335.0
+offset_top = 20.0
+offset_right = 367.0
+offset_bottom = 52.0
 
 [node name="Icon" type="TextureRect" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/StandoffsContainer/Standoff2"]
 layout_mode = 1
@@ -785,15 +795,17 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+pivot_offset = Vector2(16, 16)
 expand_mode = 1
+stretch_mode = 5
 
 [node name="Standoff3" type="Button" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/StandoffsContainer"]
-custom_minimum_size = Vector2(22, 22)
+custom_minimum_size = Vector2(32, 32)
 layout_mode = 0
-offset_left = 660.0
-offset_top = 25.0
-offset_right = 682.0
-offset_bottom = 47.0
+offset_left = 655.0
+offset_top = 20.0
+offset_right = 687.0
+offset_bottom = 52.0
 
 [node name="Icon" type="TextureRect" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/StandoffsContainer/Standoff3"]
 layout_mode = 1
@@ -802,15 +814,17 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+pivot_offset = Vector2(16, 16)
 expand_mode = 1
+stretch_mode = 5
 
 [node name="Standoff4" type="Button" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/StandoffsContainer"]
-custom_minimum_size = Vector2(22, 22)
+custom_minimum_size = Vector2(32, 32)
 layout_mode = 0
-offset_left = 25.0
-offset_top = 260.0
-offset_right = 47.0
-offset_bottom = 282.0
+offset_left = 20.0
+offset_top = 255.0
+offset_right = 52.0
+offset_bottom = 287.0
 
 [node name="Icon" type="TextureRect" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/StandoffsContainer/Standoff4"]
 layout_mode = 1
@@ -819,15 +833,17 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+pivot_offset = Vector2(16, 16)
 expand_mode = 1
+stretch_mode = 5
 
 [node name="Standoff5" type="Button" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/StandoffsContainer"]
-custom_minimum_size = Vector2(22, 22)
+custom_minimum_size = Vector2(32, 32)
 layout_mode = 0
-offset_left = 340.0
-offset_top = 260.0
-offset_right = 362.0
-offset_bottom = 282.0
+offset_left = 335.0
+offset_top = 255.0
+offset_right = 367.0
+offset_bottom = 287.0
 
 [node name="Icon" type="TextureRect" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/StandoffsContainer/Standoff5"]
 layout_mode = 1
@@ -836,15 +852,17 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+pivot_offset = Vector2(16, 16)
 expand_mode = 1
+stretch_mode = 5
 
 [node name="Standoff6" type="Button" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/StandoffsContainer"]
-custom_minimum_size = Vector2(22, 22)
+custom_minimum_size = Vector2(32, 32)
 layout_mode = 0
-offset_left = 660.0
-offset_top = 260.0
-offset_right = 682.0
-offset_bottom = 282.0
+offset_left = 655.0
+offset_top = 255.0
+offset_right = 687.0
+offset_bottom = 287.0
 
 [node name="Icon" type="TextureRect" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/StandoffsContainer/Standoff6"]
 layout_mode = 1
@@ -853,7 +871,9 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+pivot_offset = Vector2(16, 16)
 expand_mode = 1
+stretch_mode = 5
 
 [node name="BtnExtractMobo" type="Button" parent="ModalControl/Panel/VBox/WorkArea"]
 custom_minimum_size = Vector2(320, 44)

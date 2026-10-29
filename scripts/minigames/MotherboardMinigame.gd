@@ -17,15 +17,20 @@ extends CanvasLayer
 # =============================================================================
 
 signal minigame_finished(success: bool)
+signal old_part_extracted()
 
 enum Phase {
 	COMPONENTS,
 	STANDOFFS,
 	EXTRACT_MOBO,
+	INSTALL_MOBO,
+	STANDOFFS_INSTALL,
+	CONNECT_MAINS,
 	COMPLETED
 }
 
 var current_phase: Phase = Phase.COMPONENTS
+var start_as_empty_slot: bool = false
 
 # 1. Cables
 var is_atx24_unplugged: bool = false
@@ -126,6 +131,57 @@ func _ready() -> void:
 	_setup_screw_types()
 	_setup_ui()
 	_update_tool_buttons()
+	
+	if start_as_empty_slot:
+		current_phase = Phase.INSTALL_MOBO
+		mobo_board.visible = false
+		btn_extract_mobo.visible = true
+		btn_extract_mobo.text = "⇪ MONTAR PLACA MADRE NUEVA DESDE MOCHILA"
+		btn_extract_mobo.pressed.disconnect(_on_extract_mobo_pressed)
+		btn_extract_mobo.pressed.connect(_on_insert_new_mobo_pressed)
+		standoff_screws_removed = [true, true, true, true, true, true]
+		for b in standoff_buttons:
+			b.visible = false
+			b.disabled = true
+	else:
+		btn_extract_mobo.text = "▲ EXTRAER PLACA MADRE DEL GABINETE"
+		
+	_update_status()
+
+func _on_insert_new_mobo_pressed() -> void:
+	var found_idx = -1
+	for i in range(GameManager.backpack.size()):
+		var it = GameManager.backpack[i]
+		if it.get("name") == "Placa Madre" and not it.get("broken", true):
+			found_idx = i
+			break
+	if found_idx == -1:
+		_show_warning("No tienes Placa Madre nueva en tu mochila. Sal al taller a buscar el repuesto.", Color(1.0, 0.3, 0.3))
+		return
+		
+	GameManager.remove_item_from_backpack(found_idx)
+	mobo_board.visible = true
+	mobo_board.modulate.a = 0.2
+	mobo_board.position.y -= 80.0
+	
+	var tw = create_tween().set_parallel(true)
+	tw.tween_property(mobo_board, "position:y", mobo_board.position.y + 80.0, 0.45).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tw.tween_property(mobo_board, "modulate:a", 1.0, 0.45)
+	
+	btn_extract_mobo.visible = false
+	current_phase = Phase.STANDOFFS_INSTALL
+	
+	# Habilitar los 6 standoffs para atornillar
+	for i in range(6):
+		var btn = standoff_buttons[i]
+		var icon = standoff_icons[i]
+		btn.visible = true
+		btn.disabled = false
+		btn.modulate.a = 0.45
+		icon.scale = Vector2(0.5, 0.5)
+		icon.rotation_degrees = 0.0
+		
+	_show_warning("✓ Placa madre montada en el chasis. Asegura los 6 tornillos Standoff con [1] Cruz o [2] Pala.", Color(0.2, 1.0, 0.4))
 	_update_status()
 
 func _setup_screw_types() -> void:
@@ -268,6 +324,17 @@ func _check_all_components_cleared() -> void:
 # 1. CABLES DE ALIMENTACIÓN
 # =============================================================================
 func _on_cable_atx_pressed() -> void:
+	if current_phase == Phase.CONNECT_MAINS:
+		is_atx24_unplugged = false
+		cable_atx_btn.disabled = true
+		cable_atx_btn.text = "✓ ATX 24P CONECTADO"
+		cable_atx_btn.modulate = Color(0.2, 1.0, 0.4)
+		var tw = create_tween().set_parallel(true)
+		tw.tween_property(cable_atx_btn, "position:x", cable_atx_btn.position.x - 35.0, 0.3)
+		tw.tween_property(cable_atx_btn, "modulate:a", 1.0, 0.3)
+		_check_mains_connected()
+		return
+
 	if is_atx24_unplugged: return
 	is_atx24_unplugged = true
 	cable_atx_btn.disabled = true
@@ -278,6 +345,17 @@ func _on_cable_atx_pressed() -> void:
 	_check_phase_cables()
 
 func _on_cable_eps_pressed() -> void:
+	if current_phase == Phase.CONNECT_MAINS:
+		is_eps8_unplugged = false
+		cable_eps_btn.disabled = true
+		cable_eps_btn.text = "✓ EPS 8P CONECTADO"
+		cable_eps_btn.modulate = Color(0.2, 1.0, 0.4)
+		var tw = create_tween().set_parallel(true)
+		tw.tween_property(cable_eps_btn, "position:y", cable_eps_btn.position.y + 35.0, 0.3)
+		tw.tween_property(cable_eps_btn, "modulate:a", 1.0, 0.3)
+		_check_mains_connected()
+		return
+
 	if is_eps8_unplugged: return
 	is_eps8_unplugged = true
 	cable_eps_btn.disabled = true
@@ -286,6 +364,14 @@ func _on_cable_eps_pressed() -> void:
 	tw.tween_property(cable_eps_btn, "modulate:a", 0.0, 0.3)
 	_show_warning("✓ Conector auxiliar EPS CPU 8P desconectado.", Color(0.2, 1.0, 0.4))
 	_check_phase_cables()
+
+func _check_mains_connected() -> void:
+	if not is_atx24_unplugged and not is_eps8_unplugged:
+		current_phase = Phase.COMPLETED
+		_update_status()
+		_show_warning("✓ ¡Placa madre montada, fijada y energizada con éxito!", Color(0.2, 1.0, 0.4))
+		await get_tree().create_timer(1.8).timeout
+		minigame_finished.emit(true)
 
 func _check_phase_cables() -> void:
 	if _are_cables_done():
@@ -488,6 +574,42 @@ func _on_extract_ram_pressed() -> void:
 # 6. TORNILLOS STANDOFFS AL CHASIS
 # =============================================================================
 func _on_standoff_pressed(idx: int) -> void:
+	if current_phase == Phase.STANDOFFS_INSTALL:
+		if not standoff_screws_removed[idx]: return
+		var req = 1 if standoff_screw_types[idx] == "cruz" else 2
+		var tname = "Cruz [1]" if req == 1 else "Pala [2]"
+		if GameManager.equipped_tool != req:
+			_show_warning("Usa Destornillador " + tname + " para este standoff de chasis.", Color(1.0, 0.3, 0.3))
+			return
+			
+		standoff_screws_removed[idx] = false
+		var btn = standoff_buttons[idx]
+		var icon = standoff_icons[idx]
+		var tw = create_tween().set_parallel(true)
+		tw.tween_property(icon, "rotation_degrees", icon.rotation_degrees - 720.0, 0.3)
+		tw.tween_property(icon, "scale", Vector2(1.0, 1.0), 0.3)
+		tw.tween_property(btn, "modulate:a", 1.0, 0.3)
+		btn.disabled = true
+		
+		var rem = 0
+		for r in standoff_screws_removed:
+			if r: rem += 1
+		_show_warning("✓ Standoff asegurado. Restantes: " + str(rem) + "/6", Color(0.4, 1.0, 0.4))
+		
+		if rem == 0:
+			current_phase = Phase.CONNECT_MAINS
+			cable_atx_btn.disabled = false
+			cable_eps_btn.disabled = false
+			cable_atx_btn.visible = true
+			cable_eps_btn.visible = true
+			cable_atx_btn.modulate = Color(1.0, 0.85, 0.2)
+			cable_eps_btn.modulate = Color(1.0, 0.85, 0.2)
+			cable_atx_btn.text = "CONECTAR ATX 24P"
+			cable_eps_btn.text = "CONECTAR EPS 8P"
+			_show_warning("✓ ¡Standoffs firmes! Conecta los cables ATX y EPS para energizar la placa.", Color(0.2, 1.0, 0.4))
+			_update_status()
+		return
+
 	if current_phase != Phase.STANDOFFS or standoff_screws_removed[idx]: return
 	var req = 1 if standoff_screw_types[idx] == "cruz" else 2
 	var tname = "Cruz [1]" if req == 1 else "Pala [2]"
@@ -532,6 +654,8 @@ func _on_extract_mobo_pressed() -> void:
 	tw.tween_property(mobo_board, "modulate:a", 0.25, 0.6)
 	
 	await tw.finished
+	GameManager.add_item_to_backpack({"name": "Placa Madre", "broken": true})
+	old_part_extracted.emit()
 	_show_warning("✓ ¡MAESTRÍA TOTAL! Desensamblaje completo superado con éxito.", Color(0.2, 1.0, 0.4))
 	_update_status()
 	await get_tree().create_timer(1.8).timeout
@@ -568,7 +692,22 @@ func _update_status() -> void:
 			phase_tracker.text = "EXTRACCIÓN FINAL DE PLACA MADRE"
 			status_label.text = "¡Chasis 100% despejado! Desencastra del I/O Shield y levanta la placa madre."
 			status_label.modulate = Color(0.2, 1.0, 0.4)
+		Phase.INSTALL_MOBO:
+			phase_tracker.text = "MONTAJE: PLACA MADRE NUEVA"
+			status_label.text = "Haz clic en el botón para colocar la placa madre nueva desde tu mochila."
+			status_label.modulate = Color(1.0, 0.85, 0.2)
+		Phase.STANDOFFS_INSTALL:
+			var rem = 0
+			for r in standoff_screws_removed:
+				if r: rem += 1
+			phase_tracker.text = "FIJACIÓN STANDOFFS (%d/6 restantes)" % rem
+			status_label.text = "Fija los 6 tornillos Standoff al chasis con [1] Cruz o [2] Pala."
+			status_label.modulate = Color(1.0, 0.85, 0.2)
+		Phase.CONNECT_MAINS:
+			phase_tracker.text = "CONEXIÓN DE ALIMENTACIÓN ELÉCTRICA"
+			status_label.text = "Conecta los arneses de alimentación principal ATX de 24 pines y EPS de 8 pines."
+			status_label.modulate = Color(0.2, 1.0, 0.4)
 		Phase.COMPLETED:
-			phase_tracker.text = "¡DESENSAMBLAJE MAESTRO COMPLETADO! ✓"
-			status_label.text = "Has dominado el desmontaje técnico integral de la placa madre y sus componentes."
+			phase_tracker.text = "¡OPERACIÓN COMPLETADA! ✓"
+			status_label.text = "Has dominado el ciclo completo de la placa madre y sus componentes."
 			status_label.modulate = Color(0.2, 1.0, 0.4)

@@ -420,15 +420,6 @@ flat = true
 script = ExtResource("3_cbtn")
 slant = 16.0
 
-[node name="BtnPlayLevel3D" type="Button" parent="DeployedModal/DeployedCard/Margin/VBox/ContentHBox/LeftCol"]
-visible = false
-custom_minimum_size = Vector2(0, 44)
-layout_mode = 2
-text = "▶ PLAY NIVEL 1 (3D COMPLETO)"
-flat = true
-script = ExtResource("3_cbtn")
-slant = 16.0
-
 [node name="RightCol" type="PanelContainer" parent="DeployedModal/DeployedCard/Margin/VBox/ContentHBox"]
 layout_mode = 2
 size_flags_horizontal = 3

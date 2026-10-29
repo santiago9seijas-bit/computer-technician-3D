@@ -77,10 +77,10 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -460.0
-offset_top = -290.0
-offset_right = 460.0
-offset_bottom = 290.0
+offset_left = -490.0
+offset_top = -300.0
+offset_right = 490.0
+offset_bottom = 300.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxEmpty_frame")
@@ -313,12 +313,12 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="Screw1" type="Button" parent="ModalControl/Panel/VBox/WorkArea/PSUBody/RearFace/ScrewsContainer"]
-custom_minimum_size = Vector2(24, 24)
+custom_minimum_size = Vector2(36, 36)
 layout_mode = 0
 offset_left = 6.0
 offset_top = 6.0
-offset_right = 30.0
-offset_bottom = 30.0
+offset_right = 42.0
+offset_bottom = 42.0
 
 [node name="Icon" type="TextureRect" parent="ModalControl/Panel/VBox/WorkArea/PSUBody/RearFace/ScrewsContainer/Screw1"]
 layout_mode = 1
@@ -327,20 +327,22 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+pivot_offset = Vector2(18, 18)
 expand_mode = 1
+stretch_mode = 5
 
 [node name="Screw2" type="Button" parent="ModalControl/Panel/VBox/WorkArea/PSUBody/RearFace/ScrewsContainer"]
-custom_minimum_size = Vector2(24, 24)
+custom_minimum_size = Vector2(36, 36)
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_top = 0.0
 anchor_right = 1.0
 anchor_bottom = 0.0
-offset_left = -30.0
+offset_left = -42.0
 offset_top = 6.0
 offset_right = -6.0
-offset_bottom = 30.0
+offset_bottom = 42.0
 grow_horizontal = 0
 
 [node name="Icon" type="TextureRect" parent="ModalControl/Panel/VBox/WorkArea/PSUBody/RearFace/ScrewsContainer/Screw2"]
@@ -350,10 +352,12 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+pivot_offset = Vector2(18, 18)
 expand_mode = 1
+stretch_mode = 5
 
 [node name="Screw3" type="Button" parent="ModalControl/Panel/VBox/WorkArea/PSUBody/RearFace/ScrewsContainer"]
-custom_minimum_size = Vector2(24, 24)
+custom_minimum_size = Vector2(36, 36)
 layout_mode = 1
 anchors_preset = 2
 anchor_left = 0.0
@@ -361,8 +365,8 @@ anchor_top = 1.0
 anchor_right = 0.0
 anchor_bottom = 1.0
 offset_left = 6.0
-offset_top = -30.0
-offset_right = 30.0
+offset_top = -42.0
+offset_right = 42.0
 offset_bottom = -6.0
 grow_vertical = 0
 
@@ -373,18 +377,20 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+pivot_offset = Vector2(18, 18)
 expand_mode = 1
+stretch_mode = 5
 
 [node name="Screw4" type="Button" parent="ModalControl/Panel/VBox/WorkArea/PSUBody/RearFace/ScrewsContainer"]
-custom_minimum_size = Vector2(24, 24)
+custom_minimum_size = Vector2(36, 36)
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -30.0
-offset_top = -30.0
+offset_left = -42.0
+offset_top = -42.0
 offset_right = -6.0
 offset_bottom = -6.0
 grow_horizontal = 0
@@ -397,7 +403,9 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+pivot_offset = Vector2(18, 18)
 expand_mode = 1
+stretch_mode = 5
 
 [node name="BtnSlidePSU" type="Button" parent="ModalControl/Panel/VBox/WorkArea"]
 custom_minimum_size = Vector2(280, 42)

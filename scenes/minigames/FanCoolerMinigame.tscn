@@ -41,10 +41,10 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -450.0
-offset_top = -280.0
-offset_right = 450.0
-offset_bottom = 280.0
+offset_left = -490.0
+offset_top = -300.0
+offset_right = 490.0
+offset_bottom = 300.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxEmpty_frame")
@@ -109,7 +109,7 @@ size_flags_vertical = 3
 theme_override_constants/separation = 16
 
 [node name="WorkArea" type="Control" parent="ModalControl/Panel/VBox/ContentHBox"]
-custom_minimum_size = Vector2(620, 340)
+custom_minimum_size = Vector2(660, 380)
 layout_mode = 2
 size_flags_horizontal = 3
 
@@ -121,10 +121,10 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -220.0
-offset_top = -120.0
-offset_right = 60.0
-offset_bottom = 120.0
+offset_left = -240.0
+offset_top = -140.0
+offset_right = 70.0
+offset_bottom = 140.0
 grow_horizontal = 2
 grow_vertical = 2
 expand_mode = 1
@@ -138,10 +138,10 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -260.0
-offset_top = -140.0
-offset_right = 260.0
-offset_bottom = 140.0
+offset_left = -290.0
+offset_top = -160.0
+offset_right = 290.0
+offset_bottom = 160.0
 grow_horizontal = 2
 grow_vertical = 2
 expand_mode = 1
@@ -154,10 +154,10 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = 70.0
-offset_top = -60.0
-offset_right = 240.0
-offset_bottom = 60.0
+offset_left = 80.0
+offset_top = -70.0
+offset_right = 260.0
+offset_bottom = 70.0
 grow_horizontal = 2
 grow_vertical = 2
 
@@ -178,15 +178,15 @@ anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -80.0
+offset_left = -90.0
 offset_top = 4.0
-offset_right = 80.0
-offset_bottom = 26.0
+offset_right = 90.0
+offset_bottom = 28.0
 grow_horizontal = 2
 grow_vertical = 0
 theme_override_colors/font_color = Color(1, 0.2, 0.4, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.9)
-theme_override_font_sizes/font_size = 11
+theme_override_font_sizes/font_size = 13
 text = "🔌 CABLE (CLIC)"
 horizontal_alignment = 1
 
@@ -197,21 +197,21 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -260.0
-offset_top = -140.0
-offset_right = 260.0
-offset_bottom = 140.0
+offset_left = -290.0
+offset_top = -160.0
+offset_right = 290.0
+offset_bottom = 160.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
 [node name="Screw1" type="Button" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/ScrewsContainer"]
-custom_minimum_size = Vector2(40, 40)
+custom_minimum_size = Vector2(56, 56)
 layout_mode = 0
-offset_left = 95.0
+offset_left = 100.0
 offset_top = 70.0
-offset_right = 135.0
-offset_bottom = 110.0
+offset_right = 156.0
+offset_bottom = 126.0
 mouse_default_cursor_shape = 2
 flat = true
 
@@ -223,18 +223,18 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-pivot_offset = Vector2(20, 20)
+pivot_offset = Vector2(28, 28)
 mouse_filter = 2
 expand_mode = 1
 stretch_mode = 5
 
 [node name="Screw2" type="Button" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/ScrewsContainer"]
-custom_minimum_size = Vector2(40, 40)
+custom_minimum_size = Vector2(56, 56)
 layout_mode = 0
-offset_left = 225.0
+offset_left = 250.0
 offset_top = 70.0
-offset_right = 265.0
-offset_bottom = 110.0
+offset_right = 306.0
+offset_bottom = 126.0
 mouse_default_cursor_shape = 2
 flat = true
 
@@ -246,18 +246,18 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-pivot_offset = Vector2(20, 20)
+pivot_offset = Vector2(28, 28)
 mouse_filter = 2
 expand_mode = 1
 stretch_mode = 5
 
 [node name="Screw3" type="Button" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/ScrewsContainer"]
-custom_minimum_size = Vector2(40, 40)
+custom_minimum_size = Vector2(56, 56)
 layout_mode = 0
-offset_left = 95.0
-offset_top = 175.0
-offset_right = 135.0
-offset_bottom = 215.0
+offset_left = 100.0
+offset_top = 190.0
+offset_right = 156.0
+offset_bottom = 246.0
 mouse_default_cursor_shape = 2
 flat = true
 
@@ -269,18 +269,18 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-pivot_offset = Vector2(20, 20)
+pivot_offset = Vector2(28, 28)
 mouse_filter = 2
 expand_mode = 1
 stretch_mode = 5
 
 [node name="Screw4" type="Button" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/ScrewsContainer"]
-custom_minimum_size = Vector2(40, 40)
+custom_minimum_size = Vector2(56, 56)
 layout_mode = 0
-offset_left = 225.0
-offset_top = 175.0
-offset_right = 265.0
-offset_bottom = 215.0
+offset_left = 250.0
+offset_top = 190.0
+offset_right = 306.0
+offset_bottom = 246.0
 mouse_default_cursor_shape = 2
 flat = true
 
@@ -292,7 +292,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-pivot_offset = Vector2(20, 20)
+pivot_offset = Vector2(28, 28)
 mouse_filter = 2
 expand_mode = 1
 stretch_mode = 5
@@ -303,6 +303,12 @@ layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -170.0
+offset_top = -90.0
+offset_right = 170.0
+offset_bottom = 90.0
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -180.0
@@ -354,6 +360,27 @@ text = "• Desconecta el cable o retira los tornillos en el orden que prefieras
    • Pala (-) -> Tecla [2]
 
 • Al retirar los 4 tornillos y desconectar el cable, haz clic para levantar el disipador."
+autowrap_mode = 2
+
+[node name="BackpackBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/ContentHBox/SideInfo/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="BackpackTitle" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/SideInfo/Margin/VBox/BackpackBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.1, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 13
+text = "TU MOCHILA"
+horizontal_alignment = 1
+
+[node name="ItemsContainer" type="VBoxContainer" parent="ModalControl/Panel/VBox/ContentHBox/SideInfo/Margin/VBox/BackpackBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="BackpackHint" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/SideInfo/Margin/VBox/BackpackBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 0.9)
+theme_override_font_sizes/font_size = 11
 autowrap_mode = 2
 
 [node name="Footer" type="HBoxContainer" parent="ModalControl/Panel/VBox"]

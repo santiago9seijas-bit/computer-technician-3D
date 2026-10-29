@@ -47,7 +47,6 @@ static var initial_tab: String = "niveles"
 @onready var deployed_badge: Label = $DeployedModal/DeployedCard/Margin/VBox/Header/TitleVBox/Badge
 @onready var deployed_preview: TextureRect = $DeployedModal/DeployedCard/Margin/VBox/ContentHBox/LeftCol/PreviewBox/Preview
 @onready var deployed_btn_play: Button = $DeployedModal/DeployedCard/Margin/VBox/ContentHBox/LeftCol/BtnPlayMinigame
-@onready var deployed_btn_play_3d: Button = $DeployedModal/DeployedCard/Margin/VBox/ContentHBox/LeftCol/BtnPlayLevel3D
 @onready var lbl_que_es: Label = $DeployedModal/DeployedCard/Margin/VBox/ContentHBox/RightCol/Margin/Scroll/TextVBox/LblQueEs
 @onready var lbl_importancia: Label = $DeployedModal/DeployedCard/Margin/VBox/ContentHBox/RightCol/Margin/Scroll/TextVBox/LblImportancia
 @onready var lbl_que_hace: Label = $DeployedModal/DeployedCard/Margin/VBox/ContentHBox/RightCol/Margin/Scroll/TextVBox/LblQueHace
@@ -75,6 +74,13 @@ var _m2_scene = null
 var _psu_scene = null
 var _mobo_scene = null
 var _liquid_cooling_scene = null
+var _adware_cleaner_scene = null
+var _malware_scanner_scene = null
+var _os_install_scene = null
+var _driver_updater_scene = null
+var _code_debugger_scene = null
+var _malware_invaders_scene = null
+var _usb_pendrive_scene = null
 
 # --- Variables de Estado ---
 var current_tab: String = "niveles"
@@ -603,93 +609,108 @@ var ALL_TUTORIAL_CARDS: Array[Dictionary] = [
 	# --- DIVISIÓN SISTEMA (SOFTWARE & CIBERSEGURIDAD) ---
 	{
 		"division": "sistema",
-		"id": "bios_setup",
-		"title": "CONFIGURACIÓN BIOS",
-		"subtitle": "INTERFAZ UEFI & HARDWARE BASE",
-		"category": "FIRMWARE",
+		"id": "adware_cleaner",
+		"title": "LIMPIEZA DE ANUNCIOS",
+		"subtitle": "POP-UPS, ADWARE & PUPS EN EL NAVEGADOR",
+		"category": "CIBERSEGURIDAD",
 		"texture_path": "",
-		"color_accent": Color(1.0, 0.15, 0.4, 1.0),
-		"que_es": "Firmware grabado en un chip EEPROM de la placa madre que inicializa el hardware y carga el gestor de arranque.",
-		"importancia": "CRÍTICA: Sin una BIOS correctamente calibrada, el procesador y periféricos no se comunican y el equipo no bootea.",
-		"que_hace": "Ejecuta el POST (Power-On Self-Test), asigna direcciones de memoria y cede el control al sistema operativo.",
-		"pasos": "1. Pulsa la tecla de acceso (DEL / F2) durante el encendido.\n2. Navega al menú 'Boot Priority' y selecciona la unidad principal.\n3. Ajusta el perfil XMP / EXPO de memoria si está disponible.\n4. Guarda los cambios con F10 y reinicia el equipo.",
-		"is_ready": false,
-		"handler": ""
-	},
-	{
-		"division": "sistema",
-		"id": "driver_install",
-		"title": "INSTALACIÓN DE DRIVERS",
-		"subtitle": "CONTROLADORES DE DISPOSITIVO",
-		"category": "CONTROLADORES",
-		"texture_path": "",
-		"color_accent": Color(0.85, 0.1, 0.9, 1.0),
-		"que_es": "Software puente de bajo nivel que permite al sistema operativo comunicarse eficazmente con componentes de hardware específicos.",
-		"importancia": "ALTA: Sin controladores dedicados (GPU, chipset, red), el hardware opera en modo compatibilidad con rendimiento mínimo.",
-		"que_hace": "Traduce instrucciones de alto nivel del sistema a comandos binarios interpretables por los chips de la placa madre.",
-		"pasos": "1. Identifica el modelo exacto del componente o tarjeta.\n2. Descarga el paquete firmado digitalmente por el fabricante.\n3. Realiza una instalación limpia eliminando restos previos con DDU.",
-		"is_ready": false,
-		"handler": ""
+		"color_accent": Color(1.0, 0.2, 0.45, 1.0),
+		"que_es": "Desinfección de navegadores y escritorios infestados por software publicitario intrusivo (Adware) y programas no deseados (PUPs).",
+		"importancia": "CRÍTICA: Los pop-ups fraudulentos engañan al usuario con falsas alertas técnicas e inyectan mineros web que colapsan el uso de CPU.",
+		"que_hace": "Identifica los botones trampa de cierre falso, desmarca casillas de instalación oculta y despliega un escudo bloqueador Ad-Blocker.",
+		"pasos": "1. Inspecciona cada ventana emergente y ubica el botón de cierre [X] auténtico en la cabecera.\n2. Evita hacer clic en botones verdes llamativos engañosos.\n3. Desmarca casillas de consentimiento que intenten instalar barras de búsqueda espías.\n4. Al cerrar 4 anuncios, activa el Escudo Ad-Blocker para purgar el resto con un pulso defensivo.",
+		"is_ready": true,
+		"handler": "launch_adware_cleaner"
 	},
 	{
 		"division": "sistema",
 		"id": "malware_scan",
 		"title": "LIMPIEZA DE MALWARE",
-		"subtitle": "ANÁLISIS HEURÍSTICO & DESINFECCIÓN",
+		"subtitle": "ESCÁNER HEURÍSTICO & ANÁLISIS DE FIRMAS",
 		"category": "CIBERSEGURIDAD",
 		"texture_path": "",
-		"color_accent": Color(0.95, 0.05, 0.25, 1.0),
-		"que_es": "Protocolo técnico de aislamiento y erradicación de virus, spyware, troyanos y código malicioso persistente.",
-		"importancia": "VITAL: El malware satura ciclos de procesador, compromete datos sensibles del usuario y puede secuestrar archivos (ransomware).",
-		"que_hace": "Inspecciona procesos en RAM, analiza firmas hash de ejecutables y restaura llaves de registro alteradas.",
-		"pasos": "Próximamente disponible en el módulo de Sistema.",
-		"is_ready": false,
-		"handler": ""
+		"color_accent": Color(0.95, 0.15, 0.35, 1.0),
+		"que_es": "Monitoreo técnico de procesos en tiempo real para detección heurística de troyanos, keyloggers, gusanos y ransomware.",
+		"importancia": "VITAL: El malware activo secuestra credenciales bancarias, encripta archivos personales y degrada irreversiblemente el sistema.",
+		"que_hace": "Compara firmas criptográficas hash SHA-256, inspecciona el consumo de RAM/CPU de cada hilo y aísla los procesos infecciosos en Sandbox.",
+		"pasos": "1. Selecciona un proceso de la lista activa del sistema.\n2. Presiona 'EJECUTAR ANÁLISIS DE FIRMA' para evaluar el comportamiento del ejecutable.\n3. Si se confirma malware, presiona 'AISLAR EN CUARENTENA' para congelar sus hilos.\n4. Presiona 'PURGAR PROCESO' para triturar el código malicioso de la memoria.",
+		"is_ready": true,
+		"handler": "launch_malware_scan"
 	},
 	{
 		"division": "sistema",
-		"id": "disk_partition",
-		"title": "PARTICIONADO DE DISCOS",
-		"subtitle": "TABLAS GPT / MBR & SISTEMAS DE ARCHIVO",
-		"category": "ALMACENAMIENTO LÓGICO",
+		"id": "os_install",
+		"title": "INSTALACIÓN DE SISTEMAS",
+		"subtitle": "PARTICIONADO GPT & DESPLIEGUE UEFI",
+		"category": "SISTEMAS OPERATIVOS",
 		"texture_path": "",
-		"color_accent": Color(0.75, 0.2, 0.95, 1.0),
-		"que_es": "Segmentación lógica de bloques de un disco duro o SSD en volúmenes independientes.",
-		"importancia": "ALTA: Permite separar el sistema operativo de la partición de datos, facilitando formateos limpios sin pérdida de archivos.",
-		"que_hace": "Escribe la tabla de particiones GUID (GPT) y estructura clústeres en formatos como NTFS, EXT4 o BTRFS.",
-		"pasos": "Próximamente disponible en el módulo de Sistema.",
-		"is_ready": false,
-		"handler": ""
+		"color_accent": Color(0.2, 0.85, 1.0, 1.0),
+		"que_es": "Asistente maestro de instalación limpia de Sistema Operativo con preparación de tabla GUID (GPT) y estructura de archivos.",
+		"importancia": "FUNDAMENTAL: Sin una tabla de partición GPT y partición EFI formateada en FAT32, las placas madre modernas UEFI no pueden bootear el sistema.",
+		"que_hace": "Configura los volúmenes lógicos (ESP, Raíz '/', Swap), formatea con superbloque EXT4 y despliega el kernel con el gestor de arranque GRUB.",
+		"pasos": "1. Selecciona el esquema de partición moderno GPT.\n2. Asigna la partición EFI (/boot/efi), la partición de sistema Raíz (/) y el área de memoria virtual Swap.\n3. Presiona 'INICIAR DESPLIEGUE DE CYBER-OS' y verifica el desempaquetado de paquetes del kernel.",
+		"is_ready": true,
+		"handler": "launch_os_install"
 	},
 	{
 		"division": "sistema",
-		"id": "system_opt",
-		"title": "OPTIMIZACIÓN DE SERVICIOS",
-		"subtitle": "GESTIÓN DE INICIO & RECURSOS",
-		"category": "RENDIMIENTO",
+		"id": "driver_install",
+		"title": "ACTUALIZACIÓN DE DRIVERS",
+		"subtitle": "CONTROLADORES WHQL & GESTOR DE PAQUETES",
+		"category": "CONTROLADORES",
 		"texture_path": "",
-		"color_accent": Color(0.85, 0.1, 0.7, 1.0),
-		"que_es": "Depuración y ajuste fino de servicios en segundo plano, telemetría y programas residentes en memoria.",
-		"importancia": "MEDIA-ALTA: Reduce significativamente el tiempo de booteo y evita el estrangulamiento de memoria en equipos con pocos recursos.",
-		"que_hace": "Deshabilita tareas automáticas redundantes y prioriza los hilos de ejecución de las aplicaciones del usuario.",
-		"pasos": "Próximamente disponible en el módulo de Sistema.",
-		"is_ready": false,
-		"handler": ""
+		"color_accent": Color(0.85, 0.2, 0.95, 1.0),
+		"que_es": "Depuración y actualización de controladores de hardware esenciales (GPU, Wi-Fi 6, Audio HD, Chipset PCIe Bus Master).",
+		"importancia": "ALTA: Controladores obsoletos provocan microcortes de red, artefactos gráficos, ruidos estáticos y cuellos de botella en buses de datos.",
+		"que_hace": "Conecta con los repositorios oficiales y descarga versiones certificadas WHQL, descartando compilaciones experimentales inestables.",
+		"pasos": "1. Selecciona un componente desactualizado en la columna izquierda.\n2. Revisa el diagnóstico de falla y evalúa los paquetes disponibles en el repositorio.\n3. Selecciona la versión oficial certificada WHQL (evitando versiones Beta o drivers genéricos).\n4. Aplica la actualización limpia y verifica la calibración del dispositivo.",
+		"is_ready": true,
+		"handler": "launch_driver_install"
 	},
 	{
 		"division": "sistema",
-		"id": "data_backup",
-		"title": "RESPALDO & RESTAURACIÓN",
-		"subtitle": "COPIAS FORENSES Y BACKUP SEGURO",
-		"category": "INTEGRIDAD",
+		"id": "code_debugger",
+		"title": "PROGRAMACIÓN Y DEBUGGING",
+		"subtitle": "TERMINAL DE CÓDIGO & RESOLUCIÓN DE BUGS",
+		"category": "DESARROLLO DE SOFTWARE",
 		"texture_path": "",
-		"color_accent": Color(1.0, 0.25, 0.5, 1.0),
-		"que_es": "Creación y verificación de imágenes completas o diferenciales de particiones de datos.",
-		"importancia": "CRÍTICA: Es la única garantía real de recuperación ante una falla de hardware catastrófica o borrado accidental.",
-		"que_hace": "Copia bloque a bloque los sectores con compresión de datos hacia un almacenamiento seguro externo o NAS.",
-		"pasos": "Próximamente disponible en el módulo de Sistema.",
-		"is_ready": false,
-		"handler": ""
+		"color_accent": Color(0.2, 0.9, 0.6, 1.0),
+		"que_es": "Entorno de desarrollo integrado (IDE) con análisis estático de código para scripts de automatización y defensa de red.",
+		"importancia": "CRÍTICA: Errores de sintaxis o bucles infinitos en scripts de seguridad congelan los firewalls y dejan el perímetro expuesto.",
+		"que_hace": "Permite inspeccionar el árbol sintáctico (AST), aplicar Hot-Patches directos y compilar pasando suites completas de pruebas unitarias.",
+		"pasos": "1. Haz clic sobre cada línea de código marcada con errores en rojo.\n2. Analiza el diagnóstico (sintaxis ':', typos de identificadores, bucle infinito, retornos).\n3. Selecciona la corrección técnica correcta para aplicar el parche en tiempo real.\n4. Presiona 'COMPILAR Y EJECUTAR TESTS' para verificar que los 4 tests unitarios pasen.",
+		"is_ready": true,
+		"handler": "launch_code_debugger"
+	},
+	{
+		"division": "sistema",
+		"id": "malware_invaders",
+		"title": "ARCADE: INVASIÓN ALIENÍGENA",
+		"subtitle": "DEFENSA RETRO CONTRA OLEADAS DE MALWARE",
+		"category": "MINIJUEGO ESPECIAL RETRO",
+		"texture_path": "",
+		"color_accent": Color(0.2, 1.0, 0.55, 1.0),
+		"que_es": "Minijuego especial estilo arcade clásico de los 80s: combate la invasión de oleadas alienígenas de malware en el espacio digital.",
+		"importancia": "ENTRENAMIENTO: Pon a prueba tus reflejos tácticos, administra coberturas en tus cortafuegos defensivos y elimina la nave nodriza de datos.",
+		"que_hace": "Simula la clásica mecánica de Space Invaders con aceleración dinámica de aliens, bunkers destructibles y naves nodrizas OVNI con bonificación.",
+		"pasos": "1. Muévete hacia los lados con las teclas [A]/[D] o [←]/[→].\n2. Dispara proyectiles con la barra espaciadora [Espacio] o Clic izquierdo.\n3. Utiliza los escudos defensivos para protegerte de los disparos alienígenas.\n4. Dispara a la nave nodriza roja superior para obtener 100 puntos extra y erradica a los 32 invasores.",
+		"is_ready": true,
+		"handler": "launch_malware_invaders"
+	},
+	{
+		"division": "sistema",
+		"id": "usb_backup",
+		"title": "PENDRIVE BOOTEABLE & RESPALDO",
+		"subtitle": "HERRAMIENTA USB · TRANSFERENCIA Y FLASHEO",
+		"category": "HERRAMIENTA TÉCNICA",
+		"texture_path": "",
+		"color_accent": Color(0.15, 0.9, 1.0, 1.0),
+		"que_es": "Preparación y uso de la herramienta principal de Sistemas: la unidad flash USB booteable para instalación, respaldo de datos y recuperación.",
+		"importancia": "CRÍTICA: Es el instrumento físico indispensable del técnico de soporte. La desconexión en caliente sin sincronizar búferes corrompe las particiones.",
+		"que_hace": "Conecta la unidad en el puerto USB 3.2, transfiere imágenes ISO y copias de seguridad de clientes, y ejecuta la extracción segura.",
+		"pasos": "1. Conecta el pendrive en el puerto USB 3.2 del equipo.\n2. Selecciona y transfiere los 4 archivos críticos (ISO, Backup, Drivers, Kit de Rescate).\n3. Presiona 'INICIAR ESCRITURA Y RESPALDO' para grabar los datos a 185 MB/s.\n4. Presiona 'EXPULSAR Y DESCONECTAR' para retirar el pendrive de forma segura.",
+		"is_ready": true,
+		"handler": "launch_usb_backup"
 	},
 
 	# --- DIVISIÓN SERVIDOR (INFRAESTRUCTURA & RACKS) ---
@@ -830,8 +851,6 @@ func _ready() -> void:
 		
 	btn_close_deployed.pressed.connect(_close_deployed_card)
 	deployed_btn_play.pressed.connect(_on_deployed_play_pressed)
-	if deployed_btn_play_3d:
-		deployed_btn_play_3d.pressed.connect(_play_level_1)
 	if btn_play_level1:
 		btn_play_level1.pressed.connect(_play_level_1)
 	
@@ -1385,13 +1404,6 @@ func _open_deployed_card(data: Dictionary) -> void:
 		deployed_btn_play.disabled = true
 		deployed_btn_play.modulate = Color(0.6, 0.6, 0.6, 0.7)
 		
-	if deployed_btn_play_3d:
-		if data.get("id", "") == "cooler":
-			deployed_btn_play_3d.visible = true
-			deployed_btn_play_3d.modulate = Color(1.0, 0.15, 0.35, 1.0)
-		else:
-			deployed_btn_play_3d.visible = false
-		
 	deployed_modal.visible = true
 	deployed_card.scale = Vector2(0.85, 0.85)
 	deployed_card.modulate.a = 0.0
@@ -1452,6 +1464,34 @@ func _on_deployed_play_pressed() -> void:
 			if not _liquid_cooling_scene:
 				_liquid_cooling_scene = load("res://scenes/minigames/LiquidCoolingMinigame.tscn")
 			_launch_minigame(_liquid_cooling_scene)
+		"launch_adware_cleaner":
+			if not _adware_cleaner_scene:
+				_adware_cleaner_scene = load("res://scenes/minigames/AdwareCleanerMinigame.tscn")
+			_launch_minigame(_adware_cleaner_scene)
+		"launch_malware_scan":
+			if not _malware_scanner_scene:
+				_malware_scanner_scene = load("res://scenes/minigames/MalwareScannerMinigame.tscn")
+			_launch_minigame(_malware_scanner_scene)
+		"launch_os_install":
+			if not _os_install_scene:
+				_os_install_scene = load("res://scenes/minigames/OSInstallMinigame.tscn")
+			_launch_minigame(_os_install_scene)
+		"launch_driver_install":
+			if not _driver_updater_scene:
+				_driver_updater_scene = load("res://scenes/minigames/DriverUpdaterMinigame.tscn")
+			_launch_minigame(_driver_updater_scene)
+		"launch_code_debugger":
+			if not _code_debugger_scene:
+				_code_debugger_scene = load("res://scenes/minigames/CodeDebuggerMinigame.tscn")
+			_launch_minigame(_code_debugger_scene)
+		"launch_malware_invaders":
+			if not _malware_invaders_scene:
+				_malware_invaders_scene = load("res://scenes/minigames/MalwareInvadersMinigame.tscn")
+			_launch_minigame(_malware_invaders_scene)
+		"launch_usb_backup":
+			if not _usb_pendrive_scene:
+				_usb_pendrive_scene = load("res://scenes/minigames/UsbPendriveMinigame.tscn")
+			_launch_minigame(_usb_pendrive_scene)
 
 func _launch_minigame(scene: PackedScene) -> void:
 	if not scene:

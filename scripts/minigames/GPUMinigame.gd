@@ -10,16 +10,22 @@ extends CanvasLayer
 # =============================================================================
 
 signal minigame_finished(success: bool)
+signal old_part_extracted()
 
 enum State {
 	DISCONNECT_POWER,
 	UNSCREW_BRACKET,
 	RELEASE_LATCH,
 	EXTRACT_GPU,
+	EMPTY_SLOT,
+	LATCH_NEW_GPU,
+	SCREW_NEW_BRACKET,
+	CONNECT_NEW_POWER,
 	COMPLETED
 }
 
 var current_state: State = State.DISCONNECT_POWER
+var start_as_empty_slot: bool = false
 
 # Estado de los tornillos del bracket (2 tornillos)
 var screw_types: Array[String] = ["cruz", "cruz"]
@@ -65,7 +71,44 @@ func _ready() -> void:
 	_setup_screws()
 	_setup_ui()
 	_update_tool_buttons()
+	
+	if start_as_empty_slot:
+		current_state = State.EMPTY_SLOT
+		gpu_container.visible = false
+		cable_container.visible = false
+		btn_extract.visible = true
+		btn_extract.text = "⇪ INSTALAR GPU NUEVA DESDE MOCHILA"
+		btn_extract.pressed.disconnect(_on_extract_pressed)
+		btn_extract.pressed.connect(_on_insert_new_gpu_pressed)
+		btn_screw_1.visible = false
+		btn_screw_2.visible = false
+		is_pcie_latch_unlocked = true
+		latch_status_label.text = "PESTILLO PCIE: ABIERTO"
+		pcie_latch_btn.modulate = Color(1.0, 0.8, 0.2)
+	else:
+		btn_extract.text = "▲ EXTRAER TARJETA GRÁFICA (GPU)"
+		
 	_update_status()
+
+func _on_insert_new_gpu_pressed() -> void:
+	var found_idx = -1
+	for i in range(GameManager.backpack.size()):
+		var it = GameManager.backpack[i]
+		if it.get("name") == "Grafica" and not it.get("broken", true):
+			found_idx = i
+			break
+	if found_idx == -1:
+		_show_warning("No tienes Tarjeta Gráfica nueva en tu mochila. Sal al taller a buscar el repuesto.", Color(1.0, 0.3, 0.3))
+		return
+		
+	GameManager.remove_item_from_backpack(found_idx)
+	gpu_container.visible = true
+	gpu_container.position.y = 0.0
+	gpu_container.modulate.a = 1.0
+	btn_extract.visible = false
+	current_state = State.LATCH_NEW_GPU
+	_update_status()
+	_show_warning("✓ GPU colocada en la ranura. Traba el pestillo plástico PCIe.", Color(0.2, 1.0, 0.4))
 
 func _setup_screws() -> void:
 	var rng = RandomNumberGenerator.new()
@@ -116,6 +159,21 @@ func _update_tool_buttons() -> void:
 	btn_tool_2.modulate = Color(1.2, 1.2, 0.4) if active == 2 else Color(0.8, 0.8, 0.8)
 
 func _on_cable_pressed() -> void:
+	if current_state == State.CONNECT_NEW_POWER:
+		is_power_disconnected = false
+		var tw = create_tween().set_parallel(true)
+		tw.tween_property(cable_container, "position:y", cable_container.position.y + 70.0, 0.4).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		tw.tween_property(cable_container, "modulate:a", 1.0, 0.4)
+		cable_hint.text = "✓ ALIMENTACIÓN PCIe 8-PIN CONECTADA"
+		cable_hint.modulate = Color(0.2, 1.0, 0.4)
+		btn_cable_clip.disabled = true
+		current_state = State.COMPLETED
+		_update_status()
+		_show_warning("✓ ¡Cable PCIe 8-pin conectado con traba de seguridad! GPU operativa.", Color(0.2, 1.0, 0.4))
+		await get_tree().create_timer(1.6).timeout
+		minigame_finished.emit(true)
+		return
+
 	if is_power_disconnected:
 		return
 	
@@ -131,6 +189,40 @@ func _on_cable_pressed() -> void:
 	_advance_state_check()
 
 func _on_screw_pressed(idx: int) -> void:
+	if current_state == State.SCREW_NEW_BRACKET:
+		if not screws_removed[idx]:
+			return # Ya apretado
+		
+		var req_tool = 1 if screw_types[idx] == "cruz" else 2
+		var tool_name = "Cruz (+)" if req_tool == 1 else "Pala (-)"
+		
+		if GameManager.equipped_tool != req_tool:
+			_show_warning("Herramienta incorrecta: Este tornillo requiere Destornillador " + tool_name + " [Tecla " + str(req_tool) + "]", Color(1.0, 0.3, 0.3))
+			return
+		
+		screws_removed[idx] = false
+		var btn = btn_screw_1 if idx == 0 else btn_screw_2
+		var icon = icon_screw_1 if idx == 0 else icon_screw_2
+		
+		var tw = create_tween().set_parallel(true)
+		tw.tween_property(icon, "rotation_degrees", icon.rotation_degrees - 720.0, 0.4)
+		tw.tween_property(icon, "scale", Vector2(1.0, 1.0), 0.4)
+		tw.tween_property(btn, "modulate:a", 1.0, 0.4)
+		btn.disabled = true
+		
+		if not screws_removed[0] and not screws_removed[1]:
+			current_state = State.CONNECT_NEW_POWER
+			cable_container.visible = true
+			cable_container.modulate.a = 0.5
+			btn_cable_clip.disabled = false
+			cable_hint.text = "HAZ CLIC PARA CONECTAR CABLE PCIE 8-PIN"
+			cable_hint.modulate = Color(1.0, 0.85, 0.2)
+			_show_warning("✓ Bracket asegurado. Por último conecta el cable PCIe 8-pin.", Color(0.2, 1.0, 0.4))
+			_update_status()
+		else:
+			_show_warning("✓ Tornillo de chasis " + str(idx + 1) + "/2 colocado y ajustado.", Color(0.4, 1.0, 0.4))
+		return
+
 	if screws_removed[idx]:
 		return
 	
@@ -155,6 +247,33 @@ func _on_screw_pressed(idx: int) -> void:
 	_advance_state_check()
 
 func _on_latch_pressed() -> void:
+	if current_state == State.LATCH_NEW_GPU:
+		is_pcie_latch_unlocked = false
+		var tw = create_tween()
+		tw.tween_property(pcie_latch_btn, "rotation_degrees", 0.0, 0.25).set_trans(Tween.TRANS_QUAD)
+		pcie_latch_btn.text = "TRABADO"
+		pcie_latch_btn.modulate = Color(0.2, 1.0, 0.4)
+		latch_status_label.text = "PESTILLO PCIE: TRABADO (SEGURO)"
+		latch_status_label.modulate = Color(0.2, 1.0, 0.4)
+		
+		# Habilitar tornillos para el siguiente paso
+		current_state = State.SCREW_NEW_BRACKET
+		btn_screw_1.visible = true
+		btn_screw_1.disabled = false
+		btn_screw_1.modulate = Color(1, 1, 1, 0.5)
+		icon_screw_1.scale = Vector2(0.6, 0.6)
+		icon_screw_1.rotation_degrees = 0.0
+		
+		btn_screw_2.visible = true
+		btn_screw_2.disabled = false
+		btn_screw_2.modulate = Color(1, 1, 1, 0.5)
+		icon_screw_2.scale = Vector2(0.6, 0.6)
+		icon_screw_2.rotation_degrees = 0.0
+		
+		_show_warning("✓ ¡CLICK! Pestillo PCIe x16 trabado. Ahora atornilla el bracket metálico.", Color(0.2, 1.0, 0.4))
+		_update_status()
+		return
+
 	if is_pcie_latch_unlocked:
 		return
 	
@@ -212,6 +331,8 @@ func _on_extract_pressed() -> void:
 	tw.tween_property(gpu_container, "modulate:a", 0.4, 0.6)
 	
 	await tw.finished
+	GameManager.add_item_to_backpack({"name": "Grafica", "broken": true})
+	old_part_extracted.emit()
 	_show_success_flow()
 
 func _show_warning(msg: String, col: Color) -> void:
@@ -235,8 +356,20 @@ func _update_status() -> void:
 		State.EXTRACT_GPU:
 			status_label.text = "PASO 4: ¡Todo libre! Presiona el botón para extraer suavemente la GPU hacia arriba."
 			status_label.modulate = Color(0.2, 1.0, 0.4)
+		State.EMPTY_SLOT:
+			status_label.text = "INSTALACIÓN: Haz clic en el botón para colocar la nueva GPU desde tu mochila."
+			status_label.modulate = Color(1.0, 0.85, 0.2)
+		State.LATCH_NEW_GPU:
+			status_label.text = "PASO 1 (INSTALACIÓN): Presiona el pestillo PCIe para asegurar la placa en el slot."
+			status_label.modulate = Color(1.0, 0.4, 0.8)
+		State.SCREW_NEW_BRACKET:
+			status_label.text = "PASO 2 (INSTALACIÓN): Ajusta los 2 tornillos del bracket metálico con [1] Cruz o [2] Pala."
+			status_label.modulate = Color(1.0, 0.85, 0.2)
+		State.CONNECT_NEW_POWER:
+			status_label.text = "PASO 3 (INSTALACIÓN): Conecta firmemente el cable de alimentación PCIe de 8 pines."
+			status_label.modulate = Color(0.2, 1.0, 0.4)
 		State.COMPLETED:
-			status_label.text = "¡DESMONTAJE COMPLETADO! GPU desmontada de forma profesional."
+			status_label.text = "¡OPERACIÓN COMPLETADA! GPU instalada y testeada con éxito."
 			status_label.modulate = Color(0.2, 1.0, 0.4)
 
 func _show_success_flow() -> void:

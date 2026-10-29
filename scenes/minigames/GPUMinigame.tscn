@@ -87,10 +87,10 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -460.0
-offset_top = -290.0
-offset_right = 460.0
-offset_bottom = 290.0
+offset_left = -490.0
+offset_top = -300.0
+offset_right = 490.0
+offset_bottom = 300.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxEmpty_frame")
@@ -230,19 +230,19 @@ grow_vertical = 2
 
 [node name="BracketArea" type="Panel" parent="ModalControl/Panel/VBox/WorkArea/GPUContainer"]
 layout_mode = 0
-offset_left = -35.0
-offset_top = 10.0
-offset_right = -5.0
-offset_bottom = 230.0
+offset_left = -50.0
+offset_top = 8.0
+offset_right = -6.0
+offset_bottom = 232.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_bracket")
 
 [node name="Screw1" type="Button" parent="ModalControl/Panel/VBox/WorkArea/GPUContainer/BracketArea"]
-custom_minimum_size = Vector2(26, 26)
+custom_minimum_size = Vector2(40, 40)
 layout_mode = 0
 offset_left = 2.0
 offset_top = 20.0
-offset_right = 28.0
-offset_bottom = 46.0
+offset_right = 42.0
+offset_bottom = 60.0
 
 [node name="Icon" type="TextureRect" parent="ModalControl/Panel/VBox/WorkArea/GPUContainer/BracketArea/Screw1"]
 layout_mode = 1
@@ -251,15 +251,17 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+pivot_offset = Vector2(20, 20)
 expand_mode = 1
+stretch_mode = 5
 
 [node name="Screw2" type="Button" parent="ModalControl/Panel/VBox/WorkArea/GPUContainer/BracketArea"]
-custom_minimum_size = Vector2(26, 26)
+custom_minimum_size = Vector2(40, 40)
 layout_mode = 0
 offset_left = 2.0
 offset_top = 90.0
-offset_right = 28.0
-offset_bottom = 116.0
+offset_right = 42.0
+offset_bottom = 130.0
 
 [node name="Icon" type="TextureRect" parent="ModalControl/Panel/VBox/WorkArea/GPUContainer/BracketArea/Screw2"]
 layout_mode = 1
@@ -268,7 +270,9 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+pivot_offset = Vector2(20, 20)
 expand_mode = 1
+stretch_mode = 5
 
 [node name="GPUPCB" type="Panel" parent="ModalControl/Panel/VBox/WorkArea/GPUContainer"]
 layout_mode = 1

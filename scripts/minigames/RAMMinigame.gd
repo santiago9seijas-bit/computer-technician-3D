@@ -31,6 +31,7 @@ var drag_start_pos: Vector2 = Vector2.ZERO
 # Arrastre desde la mochila
 var dragging_backpack_item: bool = false
 var backpack_drag_start_pos: Vector2 = Vector2.ZERO
+var default_seated_y: float = 82.0
 
 @onready var status_label: Label = $ModalControl/Panel/VBox/Header/StatusLabel
 @onready var socket_area: Control = $ModalControl/Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea
@@ -65,9 +66,16 @@ func _ready() -> void:
 		ram_stick.visible = false
 		empty_slot_label.visible = true
 		current_state = State.EMPTY_SLOT
+	else:
+		_init_base_position.call_deferred()
 		
 	_update_ui_state()
 	_refresh_backpack_ui()
+
+func _init_base_position() -> void:
+	await get_tree().process_frame
+	if ram_stick != null and ram_stick.position.y > 0.0:
+		default_seated_y = ram_stick.position.y
 
 func _on_backpack_changed(_items: Array) -> void:
 	_refresh_backpack_ui()
@@ -129,7 +137,53 @@ func _refresh_backpack_ui() -> void:
 			backpack_hint.text = "No tienes RAM nueva en la mochila.\nSal de la PC y ve a la caja de repuestos."
 			backpack_hint.modulate = Color(1.0, 0.4, 0.4, 1.0)
 
+const COLOR_RED = Color(1.0, 0.15, 0.25, 1.0)
+const COLOR_GREEN = Color(0.2, 1.0, 0.45, 1.0)
+
+func _update_indicators() -> void:
+	match current_state:
+		State.EXTRACT_SIDES:
+			lbl_left.text = "▲\n●"
+			lbl_left.modulate = COLOR_GREEN if left_unseated else COLOR_RED
+			lbl_right.text = "▲\n●"
+			lbl_right.modulate = COLOR_GREEN if right_unseated else COLOR_RED
+			lbl_center.text = "▲\n●"
+			lbl_center.modulate = COLOR_RED
+		State.EXTRACT_CENTER:
+			lbl_left.text = "▲\n●"
+			lbl_left.modulate = COLOR_GREEN
+			lbl_right.text = "▲\n●"
+			lbl_right.modulate = COLOR_GREEN
+			lbl_center.text = "▲\n●"
+			lbl_center.modulate = COLOR_RED
+		State.EMPTY_SLOT:
+			lbl_left.text = ""
+			lbl_right.text = ""
+			lbl_center.text = ""
+		State.INSERT_CENTER:
+			lbl_center.text = "▼\n●"
+			lbl_center.modulate = COLOR_RED
+			lbl_left.text = "▼\n●"
+			lbl_left.modulate = COLOR_RED
+			lbl_right.text = "▼\n●"
+			lbl_right.modulate = COLOR_RED
+		State.LOCK_SIDES:
+			lbl_center.text = "▼\n●"
+			lbl_center.modulate = COLOR_GREEN
+			lbl_left.text = "▼\n●"
+			lbl_left.modulate = COLOR_GREEN if new_left_locked else COLOR_RED
+			lbl_right.text = "▼\n●"
+			lbl_right.modulate = COLOR_GREEN if new_right_locked else COLOR_RED
+		State.COMPLETED:
+			lbl_left.text = "●"
+			lbl_left.modulate = COLOR_GREEN
+			lbl_center.text = "●"
+			lbl_center.modulate = COLOR_GREEN
+			lbl_right.text = "●"
+			lbl_right.modulate = COLOR_GREEN
+
 func _update_ui_state() -> void:
+	_update_indicators()
 	match current_state:
 		State.EXTRACT_SIDES:
 			if not left_unseated and not right_unseated:
@@ -147,8 +201,6 @@ func _update_ui_state() -> void:
 		State.EXTRACT_CENTER:
 			status_label.text = "¡Ambos lados liberados! Arrastra el CENTRO hacia ARRIBA para sacarla."
 			status_label.modulate = Color(0.0, 1.0, 0.5, 1)
-			lbl_center.text = "▲ ARRASTRA EL CENTRO\nHACIA ARRIBA ▲"
-			lbl_center.modulate = Color(0.0, 1.0, 0.6, 1)
 		State.EMPTY_SLOT:
 			status_label.text = "Zócalo vacío. Arrastra la RAM nueva desde tu mochila hacia el zócalo."
 			status_label.modulate = Color(1.0, 0.85, 0.2, 1)
@@ -156,12 +208,6 @@ func _update_ui_state() -> void:
 		State.INSERT_CENTER:
 			status_label.text = "Paso 2 (A la inversa): Arrastra el CENTRO hacia ABAJO para encajarla."
 			status_label.modulate = Color(0.0, 0.9, 1.0, 1)
-			lbl_center.text = "▼ ARRASTRA EL CENTRO\nHACIA ABAJO ▼"
-			lbl_center.modulate = Color(0.0, 0.95, 1.0, 1)
-			lbl_left.text = "PENDIENTE"
-			lbl_right.text = "PENDIENTE"
-			lbl_left.modulate = Color(0.7, 0.7, 0.7, 1)
-			lbl_right.modulate = Color(0.7, 0.7, 0.7, 1)
 		State.LOCK_SIDES:
 			if not new_left_locked and not new_right_locked:
 				status_label.text = "Paso 3: Arrastra hacia ABAJO el lado izquierdo y derecho (cualquier orden)."
@@ -199,15 +245,11 @@ func _process_drag_release(part: String, delta_y: float) -> void:
 		if part == "left":
 			if pulled_up:
 				left_unseated = true
-				lbl_left.text = "LIBERADO ✓"
-				lbl_left.modulate = Color(0, 1, 0.5, 1)
 				_animate_stick_tilt_up()
 				_update_ui_state()
 		elif part == "right":
 			if pulled_up:
 				right_unseated = true
-				lbl_right.text = "LIBERADO ✓"
-				lbl_right.modulate = Color(0, 1, 0.5, 1)
 				_animate_stick_tilt_up()
 				_update_ui_state()
 		elif part == "center":
@@ -225,14 +267,9 @@ func _process_drag_release(part: String, delta_y: float) -> void:
 			if pushed_down:
 				center_inserted = true
 				var tween = create_tween()
-				tween.tween_property(ram_stick, "position:y", 0.0, 0.25).set_trans(Tween.TRANS_QUAD)
+				tween.tween_property(ram_stick, "position:y", _get_base_y() - 2.0, 0.25).set_trans(Tween.TRANS_QUAD)
 				tween.tween_callback(func():
 					current_state = State.LOCK_SIDES
-					lbl_center.text = "DDR5 - 16GB [ENCAJADA]"
-					lbl_left.text = "▼ TRABAR IZQ ▼"
-					lbl_right.text = "▼ TRABAR DER ▼"
-					lbl_left.modulate = Color(1.0, 0.85, 0.2, 1)
-					lbl_right.modulate = Color(1.0, 0.85, 0.2, 1)
 					_update_ui_state()
 				)
 		else:
@@ -245,50 +282,53 @@ func _process_drag_release(part: String, delta_y: float) -> void:
 		if part == "left":
 			if pushed_down and not new_left_locked:
 				new_left_locked = true
-				lbl_left.text = "TRABADO ✓"
-				lbl_left.modulate = Color(0, 1, 0.5, 1)
 				_animate_stick_tilt_down()
 				_check_both_locked()
 		elif part == "right":
 			if pushed_down and not new_right_locked:
 				new_right_locked = true
-				lbl_right.text = "TRABADO ✓"
-				lbl_right.modulate = Color(0, 1, 0.5, 1)
 				_animate_stick_tilt_down()
 				_check_both_locked()
 
+func _get_base_y() -> float:
+	if ram_stick != null and ram_stick.position.y > 0.0:
+		default_seated_y = ram_stick.position.y
+	return default_seated_y
+
 func _animate_stick_tilt_up() -> void:
-	var tween = create_tween()
+	var tween = create_tween().set_parallel(true)
+	var base_y = _get_base_y()
 	if left_unseated and not right_unseated:
-		tween.tween_property(ram_stick, "rotation_degrees", -3.5, 0.2)
-		tween.parallel().tween_property(ram_stick, "position:y", -10.0, 0.2)
+		tween.tween_property(ram_stick, "rotation_degrees", -0.8, 0.15)
+		tween.tween_property(ram_stick, "position:y", base_y - 2.0, 0.15)
 	elif right_unseated and not left_unseated:
-		tween.tween_property(ram_stick, "rotation_degrees", 3.5, 0.2)
-		tween.parallel().tween_property(ram_stick, "position:y", -10.0, 0.2)
+		tween.tween_property(ram_stick, "rotation_degrees", 0.8, 0.15)
+		tween.tween_property(ram_stick, "position:y", base_y - 2.0, 0.15)
 	elif left_unseated and right_unseated:
-		tween.tween_property(ram_stick, "rotation_degrees", 0.0, 0.2)
-		tween.parallel().tween_property(ram_stick, "position:y", -20.0, 0.2)
+		tween.tween_property(ram_stick, "rotation_degrees", 0.0, 0.15)
+		tween.tween_property(ram_stick, "position:y", base_y - 3.0, 0.15)
 
 func _animate_stick_tilt_down() -> void:
-	var tween = create_tween()
+	var tween = create_tween().set_parallel(true)
+	var base_y = _get_base_y()
 	if new_left_locked and not new_right_locked:
-		tween.tween_property(ram_stick, "rotation_degrees", -2.5, 0.15)
-		tween.parallel().tween_property(ram_stick, "position:y", 10.0, 0.15)
+		tween.tween_property(ram_stick, "rotation_degrees", -0.6, 0.15)
+		tween.tween_property(ram_stick, "position:y", base_y - 1.0, 0.15)
 	elif new_right_locked and not new_left_locked:
-		tween.tween_property(ram_stick, "rotation_degrees", 2.5, 0.15)
-		tween.parallel().tween_property(ram_stick, "position:y", 10.0, 0.15)
+		tween.tween_property(ram_stick, "rotation_degrees", 0.6, 0.15)
+		tween.tween_property(ram_stick, "position:y", base_y - 1.0, 0.15)
 	elif new_left_locked and new_right_locked:
 		tween.tween_property(ram_stick, "rotation_degrees", 0.0, 0.15)
-		tween.parallel().tween_property(ram_stick, "position:y", 20.0, 0.15)
+		tween.tween_property(ram_stick, "position:y", base_y, 0.15)
 
 func _check_both_locked() -> void:
 	_update_ui_state()
 	if new_left_locked and new_right_locked:
 		var tween = create_tween()
-		tween.tween_property(ram_stick, "position:y", 25.0, 0.12)
+		tween.tween_property(ram_stick, "position:y", _get_base_y(), 0.12)
 		tween.tween_callback(func():
-			lbl_center.text = "DDR5 - 16GB [ASEGURADA]"
-			lbl_center.modulate = Color(0, 1, 0.5, 1)
+			lbl_center.text = "●"
+			lbl_center.modulate = COLOR_GREEN
 		)
 		tween.tween_interval(0.25)
 		tween.tween_callback(func():
@@ -296,10 +336,12 @@ func _check_both_locked() -> void:
 		)
 
 func _complete_ram_removal() -> void:
-	var tween = create_tween()
-	tween.tween_property(ram_stick, "position:y", -160.0, 0.35)
-	tween.parallel().tween_property(ram_stick, "modulate:a", 0.0, 0.35)
-	tween.tween_callback(func():
+	lbl_center.modulate = COLOR_GREEN
+	var tween = create_tween().set_parallel(true)
+	var target_y = _get_base_y() - 80.0
+	tween.tween_property(ram_stick, "position:y", target_y, 0.35).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tween.tween_property(ram_stick, "modulate:a", 0.0, 0.30)
+	tween.chain().tween_callback(func():
 		ram_stick.visible = false
 		empty_slot_label.visible = true
 		GameManager.add_item_to_backpack({"name": "RAM", "broken": true})
@@ -325,7 +367,7 @@ func _insert_ram_from_backpack(index: int) -> void:
 	
 	ram_stick.visible = true
 	ram_stick.modulate = Color(0, 0.95, 1, 1)
-	ram_stick.position.y = -65.0
+	ram_stick.position.y = _get_base_y() - 22.0
 	ram_stick.rotation_degrees = 0.0
 	
 	current_state = State.INSERT_CENTER

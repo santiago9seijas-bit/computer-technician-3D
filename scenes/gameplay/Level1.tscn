@@ -84,12 +84,28 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.6, 0.1, -1.2)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.8, -4.5)
 
 [node name="SparesRAM" parent="." instance=ExtResource("7_spares")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5, 0.1, -1.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5, 0.1, -1.8)
 spare_type = "RAM"
 
 [node name="SparesHDD" parent="." instance=ExtResource("7_spares")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5, 0.1, -0.6)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5, 0.1, -0.9)
 spare_type = "Disco Duro"
+
+[node name="SparesCooler" parent="." instance=ExtResource("7_spares")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5, 0.1, 0.0)
+spare_type = "Fan Cooler"
+
+[node name="SparesGPU" parent="." instance=ExtResource("7_spares")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5, 0.1, 0.9)
+spare_type = "Grafica"
+
+[node name="SparesPSU" parent="." instance=ExtResource("7_spares")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5, 0.1, 1.8)
+spare_type = "Fuente"
+
+[node name="SparesMOBO" parent="." instance=ExtResource("7_spares")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5, 0.1, 2.7)
+spare_type = "Placa Madre"
 
 [node name="Player" parent="." instance=ExtResource("2_player")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0.8)
