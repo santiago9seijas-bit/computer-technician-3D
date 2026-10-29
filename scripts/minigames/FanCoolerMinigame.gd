@@ -60,11 +60,18 @@ var tex_cooler_frame = preload("res://pixel art/cuadro de fancoolerpng.png")
 var screw_buttons: Array[Button] = []
 var screw_icons: Array[TextureRect] = []
 
+var default_cooler_pos: Vector2 = Vector2.ZERO
+var is_dragging_cooler: bool = false
+var drag_start_y: float = 0.0
+
 func _ready() -> void:
 	layer = 12
 	_setup_screw_types()
 	_setup_ui()
 	_update_tool_buttons()
+	
+	default_cooler_pos = cooler_sprite.position
+	cooler_sprite.gui_input.connect(_on_cooler_sprite_gui_input)
 	
 	GameManager.backpack_updated.connect(_on_backpack_changed)
 	
@@ -73,11 +80,7 @@ func _ready() -> void:
 	
 	if start_as_empty_slot:
 		current_state = State.EMPTY_SOCKET
-		cooler_sprite.visible = false
-		screws_container.visible = false
-		cable_button.visible = false
-		cable_hint.visible = false
-		cooler_extract_btn.visible = false
+		_setup_empty_socket_visual()
 		_select_tab(1)
 		_refresh_backpack_ui()
 	else:
@@ -85,6 +88,72 @@ func _ready() -> void:
 		_refresh_backpack_ui()
 		
 	_update_status()
+
+func _setup_empty_socket_visual() -> void:
+	screws_container.visible = false
+	cable_button.visible = false
+	cable_hint.visible = false
+	cooler_extract_btn.visible = false
+	
+	cooler_sprite.visible = true
+	cooler_sprite.texture = tex_cooler_disconnected
+	cooler_sprite.modulate = Color(0.2, 0.9, 1.0, 0.6)
+	cooler_sprite.position = default_cooler_pos + Vector2(0, -90.0)
+
+func _on_cooler_sprite_gui_input(event: InputEvent) -> void:
+	if current_state != State.EMPTY_SOCKET:
+		return
+		
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		if event.pressed:
+			is_dragging_cooler = true
+			drag_start_y = event.global_position.y
+		else:
+			if is_dragging_cooler:
+				is_dragging_cooler = false
+				var diff_y = event.global_position.y - drag_start_y
+				if diff_y >= 30.0 or cooler_sprite.position.distance_to(default_cooler_pos) < 60.0:
+					_seat_cooler_into_socket()
+				else:
+					var tw = create_tween()
+					tw.tween_property(cooler_sprite, "position", default_cooler_pos + Vector2(0, -90.0), 0.2)
+	elif event is InputEventMouseMotion and is_dragging_cooler:
+		var push = clamp(event.global_position.y - drag_start_y, 0.0, 110.0)
+		cooler_sprite.position = default_cooler_pos + Vector2(0, -90.0 + push)
+
+func _seat_cooler_into_socket() -> void:
+	# Retirar repuesto de la mochila si existe
+	for i in range(GameManager.backpack.size()):
+		var it = GameManager.backpack[i]
+		if it.get("name") == "Fan Cooler" and not it.get("broken", true):
+			GameManager.remove_item_from_backpack(i)
+			break
+			
+	var tw = create_tween()
+	tw.tween_property(cooler_sprite, "position", default_cooler_pos, 0.25).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tw.parallel().tween_property(cooler_sprite, "modulate", Color(1, 1, 1, 1), 0.25)
+	
+	screws_container.visible = true
+	screws_fastened = [false, false, false, false]
+	for i in range(4):
+		var btn = screw_buttons[i]
+		var icon = screw_icons[i]
+		btn.visible = true
+		btn.disabled = false
+		icon.modulate = Color(1.0, 1.0, 1.0, 0.7)
+		icon.rotation = 0.0
+		icon.scale = Vector2(1, 1)
+		
+	cable_button.visible = true
+	cable_hint.visible = true
+	cable_hint.modulate.a = 1.0
+	cable_hint.text = "🔌 CABLE PWM (CLIC PARA CONECTAR)"
+	is_cable_disconnected = true
+	
+	current_state = State.FASTEN_SCREWS
+	_show_floating_feedback("✓ ¡FAN COOLER MONTADO! COLOCA LOS TORNILLOS O CONECTA EL CABLE EN CUALQUIER ORDEN", Color(0.2, 1.0, 0.5))
+	_update_status()
+	_refresh_backpack_ui()
 
 func _select_tab(idx: int) -> void:
 	if idx == 0:
@@ -145,36 +214,10 @@ func _refresh_backpack_ui() -> void:
 			backpack_hint.text = "No tienes Fan Cooler nuevo en la mochila.\nSal al taller y tómalo de la caja de repuestos."
 			backpack_hint.modulate = Color(1.0, 0.4, 0.4, 1.0)
 
-func _insert_cooler_from_backpack(idx: int) -> void:
+func _insert_cooler_from_backpack(_idx: int) -> void:
 	if current_state != State.EMPTY_SOCKET:
 		return
-	if idx < 0 or idx >= GameManager.backpack.size():
-		return
-	var item = GameManager.backpack[idx]
-	if item.get("name") != "Fan Cooler" or item.get("broken", true):
-		return
-		
-	GameManager.remove_item_from_backpack(idx)
-	cooler_sprite.visible = true
-	cooler_sprite.modulate = Color(1, 1, 1, 1)
-	cooler_sprite.texture = tex_cooler_disconnected
-	
-	# Mostrar tornillos listos para apretar
-	screws_container.visible = true
-	screws_fastened = [false, false, false, false]
-	for i in range(4):
-		var btn = screw_buttons[i]
-		var icon = screw_icons[i]
-		btn.visible = true
-		btn.disabled = false
-		icon.modulate = Color(1.0, 1.0, 1.0, 0.7)
-		icon.rotation = 0.0
-		icon.scale = Vector2(1, 1)
-		
-	current_state = State.FASTEN_SCREWS
-	_update_status()
-	_refresh_backpack_ui()
-	_show_floating_feedback("¡FAN COOLER MONTADO! AHORA AJUSTA LOS TORNILLOS", Color(0.2, 1.0, 0.5))
+	_seat_cooler_into_socket()
 
 func _setup_screw_types() -> void:
 	# Generar una distribución variada de tornillos Cruz y Pala
@@ -234,14 +277,15 @@ func _update_tool_buttons() -> void:
 	btn_tool_2.modulate = Color(1.2, 1.2, 1.2, 1.0) if t == 2 else Color(0.65, 0.65, 0.7, 0.8)
 
 func _on_cable_disconnected() -> void:
-	if current_state == State.CONNECT_CABLE:
+	if current_state == State.FASTEN_SCREWS or current_state == State.CONNECT_CABLE:
+		if not is_cable_disconnected:
+			return
+		is_cable_disconnected = false
 		cooler_sprite.texture = tex_cooler_connected
 		cable_button.visible = false
 		cable_hint.visible = false
 		_show_floating_feedback("¡CABLE CONECTADO CON ÉXITO!", Color(0.2, 1.0, 0.5))
-		current_state = State.COMPLETED
-		_update_status()
-		_show_victory_panel()
+		_check_install_completed()
 		return
 		
 	if is_cable_disconnected:
@@ -262,7 +306,7 @@ func _on_cable_disconnected() -> void:
 	_show_floating_feedback("¡CABLE DESCONECTADO!", Color(0.0, 1.0, 0.85))
 
 func _on_screw_clicked(index: int) -> void:
-	if current_state == State.FASTEN_SCREWS:
+	if current_state == State.FASTEN_SCREWS or current_state == State.CONNECT_CABLE:
 		if screws_fastened[index]:
 			return
 		var req = 1 if screw_types[index] == "cruz" else 2
@@ -278,21 +322,8 @@ func _on_screw_clicked(index: int) -> void:
 		tw.tween_property(icon, "rotation", deg_to_rad(-360.0), 0.35)
 		tw.tween_property(icon, "modulate", Color(0.2, 1.0, 0.5, 1.0), 0.3)
 		
-		var all_tight = true
-		for f in screws_fastened:
-			if not f:
-				all_tight = false
-				break
-		if all_tight:
-			current_state = State.CONNECT_CABLE
-			cable_button.visible = true
-			cable_hint.visible = true
-			cable_hint.modulate.a = 1.0
-			cable_hint.text = "🔌 CABLE (CLIC PARA CONECTAR)"
-			_show_floating_feedback("✓ ¡TORNILLOS ASEGURADOS! CONECTA EL CABLE", Color(0.2, 1.0, 0.5))
-		else:
-			_show_floating_feedback("✓ TORNILLO AJUSTADO Y APRETADO", Color(0.2, 1.0, 0.5))
-		_update_status()
+		_show_floating_feedback("✓ TORNILLO AJUSTADO Y APRETADO", Color(0.2, 1.0, 0.5))
+		_check_install_completed()
 		return
 
 	if screws_removed[index]:
@@ -321,6 +352,19 @@ func _on_screw_clicked(index: int) -> void:
 	)
 	
 	_show_floating_feedback("✓ TORNILLO RETIRADO", Color(0.2, 1.0, 0.5))
+
+func _check_install_completed() -> void:
+	var all_screws = true
+	for f in screws_fastened:
+		if not f:
+			all_screws = false
+			break
+	if all_screws and not is_cable_disconnected:
+		current_state = State.COMPLETED
+		_update_status()
+		_show_victory_panel()
+	else:
+		_update_status()
 
 func _check_readiness() -> void:
 	var remaining_screws = 0
@@ -392,16 +436,19 @@ func _update_status() -> void:
 			status_label.text = "Paso 1: Zócalo de CPU vacío. Monta el Fan Cooler nuevo desde tu mochila."
 			status_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.2, 1.0))
 			return
-		State.FASTEN_SCREWS:
+		State.FASTEN_SCREWS, State.CONNECT_CABLE:
 			var rem_fasten = 0
 			for f in screws_fastened:
 				if not f: rem_fasten += 1
-			status_label.text = "Paso 2: Ajusta los 4 tornillos con Cruz [1] o Pala [2]. Restantes: %d." % rem_fasten
-			status_label.add_theme_color_override("font_color", Color(0.0, 0.9, 1.0, 1.0))
-			return
-		State.CONNECT_CABLE:
-			status_label.text = "Paso 3: Conecta el cable PWM de 4 pines del ventilador a la placa madre."
-			status_label.add_theme_color_override("font_color", Color(0.2, 1.0, 0.5, 1.0))
+			if is_cable_disconnected and rem_fasten > 0:
+				status_label.text = "Fase Montaje: Ajusta los 4 tornillos con [1]/[2] y conecta el cable PWM (cualquier orden). Restan %d tornillos." % rem_fasten
+				status_label.add_theme_color_override("font_color", Color(0.0, 0.9, 1.0, 1.0))
+			elif is_cable_disconnected and rem_fasten == 0:
+				status_label.text = "Fase Montaje: ¡Tornillos asegurados! Haz clic en el cable PWM para conectarlo."
+				status_label.add_theme_color_override("font_color", Color(0.2, 1.0, 0.5, 1.0))
+			elif not is_cable_disconnected and rem_fasten > 0:
+				status_label.text = "Fase Montaje: ¡Cable PWM conectado! Ajusta los %d tornillos restantes con [1] Cruz o [2] Pala." % rem_fasten
+				status_label.add_theme_color_override("font_color", Color(0.0, 0.9, 1.0, 1.0))
 			return
 		State.COMPLETED:
 			status_label.text = "¡Operación completada con éxito!"

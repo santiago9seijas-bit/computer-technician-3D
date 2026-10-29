@@ -36,6 +36,9 @@ var is_power_disconnected: bool = false
 var is_pcie_latch_unlocked: bool = false
 var is_extracted: bool = false
 
+var is_dragging_gpu: bool = false
+var drag_start_y: float = 0.0
+
 # Texturas
 var tex_screw_cruz = preload("res://pixel art/tornillo de cruz.png")
 var tex_screw_pala = preload("res://pixel art/tornillo de pala.png")
@@ -81,12 +84,14 @@ func _ready() -> void:
 	
 	if start_as_empty_slot:
 		current_state = State.EMPTY_SLOT
-		gpu_container.visible = false
+		gpu_container.visible = true
+		gpu_container.position.y = -100.0
+		gpu_container.modulate = Color(0.3, 0.9, 1.0, 0.65)
 		cable_container.visible = false
 		btn_extract.visible = true
-		btn_extract.text = "⇪ INSTALAR GPU NUEVA DESDE MOCHILA"
+		btn_extract.text = "⇪ INSTALAR GPU NUEVA (ARRASTRA O CLIC)"
 		btn_extract.pressed.disconnect(_on_extract_pressed)
-		btn_extract.pressed.connect(_on_insert_new_gpu_pressed)
+		btn_extract.pressed.connect(_seat_new_gpu)
 		btn_screw_1.visible = false
 		btn_screw_2.visible = false
 		screws_removed = [true, true]
@@ -110,27 +115,94 @@ func _select_guide_tab(idx: int) -> void:
 	else:
 		btn_tab_quitar.modulate = Color(0.7, 0.7, 0.7, 0.7)
 		btn_tab_poner.modulate = Color(0.2, 1.0, 0.5, 1.0)
-		guide_text.text = "PASOS DE MONTAJE (CÓMO PONER AL REVÉS): 1. Monta la GPU nueva en el slot PCIe · 2. Cierra y traba el pestillo PCIe · 3. Atornilla 2 tornillos bracket · 4. Conecta cable PCIe 8P."
+		guide_text.text = "PASOS DE MONTAJE (CÓMO PONER AL REVÉS): 1. Monta la GPU nueva en el slot PCIe · 2. Cierra pestillo, atornilla bracket y conecta cable (cualquier orden)."
 
-func _on_insert_new_gpu_pressed() -> void:
+func _seat_new_gpu() -> void:
 	var found_idx = -1
 	for i in range(GameManager.backpack.size()):
 		var it = GameManager.backpack[i]
 		if it.get("name") == "Grafica" and not it.get("broken", true):
 			found_idx = i
 			break
-	if found_idx == -1:
-		_show_warning("No tienes Tarjeta Gráfica nueva en tu mochila. Sal al taller a buscar el repuesto.", Color(1.0, 0.3, 0.3))
-		return
+	if found_idx != -1:
+		GameManager.remove_item_from_backpack(found_idx)
 		
-	GameManager.remove_item_from_backpack(found_idx)
 	gpu_container.visible = true
-	gpu_container.position.y = 0.0
-	gpu_container.modulate.a = 1.0
+	var tw = create_tween().set_parallel(true)
+	tw.tween_property(gpu_container, "position:y", 0.0, 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tw.tween_property(gpu_container, "modulate", Color(1, 1, 1, 1), 0.3)
+	
 	btn_extract.visible = false
 	current_state = State.LATCH_NEW_GPU
+	
+	# Activar simultáneamente los 3 elementos (orden libre)
+	is_pcie_latch_unlocked = true
+	pcie_latch_btn.disabled = false
+	pcie_latch_btn.rotation_degrees = 45.0
+	pcie_latch_btn.text = "ABIERTO"
+	pcie_latch_btn.modulate = Color(1.0, 0.8, 0.2)
+	latch_status_label.text = "PESTILLO PCIE: ABIERTO"
+	latch_status_label.modulate = Color(1.0, 0.8, 0.2)
+	
+	screws_removed = [true, true]
+	btn_screw_1.visible = true
+	btn_screw_1.disabled = false
+	btn_screw_1.modulate.a = 0.5
+	icon_screw_1.scale = Vector2(0.6, 0.6)
+	icon_screw_1.rotation_degrees = 0.0
+	
+	btn_screw_2.visible = true
+	btn_screw_2.disabled = false
+	btn_screw_2.modulate.a = 0.5
+	icon_screw_2.scale = Vector2(0.6, 0.6)
+	icon_screw_2.rotation_degrees = 0.0
+	
+	is_power_disconnected = true
+	cable_container.visible = true
+	cable_container.modulate.a = 0.6
+	btn_cable_clip.disabled = false
+	cable_hint.text = "HAZ CLIC PARA CONECTAR CABLE PCIE 8-PIN"
+	cable_hint.modulate = Color(1.0, 0.85, 0.2)
+	
+	_show_warning("✓ GPU calzada en el zócalo. Asegura pestillo, tornillos y cable en cualquier orden.", Color(0.2, 1.0, 0.4))
 	_update_status()
-	_show_warning("✓ GPU colocada en la ranura. Traba el pestillo plástico PCIe.", Color(0.2, 1.0, 0.4))
+
+func _on_gpu_container_gui_input(event: InputEvent) -> void:
+	if current_state == State.EXTRACT_GPU:
+		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+			if event.pressed:
+				is_dragging_gpu = true
+				drag_start_y = event.global_position.y
+			else:
+				if is_dragging_gpu:
+					is_dragging_gpu = false
+					var diff = drag_start_y - event.global_position.y
+					if diff >= 30.0:
+						_on_extract_pressed()
+					else:
+						var tw = create_tween()
+						tw.tween_property(gpu_container, "position:y", 0.0, 0.2)
+		elif event is InputEventMouseMotion and is_dragging_gpu:
+			var pull = clamp(drag_start_y - event.global_position.y, 0.0, 60.0)
+			gpu_container.position.y = -pull
+			
+	elif current_state == State.EMPTY_SLOT:
+		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+			if event.pressed:
+				is_dragging_gpu = true
+				drag_start_y = event.global_position.y
+			else:
+				if is_dragging_gpu:
+					is_dragging_gpu = false
+					var diff = event.global_position.y - drag_start_y
+					if diff >= 30.0:
+						_seat_new_gpu()
+					else:
+						var tw = create_tween()
+						tw.tween_property(gpu_container, "position:y", -100.0, 0.2)
+		elif event is InputEventMouseMotion and is_dragging_gpu:
+			var push = clamp(event.global_position.y - drag_start_y, 0.0, 100.0)
+			gpu_container.position.y = -100.0 + push
 
 func _setup_screws() -> void:
 	var rng = RandomNumberGenerator.new()
@@ -145,6 +217,8 @@ func _setup_ui() -> void:
 	btn_tool_1.pressed.connect(func(): GameManager.select_tool(1))
 	btn_tool_2.pressed.connect(func(): GameManager.select_tool(2))
 	GameManager.tool_selected.connect(_on_tool_selected)
+	
+	gpu_container.gui_input.connect(_on_gpu_container_gui_input)
 	
 	# Cable PCIe 8-pin
 	btn_cable_clip.pressed.connect(_on_cable_pressed)
@@ -180,8 +254,23 @@ func _update_tool_buttons() -> void:
 	btn_tool_1.modulate = Color(1.2, 1.2, 0.4) if active == 1 else Color(0.8, 0.8, 0.8)
 	btn_tool_2.modulate = Color(1.2, 1.2, 0.4) if active == 2 else Color(0.8, 0.8, 0.8)
 
+func is_install_phase() -> bool:
+	return current_state in [State.LATCH_NEW_GPU, State.SCREW_NEW_BRACKET, State.CONNECT_NEW_POWER]
+
+func _check_gpu_install_completed() -> void:
+	var screws_done = not screws_removed[0] and not screws_removed[1]
+	var latch_done = not is_pcie_latch_unlocked
+	var cable_done = not is_power_disconnected
+	if screws_done and latch_done and cable_done:
+		current_state = State.COMPLETED
+		_show_success_flow()
+	else:
+		_update_status()
+
 func _on_cable_pressed() -> void:
-	if current_state == State.CONNECT_NEW_POWER:
+	if is_install_phase():
+		if not is_power_disconnected:
+			return
 		is_power_disconnected = false
 		var tw = create_tween().set_parallel(true)
 		tw.tween_property(cable_container, "position:y", cable_container.position.y + 70.0, 0.4).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
@@ -189,11 +278,8 @@ func _on_cable_pressed() -> void:
 		cable_hint.text = "✓ ALIMENTACIÓN PCIe 8-PIN CONECTADA"
 		cable_hint.modulate = Color(0.2, 1.0, 0.4)
 		btn_cable_clip.disabled = true
-		current_state = State.COMPLETED
-		_update_status()
-		_show_warning("✓ ¡Cable PCIe 8-pin conectado con traba de seguridad! GPU operativa.", Color(0.2, 1.0, 0.4))
-		await get_tree().create_timer(1.6).timeout
-		minigame_finished.emit(true)
+		_show_warning("✓ Cable PCIe 8-pin conectado con traba de seguridad.", Color(0.2, 1.0, 0.4))
+		_check_gpu_install_completed()
 		return
 
 	if is_power_disconnected:
@@ -211,7 +297,7 @@ func _on_cable_pressed() -> void:
 	_advance_state_check()
 
 func _on_screw_pressed(idx: int) -> void:
-	if current_state == State.SCREW_NEW_BRACKET:
+	if is_install_phase():
 		if not screws_removed[idx]:
 			return # Ya apretado
 		
@@ -232,17 +318,8 @@ func _on_screw_pressed(idx: int) -> void:
 		tw.tween_property(btn, "modulate:a", 1.0, 0.4)
 		btn.disabled = true
 		
-		if not screws_removed[0] and not screws_removed[1]:
-			current_state = State.CONNECT_NEW_POWER
-			cable_container.visible = true
-			cable_container.modulate.a = 0.5
-			btn_cable_clip.disabled = false
-			cable_hint.text = "HAZ CLIC PARA CONECTAR CABLE PCIE 8-PIN"
-			cable_hint.modulate = Color(1.0, 0.85, 0.2)
-			_show_warning("✓ Bracket asegurado. Por último conecta el cable PCIe 8-pin.", Color(0.2, 1.0, 0.4))
-			_update_status()
-		else:
-			_show_warning("✓ Tornillo de chasis " + str(idx + 1) + "/2 colocado y ajustado.", Color(0.4, 1.0, 0.4))
+		_show_warning("✓ Tornillo de chasis " + str(idx + 1) + "/2 colocado y ajustado.", Color(0.4, 1.0, 0.4))
+		_check_gpu_install_completed()
 		return
 
 	if screws_removed[idx]:
@@ -269,7 +346,9 @@ func _on_screw_pressed(idx: int) -> void:
 	_advance_state_check()
 
 func _on_latch_pressed() -> void:
-	if current_state == State.LATCH_NEW_GPU:
+	if is_install_phase():
+		if not is_pcie_latch_unlocked:
+			return # Ya trabado
 		is_pcie_latch_unlocked = false
 		var tw = create_tween()
 		tw.tween_property(pcie_latch_btn, "rotation_degrees", 0.0, 0.25).set_trans(Tween.TRANS_QUAD)
@@ -277,23 +356,8 @@ func _on_latch_pressed() -> void:
 		pcie_latch_btn.modulate = Color(0.2, 1.0, 0.4)
 		latch_status_label.text = "PESTILLO PCIE: TRABADO (SEGURO)"
 		latch_status_label.modulate = Color(0.2, 1.0, 0.4)
-		
-		# Habilitar tornillos para el siguiente paso
-		current_state = State.SCREW_NEW_BRACKET
-		btn_screw_1.visible = true
-		btn_screw_1.disabled = false
-		btn_screw_1.modulate = Color(1, 1, 1, 0.5)
-		icon_screw_1.scale = Vector2(0.6, 0.6)
-		icon_screw_1.rotation_degrees = 0.0
-		
-		btn_screw_2.visible = true
-		btn_screw_2.disabled = false
-		btn_screw_2.modulate = Color(1, 1, 1, 0.5)
-		icon_screw_2.scale = Vector2(0.6, 0.6)
-		icon_screw_2.rotation_degrees = 0.0
-		
-		_show_warning("✓ ¡CLICK! Pestillo PCIe x16 trabado. Ahora atornilla el bracket metálico.", Color(0.2, 1.0, 0.4))
-		_update_status()
+		_show_warning("✓ ¡CLICK! Pestillo PCIe x16 trabado y asegurado.", Color(0.2, 1.0, 0.4))
+		_check_gpu_install_completed()
 		return
 
 	if is_pcie_latch_unlocked:
@@ -364,15 +428,17 @@ func _on_extract_pressed() -> void:
 	if not has_new:
 		GameManager.add_item_to_backpack({"name": "Grafica", "broken": false})
 		
-	gpu_container.visible = false
+	gpu_container.visible = true
+	gpu_container.position.y = -100.0
+	gpu_container.modulate = Color(0.3, 0.9, 1.0, 0.65)
 	current_state = State.EMPTY_SLOT
 	_select_guide_tab(1)
 	
 	btn_extract.visible = true
 	btn_extract.disabled = false
-	btn_extract.text = "⇪ INSTALAR GPU NUEVA DESDE MOCHILA"
+	btn_extract.text = "⇪ INSTALAR GPU NUEVA (ARRASTRA O CLIC)"
 	btn_extract.pressed.disconnect(_on_extract_pressed)
-	btn_extract.pressed.connect(_on_insert_new_gpu_pressed)
+	btn_extract.pressed.connect(_seat_new_gpu)
 	
 	_show_warning("✓ FASE 1 (QUITAR) SUPERADA ➔ AHORA FASE 2: MONTAJE DEL REPUESTO (INVERSO)", Color(0.2, 1.0, 0.5))
 	_update_status()
@@ -396,20 +462,20 @@ func _update_status() -> void:
 			status_label.text = "PASO 3: Presiona el pestillo plástico de retención al final del zócalo PCIe x16."
 			status_label.modulate = Color(1.0, 0.4, 0.8)
 		State.EXTRACT_GPU:
-			status_label.text = "PASO 4: ¡Todo libre! Presiona el botón para extraer suavemente la GPU hacia arriba."
+			status_label.text = "PASO 4: ¡Todo libre! Arrastra la GPU hacia arriba o presiona el botón."
 			status_label.modulate = Color(0.2, 1.0, 0.4)
 		State.EMPTY_SLOT:
-			status_label.text = "INSTALACIÓN: Haz clic en el botón para colocar la nueva GPU desde tu mochila."
+			status_label.text = "INSTALACIÓN: Arrastra la GPU nueva hacia abajo al slot o presiona el botón."
 			status_label.modulate = Color(1.0, 0.85, 0.2)
-		State.LATCH_NEW_GPU:
-			status_label.text = "PASO 1 (INSTALACIÓN): Presiona el pestillo PCIe para asegurar la placa en el slot."
-			status_label.modulate = Color(1.0, 0.4, 0.8)
-		State.SCREW_NEW_BRACKET:
-			status_label.text = "PASO 2 (INSTALACIÓN): Ajusta los 2 tornillos del bracket metálico con [1] Cruz o [2] Pala."
-			status_label.modulate = Color(1.0, 0.85, 0.2)
-		State.CONNECT_NEW_POWER:
-			status_label.text = "PASO 3 (INSTALACIÓN): Conecta firmemente el cable de alimentación PCIe de 8 pines."
-			status_label.modulate = Color(0.2, 1.0, 0.4)
+		State.LATCH_NEW_GPU, State.SCREW_NEW_BRACKET, State.CONNECT_NEW_POWER:
+			var pending: Array[String] = []
+			if is_pcie_latch_unlocked: pending.append("Trabar pestillo PCIe")
+			if screws_removed[0] or screws_removed[1]:
+				var s_rem = (1 if screws_removed[0] else 0) + (1 if screws_removed[1] else 0)
+				pending.append("Atornillar bracket (%d restantes)" % s_rem)
+			if is_power_disconnected: pending.append("Conectar cable PCIe 8P")
+			status_label.text = "Fase Montaje: " + " · ".join(pending) + " (cualquier orden)."
+			status_label.modulate = Color(0.2, 0.9, 1.0)
 		State.COMPLETED:
 			status_label.text = "¡OPERACIÓN COMPLETADA! GPU instalada y testeada con éxito."
 			status_label.modulate = Color(0.2, 1.0, 0.4)
