@@ -1,0 +1,903 @@
+[gd_scene format=3 load_steps=14]
+
+[ext_resource type="Script" path="res://scripts/minigames/MotherboardMinigame.gd" id="1_mobo"]
+[ext_resource type="Script" path="res://scripts/menus/CyberButton.gd" id="2_cbtn"]
+[ext_resource type="Theme" path="res://styles/cyberpunk_theme.tres" id="3_theme"]
+[ext_resource type="FontFile" uid="uid://dbcug8887dro7" path="res://assets/fonts/Bungee-Regular.ttf" id="4_title_font"]
+[ext_resource type="PackedScene" path="res://scenes/ui/CyberBackgroundFrame.tscn" id="5_bg_frame"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_frame"]
+content_margin_left = 24.0
+content_margin_top = 18.0
+content_margin_right = 24.0
+content_margin_bottom = 18.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_chassis"]
+bg_color = Color(0.06, 0.05, 0.08, 0.98)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.85, 0.15, 0.45, 0.8)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mobo"]
+bg_color = Color(0.09, 0.1, 0.14, 0.98)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.3, 0.85, 1, 0.8)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ioshield"]
+bg_color = Color(0.28, 0.3, 0.36, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.7, 0.75, 0.85, 1)
+corner_radius_top_left = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_comp"]
+bg_color = Color(0.14, 0.15, 0.2, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.8, 0.2, 0.85)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gpu"]
+bg_color = Color(0.08, 0.08, 0.12, 0.98)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.2, 0.45, 0.9)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_m2"]
+bg_color = Color(0.07, 0.12, 0.09, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.2, 0.9, 0.6, 0.9)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cpu"]
+bg_color = Color(0.2, 0.22, 0.26, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.65, 0.7, 0.78, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[node name="MotherboardMinigame" type="CanvasLayer"]
+layer = 12
+script = ExtResource("1_mobo")
+
+[node name="ModalControl" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("3_theme")
+
+[node name="DimOverlay" type="ColorRect" parent="ModalControl"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.04, 0.01, 0.08, 0.94)
+
+[node name="Panel" type="PanelContainer" parent="ModalControl"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -480.0
+offset_top = -300.0
+offset_right = 480.0
+offset_bottom = 300.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_frame")
+
+[node name="CyberBackgroundFrame" parent="ModalControl/Panel" instance=ExtResource("5_bg_frame")]
+layout_mode = 2
+
+[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Header" type="VBoxContainer" parent="ModalControl/Panel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Titulo" type="Label" parent="ModalControl/Panel/VBox/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.15, 0.6, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 8
+theme_override_colors/font_shadow_color = Color(0.65, 0.02, 0.85, 0.85)
+theme_override_constants/shadow_outline_size = 8
+theme_override_fonts/font = ExtResource("4_title_font")
+theme_override_font_sizes/font_size = 18
+text = "DESMONTAJE MAESTRO: EXTRACCIÓN DE PLACA MADRE"
+horizontal_alignment = 1
+
+[node name="PhaseTracker" type="Label" parent="ModalControl/Panel/VBox/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 11
+text = "FASE 1/6: DESCONEXIÓN DE ENERGÍA"
+horizontal_alignment = 1
+
+[node name="ToolBar" type="HBoxContainer" parent="ModalControl/Panel/VBox/Header"]
+layout_mode = 2
+theme_override_constants/separation = 14
+alignment = 1
+
+[node name="BtnTool1" type="Button" parent="ModalControl/Panel/VBox/Header/ToolBar"]
+custom_minimum_size = Vector2(230, 32)
+layout_mode = 2
+text = "[1] Destornillador Cruz"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 14.0
+
+[node name="BtnTool2" type="Button" parent="ModalControl/Panel/VBox/Header/ToolBar"]
+custom_minimum_size = Vector2(230, 32)
+layout_mode = 2
+text = "[2] Destornillador Pala"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 14.0
+
+[node name="StatusLabel" type="Label" parent="ModalControl/Panel/VBox/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 13
+text = "Desconecta el conector ATX 24P y el cable EPS CPU 8P presionando sus clips."
+horizontal_alignment = 1
+
+[node name="WorkArea" type="Control" parent="ModalControl/Panel/VBox"]
+custom_minimum_size = Vector2(880, 390)
+layout_mode = 2
+
+[node name="ChassisTray" type="Panel" parent="ModalControl/Panel/VBox/WorkArea"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -400.0
+offset_top = -180.0
+offset_right = 400.0
+offset_bottom = 180.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_chassis")
+
+[node name="TrayLabel" type="Label" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -200.0
+offset_top = 6.0
+offset_right = 200.0
+offset_bottom = 22.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.6, 0.4, 0.7, 0.7)
+theme_override_font_sizes/font_size = 10
+text = "BANDEJA METÁLICA DEL GABINETE // 6 POSTES DE LATÓN (STANDOFFS)"
+horizontal_alignment = 1
+
+[node name="IOShield" type="Panel" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray"]
+layout_mode = 0
+offset_left = 15.0
+offset_top = 35.0
+offset_right = 45.0
+offset_bottom = 345.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_ioshield")
+
+[node name="IOLabel" type="Label" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/IOShield"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -10.0
+offset_top = -60.0
+offset_right = 10.0
+offset_bottom = 60.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 9
+text = "I
+/
+O
+
+S
+H
+I
+E
+L
+D"
+horizontal_alignment = 1
+
+[node name="MoboBoard" type="Panel" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray"]
+layout_mode = 0
+offset_left = 50.0
+offset_top = 35.0
+offset_right = 770.0
+offset_bottom = 345.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_mobo")
+
+[node name="MoboModel" type="Label" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard"]
+layout_mode = 0
+offset_left = 15.0
+offset_top = 8.0
+offset_right = 280.0
+offset_bottom = 24.0
+theme_override_colors/font_color = Color(0.3, 0.9, 1, 0.9)
+theme_override_font_sizes/font_size = 10
+text = "ASUS ROG STRIX Z790-E // LGA 1700 ATX"
+
+[node name="CableEPS" type="Button" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard"]
+layout_mode = 0
+offset_left = 80.0
+offset_top = 6.0
+offset_right = 150.0
+offset_bottom = 32.0
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 9
+text = "🔌 EPS 8P"
+
+[node name="CableATX" type="Button" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -70.0
+offset_top = -65.0
+offset_right = -10.0
+offset_bottom = 65.0
+grow_horizontal = 0
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 10
+text = "🔌
+ATX
+24-PIN"
+
+[node name="CPUProtectedSocket" type="Panel" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard"]
+layout_mode = 0
+offset_left = 180.0
+offset_top = 45.0
+offset_right = 295.0
+offset_bottom = 155.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_cpu")
+
+[node name="CPULbl" type="Label" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/CPUProtectedSocket"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -50.0
+offset_top = -40.0
+offset_right = 50.0
+offset_bottom = 40.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.85, 0.9, 1, 0.9)
+theme_override_font_sizes/font_size = 8
+text = "CPU LGA 1700
+[ PROTEGIDA
+EN ZÓCALO ]
+✓ (No remover:
+protege pines)"
+horizontal_alignment = 1
+
+[node name="CoolerContainer" type="Panel" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard"]
+layout_mode = 0
+offset_left = 165.0
+offset_top = 35.0
+offset_right = 310.0
+offset_bottom = 165.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_comp")
+
+[node name="CoolerTitle" type="Label" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/CoolerContainer"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -60.0
+offset_top = 4.0
+offset_right = 60.0
+offset_bottom = 18.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.3, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 9
+text = "FAN COOLER CPU"
+horizontal_alignment = 1
+
+[node name="BtnPWM" type="Button" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/CoolerContainer"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 0.0
+offset_left = -65.0
+offset_top = 22.0
+offset_right = -4.0
+offset_bottom = 44.0
+grow_horizontal = 0
+theme_override_font_sizes/font_size = 8
+text = "🔌 PWM 4P"
+
+[node name="ScrewsBox" type="Control" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/CoolerContainer"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Screw1" type="Button" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/CoolerContainer/ScrewsBox"]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 0
+offset_left = 8.0
+offset_top = 22.0
+offset_right = 28.0
+offset_bottom = 42.0
+
+[node name="Icon" type="TextureRect" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/CoolerContainer/ScrewsBox/Screw1"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+
+[node name="Screw2" type="Button" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/CoolerContainer/ScrewsBox"]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 0.0
+offset_left = -28.0
+offset_top = 50.0
+offset_right = -8.0
+offset_bottom = 70.0
+grow_horizontal = 0
+
+[node name="Icon" type="TextureRect" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/CoolerContainer/ScrewsBox/Screw2"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+
+[node name="Screw3" type="Button" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/CoolerContainer/ScrewsBox"]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 1
+anchors_preset = 2
+anchor_left = 0.0
+anchor_top = 1.0
+anchor_right = 0.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = -28.0
+offset_right = 28.0
+offset_bottom = -8.0
+grow_vertical = 0
+
+[node name="Icon" type="TextureRect" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/CoolerContainer/ScrewsBox/Screw3"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+
+[node name="Screw4" type="Button" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/CoolerContainer/ScrewsBox"]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -28.0
+offset_top = -28.0
+offset_right = -8.0
+offset_bottom = -8.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="Icon" type="TextureRect" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/CoolerContainer/ScrewsBox/Screw4"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+
+[node name="BtnExtractCooler" type="Button" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/CoolerContainer"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -55.0
+offset_top = -28.0
+offset_right = 55.0
+offset_bottom = -6.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.2, 1, 0.4, 1)
+theme_override_font_sizes/font_size = 9
+text = "RETIRAR COOLER"
+
+[node name="RAMContainer" type="Panel" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard"]
+layout_mode = 0
+offset_left = 330.0
+offset_top = 35.0
+offset_right = 445.0
+offset_bottom = 165.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_comp")
+
+[node name="RAMTitle" type="Label" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/RAMContainer"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -50.0
+offset_top = 4.0
+offset_right = 50.0
+offset_bottom = 18.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.9, 0.3, 1, 1)
+theme_override_font_sizes/font_size = 9
+text = "RAM DDR5"
+horizontal_alignment = 1
+
+[node name="BtnLatchTop" type="Button" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/RAMContainer"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -40.0
+offset_top = 22.0
+offset_right = 40.0
+offset_bottom = 44.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 8
+text = "TRABA SUP"
+
+[node name="BtnLatchBot" type="Button" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/RAMContainer"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -54.0
+offset_right = 40.0
+offset_bottom = -32.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_font_sizes/font_size = 8
+text = "TRABA INF"
+
+[node name="BtnExtractRAM" type="Button" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/RAMContainer"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -45.0
+offset_top = -28.0
+offset_right = 45.0
+offset_bottom = -6.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.2, 1, 0.4, 1)
+theme_override_font_sizes/font_size = 8
+text = "EXTRAER RAM"
+
+[node name="M2Container" type="Panel" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard"]
+layout_mode = 0
+offset_left = 465.0
+offset_top = 45.0
+offset_right = 635.0
+offset_bottom = 125.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_m2")
+
+[node name="M2Title" type="Label" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/M2Container"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -60.0
+offset_top = 4.0
+offset_right = 60.0
+offset_bottom = 18.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.2, 0.9, 0.7, 1)
+theme_override_font_sizes/font_size = 9
+text = "SSD M.2 NVME"
+horizontal_alignment = 1
+
+[node name="M2PCB" type="Panel" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/M2Container"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -65.0
+offset_top = -12.0
+offset_right = 65.0
+offset_bottom = 18.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PCBText" type="Label" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/M2Container/M2PCB"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -50.0
+offset_top = -8.0
+offset_right = 50.0
+offset_bottom = 8.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 8
+text = "NAND 1TB NVMe"
+horizontal_alignment = 1
+
+[node name="BtnArmorScrew" type="Button" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/M2Container"]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 0
+offset_left = 6.0
+offset_top = 25.0
+offset_right = 26.0
+offset_bottom = 45.0
+
+[node name="Icon" type="TextureRect" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/M2Container/BtnArmorScrew"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+
+[node name="BtnM2Screw" type="Button" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/M2Container"]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 0
+offset_left = 6.0
+offset_top = 25.0
+offset_right = 26.0
+offset_bottom = 45.0
+
+[node name="Icon" type="TextureRect" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/M2Container/BtnM2Screw"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+
+[node name="BtnExtractM2" type="Button" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/M2Container"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -60.0
+offset_top = -24.0
+offset_right = 60.0
+offset_bottom = -4.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.2, 1, 0.4, 1)
+theme_override_font_sizes/font_size = 8
+text = "DESLIZAR A 30°"
+
+[node name="GPUContainer" type="Panel" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 195.0
+offset_right = 470.0
+offset_bottom = 275.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_gpu")
+
+[node name="GPUTitle" type="Label" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/GPUContainer"]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 40.0
+offset_top = -10.0
+offset_right = 240.0
+offset_bottom = 10.0
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 0.25, 0.5, 1)
+theme_override_font_sizes/font_size = 11
+text = "TARJETA GPU (PCIE 16X)"
+
+[node name="BtnGPUBracket" type="Button" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/GPUContainer"]
+custom_minimum_size = Vector2(22, 22)
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 8.0
+offset_top = -11.0
+offset_right = 30.0
+offset_bottom = 11.0
+grow_vertical = 2
+
+[node name="Icon" type="TextureRect" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/GPUContainer/BtnGPUBracket"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+
+[node name="BtnGPUCable" type="Button" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/GPUContainer"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 0.0
+offset_left = -95.0
+offset_top = 6.0
+offset_right = -8.0
+offset_bottom = 30.0
+grow_horizontal = 0
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 9
+text = "🔌 PCIe 8-Pin"
+
+[node name="BtnExtractGPU" type="Button" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/GPUContainer"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -115.0
+offset_top = -32.0
+offset_right = -8.0
+offset_bottom = -6.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.2, 1, 0.4, 1)
+theme_override_font_sizes/font_size = 9
+text = "EXTRAER GPU"
+
+[node name="BtnGPULatch" type="Button" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard"]
+layout_mode = 0
+offset_left = 480.0
+offset_top = 220.0
+offset_right = 550.0
+offset_bottom = 250.0
+theme_override_font_sizes/font_size = 9
+text = "TRABADO"
+
+[node name="StandoffsContainer" type="Control" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Standoff1" type="Button" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/StandoffsContainer"]
+custom_minimum_size = Vector2(22, 22)
+layout_mode = 0
+offset_left = 25.0
+offset_top = 25.0
+offset_right = 47.0
+offset_bottom = 47.0
+
+[node name="Icon" type="TextureRect" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/StandoffsContainer/Standoff1"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+
+[node name="Standoff2" type="Button" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/StandoffsContainer"]
+custom_minimum_size = Vector2(22, 22)
+layout_mode = 0
+offset_left = 340.0
+offset_top = 25.0
+offset_right = 362.0
+offset_bottom = 47.0
+
+[node name="Icon" type="TextureRect" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/StandoffsContainer/Standoff2"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+
+[node name="Standoff3" type="Button" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/StandoffsContainer"]
+custom_minimum_size = Vector2(22, 22)
+layout_mode = 0
+offset_left = 660.0
+offset_top = 25.0
+offset_right = 682.0
+offset_bottom = 47.0
+
+[node name="Icon" type="TextureRect" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/StandoffsContainer/Standoff3"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+
+[node name="Standoff4" type="Button" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/StandoffsContainer"]
+custom_minimum_size = Vector2(22, 22)
+layout_mode = 0
+offset_left = 25.0
+offset_top = 260.0
+offset_right = 47.0
+offset_bottom = 282.0
+
+[node name="Icon" type="TextureRect" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/StandoffsContainer/Standoff4"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+
+[node name="Standoff5" type="Button" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/StandoffsContainer"]
+custom_minimum_size = Vector2(22, 22)
+layout_mode = 0
+offset_left = 340.0
+offset_top = 260.0
+offset_right = 362.0
+offset_bottom = 282.0
+
+[node name="Icon" type="TextureRect" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/StandoffsContainer/Standoff5"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+
+[node name="Standoff6" type="Button" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/StandoffsContainer"]
+custom_minimum_size = Vector2(22, 22)
+layout_mode = 0
+offset_left = 660.0
+offset_top = 260.0
+offset_right = 682.0
+offset_bottom = 282.0
+
+[node name="Icon" type="TextureRect" parent="ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/StandoffsContainer/Standoff6"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+
+[node name="BtnExtractMobo" type="Button" parent="ModalControl/Panel/VBox/WorkArea"]
+custom_minimum_size = Vector2(320, 44)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -160.0
+offset_top = -22.0
+offset_right = 160.0
+offset_bottom = 22.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.2, 1, 0.4, 1)
+theme_override_fonts/font = ExtResource("4_title_font")
+theme_override_font_sizes/font_size = 14
+text = "⬆ EXTRAER PLACA MADRE DEL CHASIS"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 14.0
+
+[node name="WarningLabel" type="Label" parent="ModalControl/Panel/VBox/WorkArea"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -24.0
+offset_bottom = -4.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_font_sizes/font_size = 12
+horizontal_alignment = 1
+
+[node name="Footer" type="HBoxContainer" parent="ModalControl/Panel/VBox"]
+layout_mode = 2
+alignment = 2
+
+[node name="BtnCancel" type="Button" parent="ModalControl/Panel/VBox/Footer"]
+custom_minimum_size = Vector2(180, 34)
+layout_mode = 2
+text = "CANCELAR / CERRAR"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 14.0

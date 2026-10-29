@@ -37,6 +37,8 @@ var GPUScene = preload("res://scenes/minigames/GPUMinigame.tscn")
 var CPUScene = preload("res://scenes/minigames/CPUMinigame.tscn")
 var M2Scene = preload("res://scenes/minigames/M2Minigame.tscn")
 var PSUScene = preload("res://scenes/minigames/PSUMinigame.tscn")
+var MotherboardScene = preload("res://scenes/minigames/MotherboardMinigame.tscn")
+var LiquidCoolingScene = preload("res://scenes/minigames/LiquidCoolingMinigame.tscn")
 
 var current_minigame_instance: Node = null
 var active_card_data: Dictionary = {}
@@ -155,16 +157,31 @@ var ALL_CARDS: Array[Dictionary] = [
 		"division": "reparacion",
 		"id": "mobo",
 		"title": "PLACA MADRE",
-		"subtitle": "CHIPSET & BUS PRINCIPAL",
-		"category": "MOTHERBOARD",
+		"subtitle": "DESMONTAJE MAESTRO DEL CHASIS",
+		"category": "ARQUITECTURA & DESARME",
 		"texture_path": "",
-		"color_accent": Color(0.8, 0.15, 0.8, 0.6),
-		"que_es": "Circuito integrado multicapa con zócalos, fases VRM y pistas de alta frecuencia.",
-		"importancia": "TOTAL: Conecta y sincroniza el reloj y canales de datos de todos los componentes.",
-		"que_hace": "Aloja el firmware BIOS/UEFI y canaliza las líneas PCIe, SATA y canales de memoria.",
-		"pasos": "Próximamente disponible en futuras actualizaciones del taller.",
-		"is_ready": false,
-		"handler": ""
+		"color_accent": Color(0.9, 0.15, 0.6, 1.0),
+		"que_es": "Circuito impreso principal que interconecta todos los módulos. Su extracción requiere retirar primero todos los componentes anclados a sus ranuras y los cables de alimentación.",
+		"importancia": "CRÍTICA: Jamás intentes desatornillar la placa madre con la GPU, el cooler o la fuente conectados; el peso y la tensión de los cables pueden quebrar las pistas de cobre internas.",
+		"que_hace": "Desafío maestro de taller: sintetiza la secuencia lógica completa para desensamblar una computadora desde cero hasta dejar el gabinete vacío.",
+		"pasos": "1. Desmonta las piezas instaladas en el orden que prefieras: Cables ATX/EPS, Tarjeta Gráfica GPU, Fan Cooler, SSD M.2 y RAM.\n2. Al despejar la placa madre, desatornilla los 6 tornillos Standoff del chasis con Cruz [1] o Pala [2].\n3. Desencastra del I/O Shield trasero y levanta la placa madre limpia.",
+		"is_ready": true,
+		"handler": "launch_mobo"
+	},
+	{
+		"division": "reparacion",
+		"id": "liquid_cooling",
+		"title": "REFRIGERACIÓN LÍQUIDA",
+		"subtitle": "CIRCUITO CUSTOM LOOP & PURGADO",
+		"category": "REFRIGERACIÓN EXTREMA",
+		"texture_path": "",
+		"color_accent": Color(0.1, 0.9, 1.0, 1.0),
+		"que_es": "Sistema de refrigeración líquida personalizada compuesto por bomba D5, bloque de GPU, bloques acrílicos de CPU y RAM, depósito y radiador 360mm.",
+		"importancia": "CRÍTICA: Una bomba encendida en seco (Dry-running) se quema en segundos. Siempre debes cerrar el circuito de tubos y llenar el depósito antes de encender la bomba.",
+		"que_hace": "Disipa cargas térmicas extremas haciendo circular refrigerante con base glicol a través de microcanales en GPU, CPU y RAM hacia el radiador.",
+		"pasos": "1. Arrastra cada tubo rígido desde el rack izquierdo hacia sus racores en el mapa del chasis (Bomba ➔ GPU ➔ CPU ➔ RAM ➔ Radiador ➔ Depósito) hasta cerrar el circuito.\n2. Arrastra el bidón de líquido refrigerante hacia el tapón del depósito hasta alcanzar el 100% de llenado.\n3. Enciende el interruptor de la bomba D5 para purgar burbujas de aire y disipar el calor de GPU, CPU y RAM.",
+		"is_ready": true,
+		"handler": "launch_liquid_cooling"
 	},
 
 	# =========================================================================
@@ -394,6 +411,19 @@ func _filter_visible_cards() -> void:
 		child.visible = (div == current_division)
 
 func _update_division_buttons() -> void:
+	var rep_count = 0
+	var sis_count = 0
+	var srv_count = 0
+	for c in ALL_CARDS:
+		match c.get("division", ""):
+			"reparacion": rep_count += 1
+			"sistema": sis_count += 1
+			"servidor": srv_count += 1
+			
+	btn_reparacion.text = "REPARACIÓN (%d)" % rep_count
+	btn_sistema.text = "SISTEMA (%d)" % sis_count
+	btn_servidor.text = "SERVIDOR (%d)" % srv_count
+
 	var tabs = [
 		{"btn": btn_reparacion, "name": "reparacion"},
 		{"btn": btn_sistema, "name": "sistema"},
@@ -512,11 +542,15 @@ func _create_mini_card(data: Dictionary) -> Button:
 	else:
 		var lock_lbl = Label.new()
 		lock_lbl.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-		var div_label = "MÓDULO DE SISTEMA" if data["division"] == "sistema" else ("INFRAESTRUCTURA SERVIDOR" if data["division"] == "servidor" else "EN CALIBRACIÓN")
-		lock_lbl.text = "[ %s ]\n🔒" % div_label
+		if data["is_ready"]:
+			lock_lbl.text = "⚡\n[ SIMULADOR DISPONIBLE ]"
+			lock_lbl.add_theme_color_override("font_color", Color(0.2, 1.0, 0.6, 0.95))
+		else:
+			var div_label = "MÓDULO DE SISTEMA" if data["division"] == "sistema" else ("INFRAESTRUCTURA SERVIDOR" if data["division"] == "servidor" else "EN CALIBRACIÓN")
+			lock_lbl.text = "[ %s ]\n🔒" % div_label
+			lock_lbl.add_theme_color_override("font_color", Color(0.65, 0.5, 0.75, 0.65))
 		lock_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		lock_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		lock_lbl.add_theme_color_override("font_color", Color(0.65, 0.5, 0.75, 0.65))
 		lock_lbl.add_theme_font_size_override("font_size", 11)
 		lock_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		preview_box.add_child(lock_lbl)
@@ -631,6 +665,10 @@ func _on_deployed_play_pressed() -> void:
 			_launch_minigame(M2Scene)
 		"launch_psu":
 			_launch_minigame(PSUScene)
+		"launch_mobo":
+			_launch_minigame(MotherboardScene)
+		"launch_liquid_cooling":
+			_launch_minigame(LiquidCoolingScene)
 
 func _launch_minigame(scene: PackedScene) -> void:
 	if is_instance_valid(current_minigame_instance):

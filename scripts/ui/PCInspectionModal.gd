@@ -7,6 +7,7 @@ var ram_minigame_scene: PackedScene = preload("res://scenes/minigames/RAMMinigam
 var hdd_minigame_scene: PackedScene = preload("res://scenes/minigames/HDDMinigame.tscn")
 var gpu_minigame_scene: PackedScene = preload("res://scenes/minigames/GPUMinigame.tscn")
 var psu_minigame_scene: PackedScene = preload("res://scenes/minigames/PSUMinigame.tscn")
+var mobo_minigame_scene: PackedScene = preload("res://scenes/minigames/MotherboardMinigame.tscn")
 
 @onready var modal_control: Control = $ModalControl
 @onready var title_label: Label = $ModalControl/Panel/VBox/Header/TitleLabel
@@ -210,8 +211,27 @@ func _open_psu_minigame() -> void:
 	)
 
 func _on_mobo_clicked() -> void:
-	GameManager.register_error(2.0)
-	_show_feedback("❌ Diagnóstico incorrecto: La Placa Madre no tiene pistas cortadas ni capacitores hinchados.", false)
+	if current_pc == null:
+		return
+	if current_pc.target_fault_component == "Placa Madre" or current_pc.components.get("Placa Madre", "ok") == "empty":
+		_open_mobo_minigame()
+	else:
+		GameManager.register_error(2.0)
+		_show_feedback("❌ Diagnóstico incorrecto: La Placa Madre no tiene pistas cortadas ni capacitores hinchados.", false)
+
+func _open_mobo_minigame() -> void:
+	modal_control.visible = false
+	var minigame = mobo_minigame_scene.instantiate()
+	get_tree().root.add_child(minigame)
+	minigame.connect("minigame_finished", func(success: bool):
+		minigame.queue_free()
+		modal_control.visible = true
+		if success:
+			current_pc.components["Placa Madre"] = "fixed"
+			current_pc.update_3d_state()
+			GameManager.register_repair(150, 15.0)
+		_refresh_ui()
+	)
 
 func _show_feedback(msg: String, is_positive: bool) -> void:
 	status_summary.text = msg

@@ -16,6 +16,7 @@ extends Control
 @onready var vbox_container: VBoxContainer = $VBoxContainer
 @onready var decoracion: TextureRect = $Decoracion
 @onready var bottom_right_info: VBoxContainer = $BottomRightInfo
+@onready var version_label: Label = $BottomRightInfo/VersionLabel
 
 # Fondos y modales
 @onready var darken_overlay: ColorRect = $DarkenOverlay
@@ -49,6 +50,8 @@ var panel_target_x: float = 240.0 # (1280 - 800) / 2 = 240.0
 
 func _ready() -> void:
 	modulate = Color.WHITE
+	if version_label:
+		version_label.text = "Version 0.0.1 Alpha"
 	header_orig_x = header_container.position.x
 	buttons_orig_x = vbox_container.position.x
 	deco_orig_x = decoracion.position.x

@@ -1,0 +1,1086 @@
+[gd_scene format=3 load_steps=15]
+
+[ext_resource type="Script" path="res://scripts/minigames/LiquidCoolingMinigame.gd" id="1_cool"]
+[ext_resource type="Script" path="res://scripts/menus/CyberButton.gd" id="2_cbtn"]
+[ext_resource type="Theme" path="res://styles/cyberpunk_theme.tres" id="3_theme"]
+[ext_resource type="FontFile" uid="uid://dbcug8887dro7" path="res://assets/fonts/Bungee-Regular.ttf" id="4_title_font"]
+[ext_resource type="PackedScene" path="res://scenes/ui/CyberBackgroundFrame.tscn" id="5_bg_frame"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_frame"]
+content_margin_left = 20.0
+content_margin_top = 15.0
+content_margin_right = 20.0
+content_margin_bottom = 15.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rack"]
+bg_color = Color(0.05, 0.04, 0.08, 0.96)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.15, 0.8, 1, 0.7)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tube_card"]
+bg_color = Color(0.08, 0.12, 0.18, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.2, 0.75, 0.95, 0.8)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_chassis"]
+bg_color = Color(0.04, 0.03, 0.07, 0.98)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.1, 0.85, 1, 0.85)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rad"]
+bg_color = Color(0.1, 0.12, 0.16, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.35, 0.55, 0.75, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_block"]
+bg_color = Color(0.06, 0.14, 0.22, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.2, 0.9, 1, 0.95)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_res"]
+bg_color = Color(0.04, 0.07, 0.12, 0.85)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.65, 0.85, 1, 0.9)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_jug"]
+bg_color = Color(0.03, 0.18, 0.16, 0.95)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.2, 1, 0.8, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pumpbox"]
+bg_color = Color(0.1, 0.08, 0.15, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.2, 0.6, 0.8)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[node name="LiquidCoolingMinigame" type="CanvasLayer"]
+layer = 12
+script = ExtResource("1_cool")
+
+[node name="ModalControl" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("3_theme")
+
+[node name="DimOverlay" type="ColorRect" parent="ModalControl"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.03, 0.01, 0.07, 0.94)
+
+[node name="Panel" type="PanelContainer" parent="ModalControl"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -485.0
+offset_top = -305.0
+offset_right = 485.0
+offset_bottom = 305.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_frame")
+
+[node name="CyberBackgroundFrame" parent="ModalControl/Panel" instance=ExtResource("5_bg_frame")]
+layout_mode = 2
+
+[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Header" type="VBoxContainer" parent="ModalControl/Panel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="Titulo" type="Label" parent="ModalControl/Panel/VBox/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.1, 0.9, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 8
+theme_override_colors/font_shadow_color = Color(0.1, 0.4, 0.9, 0.85)
+theme_override_constants/shadow_outline_size = 8
+theme_override_fonts/font = ExtResource("4_title_font")
+theme_override_font_sizes/font_size = 17
+text = "SISTEMA TÉCNICO: REFRIGERACIÓN LÍQUIDA CUSTOM LOOP"
+horizontal_alignment = 1
+
+[node name="PhaseTracker" type="Label" parent="ModalControl/Panel/VBox/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 1, 0.6, 1)
+theme_override_font_sizes/font_size = 11
+text = "FASE 1/3: MONTAJE DE TUBOS RÍGIDOS PETG"
+horizontal_alignment = 1
+
+[node name="TelemetryLabel" type="Label" parent="ModalControl/Panel/VBox/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.35, 0.35, 1)
+theme_override_font_sizes/font_size = 11
+text = "CAUDAL: 0.0 L/min · RPM: 0 · CPU: 86°C · RAM: 64°C · GPU: 79°C (SIN REFRIGERANTE)"
+horizontal_alignment = 1
+
+[node name="StatusLabel" type="Label" parent="ModalControl/Panel/VBox/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 12
+text = "Arrastra cada tubo rígido desde el rack hacia sus racores en el mapa del chasis."
+horizontal_alignment = 1
+
+[node name="WorkArea" type="Control" parent="ModalControl/Panel/VBox"]
+custom_minimum_size = Vector2(930, 420)
+layout_mode = 2
+
+[node name="TubesRack" type="Panel" parent="ModalControl/Panel/VBox/WorkArea"]
+layout_mode = 0
+offset_left = 6.0
+offset_top = 4.0
+offset_right = 226.0
+offset_bottom = 414.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_rack")
+
+[node name="RackTitle" type="Label" parent="ModalControl/Panel/VBox/WorkArea/TubesRack"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -100.0
+offset_top = 8.0
+offset_right = 100.0
+offset_bottom = 24.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.2, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 10
+text = "RACK DE TUBOS PETG"
+horizontal_alignment = 1
+
+[node name="RackSub" type="Label" parent="ModalControl/Panel/VBox/WorkArea/TubesRack"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -100.0
+offset_top = 24.0
+offset_right = 100.0
+offset_bottom = 40.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.7, 0.85, 1, 0.75)
+theme_override_font_sizes/font_size = 8
+text = "Arrastra al chasis para acoplar"
+horizontal_alignment = 1
+
+[node name="RackVBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/WorkArea/TubesRack"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 44.0
+offset_right = -8.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 6
+
+[node name="TubeItem0" type="Panel" parent="ModalControl/Panel/VBox/WorkArea/TubesRack/RackVBox"]
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+mouse_default_cursor_shape = 6
+theme_override_styles/panel = SubResource("StyleBoxFlat_tube_card")
+
+[node name="Title" type="Label" parent="ModalControl/Panel/VBox/WorkArea/TubesRack/RackVBox/TubeItem0"]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 6.0
+offset_right = 196.0
+offset_bottom = 22.0
+theme_override_colors/font_color = Color(0.2, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 9
+text = "1. Tubo Bomba ➔ GPU"
+
+[node name="Desc" type="Label" parent="ModalControl/Panel/VBox/WorkArea/TubesRack/RackVBox/TubeItem0"]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 22.0
+offset_right = 196.0
+offset_bottom = 36.0
+theme_override_colors/font_color = Color(0.8, 0.9, 1, 0.75)
+theme_override_font_sizes/font_size = 8
+text = "Línea inferior fría"
+
+[node name="Status" type="Label" parent="ModalControl/Panel/VBox/WorkArea/TubesRack/RackVBox/TubeItem0"]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 38.0
+offset_right = 196.0
+offset_bottom = 54.0
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 8
+text = "[ARRASTRAR AL CHASIS]"
+
+[node name="TubeItem1" type="Panel" parent="ModalControl/Panel/VBox/WorkArea/TubesRack/RackVBox"]
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+mouse_default_cursor_shape = 6
+theme_override_styles/panel = SubResource("StyleBoxFlat_tube_card")
+
+[node name="Title" type="Label" parent="ModalControl/Panel/VBox/WorkArea/TubesRack/RackVBox/TubeItem1"]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 6.0
+offset_right = 196.0
+offset_bottom = 22.0
+theme_override_colors/font_color = Color(0.2, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 9
+text = "2. Tubo GPU ➔ CPU"
+
+[node name="Desc" type="Label" parent="ModalControl/Panel/VBox/WorkArea/TubesRack/RackVBox/TubeItem1"]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 22.0
+offset_right = 196.0
+offset_bottom = 36.0
+theme_override_colors/font_color = Color(0.8, 0.9, 1, 0.75)
+theme_override_font_sizes/font_size = 8
+text = "Tramo vertical intermedio"
+
+[node name="Status" type="Label" parent="ModalControl/Panel/VBox/WorkArea/TubesRack/RackVBox/TubeItem1"]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 38.0
+offset_right = 196.0
+offset_bottom = 54.0
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 8
+text = "[ARRASTRAR AL CHASIS]"
+
+[node name="TubeItem2" type="Panel" parent="ModalControl/Panel/VBox/WorkArea/TubesRack/RackVBox"]
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+mouse_default_cursor_shape = 6
+theme_override_styles/panel = SubResource("StyleBoxFlat_tube_card")
+
+[node name="Title" type="Label" parent="ModalControl/Panel/VBox/WorkArea/TubesRack/RackVBox/TubeItem2"]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 6.0
+offset_right = 196.0
+offset_bottom = 22.0
+theme_override_colors/font_color = Color(0.2, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 9
+text = "3. Tubo CPU ➔ RAM"
+
+[node name="Desc" type="Label" parent="ModalControl/Panel/VBox/WorkArea/TubesRack/RackVBox/TubeItem2"]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 22.0
+offset_right = 196.0
+offset_bottom = 36.0
+theme_override_colors/font_color = Color(0.8, 0.9, 1, 0.75)
+theme_override_font_sizes/font_size = 8
+text = "Puente térmico horizontal"
+
+[node name="Status" type="Label" parent="ModalControl/Panel/VBox/WorkArea/TubesRack/RackVBox/TubeItem2"]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 38.0
+offset_right = 196.0
+offset_bottom = 54.0
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 8
+text = "[ARRASTRAR AL CHASIS]"
+
+[node name="TubeItem3" type="Panel" parent="ModalControl/Panel/VBox/WorkArea/TubesRack/RackVBox"]
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+mouse_default_cursor_shape = 6
+theme_override_styles/panel = SubResource("StyleBoxFlat_tube_card")
+
+[node name="Title" type="Label" parent="ModalControl/Panel/VBox/WorkArea/TubesRack/RackVBox/TubeItem3"]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 6.0
+offset_right = 196.0
+offset_bottom = 22.0
+theme_override_colors/font_color = Color(0.2, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 9
+text = "4. Tubo RAM ➔ Radiador"
+
+[node name="Desc" type="Label" parent="ModalControl/Panel/VBox/WorkArea/TubesRack/RackVBox/TubeItem3"]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 22.0
+offset_right = 196.0
+offset_bottom = 36.0
+theme_override_colors/font_color = Color(0.8, 0.9, 1, 0.75)
+theme_override_font_sizes/font_size = 8
+text = "Subida hacia radiador superior"
+
+[node name="Status" type="Label" parent="ModalControl/Panel/VBox/WorkArea/TubesRack/RackVBox/TubeItem3"]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 38.0
+offset_right = 196.0
+offset_bottom = 54.0
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 8
+text = "[ARRASTRAR AL CHASIS]"
+
+[node name="TubeItem4" type="Panel" parent="ModalControl/Panel/VBox/WorkArea/TubesRack/RackVBox"]
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+mouse_default_cursor_shape = 6
+theme_override_styles/panel = SubResource("StyleBoxFlat_tube_card")
+
+[node name="Title" type="Label" parent="ModalControl/Panel/VBox/WorkArea/TubesRack/RackVBox/TubeItem4"]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 6.0
+offset_right = 196.0
+offset_bottom = 22.0
+theme_override_colors/font_color = Color(0.2, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 9
+text = "5. Tubo Radiador ➔ Depósito"
+
+[node name="Desc" type="Label" parent="ModalControl/Panel/VBox/WorkArea/TubesRack/RackVBox/TubeItem4"]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 22.0
+offset_right = 196.0
+offset_bottom = 36.0
+theme_override_colors/font_color = Color(0.8, 0.9, 1, 0.75)
+theme_override_font_sizes/font_size = 8
+text = "Cierre hermético del circuito"
+
+[node name="Status" type="Label" parent="ModalControl/Panel/VBox/WorkArea/TubesRack/RackVBox/TubeItem4"]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 38.0
+offset_right = 196.0
+offset_bottom = 54.0
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 8
+text = "[ARRASTRAR AL CHASIS]"
+
+[node name="CoolantJug" type="Panel" parent="ModalControl/Panel/VBox/WorkArea"]
+visible = false
+layout_mode = 0
+offset_left = 35.0
+offset_top = 90.0
+offset_right = 195.0
+offset_bottom = 300.0
+mouse_default_cursor_shape = 6
+theme_override_styles/panel = SubResource("StyleBoxFlat_jug")
+
+[node name="JugTitle" type="Label" parent="ModalControl/Panel/VBox/WorkArea/CoolantJug"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -65.0
+offset_top = 10.0
+offset_right = 65.0
+offset_bottom = 26.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.2, 1, 0.85, 1)
+theme_override_font_sizes/font_size = 10
+text = "BIDÓN REFRIGERANTE"
+horizontal_alignment = 1
+
+[node name="JugLiquid" type="ColorRect" parent="ModalControl/Panel/VBox/WorkArea/CoolantJug"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -50.0
+offset_top = -45.0
+offset_right = 50.0
+offset_bottom = 55.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.05, 0.95, 0.85, 0.9)
+
+[node name="LiquidIcon" type="Label" parent="ModalControl/Panel/VBox/WorkArea/CoolantJug/JugLiquid"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -40.0
+offset_top = -25.0
+offset_right = 40.0
+offset_bottom = 25.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.05, 0.15, 0.25, 1)
+theme_override_font_sizes/font_size = 10
+text = "1000 mL
+CYBER CYAN
+PREMIX"
+horizontal_alignment = 1
+
+[node name="JugHint" type="Label" parent="ModalControl/Panel/VBox/WorkArea/CoolantJug"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -70.0
+offset_top = -26.0
+offset_right = 70.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 0.85)
+theme_override_font_sizes/font_size = 8
+text = "ARRÁSTRAME AL TAPÓN"
+horizontal_alignment = 1
+
+[node name="ChassisFrame" type="Panel" parent="ModalControl/Panel/VBox/WorkArea"]
+layout_mode = 0
+offset_left = 236.0
+offset_top = 4.0
+offset_right = 924.0
+offset_bottom = 414.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_chassis")
+
+[node name="Radiator" type="Panel" parent="ModalControl/Panel/VBox/WorkArea/ChassisFrame"]
+layout_mode = 0
+offset_left = 30.0
+offset_top = 14.0
+offset_right = 450.0
+offset_bottom = 60.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_rad")
+
+[node name="RadText" type="Label" parent="ModalControl/Panel/VBox/WorkArea/ChassisFrame/Radiator"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -190.0
+offset_top = -12.0
+offset_right = 190.0
+offset_bottom = 12.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.75, 0.88, 1, 0.95)
+theme_override_font_sizes/font_size = 9
+text = "RADIADOR SUPERIOR 360mm // 3x 120mm PWM HIGH STATIC PRESSURE"
+horizontal_alignment = 1
+
+[node name="CPUBlock" type="Panel" parent="ModalControl/Panel/VBox/WorkArea/ChassisFrame"]
+layout_mode = 0
+offset_left = 50.0
+offset_top = 110.0
+offset_right = 180.0
+offset_bottom = 205.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_block")
+
+[node name="Title" type="Label" parent="ModalControl/Panel/VBox/WorkArea/ChassisFrame/CPUBlock"]
+layout_mode = 0
+offset_left = 4.0
+offset_top = 6.0
+offset_right = 126.0
+offset_bottom = 20.0
+theme_override_colors/font_color = Color(0.2, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 9
+text = "CPU WATERBLOCK"
+horizontal_alignment = 1
+
+[node name="Temp" type="Label" parent="ModalControl/Panel/VBox/WorkArea/ChassisFrame/CPUBlock"]
+layout_mode = 0
+offset_left = 4.0
+offset_top = 22.0
+offset_right = 126.0
+offset_bottom = 44.0
+theme_override_colors/font_color = Color(1, 0.3, 0.3, 1)
+theme_override_font_sizes/font_size = 13
+text = "86.0°C"
+horizontal_alignment = 1
+
+[node name="Info" type="Label" parent="ModalControl/Panel/VBox/WorkArea/ChassisFrame/CPUBlock"]
+layout_mode = 0
+offset_left = 4.0
+offset_top = 46.0
+offset_right = 126.0
+offset_bottom = 86.0
+theme_override_colors/font_color = Color(0.7, 0.85, 1, 0.8)
+theme_override_font_sizes/font_size = 8
+text = "BASE COBRE
+MICRO-CHANNELS
+RGB ACRÍLICO"
+horizontal_alignment = 1
+
+[node name="RAMBlock" type="Panel" parent="ModalControl/Panel/VBox/WorkArea/ChassisFrame"]
+layout_mode = 0
+offset_left = 230.0
+offset_top = 105.0
+offset_right = 330.0
+offset_bottom = 205.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_block")
+
+[node name="Title" type="Label" parent="ModalControl/Panel/VBox/WorkArea/ChassisFrame/RAMBlock"]
+layout_mode = 0
+offset_left = 4.0
+offset_top = 6.0
+offset_right = 96.0
+offset_bottom = 20.0
+theme_override_colors/font_color = Color(0.85, 0.3, 1, 1)
+theme_override_font_sizes/font_size = 9
+text = "RAM BLOCK"
+horizontal_alignment = 1
+
+[node name="Temp" type="Label" parent="ModalControl/Panel/VBox/WorkArea/ChassisFrame/RAMBlock"]
+layout_mode = 0
+offset_left = 4.0
+offset_top = 22.0
+offset_right = 96.0
+offset_bottom = 44.0
+theme_override_colors/font_color = Color(1, 0.4, 0.3, 1)
+theme_override_font_sizes/font_size = 13
+text = "64.0°C"
+horizontal_alignment = 1
+
+[node name="Info" type="Label" parent="ModalControl/Panel/VBox/WorkArea/ChassisFrame/RAMBlock"]
+layout_mode = 0
+offset_left = 4.0
+offset_top = 46.0
+offset_right = 96.0
+offset_bottom = 86.0
+theme_override_colors/font_color = Color(0.85, 0.8, 1, 0.8)
+theme_override_font_sizes/font_size = 8
+text = "4x MÓDULOS DDR5
+DISIPADOR LÍQUIDO
+ALTA VELOCIDAD"
+horizontal_alignment = 1
+
+[node name="GPUBlock" type="Panel" parent="ModalControl/Panel/VBox/WorkArea/ChassisFrame"]
+layout_mode = 0
+offset_left = 50.0
+offset_top = 255.0
+offset_right = 350.0
+offset_bottom = 360.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_block")
+
+[node name="Title" type="Label" parent="ModalControl/Panel/VBox/WorkArea/ChassisFrame/GPUBlock"]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 292.0
+offset_bottom = 24.0
+theme_override_colors/font_color = Color(0.2, 1, 0.8, 1)
+theme_override_font_sizes/font_size = 10
+text = "GPU WATERBLOCK FULL-COVER"
+horizontal_alignment = 1
+
+[node name="Temp" type="Label" parent="ModalControl/Panel/VBox/WorkArea/ChassisFrame/GPUBlock"]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 26.0
+offset_right = 292.0
+offset_bottom = 48.0
+theme_override_colors/font_color = Color(1, 0.3, 0.3, 1)
+theme_override_font_sizes/font_size = 14
+text = "79.0°C"
+horizontal_alignment = 1
+
+[node name="Info" type="Label" parent="ModalControl/Panel/VBox/WorkArea/ChassisFrame/GPUBlock"]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 50.0
+offset_right = 292.0
+offset_bottom = 90.0
+theme_override_colors/font_color = Color(0.7, 0.95, 1, 0.8)
+theme_override_font_sizes/font_size = 8
+text = "DISIPACIÓN TOTAL // GPU DIE + VRAM GDDR6X + VRM
+TERMINAL ROTATORIO G1/4 // BACKPLATE ANODIZADO"
+horizontal_alignment = 1
+
+[node name="Reservoir" type="Panel" parent="ModalControl/Panel/VBox/WorkArea/ChassisFrame"]
+layout_mode = 0
+offset_left = 500.0
+offset_top = 40.0
+offset_right = 640.0
+offset_bottom = 375.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_res")
+
+[node name="ResHeader" type="Label" parent="ModalControl/Panel/VBox/WorkArea/ChassisFrame/Reservoir"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -60.0
+offset_top = 6.0
+offset_right = 60.0
+offset_bottom = 20.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.3, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 8
+text = "DEPÓSITO + BOMBA D5"
+horizontal_alignment = 1
+
+[node name="FillPortArea" type="Control" parent="ModalControl/Panel/VBox/WorkArea/ChassisFrame/Reservoir"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -40.0
+offset_top = -28.0
+offset_right = 40.0
+offset_bottom = 6.0
+grow_horizontal = 2
+
+[node name="PortGraphic" type="Label" parent="ModalControl/Panel/VBox/WorkArea/ChassisFrame/Reservoir/FillPortArea"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -40.0
+offset_top = -10.0
+offset_right = 40.0
+offset_bottom = 10.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 9
+text = "▼ TAPA LLENADO"
+horizontal_alignment = 1
+
+[node name="Cylinder" type="ColorRect" parent="ModalControl/Panel/VBox/WorkArea/ChassisFrame/Reservoir"]
+layout_mode = 0
+offset_left = 18.0
+offset_top = 26.0
+offset_right = 122.0
+offset_bottom = 236.0
+color = Color(0.02, 0.05, 0.08, 0.9)
+
+[node name="LiquidLevel" type="ColorRect" parent="ModalControl/Panel/VBox/WorkArea/ChassisFrame/Reservoir/Cylinder"]
+layout_mode = 0
+offset_left = 4.0
+offset_top = 202.0
+offset_right = 100.0
+offset_bottom = 202.0
+color = Color(0.05, 0.95, 0.85, 0.85)
+
+[node name="LevelLabel" type="Label" parent="ModalControl/Panel/VBox/WorkArea/ChassisFrame/Reservoir"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 200.0
+offset_right = 120.0
+offset_bottom = 224.0
+theme_override_colors/font_color = Color(1, 1, 1, 0.95)
+theme_override_font_sizes/font_size = 11
+text = "0%"
+horizontal_alignment = 1
+
+[node name="PumpBase" type="Panel" parent="ModalControl/Panel/VBox/WorkArea/ChassisFrame/Reservoir"]
+layout_mode = 0
+offset_left = 10.0
+offset_top = 245.0
+offset_right = 130.0
+offset_bottom = 325.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_pumpbox")
+
+[node name="PumpBaseLabel" type="Label" parent="ModalControl/Panel/VBox/WorkArea/ChassisFrame/Reservoir/PumpBase"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -55.0
+offset_top = -25.0
+offset_right = 55.0
+offset_bottom = 25.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 0.4, 0.8, 1)
+theme_override_font_sizes/font_size = 8
+text = "MOTOR D5 PWM
+ROTOR CERÁMICO
+12V DC // 4800 RPM"
+horizontal_alignment = 1
+
+[node name="Sockets" type="Control" parent="ModalControl/Panel/VBox/WorkArea/ChassisFrame"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Socket0" type="ColorRect" parent="ModalControl/Panel/VBox/WorkArea/ChassisFrame/Sockets"]
+layout_mode = 0
+offset_left = 350.0
+offset_top = 296.0
+offset_right = 500.0
+offset_bottom = 326.0
+color = Color(0.1, 0.8, 1, 0.15)
+
+[node name="Lbl" type="Label" parent="ModalControl/Panel/VBox/WorkArea/ChassisFrame/Sockets/Socket0"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -70.0
+offset_top = -10.0
+offset_right = 70.0
+offset_bottom = 10.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.2, 0.9, 1, 0.85)
+theme_override_font_sizes/font_size = 7
+text = "« ENCAJAR TUBO 1: BOMBA ➔ GPU »"
+horizontal_alignment = 1
+
+[node name="Socket1" type="ColorRect" parent="ModalControl/Panel/VBox/WorkArea/ChassisFrame/Sockets"]
+layout_mode = 0
+offset_left = 95.0
+offset_top = 205.0
+offset_right = 145.0
+offset_bottom = 255.0
+color = Color(0.1, 0.8, 1, 0.15)
+
+[node name="Lbl" type="Label" parent="ModalControl/Panel/VBox/WorkArea/ChassisFrame/Sockets/Socket1"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -25.0
+offset_top = -14.0
+offset_right = 25.0
+offset_bottom = 14.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.2, 0.9, 1, 0.85)
+theme_override_font_sizes/font_size = 6
+text = "« TUBO 2:
+GPU ➔ CPU »"
+horizontal_alignment = 1
+
+[node name="Socket2" type="ColorRect" parent="ModalControl/Panel/VBox/WorkArea/ChassisFrame/Sockets"]
+layout_mode = 0
+offset_left = 180.0
+offset_top = 142.0
+offset_right = 230.0
+offset_bottom = 177.0
+color = Color(0.1, 0.8, 1, 0.15)
+
+[node name="Lbl" type="Label" parent="ModalControl/Panel/VBox/WorkArea/ChassisFrame/Sockets/Socket2"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -25.0
+offset_top = -14.0
+offset_right = 25.0
+offset_bottom = 14.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.2, 0.9, 1, 0.85)
+theme_override_font_sizes/font_size = 6
+text = "« TUBO 3:
+CPU ➔ RAM »"
+horizontal_alignment = 1
+
+[node name="Socket3" type="ColorRect" parent="ModalControl/Panel/VBox/WorkArea/ChassisFrame/Sockets"]
+layout_mode = 0
+offset_left = 255.0
+offset_top = 60.0
+offset_right = 300.0
+offset_bottom = 105.0
+color = Color(0.1, 0.8, 1, 0.15)
+
+[node name="Lbl" type="Label" parent="ModalControl/Panel/VBox/WorkArea/ChassisFrame/Sockets/Socket3"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -22.0
+offset_top = -14.0
+offset_right = 22.0
+offset_bottom = 14.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.2, 0.9, 1, 0.85)
+theme_override_font_sizes/font_size = 6
+text = "« TUBO 4:
+RAM ➔ RAD »"
+horizontal_alignment = 1
+
+[node name="Socket4" type="ColorRect" parent="ModalControl/Panel/VBox/WorkArea/ChassisFrame/Sockets"]
+layout_mode = 0
+offset_left = 450.0
+offset_top = 18.0
+offset_right = 560.0
+offset_bottom = 60.0
+color = Color(0.1, 0.8, 1, 0.15)
+
+[node name="Lbl" type="Label" parent="ModalControl/Panel/VBox/WorkArea/ChassisFrame/Sockets/Socket4"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -50.0
+offset_top = -10.0
+offset_right = 50.0
+offset_bottom = 10.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.2, 0.9, 1, 0.85)
+theme_override_font_sizes/font_size = 7
+text = "« TUBO 5: RAD ➔ BOMBA »"
+horizontal_alignment = 1
+
+[node name="Tubes" type="Control" parent="ModalControl/Panel/VBox/WorkArea/ChassisFrame"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Tube0" type="ColorRect" parent="ModalControl/Panel/VBox/WorkArea/ChassisFrame/Tubes"]
+visible = false
+layout_mode = 0
+offset_left = 350.0
+offset_top = 305.0
+offset_right = 500.0
+offset_bottom = 317.0
+color = Color(0.2, 0.45, 0.65, 0.45)
+
+[node name="Tube1" type="ColorRect" parent="ModalControl/Panel/VBox/WorkArea/ChassisFrame/Tubes"]
+visible = false
+layout_mode = 0
+offset_left = 114.0
+offset_top = 205.0
+offset_right = 126.0
+offset_bottom = 255.0
+color = Color(0.2, 0.45, 0.65, 0.45)
+
+[node name="Tube2" type="ColorRect" parent="ModalControl/Panel/VBox/WorkArea/ChassisFrame/Tubes"]
+visible = false
+layout_mode = 0
+offset_left = 180.0
+offset_top = 154.0
+offset_right = 230.0
+offset_bottom = 166.0
+color = Color(0.2, 0.45, 0.65, 0.45)
+
+[node name="Tube3" type="ColorRect" parent="ModalControl/Panel/VBox/WorkArea/ChassisFrame/Tubes"]
+visible = false
+layout_mode = 0
+offset_left = 270.0
+offset_top = 60.0
+offset_right = 282.0
+offset_bottom = 105.0
+color = Color(0.2, 0.45, 0.65, 0.45)
+
+[node name="Tube4_H" type="ColorRect" parent="ModalControl/Panel/VBox/WorkArea/ChassisFrame/Tubes"]
+visible = false
+layout_mode = 0
+offset_left = 450.0
+offset_top = 30.0
+offset_right = 555.0
+offset_bottom = 42.0
+color = Color(0.2, 0.45, 0.65, 0.45)
+
+[node name="Tube4_V" type="ColorRect" parent="ModalControl/Panel/VBox/WorkArea/ChassisFrame/Tubes"]
+visible = false
+layout_mode = 0
+offset_left = 543.0
+offset_top = 30.0
+offset_right = 555.0
+offset_bottom = 58.0
+color = Color(0.2, 0.45, 0.65, 0.45)
+
+[node name="PumpControlBox" type="Panel" parent="ModalControl/Panel/VBox/WorkArea"]
+visible = false
+layout_mode = 0
+offset_left = 10.0
+offset_top = 100.0
+offset_right = 220.0
+offset_bottom = 280.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_pumpbox")
+
+[node name="CtrlTitle" type="Label" parent="ModalControl/Panel/VBox/WorkArea/PumpControlBox"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -90.0
+offset_top = 10.0
+offset_right = 90.0
+offset_bottom = 26.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(1, 0.4, 0.8, 1)
+theme_override_font_sizes/font_size = 10
+text = "CONTROL DE BOMBA D5"
+horizontal_alignment = 1
+
+[node name="PumpStatusLbl" type="Label" parent="ModalControl/Panel/VBox/WorkArea/PumpControlBox"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -95.0
+offset_top = 32.0
+offset_right = 95.0
+offset_bottom = 72.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(1, 0.8, 0.2, 1)
+theme_override_font_sizes/font_size = 8
+text = "DEPÓSITO AL 100%
+PRESIÓN SELLADA
+LISTO PARA PURGADO"
+horizontal_alignment = 1
+
+[node name="BtnStartPump" type="Button" parent="ModalControl/Panel/VBox/WorkArea/PumpControlBox"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -90.0
+offset_top = -65.0
+offset_right = 90.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.1, 1, 0.5, 1)
+theme_override_font_sizes/font_size = 10
+text = "⚡ ENCENDER BOMBA D5"
+
+[node name="DragGhost" type="Panel" parent="ModalControl/Panel/VBox/WorkArea"]
+visible = false
+layout_mode = 0
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 160.0
+offset_bottom = 40.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_tube_card")
+
+[node name="GhostLabel" type="Label" parent="ModalControl/Panel/VBox/WorkArea/DragGhost"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.2, 1, 0.85, 1)
+theme_override_font_sizes/font_size = 9
+text = "TUBO SELECCIONADO"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="WarningLabel" type="Label" parent="ModalControl/Panel/VBox/WorkArea"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -400.0
+offset_top = -24.0
+offset_right = 400.0
+offset_bottom = -2.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.2, 1, 0.5, 1)
+theme_override_font_sizes/font_size = 11
+text = ""
+horizontal_alignment = 1
+
+[node name="Footer" type="HBoxContainer" parent="ModalControl/Panel/VBox"]
+layout_mode = 2
+alignment = 2
+
+[node name="BtnCancel" type="Button" parent="ModalControl/Panel/VBox/Footer"]
+custom_minimum_size = Vector2(120, 32)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.3, 0.3, 1)
+theme_override_font_sizes/font_size = 10
+text = "CANCELAR [ESC]"
+script = ExtResource("2_cbtn")

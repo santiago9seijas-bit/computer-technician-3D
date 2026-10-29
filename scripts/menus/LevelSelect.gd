@@ -70,6 +70,8 @@ var _gpu_scene = null
 var _cpu_scene = null
 var _m2_scene = null
 var _psu_scene = null
+var _mobo_scene = null
+var _liquid_cooling_scene = null
 
 # --- Variables de Estado ---
 var current_tab: String = "niveles"
@@ -565,16 +567,31 @@ var ALL_TUTORIAL_CARDS: Array[Dictionary] = [
 		"division": "reparacion",
 		"id": "motherboard",
 		"title": "PLACA MADRE",
-		"subtitle": "CIRCUITO IMPRESO PRINCIPAL",
-		"category": "ARQUITECTURA",
+		"subtitle": "DESMONTAJE MAESTRO DEL CHASIS",
+		"category": "ARQUITECTURA & DESARME",
 		"texture_path": "",
-		"color_accent": Color(0.85, 0.12, 0.7, 0.6),
-		"que_es": "Placa de circuito multicapa que interconecta microprocesador, memorias, almacenamiento y buses de expansión.",
-		"importancia": "VITAL: Un fallo en las pistas de cobre o fases VRM inutiliza todos los componentes instalados.",
-		"que_hace": "Sincroniza los buses de comunicación y administra el paso de energía a través del chipset.",
-		"pasos": "Próximamente disponible en el módulo de Reparación.",
-		"is_ready": false,
-		"handler": ""
+		"color_accent": Color(0.9, 0.15, 0.6, 1.0),
+		"que_es": "Circuito impreso principal que interconecta todos los módulos. Su extracción requiere retirar primero todos los componentes anclados a sus ranuras y los cables de alimentación.",
+		"importancia": "CRÍTICA: Jamás intentes desatornillar la placa madre con la GPU, el cooler o la fuente conectados; el peso y la tensión de los cables pueden quebrar las pistas de cobre internas.",
+		"que_hace": "Desafío maestro de taller: sintetiza la secuencia lógica completa para desensamblar una computadora desde cero hasta dejar el gabinete vacío.",
+		"pasos": "1. Desmonta las piezas instaladas en el orden que prefieras: Cables ATX/EPS, Tarjeta Gráfica GPU, Fan Cooler, SSD M.2 y RAM.\n2. Al despejar la placa madre, desatornilla los 6 tornillos Standoff del chasis con Cruz [1] o Pala [2].\n3. Desencastra del I/O Shield trasero y levanta la placa madre limpia.",
+		"is_ready": true,
+		"handler": "launch_mobo"
+	},
+	{
+		"division": "reparacion",
+		"id": "liquid_cooling",
+		"title": "REFRIGERACIÓN LÍQUIDA",
+		"subtitle": "CIRCUITO CUSTOM LOOP & PURGADO",
+		"category": "REFRIGERACIÓN EXTREMA",
+		"texture_path": "",
+		"color_accent": Color(0.1, 0.9, 1.0, 1.0),
+		"que_es": "Sistema de refrigeración líquida personalizada compuesto por bomba D5, bloque de GPU, bloques acrílicos de CPU y RAM, depósito y radiador 360mm.",
+		"importancia": "CRÍTICA: Una bomba encendida en seco (Dry-running) se quema en segundos. Siempre debes cerrar el circuito de tubos y llenar el depósito antes de encender la bomba.",
+		"que_hace": "Disipa cargas térmicas extremas haciendo circular refrigerante con base glicol a través de microcanales en GPU, CPU y RAM hacia el radiador.",
+		"pasos": "1. Arrastra cada tubo rígido desde el rack izquierdo hacia sus racores en el mapa del chasis (Bomba ➔ GPU ➔ CPU ➔ RAM ➔ Radiador ➔ Depósito) hasta cerrar el circuito.\n2. Arrastra el bidón de líquido refrigerante hacia el tapón del depósito hasta alcanzar el 100% de llenado.\n3. Enciende el interruptor de la bomba D5 para purgar burbujas de aire y disipar el calor de GPU, CPU y RAM.",
+		"is_ready": true,
+		"handler": "launch_liquid_cooling"
 	},
 
 	# --- DIVISIÓN SISTEMA (SOFTWARE & CIBERSEGURIDAD) ---
@@ -897,10 +914,23 @@ func _update_mode_buttons() -> void:
 		{"btn": btn_servidor, "name": "servidor"}
 	]
 	
-	var count_suffix = " (12)" if current_tab == "niveles" else " (6)"
-	btn_reparacion.text = "REPARACIÓN" + count_suffix
-	btn_sistema.text = "SISTEMA" + count_suffix
-	btn_servidor.text = "SERVIDOR" + count_suffix
+	var rep_count = 0
+	var sis_count = 0
+	var srv_count = 0
+	for c in ALL_TUTORIAL_CARDS:
+		match c.get("division", ""):
+			"reparacion": rep_count += 1
+			"sistema": sis_count += 1
+			"servidor": srv_count += 1
+			
+	if current_tab == "niveles":
+		btn_reparacion.text = "REPARACIÓN (12)"
+		btn_sistema.text = "SISTEMA (12)"
+		btn_servidor.text = "SERVIDOR (12)"
+	else:
+		btn_reparacion.text = "REPARACIÓN (%d)" % rep_count
+		btn_sistema.text = "SISTEMA (%d)" % sis_count
+		btn_servidor.text = "SERVIDOR (%d)" % srv_count
 	
 	for t in tabs:
 		var is_active = (t["name"] == current_mode)
@@ -974,17 +1004,16 @@ func _on_node_clicked(index: int) -> void:
 # CONSTRUCCIÓN Y FILTRADO INSTANTÁNEO DE TARJETAS (REUTILIZACIÓN DE SLOTS, 0 MS)
 # =============================================================================
 func _filter_tutorial_cards() -> void:
-	# Asegurar que existan los 6 slots fijos en cards_grid (construidos una única vez)
-	if _card_slots.is_empty():
-		for i in range(6):
-			var slot = _create_card_slot()
-			cards_grid.add_child(slot)
-			_card_slots.append(slot)
-			
 	var mode_cards: Array[Dictionary] = []
 	for c in ALL_TUTORIAL_CARDS:
 		if c.get("division", "") == current_mode:
 			mode_cards.append(c)
+			
+	# Asegurar que existan suficientes slots para todas las tarjetas del modo
+	while _card_slots.size() < mode_cards.size():
+		var slot = _create_card_slot()
+		cards_grid.add_child(slot)
+		_card_slots.append(slot)
 			
 	for i in range(_card_slots.size()):
 		var slot = _card_slots[i]
@@ -1174,8 +1203,13 @@ func _populate_mini_card(btn: Button, data: Dictionary) -> void:
 		lock_lbl.visible = false
 	else:
 		tex_rect.visible = false
-		var div_label = "MÓDULO DE SISTEMA" if data["division"] == "sistema" else ("INFRAESTRUCTURA SERVIDOR" if data["division"] == "servidor" else "EN CALIBRACIÓN")
-		lock_lbl.text = "[ %s ]\n🔒" % div_label
+		if data["is_ready"]:
+			lock_lbl.text = "⚡\n[ SIMULADOR DISPONIBLE ]"
+			lock_lbl.add_theme_color_override("font_color", Color(0.2, 1.0, 0.6, 0.95))
+		else:
+			var div_label = "MÓDULO DE SISTEMA" if data["division"] == "sistema" else ("INFRAESTRUCTURA SERVIDOR" if data["division"] == "servidor" else "EN CALIBRACIÓN")
+			lock_lbl.text = "[ %s ]\n🔒" % div_label
+			lock_lbl.add_theme_color_override("font_color", Color(0.7, 0.7, 0.75, 0.6))
 		lock_lbl.visible = true
 		
 	var title_lbl: Label = btn.get_meta("title_lbl")
@@ -1270,6 +1304,14 @@ func _on_deployed_play_pressed() -> void:
 			if not _psu_scene:
 				_psu_scene = load("res://scenes/minigames/PSUMinigame.tscn")
 			_launch_minigame(_psu_scene)
+		"launch_mobo":
+			if not _mobo_scene:
+				_mobo_scene = load("res://scenes/minigames/MotherboardMinigame.tscn")
+			_launch_minigame(_mobo_scene)
+		"launch_liquid_cooling":
+			if not _liquid_cooling_scene:
+				_liquid_cooling_scene = load("res://scenes/minigames/LiquidCoolingMinigame.tscn")
+			_launch_minigame(_liquid_cooling_scene)
 
 func _launch_minigame(scene: PackedScene) -> void:
 	if not scene:

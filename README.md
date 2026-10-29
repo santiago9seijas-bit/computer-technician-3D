@@ -1,8 +1,8 @@
-# 🛠️ Computer Technician 3D (Version 0.0.0 Alpha)
+# 🛠️ Computer Technician 3D (Version 0.0.1 Alpha)
 
 [![Godot Engine](https://img.shields.io/badge/Godot-4.x-blue.svg?logo=godotengine)](https://godotengine.org)
 [![Platform](https://img.shields.io/badge/Platforms-Linux%20%7C%20Windows-green.svg)](#descargas--instalaci%C3%B3n)
-[![Release](https://img.shields.io/badge/Release-Version%200.0.0%20Alpha-magenta.svg)](https://github.com/santiago9seijas-bit/computer-technician-3D/releases)
+[![Release](https://img.shields.io/badge/Release-Version%200.0.1%20Alpha-magenta.svg)](https://github.com/santiago9seijas-bit/computer-technician-3D/releases)
 [![Versiones](https://img.shields.io/badge/Carpeta-Versiones-orange.svg)](versiones/README.md)
 
 **Computer Technician 3D** es un simulador inmersivo en primera persona desarrollado en Godot 4 con estética cyberpunk/sci-fi. Asume el papel de un técnico informático del futuro en un taller especializado, diagnostica componentes dañados, realiza pruebas de hardware e interactúa con minijuegos dinámicos para reparar PCs y módulos cibernéticos.
@@ -23,6 +23,8 @@
   - ⚙️ **CPU (Microprocesador):** Disolución y limpieza de pasta térmica seca con paño de alcohol isopropílico, desenganche de palanca de tensión a 90°, apertura de placa de carga y extracción sujetando por las esquinas.
   - ⚡ **SSD M.2 (NVMe PCIe):** Retiro de armadura térmica M.2 Armor, desatornillado de standoff, elevación a 30° por tensión de resorte y deslizamiento en diagonal sin quebrar pistas.
   - 🔌 **PSU (Fuente de Poder ATX):** Desconexión de arnés principal ATX de 24 pines y CPU EPS de 8 pines con seguro plástico, retiro de 4 tornillos de chasis y deslizamiento por túnel inferior (PSU shroud).
+  - 🖥️ **Placa Madre (Desmontaje Maestro Libre):** Retiro de piezas en cualquier orden (cables ATX/EPS, GPU, Cooler, SSD M.2 y RAM), desatornillado de los 6 tornillos standoff del chasis, desacople del I/O Shield y elevación limpia.
+  - 🌊 **Refrigeración Líquida (Custom Loop Completo):** Mapeado interactivo de componentes calientes (GPU, CPU, RAM + Radiador 360mm y Bomba D5), montaje de tubos rígidos PETG arrastrando tubo a tubo desde el rack, llenado manual con bidón de refrigerante cian al 100% y encendido de la bomba con purgado de aire y caída térmica en tiempo real.
 - **Interfaz Futurista con Shaders:** Menús holográficos interactivos (`cyber_panel_hologram`), transiciones cinemáticas fluidas, selección de niveles y módulos de tutorial interactivos.
 - **Configuración y Accesibilidad:** Panel de configuración personalizable, controles compactos y claros en pantalla.
 

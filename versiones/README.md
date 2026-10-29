@@ -11,11 +11,11 @@ Bienvenido al repositorio de versiones de **Computer Technician 3D**. Aquí enco
 
 ---
 
-## 🏷️ Versión Actual: `0.0.0 Alpha`
+## 🏷️ Versión Actual: `0.0.1 Alpha`
 
 | Sistema Operativo | Archivo | Enlace de Descarga Directa |
 | :--- | :--- | :--- |
-| **Windows** | `ComputerTechnician3D-Windows-v0.0.0-alpha.zip` | [Descargar para Windows](https://github.com/santiago9seijas-bit/computer-technician-3D/releases/download/v0.0.0-alpha/ComputerTechnician3D-Windows-v0.0.0-alpha.zip) |
-| **Linux** | `ComputerTechnician3D-Linux-v0.0.0-alpha.zip` | [Descargar para Linux](https://github.com/santiago9seijas-bit/computer-technician-3D/releases/download/v0.0.0-alpha/ComputerTechnician3D-Linux-v0.0.0-alpha.zip) |
+| **Windows** | `ComputerTechnician3D-Windows-v0.0.1-alpha.zip` | [Descargar para Windows](https://github.com/santiago9seijas-bit/computer-technician-3D/releases/download/v0.0.1-alpha/ComputerTechnician3D-Windows-v0.0.1-alpha.zip) |
+| **Linux** | `ComputerTechnician3D-Linux-v0.0.1-alpha.zip` | [Descargar para Linux](https://github.com/santiago9seijas-bit/computer-technician-3D/releases/download/v0.0.1-alpha/ComputerTechnician3D-Linux-v0.0.1-alpha.zip) |
 
 Para ver todas las notas de lanzamiento y releases etiquetados, visita la [sección de Releases](https://github.com/santiago9seijas-bit/computer-technician-3D/releases).
