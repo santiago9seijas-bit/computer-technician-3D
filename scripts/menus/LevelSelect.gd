@@ -481,7 +481,7 @@ var ALL_TUTORIAL_CARDS: Array[Dictionary] = [
 		"que_es": "Disipador de aleación metálica (aluminio/cobre) acoplado mecánicamente sobre el microprocesador con ventilador de velocidad regulada.",
 		"importancia": "CRÍTICA: Sin disipador activo, la CPU supera los 95°C en segundos, provocando apagados forzados de emergencia o degradación irreversible del silicio.",
 		"que_hace": "Transfiere el calor por contacto térmico hacia las aletas y el ventilador expulsa el flujo de aire caliente al exterior según la curva PWM de 4 pines.",
-		"pasos": "1. Desconecta el cable de alimentación o retira los tornillos en el orden que prefieras.\n2. Identifica la cabeza de cada tornillo: Cruz (+) -> Tecla [1] o Pala (-) -> Tecla [2].\n3. Retira los 4 tornillos de sujeción.\n4. Al quedar totalmente libre, haz clic para levantar el disipador.",
+		"pasos": "🔻 FASE 1: DESMONTAJE (QUITAR):\n1. Desconecta el cable de alimentación PWM.\n2. Retira los 4 tornillos con Cruz [1] o Pala [2].\n3. Levanta el disipador.\n\n🔺 FASE 2: MONTAJE INVERSO (PONER):\n1. Coloca el Fan Cooler nuevo sobre el socket de la CPU.\n2. Ajusta los 4 tornillos en cruz con Cruz [1] o Pala [2].\n3. Conecta el cable PWM de 4 pines a la placa madre.",
 		"is_ready": true,
 		"handler": "launch_cooler"
 	},
@@ -496,7 +496,7 @@ var ALL_TUTORIAL_CARDS: Array[Dictionary] = [
 		"que_es": "Memoria de acceso aleatorio de ultra alta velocidad y almacenamiento volátil, con conexión directa al controlador de memoria de la CPU.",
 		"importancia": "FUNDAMENTAL: Celdas defectuosas o pistas con falso contacto causan cuelgues repentinos, pantallas azules (BSOD) o ausencia de video al encender.",
 		"que_hace": "Almacena en tiempo real el código ejecutable y datos temporales del sistema operativo y programas abiertos, permitiendo transferencias a gigabytes por segundo.",
-		"pasos": "1. Arrastra las trabas laterales de seguridad hacia ARRIBA para desbloquear el slot.\n2. Retira la memoria averiada del zócalo.\n3. Arrastra la nueva memoria RAM alineando la muesca de polaridad central.\n4. Presiona las trabas laterales hacia ABAJO para fijar y asegurar el módulo.",
+		"pasos": "🔻 FASE 1: DESMONTAJE (QUITAR):\n1. Arrastra las trabas laterales hacia ARRIBA.\n2. Arrastra el centro de la RAM hacia ARRIBA para extraer.\n\n🔺 FASE 2: MONTAJE INVERSO (PONER):\n1. Arrastra la nueva RAM al zócalo alineando la muesca central.\n2. Arrastra el centro hacia ABAJO para asentar contactos.\n3. Presiona las trabas laterales hacia ABAJO para asegurar.",
 		"is_ready": true,
 		"handler": "launch_ram"
 	},
@@ -511,7 +511,7 @@ var ALL_TUTORIAL_CARDS: Array[Dictionary] = [
 		"que_es": "Unidad de almacenamiento masivo y persistente del sistema (discos magnéticos o celdas flash de estado sólido SATA/NVMe).",
 		"importancia": "VITAL: En él reside el Sistema Operativo, sectores de booteo y archivos del usuario. Errores mecánicos o SMART impiden que la máquina bootee.",
 		"que_hace": "Lee y graba permanentemente los datos a través del bus serie SATA de 6 Gb/s, recibiendo energía desde rieles de 12V y 5V de la fuente.",
-		"pasos": "1. Retira el tornillo de la bahía con Destornillador Cruz [1] o Pala [2].\n2. Arrastra la unidad averiada hacia arriba para extraerla.\n3. Coloca un disco funcional desde la mochila técnica en la bahía vacía.\n4. Fija y ajusta firmemente el tornillo de sujeción.",
+		"pasos": "🔻 FASE 1: DESMONTAJE (QUITAR):\n1. Retira el tornillo de la bahía con Cruz [1] o Pala [2].\n2. Arrastra la unidad averiada hacia ARRIBA para extraerla.\n\n🔺 FASE 2: MONTAJE INVERSO (PONER):\n1. Coloca el disco nuevo en la bahía vacía.\n2. Arrastra el disco hacia ABAJO para encajar en el puerto SATA.\n3. Fija y ajusta el tornillo de sujeción.",
 		"is_ready": true,
 		"handler": "launch_hdd"
 	},
@@ -526,7 +526,7 @@ var ALL_TUTORIAL_CARDS: Array[Dictionary] = [
 		"que_es": "Unidad de procesamiento gráfico de alto rendimiento montada en el puerto PCIe x16 con alimentación dedicada de 8 pines.",
 		"importancia": "CRÍTICA: Es la pieza más propensa a roturas si se tira sin liberar el pestillo plástico del zócalo PCIe de la placa madre.",
 		"que_hace": "Procesa y renderiza gráficos 3D en tiempo real, conectada al bus de datos de alta velocidad PCIe y a la salida de pantalla.",
-		"pasos": "1. Desconecta el conector PCIe de 8 pines presionando el clip de seguridad.\n2. Retira los 2 tornillos del bracket metálico con [1] Cruz o [2] Pala.\n3. Presiona el pestillo de retención plástico al final de la ranura PCIe x16.\n4. Extrae la tarjeta gráfica verticalmente sin torsionar el zócalo.",
+		"pasos": "🔻 FASE 1: DESMONTAJE (QUITAR):\n1. Desconecta el cable PCIe de 8 pines con clip.\n2. Retira los 2 tornillos del bracket metálico con [1]/[2].\n3. Presiona el pestillo de retención plástico PCIe x16.\n4. Extrae la GPU hacia arriba.\n\n🔺 FASE 2: MONTAJE INVERSO (PONER):\n1. Asienta la GPU nueva en la ranura PCIe x16.\n2. Cierra y traba el pestillo plástico PCIe.\n3. Atornilla los 2 tornillos del bracket metálico con [1]/[2].\n4. Conecta el cable PCIe de 8 pines con seguro.",
 		"is_ready": true,
 		"handler": "launch_gpu"
 	},
@@ -571,7 +571,7 @@ var ALL_TUTORIAL_CARDS: Array[Dictionary] = [
 		"que_es": "Fuente de alimentación conmutada modular que entrega energía estabilizada a todos los rieles del equipo.",
 		"importancia": "CRÍTICA: Tirar de los cables sin presionar los clips de seguridad puede fracturar los puertos de la placa madre.",
 		"que_hace": "Distribuye potencia a la placa madre (24 pines), procesador (EPS 8 pines) y componentes periféricos.",
-		"pasos": "1. Desconecta el conector principal ATX de 24 pines presionando su traba de seguridad.\n2. Desconecta el conector auxiliar EPS de 8 pines de la CPU.\n3. Retira los 4 tornillos hexagonales traseros del chasis con [1] Cruz o [2] Pala.\n4. Desliza la fuente de alimentación fuera del túnel inferior del chasis.",
+		"pasos": "🔻 FASE 1: DESMONTAJE (QUITAR):\n1. Desconecta el conector principal ATX de 24 pines.\n2. Desconecta el conector auxiliar EPS de 8 pines.\n3. Retira los 4 tornillos hexagonales con [1] Cruz o [2] Pala.\n4. Desliza la fuente hacia afuera del túnel.\n\n🔺 FASE 2: MONTAJE INVERSO (PONER):\n1. Desliza la fuente nueva dentro del túnel del chasis.\n2. Fija los 4 tornillos de chasis con [1] Cruz o [2] Pala.\n3. Conecta el cable EPS auxiliar de 8 pines.\n4. Conecta el conector principal ATX de 24 pines.",
 		"is_ready": true,
 		"handler": "launch_psu"
 	},
@@ -586,7 +586,7 @@ var ALL_TUTORIAL_CARDS: Array[Dictionary] = [
 		"que_es": "Circuito impreso principal que interconecta todos los módulos. Su extracción requiere retirar primero todos los componentes anclados a sus ranuras y los cables de alimentación.",
 		"importancia": "CRÍTICA: Jamás intentes desatornillar la placa madre con la GPU, el cooler o la fuente conectados; el peso y la tensión de los cables pueden quebrar las pistas de cobre internas.",
 		"que_hace": "Desafío maestro de taller: sintetiza la secuencia lógica completa para desensamblar una computadora desde cero hasta dejar el gabinete vacío.",
-		"pasos": "1. Desmonta las piezas instaladas en el orden que prefieras: Cables ATX/EPS, Tarjeta Gráfica GPU, Fan Cooler, SSD M.2 y RAM.\n2. Al despejar la placa madre, desatornilla los 6 tornillos Standoff del chasis con Cruz [1] o Pala [2].\n3. Desencastra del I/O Shield trasero y levanta la placa madre limpia.",
+		"pasos": "🔻 FASE 1: DESMONTAJE (QUITAR):\n1. Desmonta las piezas instaladas (Cables ATX/EPS, GPU, Cooler, M.2, RAM).\n2. Desatornilla los 6 tornillos Standoff del chasis con [1] Cruz o [2] Pala.\n3. Desencastra del I/O Shield y levanta la placa madre.\n\n🔺 FASE 2: MONTAJE INVERSO (PONER):\n1. Posiciona la placa madre nueva alineándola con el I/O Shield.\n2. Ajusta los 6 tornillos Standoff con Cruz [1] o Pala [2].\n3. Conecta los arneses de alimentación ATX 24P y EPS 8P.",
 		"is_ready": true,
 		"handler": "launch_mobo"
 	},

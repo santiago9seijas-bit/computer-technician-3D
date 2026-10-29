@@ -66,11 +66,18 @@ var tex_screw_pala = preload("res://pixel art/tornillo de pala.png")
 @onready var btn_extract: Button = $ModalControl/Panel/VBox/WorkArea/BtnExtractGPU
 @onready var warning_label: Label = $ModalControl/Panel/VBox/WorkArea/WarningLabel
 
+@onready var btn_tab_quitar: Button = $ModalControl/Panel/VBox/Header/GuidePanel/VBoxGuide/TabsBox/BtnTabQuitar
+@onready var btn_tab_poner: Button = $ModalControl/Panel/VBox/Header/GuidePanel/VBoxGuide/TabsBox/BtnTabPoner
+@onready var guide_text: Label = $ModalControl/Panel/VBox/Header/GuidePanel/VBoxGuide/GuideText
+
 func _ready() -> void:
 	layer = 12
 	_setup_screws()
 	_setup_ui()
 	_update_tool_buttons()
+	
+	btn_tab_quitar.pressed.connect(func(): _select_guide_tab(0))
+	btn_tab_poner.pressed.connect(func(): _select_guide_tab(1))
 	
 	if start_as_empty_slot:
 		current_state = State.EMPTY_SLOT
@@ -82,13 +89,28 @@ func _ready() -> void:
 		btn_extract.pressed.connect(_on_insert_new_gpu_pressed)
 		btn_screw_1.visible = false
 		btn_screw_2.visible = false
+		screws_removed = [true, true]
 		is_pcie_latch_unlocked = true
 		latch_status_label.text = "PESTILLO PCIE: ABIERTO"
+		pcie_latch_btn.rotation_degrees = 45.0
+		pcie_latch_btn.text = "ABIERTO"
 		pcie_latch_btn.modulate = Color(1.0, 0.8, 0.2)
+		_select_guide_tab(1)
 	else:
 		btn_extract.text = "▲ EXTRAER TARJETA GRÁFICA (GPU)"
+		_select_guide_tab(0)
 		
 	_update_status()
+
+func _select_guide_tab(idx: int) -> void:
+	if idx == 0:
+		btn_tab_quitar.modulate = Color(1.2, 1.2, 0.4, 1.0)
+		btn_tab_poner.modulate = Color(0.7, 0.7, 0.7, 0.7)
+		guide_text.text = "PASOS DE DESMONTAJE (QUITAR): 1. Desconecta cable PCIe 8P · 2. Retira 2 tornillos de bracket con [1]/[2] · 3. Abre pestillo PCIe · 4. Extrae GPU."
+	else:
+		btn_tab_quitar.modulate = Color(0.7, 0.7, 0.7, 0.7)
+		btn_tab_poner.modulate = Color(0.2, 1.0, 0.5, 1.0)
+		guide_text.text = "PASOS DE MONTAJE (CÓMO PONER AL REVÉS): 1. Monta la GPU nueva en el slot PCIe · 2. Cierra y traba el pestillo PCIe · 3. Atornilla 2 tornillos bracket · 4. Conecta cable PCIe 8P."
 
 func _on_insert_new_gpu_pressed() -> void:
 	var found_idx = -1
@@ -324,7 +346,6 @@ func _on_extract_pressed() -> void:
 	
 	is_extracted = true
 	btn_extract.disabled = true
-	current_state = State.COMPLETED
 	
 	var tw = create_tween().set_parallel(true)
 	tw.tween_property(gpu_container, "position:y", gpu_container.position.y - 180.0, 0.6).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
@@ -333,7 +354,28 @@ func _on_extract_pressed() -> void:
 	await tw.finished
 	GameManager.add_item_to_backpack({"name": "Grafica", "broken": true})
 	old_part_extracted.emit()
-	_show_success_flow()
+	
+	# Asegurar que haya una GPU nueva en la mochila para la fase de colocación
+	var has_new = false
+	for it in GameManager.backpack:
+		if it.get("name") == "Grafica" and not it.get("broken", true):
+			has_new = true
+			break
+	if not has_new:
+		GameManager.add_item_to_backpack({"name": "Grafica", "broken": false})
+		
+	gpu_container.visible = false
+	current_state = State.EMPTY_SLOT
+	_select_guide_tab(1)
+	
+	btn_extract.visible = true
+	btn_extract.disabled = false
+	btn_extract.text = "⇪ INSTALAR GPU NUEVA DESDE MOCHILA"
+	btn_extract.pressed.disconnect(_on_extract_pressed)
+	btn_extract.pressed.connect(_on_insert_new_gpu_pressed)
+	
+	_show_warning("✓ FASE 1 (QUITAR) SUPERADA ➔ AHORA FASE 2: MONTAJE DEL REPUESTO (INVERSO)", Color(0.2, 1.0, 0.5))
+	_update_status()
 
 func _show_warning(msg: String, col: Color) -> void:
 	warning_label.text = msg
@@ -374,6 +416,6 @@ func _update_status() -> void:
 
 func _show_success_flow() -> void:
 	_update_status()
-	_show_warning("✓ ¡EXCELENTE! Has desmontado la tarjeta gráfica sin dañar el puerto PCIe ni doblar el bracket.", Color(0.2, 1.0, 0.4))
+	_show_warning("✓ ¡REPARACIÓN INTEGRAL SUPERADA! Has completado tanto el desmontaje como el montaje inverso.", Color(0.2, 1.0, 0.4))
 	await get_tree().create_timer(1.6).timeout
 	minigame_finished.emit(true)

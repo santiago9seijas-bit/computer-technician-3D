@@ -189,6 +189,35 @@ theme_override_font_sizes/font_size = 13
 text = "Desconecta el conector ATX 24P y el cable EPS CPU 8P presionando sus clips."
 horizontal_alignment = 1
 
+[node name="GuidePanel" type="PanelContainer" parent="ModalControl/Panel/VBox/Header"]
+layout_mode = 2
+
+[node name="VBoxGuide" type="VBoxContainer" parent="ModalControl/Panel/VBox/Header/GuidePanel"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="TabsBox" type="HBoxContainer" parent="ModalControl/Panel/VBox/Header/GuidePanel/VBoxGuide"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="BtnTabQuitar" type="Button" parent="ModalControl/Panel/VBox/Header/GuidePanel/VBoxGuide/TabsBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "🔻 FASE 1: CÓMO QUITAR"
+
+[node name="BtnTabPoner" type="Button" parent="ModalControl/Panel/VBox/Header/GuidePanel/VBoxGuide/TabsBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "🔺 FASE 2: CÓMO PONER (MONTAJE INVERSO)"
+
+[node name="GuideText" type="Label" parent="ModalControl/Panel/VBox/Header/GuidePanel/VBoxGuide"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.9, 1.0, 0.9)
+theme_override_font_sizes/font_size = 11
+autowrap_mode = 2
+text = "PASOS DE DESMONTAJE: 1. Desmontar componentes/cables · 2. Retirar 6 standoffs · 3. Extraer placa madre"
+horizontal_alignment = 1
+
 [node name="WorkArea" type="Control" parent="ModalControl/Panel/VBox"]
 custom_minimum_size = Vector2(880, 390)
 layout_mode = 2

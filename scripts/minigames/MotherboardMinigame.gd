@@ -121,6 +121,10 @@ var tex_screw_pala = preload("res://pixel art/tornillo de pala.png")
 @onready var btn_extract_mobo: Button = $ModalControl/Panel/VBox/WorkArea/BtnExtractMobo
 @onready var warning_label: Label = $ModalControl/Panel/VBox/WorkArea/WarningLabel
 
+@onready var btn_tab_quitar: Button = $ModalControl/Panel/VBox/Header/GuidePanel/VBoxGuide/TabsBox/BtnTabQuitar
+@onready var btn_tab_poner: Button = $ModalControl/Panel/VBox/Header/GuidePanel/VBoxGuide/TabsBox/BtnTabPoner
+@onready var guide_text: Label = $ModalControl/Panel/VBox/Header/GuidePanel/VBoxGuide/GuideText
+
 var cooler_screw_buttons: Array[Button] = []
 var cooler_screw_icons: Array[TextureRect] = []
 var standoff_buttons: Array[Button] = []
@@ -131,6 +135,9 @@ func _ready() -> void:
 	_setup_screw_types()
 	_setup_ui()
 	_update_tool_buttons()
+	
+	btn_tab_quitar.pressed.connect(func(): _select_guide_tab(0))
+	btn_tab_poner.pressed.connect(func(): _select_guide_tab(1))
 	
 	if start_as_empty_slot:
 		current_phase = Phase.INSTALL_MOBO
@@ -143,10 +150,22 @@ func _ready() -> void:
 		for b in standoff_buttons:
 			b.visible = false
 			b.disabled = true
+		_select_guide_tab(1)
 	else:
 		btn_extract_mobo.text = "▲ EXTRAER PLACA MADRE DEL GABINETE"
+		_select_guide_tab(0)
 		
 	_update_status()
+
+func _select_guide_tab(idx: int) -> void:
+	if idx == 0:
+		btn_tab_quitar.modulate = Color(1.2, 1.2, 0.4, 1.0)
+		btn_tab_poner.modulate = Color(0.7, 0.7, 0.7, 0.7)
+		guide_text.text = "PASOS DE DESMONTAJE (QUITAR): 1. Desmontar componentes/cables (ATX/EPS, GPU, Cooler, M.2, RAM) · 2. Retirar 6 standoffs con [1]/[2] · 3. Extraer placa madre"
+	else:
+		btn_tab_quitar.modulate = Color(0.7, 0.7, 0.7, 0.7)
+		btn_tab_poner.modulate = Color(0.2, 1.0, 0.5, 1.0)
+		guide_text.text = "PASOS DE MONTAJE (CÓMO PONER AL REVÉS): 1. Montar placa madre nueva contra el I/O Shield · 2. Atornillar 6 standoffs con [1]/[2] · 3. Conectar arneses ATX y EPS"
 
 func _on_insert_new_mobo_pressed() -> void:
 	var found_idx = -1
@@ -369,7 +388,7 @@ func _check_mains_connected() -> void:
 	if not is_atx24_unplugged and not is_eps8_unplugged:
 		current_phase = Phase.COMPLETED
 		_update_status()
-		_show_warning("✓ ¡Placa madre montada, fijada y energizada con éxito!", Color(0.2, 1.0, 0.4))
+		_show_warning("✓ ¡REPARACIÓN INTEGRAL SUPERADA! Has completado tanto el desmontaje como el montaje inverso con éxito.", Color(0.2, 1.0, 0.4))
 		await get_tree().create_timer(1.8).timeout
 		minigame_finished.emit(true)
 
@@ -646,7 +665,6 @@ func _on_extract_mobo_pressed() -> void:
 	if is_mobo_lifted: return
 	is_mobo_lifted = true
 	btn_extract_mobo.disabled = true
-	current_phase = Phase.COMPLETED
 	
 	var tw = create_tween().set_parallel(true)
 	tw.tween_property(mobo_board, "position:x", mobo_board.position.x - 25.0, 0.4) # Desencastrar del I/O shield
@@ -656,10 +674,33 @@ func _on_extract_mobo_pressed() -> void:
 	await tw.finished
 	GameManager.add_item_to_backpack({"name": "Placa Madre", "broken": true})
 	old_part_extracted.emit()
-	_show_warning("✓ ¡MAESTRÍA TOTAL! Desensamblaje completo superado con éxito.", Color(0.2, 1.0, 0.4))
+	
+	# Asegurar que haya una Placa Madre nueva en la mochila para la fase de colocación
+	var has_new = false
+	for it in GameManager.backpack:
+		if it.get("name") == "Placa Madre" and not it.get("broken", true):
+			has_new = true
+			break
+	if not has_new:
+		GameManager.add_item_to_backpack({"name": "Placa Madre", "broken": false})
+		
+	mobo_board.visible = false
+	current_phase = Phase.INSTALL_MOBO
+	_select_guide_tab(1)
+	
+	btn_extract_mobo.visible = true
+	btn_extract_mobo.disabled = false
+	btn_extract_mobo.text = "⇪ MONTAR PLACA MADRE NUEVA DESDE MOCHILA"
+	btn_extract_mobo.pressed.disconnect(_on_extract_mobo_pressed)
+	btn_extract_mobo.pressed.connect(_on_insert_new_mobo_pressed)
+	
+	standoff_screws_removed = [true, true, true, true, true, true]
+	for b in standoff_buttons:
+		b.visible = false
+		b.disabled = true
+		
+	_show_warning("✓ FASE 1 (QUITAR) SUPERADA ➔ AHORA FASE 2: MONTAJE DEL REPUESTO (INVERSO)", Color(0.2, 1.0, 0.5))
 	_update_status()
-	await get_tree().create_timer(1.8).timeout
-	minigame_finished.emit(true)
 
 func _show_warning(msg: String, col: Color) -> void:
 	warning_label.text = msg

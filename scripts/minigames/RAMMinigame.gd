@@ -49,6 +49,9 @@ var default_seated_y: float = 82.0
 
 @onready var backpack_items_box: VBoxContainer = $ModalControl/Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox/ItemsContainer
 @onready var backpack_hint: Label = $ModalControl/Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox/BackpackHint
+@onready var btn_tab_quitar: Button = $ModalControl/Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox/TabsBox/BtnTabQuitar
+@onready var btn_tab_poner: Button = $ModalControl/Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox/TabsBox/BtnTabPoner
+@onready var guide_text: Label = $ModalControl/Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox/GuideText
 @onready var btn_cancel: Button = $ModalControl/Panel/VBox/Footer/BtnCancel
 
 func _ready() -> void:
@@ -62,15 +65,30 @@ func _ready() -> void:
 	
 	GameManager.backpack_updated.connect(_on_backpack_changed)
 	
+	btn_tab_quitar.pressed.connect(func(): _select_guide_tab(0))
+	btn_tab_poner.pressed.connect(func(): _select_guide_tab(1))
+	
 	if start_as_empty_slot:
 		ram_stick.visible = false
 		empty_slot_label.visible = true
 		current_state = State.EMPTY_SLOT
+		_select_guide_tab(1)
 	else:
+		_select_guide_tab(0)
 		_init_base_position.call_deferred()
 		
 	_update_ui_state()
 	_refresh_backpack_ui()
+
+func _select_guide_tab(idx: int) -> void:
+	if idx == 0:
+		btn_tab_quitar.modulate = Color(1.2, 1.2, 0.4, 1.0)
+		btn_tab_poner.modulate = Color(0.7, 0.7, 0.7, 0.7)
+		guide_text.text = "FASE 1 (QUITAR): Arrastra hacia arriba lados izq/der y luego arrastra el centro hacia arriba."
+	else:
+		btn_tab_quitar.modulate = Color(0.7, 0.7, 0.7, 0.7)
+		btn_tab_poner.modulate = Color(0.2, 1.0, 0.5, 1.0)
+		guide_text.text = "FASE 2 (PONER AL REVÉS): Coloca la RAM nueva en el slot, arrastra el centro hacia abajo y traba seguros."
 
 func _init_base_position() -> void:
 	await get_tree().process_frame
@@ -345,8 +363,21 @@ func _complete_ram_removal() -> void:
 		ram_stick.visible = false
 		empty_slot_label.visible = true
 		GameManager.add_item_to_backpack({"name": "RAM", "broken": true})
-		current_state = State.EMPTY_SLOT
 		old_part_extracted.emit()
+		
+		# Asegurar que haya una RAM nueva en la mochila para la fase de colocación
+		var has_new = false
+		for it in GameManager.backpack:
+			if it.get("name") == "RAM" and not it.get("broken", true):
+				has_new = true
+				break
+		if not has_new:
+			GameManager.add_item_to_backpack({"name": "RAM", "broken": false})
+			
+		current_state = State.EMPTY_SLOT
+		_select_guide_tab(1)
+		status_label.text = "✓ FASE 1 (QUITAR) SUPERADA ➔ AHORA FASE 2: MONTAJE DEL REPUESTO (INVERSO)"
+		status_label.modulate = Color(0.2, 1.0, 0.5, 1)
 		_update_ui_state()
 		_refresh_backpack_ui()
 	)

@@ -49,6 +49,8 @@ var tex_cooler_frame = preload("res://pixel art/cuadro de fancoolerpng.png")
 @onready var screws_container: Control = $ModalControl/Panel/VBox/ContentHBox/WorkArea/ScrewsContainer
 @onready var cooler_extract_btn: Button = $ModalControl/Panel/VBox/ContentHBox/WorkArea/BtnExtractCooler
 
+@onready var btn_tab_quitar: Button = $ModalControl/Panel/VBox/ContentHBox/SideInfo/Margin/VBox/TabsBox/BtnTabQuitar
+@onready var btn_tab_poner: Button = $ModalControl/Panel/VBox/ContentHBox/SideInfo/Margin/VBox/TabsBox/BtnTabPoner
 @onready var instructions_text: Label = $ModalControl/Panel/VBox/ContentHBox/SideInfo/Margin/VBox/Text
 @onready var backpack_box: VBoxContainer = $ModalControl/Panel/VBox/ContentHBox/SideInfo/Margin/VBox/BackpackBox
 @onready var backpack_items_box: VBoxContainer = $ModalControl/Panel/VBox/ContentHBox/SideInfo/Margin/VBox/BackpackBox/ItemsContainer
@@ -66,6 +68,9 @@ func _ready() -> void:
 	
 	GameManager.backpack_updated.connect(_on_backpack_changed)
 	
+	btn_tab_quitar.pressed.connect(func(): _select_tab(0))
+	btn_tab_poner.pressed.connect(func(): _select_tab(1))
+	
 	if start_as_empty_slot:
 		current_state = State.EMPTY_SOCKET
 		cooler_sprite.visible = false
@@ -73,12 +78,23 @@ func _ready() -> void:
 		cable_button.visible = false
 		cable_hint.visible = false
 		cooler_extract_btn.visible = false
-		instructions_text.text = "• Paso 1: Inserta el Fan Cooler nuevo desde tu mochila.\n• Paso 2: Ajusta los 4 tornillos con [1] Cruz o [2] Pala.\n• Paso 3: Conecta el cable de alimentación PWM."
+		_select_tab(1)
 		_refresh_backpack_ui()
 	else:
+		_select_tab(0)
 		_refresh_backpack_ui()
 		
 	_update_status()
+
+func _select_tab(idx: int) -> void:
+	if idx == 0:
+		btn_tab_quitar.modulate = Color(1.2, 1.2, 0.4, 1.0)
+		btn_tab_poner.modulate = Color(0.7, 0.7, 0.7, 0.7)
+		instructions_text.text = "• FASE 1: DESMONTAJE (QUITAR)\n\n1. Desconecta el cable PWM de alimentación (clic en el cable).\n2. Identifica la cabeza de cada tornillo: Cruz [1] o Pala [2].\n3. Retira los 4 tornillos de sujeción.\n4. Al quedar libre, presiona 'EXTRAER DISIPADOR'."
+	else:
+		btn_tab_quitar.modulate = Color(0.7, 0.7, 0.7, 0.7)
+		btn_tab_poner.modulate = Color(0.2, 1.0, 0.5, 1.0)
+		instructions_text.text = "• FASE 2: MONTAJE INVERSO (PONER)\n\n1. Selecciona el Fan Cooler nuevo en tu mochila para montarlo en la CPU.\n2. Ajusta los 4 tornillos en cruz con Cruz [1] o Pala [2].\n3. Conecta el cable de alimentación PWM al zócalo de la placa madre."
 
 func _on_backpack_changed(_items: Array) -> void:
 	_refresh_backpack_ui()
@@ -225,9 +241,7 @@ func _on_cable_disconnected() -> void:
 		_show_floating_feedback("¡CABLE CONECTADO CON ÉXITO!", Color(0.2, 1.0, 0.5))
 		current_state = State.COMPLETED
 		_update_status()
-		var tw = create_tween()
-		tw.tween_interval(0.5)
-		tw.tween_callback(func(): minigame_finished.emit(true))
+		_show_victory_panel()
 		return
 		
 	if is_cable_disconnected:
@@ -338,16 +352,35 @@ func _on_extract_cooler_pressed() -> void:
 	tw.chain().tween_callback(func():
 		GameManager.add_item_to_backpack({"name": "Fan Cooler", "broken": true})
 		old_part_extracted.emit()
-		current_state = State.COMPLETED
-		_show_victory_panel()
+		
+		# Asegurar que haya un Fan Cooler nuevo en la mochila para la fase de colocación
+		var has_new = false
+		for it in GameManager.backpack:
+			if it.get("name") == "Fan Cooler" and not it.get("broken", true):
+				has_new = true
+				break
+		if not has_new:
+			GameManager.add_item_to_backpack({"name": "Fan Cooler", "broken": false})
+			
+		current_state = State.EMPTY_SOCKET
+		_select_tab(1)
+		_show_floating_feedback("✓ FASE 1 (QUITAR) COMPLETADA ➔ AHORA FASE 2: MONTAJE INVERSO (PONER)", Color(0.2, 1.0, 0.5))
+		_update_status()
+		_refresh_backpack_ui()
 	)
 
 func _show_victory_panel() -> void:
-	status_label.text = "¡FAN COOLER DESMONTADO CON ÉXITO!"
+	status_label.text = "¡REPARACIÓN INTEGRAL SUPERADA (QUITAR Y PONER COMPLETADOS)!"
 	status_label.add_theme_color_override("font_color", Color(0.2, 1.0, 0.5, 1.0))
 	
 	var victory_modal = $ModalControl/VictoryPanel
 	if victory_modal:
+		var v_title = victory_modal.get_node_or_null("VBox/Title")
+		if v_title:
+			v_title.text = "¡REPARACIÓN INTEGRAL COMPLETADA! ✓"
+		var v_desc = victory_modal.get_node_or_null("VBox/Desc")
+		if v_desc:
+			v_desc.text = "Has desmontado la pieza averiada e instalado el Fan Cooler nuevo en orden inverso con total éxito."
 		victory_modal.visible = true
 		var btn_done = victory_modal.get_node_or_null("VBox/BtnContinuar")
 		if btn_done:

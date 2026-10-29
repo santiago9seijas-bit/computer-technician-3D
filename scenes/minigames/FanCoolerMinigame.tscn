@@ -343,8 +343,22 @@ theme_override_constants/separation = 10
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.15, 0.35, 1)
 theme_override_font_sizes/font_size = 14
-text = "INSTRUCCIONES"
+text = "GUÍA DE PROCEDIMIENTO"
 horizontal_alignment = 1
+
+[node name="TabsBox" type="HBoxContainer" parent="ModalControl/Panel/VBox/ContentHBox/SideInfo/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="BtnTabQuitar" type="Button" parent="ModalControl/Panel/VBox/ContentHBox/SideInfo/Margin/VBox/TabsBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "🔻 1. QUITAR"
+
+[node name="BtnTabPoner" type="Button" parent="ModalControl/Panel/VBox/ContentHBox/SideInfo/Margin/VBox/TabsBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "🔺 2. PONER"
 
 [node name="Sep" type="HSeparator" parent="ModalControl/Panel/VBox/ContentHBox/SideInfo/Margin/VBox"]
 layout_mode = 2

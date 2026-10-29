@@ -41,6 +41,9 @@ var backpack_drag_start_x: float = 0.0
 
 @onready var backpack_items_box: VBoxContainer = $ModalControl/Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox/ItemsContainer
 @onready var backpack_hint: Label = $ModalControl/Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox/BackpackHint
+@onready var btn_tab_quitar: Button = $ModalControl/Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox/TabsBox/BtnTabQuitar
+@onready var btn_tab_poner: Button = $ModalControl/Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox/TabsBox/BtnTabPoner
+@onready var guide_text: Label = $ModalControl/Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox/GuideText
 @onready var btn_cancel: Button = $ModalControl/Panel/VBox/Footer/BtnCancel
 
 func _ready() -> void:
@@ -55,6 +58,9 @@ func _ready() -> void:
 	
 	disk_panel.gui_input.connect(_on_disk_gui_input)
 	GameManager.backpack_updated.connect(_on_backpack_changed)
+	
+	btn_tab_quitar.pressed.connect(func(): _select_guide_tab(0))
+	btn_tab_poner.pressed.connect(func(): _select_guide_tab(1))
 	
 	# Si no se pasó un tipo persistente, elegir aleatoriamente
 	if screw_type == "" or (not start_as_empty_slot and screw_type == "cruz"):
@@ -72,10 +78,23 @@ func _ready() -> void:
 		disk_panel.visible = false
 		empty_bay_label.visible = true
 		current_state = State.EMPTY_BAY
+		_select_guide_tab(1)
+	else:
+		_select_guide_tab(0)
 		
 	_update_tool_buttons(GameManager.equipped_tool)
 	_update_ui_state()
 	_refresh_backpack_ui()
+
+func _select_guide_tab(idx: int) -> void:
+	if idx == 0:
+		btn_tab_quitar.modulate = Color(1.2, 1.2, 0.4, 1.0)
+		btn_tab_poner.modulate = Color(0.7, 0.7, 0.7, 0.7)
+		guide_text.text = "FASE 1 (QUITAR): Retira el tornillo de bahía con [1] Cruz o [2] Pala y arrastra el disco hacia arriba."
+	else:
+		btn_tab_quitar.modulate = Color(0.7, 0.7, 0.7, 0.7)
+		btn_tab_poner.modulate = Color(0.2, 1.0, 0.5, 1.0)
+		guide_text.text = "FASE 2 (PONER AL REVÉS): Coloca el disco nuevo en la bahía, arrástralo hacia abajo y ajusta el tornillo."
 
 func _on_tool_selected(tool_id: int) -> void:
 	_update_tool_buttons(tool_id)
@@ -268,8 +287,21 @@ func _complete_hdd_removal() -> void:
 		disk_panel.visible = false
 		empty_bay_label.visible = true
 		GameManager.add_item_to_backpack({"name": "Disco Duro", "broken": true})
-		current_state = State.EMPTY_BAY
 		old_part_extracted.emit()
+		
+		# Asegurar que haya un Disco Duro nuevo en la mochila para la fase de colocación
+		var has_new = false
+		for it in GameManager.backpack:
+			if it.get("name") == "Disco Duro" and not it.get("broken", true):
+				has_new = true
+				break
+		if not has_new:
+			GameManager.add_item_to_backpack({"name": "Disco Duro", "broken": false})
+			
+		current_state = State.EMPTY_BAY
+		_select_guide_tab(1)
+		status_label.text = "✓ FASE 1 (QUITAR) SUPERADA ➔ AHORA FASE 2: MONTAJE DEL REPUESTO (INVERSO)"
+		status_label.modulate = Color(0.2, 1.0, 0.5, 1)
 		_update_ui_state()
 		_refresh_backpack_ui()
 	)

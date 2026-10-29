@@ -64,6 +64,10 @@ var tex_screw_pala = preload("res://pixel art/tornillo de pala.png")
 @onready var btn_slide_psu: Button = $ModalControl/Panel/VBox/WorkArea/BtnSlidePSU
 @onready var warning_label: Label = $ModalControl/Panel/VBox/WorkArea/WarningLabel
 
+@onready var btn_tab_quitar: Button = $ModalControl/Panel/VBox/Header/GuidePanel/VBoxGuide/TabsBox/BtnTabQuitar
+@onready var btn_tab_poner: Button = $ModalControl/Panel/VBox/Header/GuidePanel/VBoxGuide/TabsBox/BtnTabPoner
+@onready var guide_text: Label = $ModalControl/Panel/VBox/Header/GuidePanel/VBoxGuide/GuideText
+
 var screw_buttons: Array[Button] = []
 var screw_icons: Array[TextureRect] = []
 
@@ -73,6 +77,9 @@ func _ready() -> void:
 	_setup_screws()
 	_setup_ui()
 	_update_tool_buttons()
+	
+	btn_tab_quitar.pressed.connect(func(): _select_guide_tab(0))
+	btn_tab_poner.pressed.connect(func(): _select_guide_tab(1))
 	
 	if start_as_empty_slot:
 		current_state = State.EMPTY_TUNNEL
@@ -95,10 +102,22 @@ func _ready() -> void:
 		for b in screw_buttons:
 			b.visible = false
 			b.disabled = true
+		_select_guide_tab(1)
 	else:
 		btn_slide_psu.text = "▶ DESLIZAR FUENTE FUERA DEL TÚNEL"
+		_select_guide_tab(0)
 		
 	_update_status()
+
+func _select_guide_tab(idx: int) -> void:
+	if idx == 0:
+		btn_tab_quitar.modulate = Color(1.2, 1.2, 0.4, 1.0)
+		btn_tab_poner.modulate = Color(0.7, 0.7, 0.7, 0.7)
+		guide_text.text = "PASOS DE DESMONTAJE (QUITAR): 1. Desconectar ATX 24P · 2. Desconectar EPS 8P · 3. Retirar 4 tornillos chasis con [1]/[2] · 4. Deslizar fuente"
+	else:
+		btn_tab_quitar.modulate = Color(0.7, 0.7, 0.7, 0.7)
+		btn_tab_poner.modulate = Color(0.2, 1.0, 0.5, 1.0)
+		guide_text.text = "PASOS DE MONTAJE (CÓMO PONER AL REVÉS): 1. Deslizar fuente nueva en el túnel · 2. Ajustar 4 tornillos traseros · 3. Conectar cable EPS 8P · 4. Conectar arnés ATX 24P"
 
 func _on_insert_new_psu_pressed() -> void:
 	var found_idx = -1
@@ -198,7 +217,7 @@ func _on_atx24_pressed() -> void:
 		
 		current_state = State.COMPLETED
 		_update_status()
-		_show_warning("✓ ¡Cable ATX de 24 pines asegurado con éxito! Fuente operativa.", Color(0.2, 1.0, 0.4))
+		_show_warning("✓ ¡REPARACIÓN INTEGRAL SUPERADA! Has completado tanto el desmontaje como el montaje inverso.", Color(0.2, 1.0, 0.4))
 		await get_tree().create_timer(1.6).timeout
 		minigame_finished.emit(true)
 		return
@@ -363,10 +382,33 @@ func _on_slide_psu_pressed() -> void:
 	await tw.finished
 	GameManager.add_item_to_backpack({"name": "Fuente", "broken": true})
 	old_part_extracted.emit()
-	_show_warning("✓ ¡EXCELENTE! Fuente de poder deslizada y retirada sin tirones en el cableado.", Color(0.2, 1.0, 0.4))
+	
+	# Asegurar que haya una Fuente nueva en la mochila para la fase de colocación
+	var has_new = false
+	for it in GameManager.backpack:
+		if it.get("name") == "Fuente" and not it.get("broken", true):
+			has_new = true
+			break
+	if not has_new:
+		GameManager.add_item_to_backpack({"name": "Fuente", "broken": false})
+		
+	psu_body.visible = false
+	current_state = State.EMPTY_TUNNEL
+	_select_guide_tab(1)
+	
+	btn_slide_psu.visible = true
+	btn_slide_psu.disabled = false
+	btn_slide_psu.text = "⇪ INSTALAR FUENTE NUEVA DESDE MOCHILA"
+	btn_slide_psu.pressed.disconnect(_on_slide_psu_pressed)
+	btn_slide_psu.pressed.connect(_on_insert_new_psu_pressed)
+	
+	screws_removed = [true, true, true, true]
+	for b in screw_buttons:
+		b.visible = false
+		b.disabled = true
+		
+	_show_warning("✓ FASE 1 (QUITAR) SUPERADA ➔ AHORA FASE 2: MONTAJE DEL REPUESTO (INVERSO)", Color(0.2, 1.0, 0.5))
 	_update_status()
-	await get_tree().create_timer(1.6).timeout
-	minigame_finished.emit(true)
 
 func _show_warning(msg: String, col: Color) -> void:
 	warning_label.text = msg
