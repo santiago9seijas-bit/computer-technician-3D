@@ -14,7 +14,8 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 
 [application]
 
-config/name="Tecnico de Computadoras"
+config/name="Computer Technician 3D"
+config/version="0.0.0"
 run/main_scene="res://scenes/menus/MainMenu.tscn"
 config/features=PackedStringArray("4.7", "Forward Plus")
 
