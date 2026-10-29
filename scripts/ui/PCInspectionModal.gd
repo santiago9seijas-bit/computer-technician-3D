@@ -5,6 +5,8 @@ signal inspection_closed()
 var current_pc = null
 var ram_minigame_scene: PackedScene = preload("res://scenes/minigames/RAMMinigame.tscn")
 var hdd_minigame_scene: PackedScene = preload("res://scenes/minigames/HDDMinigame.tscn")
+var gpu_minigame_scene: PackedScene = preload("res://scenes/minigames/GPUMinigame.tscn")
+var psu_minigame_scene: PackedScene = preload("res://scenes/minigames/PSUMinigame.tscn")
 
 @onready var modal_control: Control = $ModalControl
 @onready var title_label: Label = $ModalControl/Panel/VBox/Header/TitleLabel
@@ -162,12 +164,50 @@ func _open_hdd_minigame(is_empty: bool) -> void:
 	)
 
 func _on_gpu_clicked() -> void:
-	GameManager.register_error(2.0)
-	_show_feedback("❌ Diagnóstico incorrecto: La GPU da video y sus voltajes PCIe son normales. No es la causa.", false)
+	if current_pc == null:
+		return
+	if current_pc.target_fault_component == "Grafica" or current_pc.components.get("Grafica", "ok") == "empty":
+		_open_gpu_minigame()
+	else:
+		GameManager.register_error(2.0)
+		_show_feedback("❌ Diagnóstico incorrecto: La GPU da video y sus voltajes PCIe son normales. No es la causa.", false)
+
+func _open_gpu_minigame() -> void:
+	modal_control.visible = false
+	var minigame = gpu_minigame_scene.instantiate()
+	get_tree().root.add_child(minigame)
+	minigame.connect("minigame_finished", func(success: bool):
+		minigame.queue_free()
+		modal_control.visible = true
+		if success:
+			current_pc.components["Grafica"] = "fixed"
+			current_pc.update_3d_state()
+			GameManager.register_repair(100, 10.0)
+		_refresh_ui()
+	)
 
 func _on_psu_clicked() -> void:
-	GameManager.register_error(2.0)
-	_show_feedback("❌ Diagnóstico incorrecto: La Fuente de Poder entrega los 12V y 5V estables. No es la causa.", false)
+	if current_pc == null:
+		return
+	if current_pc.target_fault_component == "Fuente" or current_pc.components.get("Fuente", "ok") == "empty":
+		_open_psu_minigame()
+	else:
+		GameManager.register_error(2.0)
+		_show_feedback("❌ Diagnóstico incorrecto: La Fuente de Poder entrega los 12V y 5V estables. No es la causa.", false)
+
+func _open_psu_minigame() -> void:
+	modal_control.visible = false
+	var minigame = psu_minigame_scene.instantiate()
+	get_tree().root.add_child(minigame)
+	minigame.connect("minigame_finished", func(success: bool):
+		minigame.queue_free()
+		modal_control.visible = true
+		if success:
+			current_pc.components["Fuente"] = "fixed"
+			current_pc.update_3d_state()
+			GameManager.register_repair(100, 10.0)
+		_refresh_ui()
+	)
 
 func _on_mobo_clicked() -> void:
 	GameManager.register_error(2.0)

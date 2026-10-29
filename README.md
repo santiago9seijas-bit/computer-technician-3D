@@ -15,10 +15,14 @@
 
 - **Exploración 3D del Taller:** Desplázate con fluidez por tu taller técnico interactuando con mesas de trabajo, estanterías, herramientas y torres de computadoras.
 - **Inspección de Hardware en Detalle:** Abre e inspecciona componentes internos de PC (memorias RAM, discos de almacenamiento HDD/SSD, sistemas de refrigeración y ventiladores).
-- **Minijuegos de Diagnóstico y Reparación:**
-  - 🧠 **RAM Diagnostic:** Alineación de frecuencias, canales y pines de memoria.
-  - 💾 **HDD Sector Restore:** Desfragmentación y reparación de sectores dañados en platos magnéticos.
-  - ❄️ **Cooler & Fan Maintenance:** Calibración térmica, limpieza de turbinas y optimización de flujo de aire.
+- **Minijuegos de Diagnóstico y Desmontaje Realista:**
+  - 🧠 **RAM (Memoria DDR):** Apertura de trabas laterales de seguridad, extracción vertical e inserción alineando la muesca polarizada.
+  - 💾 **HDD (Disco Duro SATA):** Desatornillado de bahía con Cruz/Pala, extracción por riel y anclaje de unidad funcional.
+  - ❄️ **Fan Cooler (Disipador PWM):** Desconexión del cable de 4 pines, desatornillado simétrico y elevación del disipador de calor.
+  - 🎮 **GPU (Tarjeta Gráfica PCIe):** Desconexión de clip de poder 8-pines, tornillos de chasis, apertura de pestillo plástico del zócalo PCIe x16 y extracción vertical sin dañar el bus.
+  - ⚙️ **CPU (Microprocesador):** Disolución y limpieza de pasta térmica seca con paño de alcohol isopropílico, desenganche de palanca de tensión a 90°, apertura de placa de carga y extracción sujetando por las esquinas.
+  - ⚡ **SSD M.2 (NVMe PCIe):** Retiro de armadura térmica M.2 Armor, desatornillado de standoff, elevación a 30° por tensión de resorte y deslizamiento en diagonal sin quebrar pistas.
+  - 🔌 **PSU (Fuente de Poder ATX):** Desconexión de arnés principal ATX de 24 pines y CPU EPS de 8 pines con seguro plástico, retiro de 4 tornillos de chasis y deslizamiento por túnel inferior (PSU shroud).
 - **Interfaz Futurista con Shaders:** Menús holográficos interactivos (`cyber_panel_hologram`), transiciones cinemáticas fluidas, selección de niveles y módulos de tutorial interactivos.
 - **Configuración y Accesibilidad:** Panel de configuración personalizable, controles compactos y claros en pantalla.
 

@@ -66,6 +66,10 @@ var PRELOADED_TEXTURES = {
 var _fancooler_scene = null
 var _ram_scene = null
 var _hdd_scene = null
+var _gpu_scene = null
+var _cpu_scene = null
+var _m2_scene = null
+var _psu_scene = null
 
 # --- Variables de Estado ---
 var current_tab: String = "niveles"
@@ -504,28 +508,58 @@ var ALL_TUTORIAL_CARDS: Array[Dictionary] = [
 		"subtitle": "ACELERADORA GRÁFICA PCIE",
 		"category": "GRÁFICOS",
 		"texture_path": "",
-		"color_accent": Color(0.65, 0.08, 0.9, 0.6),
-		"que_es": "Unidad de procesamiento gráfico de alto rendimiento montada en el puerto PCIe x16.",
-		"importancia": "ALTA: Sin GPU operativa no hay aceleración gráfica ni procesamiento 3D.",
-		"que_hace": "Renderiza fotogramas y texturas a resoluciones nativas a través del bus PCIe.",
-		"pasos": "Próximamente disponible en el módulo de Reparación.",
-		"is_ready": false,
-		"handler": ""
+		"color_accent": Color(1.0, 0.15, 0.45, 1.0),
+		"que_es": "Unidad de procesamiento gráfico de alto rendimiento montada en el puerto PCIe x16 con alimentación dedicada de 8 pines.",
+		"importancia": "CRÍTICA: Es la pieza más propensa a roturas si se tira sin liberar el pestillo plástico del zócalo PCIe de la placa madre.",
+		"que_hace": "Procesa y renderiza gráficos 3D en tiempo real, conectada al bus de datos de alta velocidad PCIe y a la salida de pantalla.",
+		"pasos": "1. Desconecta el conector PCIe de 8 pines presionando el clip de seguridad.\n2. Retira los 2 tornillos del bracket metálico con [1] Cruz o [2] Pala.\n3. Presiona el pestillo de retención plástico al final de la ranura PCIe x16.\n4. Extrae la tarjeta gráfica verticalmente sin torsionar el zócalo.",
+		"is_ready": true,
+		"handler": "launch_gpu"
+	},
+	{
+		"division": "reparacion",
+		"id": "cpu",
+		"title": "PROCESADOR (CPU)",
+		"subtitle": "MICROPROCESADOR & ZÓCALO LGA",
+		"category": "PROCESAMIENTO",
+		"texture_path": "",
+		"color_accent": Color(0.9, 0.15, 0.9, 1.0),
+		"que_es": "Unidad central de procesamiento montada sobre la matriz de pines del zócalo con cubierta metálica IHS.",
+		"importancia": "MÁXIMA: La pasta térmica seca causa sobrecalentamiento. Manipular la palanca y esquinas previene doblar pines irreversibles.",
+		"que_hace": "Ejecuta todas las operaciones del computador coordinando reloj y memoria a miles de millones de ciclos por segundo.",
+		"pasos": "1. Con [2] Paño Isopropílico, frota y disuelve los residuos de pasta térmica vieja del IHS.\n2. Desengancha la palanca de tensión del socket hacia el lateral y levántala a 90°.\n3. Abre la placa de presión metálica.\n4. Sujeta el procesador por las esquinas y levántalo con cuidado.",
+		"is_ready": true,
+		"handler": "launch_cpu"
+	},
+	{
+		"division": "reparacion",
+		"id": "m2",
+		"title": "SSD M.2 NVME",
+		"subtitle": "UNIDAD DE ALMACENAMIENTO PCIE",
+		"category": "ALMACENAMIENTO",
+		"texture_path": "",
+		"color_accent": Color(0.2, 0.9, 0.7, 1.0),
+		"que_es": "Unidad de almacenamiento en estado sólido formato 2280 conectada directamente a líneas PCIe del chipset/CPU.",
+		"importancia": "ALTA: Al quitar el tornillo, los resortes internos del zócalo elevan la unidad a 30°. Retirarla en ángulo previene partir el conector.",
+		"que_hace": "Lectura y escritura ultrarrápida de archivos y sistema operativo a través del protocolo NVMe sobre memoria 3D NAND.",
+		"pasos": "1. Retira el tornillo de la armadura térmica M.2 con [1] Cruz.\n2. Retira el micro-tornillo de sujeción sobre el standoff.\n3. Observa cómo la unidad se eleva a 30° impulsada por el resorte del socket.\n4. Desliza suavemente la unidad en diagonal para extraerla.",
+		"is_ready": true,
+		"handler": "launch_m2"
 	},
 	{
 		"division": "reparacion",
 		"id": "psu",
-		"title": "FUENTE DE PODER",
-		"subtitle": "SUMINISTRO CONMUTADO ATX",
+		"title": "FUENTE PSU",
+		"subtitle": "ALIMENTACIÓN ELÉCTRICA ATX",
 		"category": "ENERGÍA",
 		"texture_path": "",
-		"color_accent": Color(0.75, 0.1, 0.85, 0.6),
-		"que_es": "Convertidor de tensión de corriente alterna (110V/220V) a corriente continua estable (+12V, +5V, +3.3V).",
-		"importancia": "CRÍTICA: Una fuente inestable daña la placa madre, CPU y discos duros por sobretensiones.",
-		"que_hace": "Distribuye líneas limpias de energía a través de los arneses de 24 pines y EPS de 8 pines.",
-		"pasos": "Próximamente disponible en el módulo de Reparación.",
-		"is_ready": false,
-		"handler": ""
+		"color_accent": Color(1.0, 0.65, 0.2, 1.0),
+		"que_es": "Fuente de alimentación conmutada modular que entrega energía estabilizada a todos los rieles del equipo.",
+		"importancia": "CRÍTICA: Tirar de los cables sin presionar los clips de seguridad puede fracturar los puertos de la placa madre.",
+		"que_hace": "Distribuye potencia a la placa madre (24 pines), procesador (EPS 8 pines) y componentes periféricos.",
+		"pasos": "1. Desconecta el conector principal ATX de 24 pines presionando su traba de seguridad.\n2. Desconecta el conector auxiliar EPS de 8 pines de la CPU.\n3. Retira los 4 tornillos hexagonales traseros del chasis con [1] Cruz o [2] Pala.\n4. Desliza la fuente de alimentación fuera del túnel inferior del chasis.",
+		"is_ready": true,
+		"handler": "launch_psu"
 	},
 	{
 		"division": "reparacion",
@@ -1220,6 +1254,22 @@ func _on_deployed_play_pressed() -> void:
 			_launch_minigame(_ram_scene)
 		"launch_hdd":
 			_launch_hdd_with_spares()
+		"launch_gpu":
+			if not _gpu_scene:
+				_gpu_scene = load("res://scenes/minigames/GPUMinigame.tscn")
+			_launch_minigame(_gpu_scene)
+		"launch_cpu":
+			if not _cpu_scene:
+				_cpu_scene = load("res://scenes/minigames/CPUMinigame.tscn")
+			_launch_minigame(_cpu_scene)
+		"launch_m2":
+			if not _m2_scene:
+				_m2_scene = load("res://scenes/minigames/M2Minigame.tscn")
+			_launch_minigame(_m2_scene)
+		"launch_psu":
+			if not _psu_scene:
+				_psu_scene = load("res://scenes/minigames/PSUMinigame.tscn")
+			_launch_minigame(_psu_scene)
 
 func _launch_minigame(scene: PackedScene) -> void:
 	if not scene:

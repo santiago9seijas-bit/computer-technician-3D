@@ -33,6 +33,10 @@ var title_font = preload("res://assets/fonts/Bungee-Regular.ttf")
 var FanCoolerScene = preload("res://scenes/minigames/FanCoolerMinigame.tscn")
 var RAMScene = preload("res://scenes/minigames/RAMMinigame.tscn")
 var HDDScene = preload("res://scenes/minigames/HDDMinigame.tscn")
+var GPUScene = preload("res://scenes/minigames/GPUMinigame.tscn")
+var CPUScene = preload("res://scenes/minigames/CPUMinigame.tscn")
+var M2Scene = preload("res://scenes/minigames/M2Minigame.tscn")
+var PSUScene = preload("res://scenes/minigames/PSUMinigame.tscn")
 
 var current_minigame_instance: Node = null
 var active_card_data: Dictionary = {}
@@ -94,13 +98,43 @@ var ALL_CARDS: Array[Dictionary] = [
 		"subtitle": "ACELERADORA GRÁFICA PCIE",
 		"category": "GRÁFICOS",
 		"texture_path": "",
-		"color_accent": Color(0.65, 0.08, 0.9, 0.6),
-		"que_es": "Unidad de procesamiento gráfico de alto rendimiento montada en el puerto PCIe x16.",
-		"importancia": "ALTA: Sin GPU operativa no hay aceleración gráfica ni procesamiento 3D.",
-		"que_hace": "Renderiza fotogramas y texturas a resoluciones nativas a través del bus PCIe.",
-		"pasos": "Próximamente disponible en futuras actualizaciones del taller.",
-		"is_ready": false,
-		"handler": ""
+		"color_accent": Color(1.0, 0.15, 0.45, 1.0),
+		"que_es": "Unidad de procesamiento gráfico de alto rendimiento montada en el puerto PCIe x16 con alimentación dedicada de 8 pines.",
+		"importancia": "CRÍTICA: Es la pieza más propensa a roturas si se tira sin liberar el pestillo plástico del zócalo PCIe de la placa madre.",
+		"que_hace": "Procesa y renderiza gráficos 3D en tiempo real, conectada al bus de datos de alta velocidad PCIe y a la salida de pantalla.",
+		"pasos": "1. Desconecta el conector PCIe de 8 pines presionando el clip de seguridad.\n2. Retira los 2 tornillos del bracket metálico con [1] Cruz o [2] Pala.\n3. Presiona el pestillo de retención plástico al final de la ranura PCIe x16.\n4. Extrae la tarjeta gráfica verticalmente sin torsionar el zócalo.",
+		"is_ready": true,
+		"handler": "launch_gpu"
+	},
+	{
+		"division": "reparacion",
+		"id": "cpu",
+		"title": "PROCESADOR (CPU)",
+		"subtitle": "MICROPROCESADOR & ZÓCALO LGA",
+		"category": "PROCESAMIENTO",
+		"texture_path": "",
+		"color_accent": Color(0.9, 0.15, 0.9, 1.0),
+		"que_es": "Unidad central de procesamiento montada sobre la matriz de pines del zócalo con cubierta metálica IHS.",
+		"importancia": "MÁXIMA: La pasta térmica seca causa sobrecalentamiento. Manipular la palanca y esquinas previene doblar pines irreversibles.",
+		"que_hace": "Ejecuta todas las operaciones del computador coordinando reloj y memoria a miles de millones de ciclos por segundo.",
+		"pasos": "1. Con [2] Paño Isopropílico, frota y disuelve los residuos de pasta térmica vieja del IHS.\n2. Desengancha la palanca de tensión del socket hacia el lateral y levántala a 90°.\n3. Abre la placa de presión metálica.\n4. Sujeta el procesador por las esquinas y levántalo con cuidado.",
+		"is_ready": true,
+		"handler": "launch_cpu"
+	},
+	{
+		"division": "reparacion",
+		"id": "m2",
+		"title": "SSD M.2 NVME",
+		"subtitle": "UNIDAD DE ALMACENAMIENTO PCIE",
+		"category": "ALMACENAMIENTO",
+		"texture_path": "",
+		"color_accent": Color(0.2, 0.9, 0.7, 1.0),
+		"que_es": "Unidad de almacenamiento en estado sólido formato 2280 conectada directamente a líneas PCIe del chipset/CPU.",
+		"importancia": "ALTA: Al quitar el tornillo, los resortes internos del zócalo elevan la unidad a 30°. Retirarla en ángulo previene partir el conector.",
+		"que_hace": "Lectura y escritura ultrarrápida de archivos y sistema operativo a través del protocolo NVMe sobre memoria 3D NAND.",
+		"pasos": "1. Retira el tornillo de la armadura térmica M.2 con [1] Cruz.\n2. Retira el micro-tornillo de sujeción sobre el standoff.\n3. Observa cómo la unidad se eleva a 30° impulsada por el resorte del socket.\n4. Desliza suavemente la unidad en diagonal para extraerla.",
+		"is_ready": true,
+		"handler": "launch_m2"
 	},
 	{
 		"division": "reparacion",
@@ -109,13 +143,13 @@ var ALL_CARDS: Array[Dictionary] = [
 		"subtitle": "ALIMENTACIÓN ELÉCTRICA ATX",
 		"category": "ENERGÍA",
 		"texture_path": "",
-		"color_accent": Color(0.9, 0.1, 0.25, 0.6),
-		"que_es": "Fuente de alimentación conmutada con regulación de voltaje y certificación 80 Plus.",
-		"importancia": "CRÍTICA: Protege los componentes contra sobrevoltajes, picos transitorios y cortocircuitos.",
-		"que_hace": "Convierte corriente alterna (110V/220V AC) en continua estabilizada (12V, 5V, 3.3V DC).",
-		"pasos": "Próximamente disponible en futuras actualizaciones del taller.",
-		"is_ready": false,
-		"handler": ""
+		"color_accent": Color(1.0, 0.65, 0.2, 1.0),
+		"que_es": "Fuente de alimentación conmutada modular que entrega energía estabilizada a todos los rieles del equipo.",
+		"importancia": "CRÍTICA: Tirar de los cables sin presionar los clips de seguridad puede fracturar los puertos de la placa madre.",
+		"que_hace": "Distribuye potencia a la placa madre (24 pines), procesador (EPS 8 pines) y componentes periféricos.",
+		"pasos": "1. Desconecta el conector principal ATX de 24 pines presionando su traba de seguridad.\n2. Desconecta el conector auxiliar EPS de 8 pines de la CPU.\n3. Retira los 4 tornillos hexagonales traseros del chasis con [1] Cruz o [2] Pala.\n4. Desliza la fuente de alimentación fuera del túnel inferior del chasis.",
+		"is_ready": true,
+		"handler": "launch_psu"
 	},
 	{
 		"division": "reparacion",
@@ -589,6 +623,14 @@ func _on_deployed_play_pressed() -> void:
 			_launch_minigame(RAMScene)
 		"launch_hdd":
 			_launch_hdd_with_spares()
+		"launch_gpu":
+			_launch_minigame(GPUScene)
+		"launch_cpu":
+			_launch_minigame(CPUScene)
+		"launch_m2":
+			_launch_minigame(M2Scene)
+		"launch_psu":
+			_launch_minigame(PSUScene)
 
 func _launch_minigame(scene: PackedScene) -> void:
 	if is_instance_valid(current_minigame_instance):
