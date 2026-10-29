@@ -1,8 +1,17 @@
-[gd_scene format=3 load_steps=4]
+[gd_scene format=3 load_steps=8]
 
 [ext_resource type="Script" path="res://scripts/minigames/RAMMinigame.gd" id="1_ram"]
 [ext_resource type="Script" path="res://scripts/menus/CyberButton.gd" id="2_cbtn"]
 [ext_resource type="Theme" path="res://styles/cyberpunk_theme.tres" id="3_theme"]
+[ext_resource type="Texture2D" uid="uid://c0i1b315i6w1t" path="res://pixel art/ram.png" id="4_ram_tex"]
+[ext_resource type="FontFile" uid="uid://dbcug8887dro7" path="res://assets/fonts/Bungee-Regular.ttf" id="5_title_font"]
+[ext_resource type="PackedScene" path="res://scenes/ui/CyberBackgroundFrame.tscn" id="6_bg_frame"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_frame"]
+content_margin_left = 24.0
+content_margin_top = 20.0
+content_margin_right = 24.0
+content_margin_bottom = 20.0
 
 [node name="RAMMinigame" type="CanvasLayer"]
 layer = 12
@@ -39,6 +48,10 @@ offset_right = 420.0
 offset_bottom = 250.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_frame")
+
+[node name="CyberBackgroundFrame" parent="ModalControl/Panel" instance=ExtResource("6_bg_frame")]
+layout_mode = 2
 
 [node name="VBox" type="VBoxContainer" parent="ModalControl/Panel"]
 layout_mode = 2
@@ -50,7 +63,12 @@ theme_override_constants/separation = 4
 
 [node name="Titulo" type="Label" parent="ModalControl/Panel/VBox/Header"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0, 0.95, 1, 1)
+theme_override_colors/font_color = Color(1, 0.12, 0.25, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 8
+theme_override_colors/font_shadow_color = Color(0.65, 0.02, 0.85, 0.85)
+theme_override_constants/shadow_outline_size = 8
+theme_override_fonts/font = ExtResource("5_title_font")
 theme_override_font_sizes/font_size = 20
 text = "REPARACIÓN: RANURA DE MEMORIA RAM"
 horizontal_alignment = 1
@@ -107,27 +125,32 @@ text = "[ ZÓCALO DDR5 VACÍO · PINES EXPUESTOS ]"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="RAMStick" type="Panel" parent="ModalControl/Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea"]
-custom_minimum_size = Vector2(440, 75)
+[node name="RAMStick" type="TextureRect" parent="ModalControl/Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea"]
+texture_filter = 1
+custom_minimum_size = Vector2(331, 147)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -220.0
-offset_top = -30.0
-offset_right = 220.0
-offset_bottom = 45.0
+offset_left = -165.5
+offset_top = -73.5
+offset_right = 165.5
+offset_bottom = 73.5
 grow_horizontal = 2
 grow_vertical = 2
+pivot_offset = Vector2(165.5, 73.5)
+texture = ExtResource("4_ram_tex")
+expand_mode = 1
+stretch_mode = 5
 
 [node name="ZoneLeft" type="Control" parent="ModalControl/Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea/RAMStick"]
-custom_minimum_size = Vector2(110, 75)
+custom_minimum_size = Vector2(95, 147)
 layout_mode = 1
 anchors_preset = 9
 anchor_bottom = 1.0
-offset_right = 110.0
+offset_right = 95.0
 grow_vertical = 2
 
 [node name="ColorBg" type="ColorRect" parent="ModalControl/Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea/RAMStick/ZoneLeft"]
@@ -138,7 +161,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-color = Color(1, 0.1, 0.45, 0.2)
+color = Color(1, 0.1, 0.45, 0.15)
 
 [node name="LblLeft" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea/RAMStick/ZoneLeft"]
 layout_mode = 1
@@ -148,6 +171,8 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.9)
+theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 11
 text = "▲ ARRASTRA
 IZQUIERDA"
@@ -155,17 +180,17 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="ZoneCenter" type="Control" parent="ModalControl/Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea/RAMStick"]
-custom_minimum_size = Vector2(220, 75)
+custom_minimum_size = Vector2(141, 147)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -110.0
-offset_top = -37.5
-offset_right = 110.0
-offset_bottom = 37.5
+offset_left = -70.5
+offset_top = -73.5
+offset_right = 70.5
+offset_bottom = 73.5
 grow_horizontal = 2
 grow_vertical = 2
 
@@ -177,6 +202,8 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.9)
+theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 12
 text = "DDR5 - 16GB [RAM]
 (Descalza extremos primero)"
@@ -184,13 +211,13 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="ZoneRight" type="Control" parent="ModalControl/Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea/RAMStick"]
-custom_minimum_size = Vector2(110, 75)
+custom_minimum_size = Vector2(95, 147)
 layout_mode = 1
 anchors_preset = 11
 anchor_left = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -110.0
+offset_left = -95.0
 grow_horizontal = 0
 grow_vertical = 2
 
@@ -202,7 +229,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-color = Color(1, 0.1, 0.45, 0.2)
+color = Color(1, 0.1, 0.45, 0.15)
 
 [node name="LblRight" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea/RAMStick/ZoneRight"]
 layout_mode = 1
@@ -212,6 +239,8 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.9)
+theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 11
 text = "▲ ARRASTRA
 DERECHA"

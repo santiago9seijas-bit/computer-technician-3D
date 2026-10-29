@@ -36,7 +36,7 @@ var backpack_drag_start_pos: Vector2 = Vector2.ZERO
 @onready var socket_area: Control = $ModalControl/Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea
 @onready var socket_base: Panel = $ModalControl/Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea/SocketBase
 @onready var empty_slot_label: Label = $ModalControl/Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea/SocketBase/EmptySlotLabel
-@onready var ram_stick: Panel = $ModalControl/Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea/RAMStick
+@onready var ram_stick: TextureRect = $ModalControl/Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea/RAMStick
 
 @onready var zone_left: Control = $ModalControl/Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea/RAMStick/ZoneLeft
 @onready var zone_right: Control = $ModalControl/Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea/RAMStick/ZoneRight

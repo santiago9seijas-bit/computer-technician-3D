@@ -1,0 +1,21 @@
+[gd_scene format=3 load_steps=4]
+
+[ext_resource type="Texture2D" path="res://pixel art/fondos de menus.png" id="1_tex"]
+[ext_resource type="Material" path="res://styles/cyber_panel_hologram.tres" id="2_mat"]
+
+[node name="CyberBackgroundFrame" type="NinePatchRect"]
+show_behind_parent = true
+material = ExtResource("2_mat")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("1_tex")
+patch_margin_left = 32
+patch_margin_top = 32
+patch_margin_right = 32
+patch_margin_bottom = 32
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1

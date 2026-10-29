@@ -1,8 +1,15 @@
-[gd_scene format=3 load_steps=4]
+[gd_scene format=3 load_steps=6]
 
 [ext_resource type="Script" path="res://scripts/menus/LevelCard.gd" id="1_card"]
 [ext_resource type="Script" path="res://scripts/menus/CyberButton.gd" id="2_cbtn"]
 [ext_resource type="Theme" path="res://styles/cyberpunk_theme.tres" id="3_theme"]
+[ext_resource type="PackedScene" path="res://scenes/ui/CyberBackgroundFrame.tscn" id="4_bg_frame"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_card"]
+content_margin_left = 26.0
+content_margin_top = 22.0
+content_margin_right = 26.0
+content_margin_bottom = 22.0
 
 [node name="LevelCardModal" type="PanelContainer"]
 custom_minimum_size = Vector2(640, 370)
@@ -18,7 +25,11 @@ offset_bottom = 185.0
 grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("3_theme")
+theme_override_styles/panel = SubResource("StyleBoxEmpty_card")
 script = ExtResource("1_card")
+
+[node name="CyberBackgroundFrame" parent="." instance=ExtResource("4_bg_frame")]
+layout_mode = 2
 
 [node name="BtnClose" type="Button" parent="."]
 custom_minimum_size = Vector2(36, 36)

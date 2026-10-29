@@ -1,10 +1,31 @@
-[gd_scene format=3 load_steps=6]
+[gd_scene format=3 load_steps=16]
 
 [ext_resource type="Script" path="res://scripts/menus/MainMenu.gd" id="1_main"]
 [ext_resource type="Script" path="res://scripts/menus/SynthwaveBackground.gd" id="2_bg"]
-[ext_resource type="Script" path="res://scripts/menus/CyberBracket.gd" id="3_bracket"]
-[ext_resource type="Script" path="res://scripts/menus/CyberButton.gd" id="4_cyber_btn"]
+[ext_resource type="Script" path="res://scripts/menus/MenuTextureButton.gd" id="4_tex_btn"]
 [ext_resource type="Theme" path="res://styles/cyberpunk_theme.tres" id="5_theme"]
+[ext_resource type="Texture2D" uid="uid://ckfbwiy7c4wxs" path="res://pixel art/fondo de boton.png" id="6_btn_normal"]
+[ext_resource type="Texture2D" uid="uid://dhkb21cw434cy" path="res://pixel art/fondo de boton mouse encima.png" id="7_btn_hover"]
+[ext_resource type="Material" uid="uid://bvyg7oipb3y1a" path="res://styles/cyber_button_hologram.tres" id="8_holo_mat"]
+[ext_resource type="FontFile" uid="uid://dbcug8887dro7" path="res://assets/fonts/Bungee-Regular.ttf" id="9_title_font"]
+[ext_resource type="Material" uid="uid://cxvd852m89a0b" path="res://styles/cyber_decoration_hologram.tres" id="10_deco_mat"]
+[ext_resource type="Texture2D" uid="uid://b8in2ksfawwet" path="res://pixel art/decoracion.png" id="11_deco_tex"]
+[ext_resource type="Material" uid="uid://btr8q93p7mk41" path="res://styles/cyber_title_glow.tres" id="12_title_mat"]
+[ext_resource type="PackedScene" path="res://scenes/ui/CyberBackgroundFrame.tscn" id="13_bg_frame"]
+[ext_resource type="Script" path="res://scripts/menus/CyberButton.gd" id="14_cbtn"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_panel"]
+content_margin_left = 28.0
+content_margin_top = 22.0
+content_margin_right = 28.0
+content_margin_bottom = 22.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hint"]
+bg_color = Color(0.08, 0.02, 0.16, 0.6)
+border_width_left = 2
+border_color = Color(0.85, 0.1, 0.95, 0.8)
+corner_radius_top_left = 2
+corner_radius_bottom_left = 2
 
 [node name="MainMenu" type="Control"]
 layout_mode = 3
@@ -25,155 +46,715 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("2_bg")
 
+[node name="Decoracion" type="TextureRect" parent="."]
+texture_filter = 1
+material = ExtResource("10_deco_mat")
+layout_mode = 1
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_left = 15.0
+offset_right = 490.0
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("11_deco_tex")
+expand_mode = 1
+
 [node name="HeaderContainer" type="HBoxContainer" parent="."]
 layout_mode = 0
-offset_left = 220.0
-offset_top = 45.0
-offset_right = 900.0
-offset_bottom = 105.0
+offset_left = 60.0
+offset_top = 40.0
+offset_right = 1100.0
+offset_bottom = 120.0
 theme_override_constants/separation = 16
 alignment = 0
 
 [node name="ArrowIcon" type="Label" parent="HeaderContainer"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0, 0.9, 1, 1)
-theme_override_colors/font_shadow_color = Color(0, 0.9, 1, 0.6)
-theme_override_constants/shadow_outline_size = 10
-theme_override_font_sizes/font_size = 32
+theme_override_colors/font_color = Color(1, 0.08, 0.25, 1)
+theme_override_colors/font_shadow_color = Color(0.6, 0.02, 0.85, 0.85)
+theme_override_constants/shadow_outline_size = 14
+theme_override_fonts/font = ExtResource("9_title_font")
+theme_override_font_sizes/font_size = 46
 text = "▷"
 vertical_alignment = 1
 
 [node name="TitleLabel" type="Label" parent="HeaderContainer"]
+material = ExtResource("12_title_mat")
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_shadow_color = Color(1, 0.08, 0.45, 0.85)
-theme_override_constants/shadow_offset_x = 2
-theme_override_constants/shadow_offset_y = 2
-theme_override_constants/shadow_outline_size = 14
-theme_override_font_sizes/font_size = 34
-text = "TECNICO DE COMPUTADORAS"
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 12
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.95)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 3
+theme_override_constants/shadow_outline_size = 8
+theme_override_fonts/font = ExtResource("9_title_font")
+theme_override_font_sizes/font_size = 44
+text = "TÉCNICO DE COMPUTADORAS"
 vertical_alignment = 1
-
-[node name="Bracket" type="Control" parent="."]
-layout_mode = 0
-offset_left = 220.0
-offset_top = 175.0
-offset_right = 580.0
-offset_bottom = 545.0
-script = ExtResource("3_bracket")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 layout_mode = 0
-offset_left = 245.0
-offset_top = 195.0
-offset_right = 535.0
-offset_bottom = 525.0
-theme_override_constants/separation = 14
+offset_left = 60.0
+offset_top = 160.0
+offset_right = 530.0
+offset_bottom = 570.0
+theme_override_constants/separation = 12
 
-[node name="BtnJugar" type="Button" parent="VBoxContainer"]
-custom_minimum_size = Vector2(280, 50)
+[node name="BtnJugar" type="TextureButton" parent="VBoxContainer"]
+texture_filter = 1
+material = ExtResource("8_holo_mat")
+custom_minimum_size = Vector2(380, 92)
 layout_mode = 2
 size_flags_horizontal = 0
+texture_normal = ExtResource("6_btn_normal")
+texture_hover = ExtResource("7_btn_hover")
+texture_pressed = ExtResource("7_btn_hover")
+texture_focused = ExtResource("7_btn_hover")
+ignore_texture_size = true
+stretch_mode = 5
+script = ExtResource("4_tex_btn")
+
+[node name="Label" type="Label" parent="VBoxContainer/BtnJugar"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_font_sizes/font_size = 22
 text = "JUGAR"
-flat = true
-script = ExtResource("4_cyber_btn")
-slant = 24.0
+horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="BtnControles" type="Button" parent="VBoxContainer"]
-custom_minimum_size = Vector2(255, 46)
+[node name="BtnConfiguracion" type="TextureButton" parent="VBoxContainer"]
+texture_filter = 1
+material = ExtResource("8_holo_mat")
+custom_minimum_size = Vector2(335, 81)
 layout_mode = 2
 size_flags_horizontal = 0
-text = "CONTROLES"
-flat = true
-script = ExtResource("4_cyber_btn")
-slant = 22.0
+texture_normal = ExtResource("6_btn_normal")
+texture_hover = ExtResource("7_btn_hover")
+texture_pressed = ExtResource("7_btn_hover")
+texture_focused = ExtResource("7_btn_hover")
+ignore_texture_size = true
+stretch_mode = 5
+script = ExtResource("4_tex_btn")
 
-[node name="BtnTutoriales" type="Button" parent="VBoxContainer"]
-custom_minimum_size = Vector2(230, 42)
-layout_mode = 2
-size_flags_horizontal = 0
-text = "TUTORIALES"
-flat = true
-script = ExtResource("4_cyber_btn")
-slant = 20.0
-
-[node name="BtnConfiguracion" type="Button" parent="VBoxContainer"]
-custom_minimum_size = Vector2(205, 38)
-layout_mode = 2
-size_flags_horizontal = 0
+[node name="Label" type="Label" parent="VBoxContainer/BtnConfiguracion"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_font_sizes/font_size = 19
 text = "CONFIGURACION"
-flat = true
-script = ExtResource("4_cyber_btn")
-slant = 18.0
+horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="BtnSalir" type="Button" parent="VBoxContainer"]
-custom_minimum_size = Vector2(180, 36)
+[node name="BtnControles" type="TextureButton" parent="VBoxContainer"]
+texture_filter = 1
+material = ExtResource("8_holo_mat")
+custom_minimum_size = Vector2(290, 70)
 layout_mode = 2
 size_flags_horizontal = 0
-text = "SALIR"
-flat = true
-script = ExtResource("4_cyber_btn")
-slant = 16.0
+texture_normal = ExtResource("6_btn_normal")
+texture_hover = ExtResource("7_btn_hover")
+texture_pressed = ExtResource("7_btn_hover")
+texture_focused = ExtResource("7_btn_hover")
+ignore_texture_size = true
+stretch_mode = 5
+script = ExtResource("4_tex_btn")
 
-[node name="VersionLabel" type="Label" parent="."]
+[node name="Label" type="Label" parent="VBoxContainer/BtnControles"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_font_sizes/font_size = 18
+text = "CONTROLES"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BtnTutoriales" type="TextureButton" parent="VBoxContainer"]
+texture_filter = 1
+material = ExtResource("8_holo_mat")
+custom_minimum_size = Vector2(245, 60)
+layout_mode = 2
+size_flags_horizontal = 0
+texture_normal = ExtResource("6_btn_normal")
+texture_hover = ExtResource("7_btn_hover")
+texture_pressed = ExtResource("7_btn_hover")
+texture_focused = ExtResource("7_btn_hover")
+ignore_texture_size = true
+stretch_mode = 5
+script = ExtResource("4_tex_btn")
+
+[node name="Label" type="Label" parent="VBoxContainer/BtnTutoriales"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_font_sizes/font_size = 16
+text = "TUTORIALES"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BtnSalir" type="TextureButton" parent="VBoxContainer"]
+texture_filter = 1
+material = ExtResource("8_holo_mat")
+custom_minimum_size = Vector2(205, 50)
+layout_mode = 2
+size_flags_horizontal = 0
+texture_normal = ExtResource("6_btn_normal")
+texture_hover = ExtResource("7_btn_hover")
+texture_pressed = ExtResource("7_btn_hover")
+texture_focused = ExtResource("7_btn_hover")
+ignore_texture_size = true
+stretch_mode = 5
+script = ExtResource("4_tex_btn")
+
+[node name="Label" type="Label" parent="VBoxContainer/BtnSalir"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_font_sizes/font_size = 16
+text = "SALIR"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BottomRightInfo" type="VBoxContainer" parent="."]
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -260.0
-offset_top = -40.0
+offset_left = -380.0
+offset_top = -65.0
 offset_right = -30.0
 offset_bottom = -15.0
 grow_horizontal = 0
 grow_vertical = 0
-theme_override_colors/font_color = Color(0.5, 0.5, 0.7, 0.6)
+theme_override_constants/separation = 4
+alignment = 2
+
+[node name="BadgeHBox" type="HBoxContainer" parent="BottomRightInfo"]
+layout_mode = 2
+theme_override_constants/separation = 8
+alignment = 2
+
+[node name="BadgeDot" type="Label" parent="BottomRightInfo/BadgeHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.05, 0.2, 1)
+theme_override_font_sizes/font_size = 11
+text = "●"
+
+[node name="BadgeText" type="Label" parent="BottomRightInfo/BadgeHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.45, 0.95, 0.9)
+theme_override_font_sizes/font_size = 11
+text = "HARDWARE WORKSHOP // REPAIR OS v2.0"
+
+[node name="VersionLabel" type="Label" parent="BottomRightInfo"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.4, 0.7, 0.7)
 theme_override_font_sizes/font_size = 12
-text = "SYS_VER 0.2.0-ALPHA · CYBER_OS"
+text = "0.0.0 - Alpha"
 horizontal_alignment = 2
 
-[node name="ControlsModal" type="PanelContainer" parent="."]
+[node name="DarkenOverlay" type="ColorRect" parent="."]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.02, 0.005, 0.05, 0.88)
+
+[node name="ControlsPanel" type="PanelContainer" parent="."]
 visible = false
+custom_minimum_size = Vector2(560, 390)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -260.0
-offset_top = -200.0
-offset_right = 260.0
-offset_bottom = 200.0
+offset_left = -280.0
+offset_top = -195.0
+offset_right = 280.0
+offset_bottom = 195.0
 grow_horizontal = 2
 grow_vertical = 2
+pivot_offset = Vector2(280, 195)
+theme_override_styles/panel = SubResource("StyleBoxEmpty_panel")
 
-[node name="VBox" type="VBoxContainer" parent="ControlsModal"]
+[node name="CyberBackgroundFrame" parent="ControlsPanel" instance=ExtResource("13_bg_frame")]
 layout_mode = 2
-theme_override_constants/separation = 12
 
-[node name="Titulo" type="Label" parent="ControlsModal/VBox"]
+[node name="Margin" type="MarginContainer" parent="ControlsPanel"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.08, 0.45, 1)
-theme_override_font_sizes/font_size = 22
+theme_override_constants/margin_left = 22
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 22
+theme_override_constants/margin_bottom = 16
+
+[node name="VBox" type="VBoxContainer" parent="ControlsPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="HeaderVBox" type="VBoxContainer" parent="ControlsPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 1
+
+[node name="Badge" type="Label" parent="ControlsPanel/Margin/VBox/HeaderVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.1, 0.95, 1)
+theme_override_font_sizes/font_size = 10
+text = "[ SISTEMA // GUÍA RÁPIDA ]"
+
+[node name="Title" type="Label" parent="ControlsPanel/Margin/VBox/HeaderVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.12, 0.35, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_fonts/font = ExtResource("9_title_font")
+theme_override_font_sizes/font_size = 18
 text = "MAPA DE CONTROLES"
-horizontal_alignment = 1
 
-[node name="Separador" type="HSeparator" parent="ControlsModal/VBox"]
+[node name="Sub" type="Label" parent="ControlsPanel/Margin/VBox/HeaderVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.85, 0.92, 0.85)
+theme_override_font_sizes/font_size = 11
+text = "Comandos esenciales para el taller y minijuegos"
+
+[node name="HSeparator" type="HSeparator" parent="ControlsPanel/Margin/VBox"]
 layout_mode = 2
 
-[node name="Info" type="Label" parent="ControlsModal/VBox"]
+[node name="ContentHBox" type="HBoxContainer" parent="ControlsPanel/Margin/VBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 15
-text = "• WASD: Movimiento en primera persona
-• MOUSE: Mirar / Mover cursor
-• E / CLICK: Interactuar con PC, Repuestos y Papelera
-• TECLAS 1 al 5: Herramientas Rápidas (Destornillador, Pala, Cautín...)
-• TECLA 1 en Sistemas: Pendrive Virtual
-• ESC / P: Menú de Pausa"
+size_flags_vertical = 3
+theme_override_constants/separation = 18
 
-[node name="BtnCerrar" type="Button" parent="ControlsModal/VBox"]
-custom_minimum_size = Vector2(120, 36)
+[node name="LeftCol" type="VBoxContainer" parent="ControlsPanel/Margin/VBox/ContentHBox"]
 layout_mode = 2
-size_flags_horizontal = 4
-text = "ENTENDIDO"
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="ColTitle" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/LeftCol"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 11
+text = "── MOVIMIENTO ──"
+
+[node name="Item1" type="HBoxContainer" parent="ControlsPanel/Margin/VBox/ContentHBox/LeftCol"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Badge" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/LeftCol/Item1"]
+custom_minimum_size = Vector2(80, 22)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.1, 0.4, 1)
+theme_override_font_sizes/font_size = 11
+text = "[ W A S D ]"
+vertical_alignment = 1
+
+[node name="Desc" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/LeftCol/Item1"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.92, 0.92, 0.95, 1)
+theme_override_font_sizes/font_size = 11
+text = "Desplazarse"
+autowrap_mode = 2
+
+[node name="Item2" type="HBoxContainer" parent="ControlsPanel/Margin/VBox/ContentHBox/LeftCol"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Badge" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/LeftCol/Item2"]
+custom_minimum_size = Vector2(80, 22)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.1, 0.4, 1)
+theme_override_font_sizes/font_size = 11
+text = "[ MOUSE ]"
+vertical_alignment = 1
+
+[node name="Desc" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/LeftCol/Item2"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.92, 0.92, 0.95, 1)
+theme_override_font_sizes/font_size = 11
+text = "Mirar / Cursor"
+autowrap_mode = 2
+
+[node name="Item3" type="HBoxContainer" parent="ControlsPanel/Margin/VBox/ContentHBox/LeftCol"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Badge" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/LeftCol/Item3"]
+custom_minimum_size = Vector2(80, 22)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.1, 0.4, 1)
+theme_override_font_sizes/font_size = 11
+text = "[ SHIFT ]"
+vertical_alignment = 1
+
+[node name="Desc" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/LeftCol/Item3"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.92, 0.92, 0.95, 1)
+theme_override_font_sizes/font_size = 11
+text = "Correr / Sprint"
+autowrap_mode = 2
+
+[node name="Item4" type="HBoxContainer" parent="ControlsPanel/Margin/VBox/ContentHBox/LeftCol"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Badge" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/LeftCol/Item4"]
+custom_minimum_size = Vector2(80, 22)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.1, 0.4, 1)
+theme_override_font_sizes/font_size = 11
+text = "[ ESC / P ]"
+vertical_alignment = 1
+
+[node name="Desc" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/LeftCol/Item4"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.92, 0.92, 0.95, 1)
+theme_override_font_sizes/font_size = 11
+text = "Pausa / Ajustes"
+autowrap_mode = 2
+
+[node name="RightCol" type="VBoxContainer" parent="ControlsPanel/Margin/VBox/ContentHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="ColTitle" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/RightCol"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.15, 0.95, 1)
+theme_override_font_sizes/font_size = 11
+text = "── HERRAMIENTAS ──"
+
+[node name="Item1" type="HBoxContainer" parent="ControlsPanel/Margin/VBox/ContentHBox/RightCol"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Badge" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/RightCol/Item1"]
+custom_minimum_size = Vector2(80, 22)
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 11
+text = "[ E / CLIC ]"
+vertical_alignment = 1
+
+[node name="Desc" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/RightCol/Item1"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.92, 0.92, 0.95, 1)
+theme_override_font_sizes/font_size = 11
+text = "Interactuar / Usar"
+autowrap_mode = 2
+
+[node name="Item2" type="HBoxContainer" parent="ControlsPanel/Margin/VBox/ContentHBox/RightCol"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Badge" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/RightCol/Item2"]
+custom_minimum_size = Vector2(80, 22)
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 11
+text = "[ TECLA 1 ]"
+vertical_alignment = 1
+
+[node name="Desc" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/RightCol/Item2"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.92, 0.92, 0.95, 1)
+theme_override_font_sizes/font_size = 11
+text = "Destornillador Cruz (+)"
+autowrap_mode = 2
+
+[node name="Item3" type="HBoxContainer" parent="ControlsPanel/Margin/VBox/ContentHBox/RightCol"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Badge" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/RightCol/Item3"]
+custom_minimum_size = Vector2(80, 22)
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 11
+text = "[ TECLA 2 ]"
+vertical_alignment = 1
+
+[node name="Desc" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/RightCol/Item3"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.92, 0.92, 0.95, 1)
+theme_override_font_sizes/font_size = 11
+text = "Destornillador Pala (-)"
+autowrap_mode = 2
+
+[node name="Item4" type="HBoxContainer" parent="ControlsPanel/Margin/VBox/ContentHBox/RightCol"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Badge" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/RightCol/Item4"]
+custom_minimum_size = Vector2(80, 22)
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 11
+text = "[ 3 / 4 / 5 ]"
+vertical_alignment = 1
+
+[node name="Desc" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/RightCol/Item4"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.92, 0.92, 0.95, 1)
+theme_override_font_sizes/font_size = 11
+text = "Cautín, Pinzas, Tester"
+autowrap_mode = 2
+
+[node name="HintBox" type="PanelContainer" parent="ControlsPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_hint")
+
+[node name="Margin" type="MarginContainer" parent="ControlsPanel/Margin/VBox/HintBox"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 6
+
+[node name="HintLabel" type="Label" parent="ControlsPanel/Margin/VBox/HintBox/Margin"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.5, 0.95, 0.9)
+theme_override_font_sizes/font_size = 10
+text = "💡 TIP: Pulsa [1] o [2] para alternar destornilladores en minijuegos."
+autowrap_mode = 2
+
+[node name="Footer" type="HBoxContainer" parent="ControlsPanel/Margin/VBox"]
+layout_mode = 2
+alignment = 1
+
+[node name="BtnVolverControles" type="Button" parent="ControlsPanel/Margin/VBox/Footer"]
+custom_minimum_size = Vector2(180, 36)
+layout_mode = 2
+text = "◄ VOLVER"
+flat = true
+script = ExtResource("14_cbtn")
+slant = 14.0
+
+[node name="ConfigPanel" type="PanelContainer" parent="."]
+visible = false
+custom_minimum_size = Vector2(800, 540)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -400.0
+offset_top = -270.0
+offset_right = 400.0
+offset_bottom = 270.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(400, 270)
+theme_override_styles/panel = SubResource("StyleBoxEmpty_panel")
+
+[node name="CyberBackgroundFrame" parent="ConfigPanel" instance=ExtResource("13_bg_frame")]
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="ConfigPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 22
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 22
+
+[node name="VBox" type="VBoxContainer" parent="ConfigPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="HeaderVBox" type="VBoxContainer" parent="ConfigPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="Badge" type="Label" parent="ConfigPanel/Margin/VBox/HeaderVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.1, 0.95, 1)
+theme_override_font_sizes/font_size = 11
+text = "[ SISTEMA // PANEL DE CONFIGURACIÓN ]"
+
+[node name="Title" type="Label" parent="ConfigPanel/Margin/VBox/HeaderVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.12, 0.35, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 8
+theme_override_fonts/font = ExtResource("9_title_font")
+theme_override_font_sizes/font_size = 22
+text = "CONFIGURACIÓN DEL SISTEMA"
+
+[node name="Sub" type="Label" parent="ConfigPanel/Margin/VBox/HeaderVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.85, 0.92, 0.85)
+theme_override_font_sizes/font_size = 12
+text = "Ajustes de audio, pantalla completa y calibración de periféricos"
+
+[node name="HSeparator" type="HSeparator" parent="ConfigPanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="OptionsVBox" type="VBoxContainer" parent="ConfigPanel/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 14
+
+[node name="MasterVolRow" type="HBoxContainer" parent="ConfigPanel/Margin/VBox/OptionsVBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Lbl" type="Label" parent="ConfigPanel/Margin/VBox/OptionsVBox/MasterVolRow"]
+custom_minimum_size = Vector2(230, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 13
+text = "VOLUMEN MAESTRO"
+
+[node name="SliderMaster" type="HSlider" parent="ConfigPanel/Margin/VBox/OptionsVBox/MasterVolRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+value = 100.0
+
+[node name="LblVal" type="Label" parent="ConfigPanel/Margin/VBox/OptionsVBox/MasterVolRow"]
+custom_minimum_size = Vector2(60, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 13
+text = "100%"
+horizontal_alignment = 2
+
+[node name="SFXVolRow" type="HBoxContainer" parent="ConfigPanel/Margin/VBox/OptionsVBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Lbl" type="Label" parent="ConfigPanel/Margin/VBox/OptionsVBox/SFXVolRow"]
+custom_minimum_size = Vector2(230, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 13
+text = "EFECTOS DE SONIDO (SFX)"
+
+[node name="SliderSFX" type="HSlider" parent="ConfigPanel/Margin/VBox/OptionsVBox/SFXVolRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+value = 100.0
+
+[node name="LblVal" type="Label" parent="ConfigPanel/Margin/VBox/OptionsVBox/SFXVolRow"]
+custom_minimum_size = Vector2(60, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 13
+text = "100%"
+horizontal_alignment = 2
+
+[node name="FullscreenRow" type="HBoxContainer" parent="ConfigPanel/Margin/VBox/OptionsVBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Lbl" type="Label" parent="ConfigPanel/Margin/VBox/OptionsVBox/FullscreenRow"]
+custom_minimum_size = Vector2(230, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 13
+text = "MODO DE PANTALLA"
+
+[node name="BtnFullscreen" type="Button" parent="ConfigPanel/Margin/VBox/OptionsVBox/FullscreenRow"]
+custom_minimum_size = Vector2(320, 38)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "PANTALLA: [ MODO VENTANA ]"
+flat = true
+script = ExtResource("14_cbtn")
+slant = 12.0
+
+[node name="MouseSensRow" type="HBoxContainer" parent="ConfigPanel/Margin/VBox/OptionsVBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Lbl" type="Label" parent="ConfigPanel/Margin/VBox/OptionsVBox/MouseSensRow"]
+custom_minimum_size = Vector2(230, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 13
+text = "SENSIBILIDAD DE CÁMARA"
+
+[node name="SliderSens" type="HSlider" parent="ConfigPanel/Margin/VBox/OptionsVBox/MouseSensRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+min_value = 10.0
+max_value = 300.0
+step = 5.0
+value = 100.0
+
+[node name="LblVal" type="Label" parent="ConfigPanel/Margin/VBox/OptionsVBox/MouseSensRow"]
+custom_minimum_size = Vector2(60, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.2, 0.5, 1)
+theme_override_font_sizes/font_size = 13
+text = "1.0x"
+horizontal_alignment = 2
+
+[node name="HoloRow" type="HBoxContainer" parent="ConfigPanel/Margin/VBox/OptionsVBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Lbl" type="Label" parent="ConfigPanel/Margin/VBox/OptionsVBox/HoloRow"]
+custom_minimum_size = Vector2(230, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 13
+text = "SHADERS HOLOGRÁFICOS"
+
+[node name="BtnHolo" type="Button" parent="ConfigPanel/Margin/VBox/OptionsVBox/HoloRow"]
+custom_minimum_size = Vector2(320, 38)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "ESTADO: [ ALTA DEFINICIÓN ]"
+flat = true
+script = ExtResource("14_cbtn")
+slant = 12.0
+
+[node name="Footer" type="HBoxContainer" parent="ConfigPanel/Margin/VBox"]
+layout_mode = 2
+alignment = 1
+
+[node name="BtnVolverConfig" type="Button" parent="ConfigPanel/Margin/VBox/Footer"]
+custom_minimum_size = Vector2(240, 44)
+layout_mode = 2
+text = "◄ VOLVER AL MENÚ"
+flat = true
+script = ExtResource("14_cbtn")
+slant = 16.0

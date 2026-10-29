@@ -1,8 +1,21 @@
-[gd_scene format=3 load_steps=4]
+[gd_scene format=3 load_steps=7]
 
 [ext_resource type="Script" path="res://scripts/ui/HUD.gd" id="1_hud"]
 [ext_resource type="Script" path="res://scripts/menus/CyberButton.gd" id="2_cbtn"]
 [ext_resource type="Theme" path="res://styles/cyberpunk_theme.tres" id="3_theme"]
+[ext_resource type="PackedScene" path="res://scenes/ui/CyberBackgroundFrame.tscn" id="4_bg_frame"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_mochila"]
+content_margin_left = 16.0
+content_margin_top = 14.0
+content_margin_right = 16.0
+content_margin_bottom = 14.0
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_modal"]
+content_margin_left = 22.0
+content_margin_top = 18.0
+content_margin_right = 22.0
+content_margin_bottom = 18.0
 
 [node name="HUD" type="Control"]
 layout_mode = 3
@@ -85,6 +98,10 @@ offset_top = 25.0
 offset_right = -30.0
 offset_bottom = 200.0
 grow_horizontal = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_mochila")
+
+[node name="CyberBackgroundFrame" parent="TopRight" instance=ExtResource("4_bg_frame")]
+layout_mode = 2
 
 [node name="BackpackContainer" type="VBoxContainer" parent="TopRight"]
 layout_mode = 2
@@ -226,6 +243,10 @@ offset_right = 240.0
 offset_bottom = 140.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_modal")
+
+[node name="CyberBackgroundFrame" parent="GameOverPanel" instance=ExtResource("4_bg_frame")]
+layout_mode = 2
 
 [node name="VBox" type="VBoxContainer" parent="GameOverPanel"]
 layout_mode = 2
@@ -269,6 +290,10 @@ offset_right = 240.0
 offset_bottom = 140.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_modal")
+
+[node name="CyberBackgroundFrame" parent="WinPanel" instance=ExtResource("4_bg_frame")]
+layout_mode = 2
 
 [node name="VBox" type="VBoxContainer" parent="WinPanel"]
 layout_mode = 2

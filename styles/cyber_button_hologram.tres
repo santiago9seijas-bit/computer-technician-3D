@@ -1,0 +1,13 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://bvyg7oipb3y1a"]
+
+[ext_resource type="Shader" path="res://styles/cyber_button_hologram.gdshader" id="1_shdr"]
+
+[resource]
+shader = ExtResource("1_shdr")
+shader_parameter/idle_glass_alpha = 0.42
+shader_parameter/hover_glass_alpha = 0.65
+shader_parameter/scanline_intensity = 0.2
+shader_parameter/border_pulse_speed = 3.0
+shader_parameter/chromatic_shift = 1.8
+shader_parameter/top_tint = Color(0.08, 0.01, 0.15, 0.85)
+shader_parameter/bottom_tint = Color(0.35, 0.02, 0.14, 0.85)

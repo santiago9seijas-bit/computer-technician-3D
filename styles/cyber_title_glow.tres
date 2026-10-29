@@ -1,0 +1,13 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://btr8q93p7mk41"]
+
+[ext_resource type="Shader" path="res://styles/cyber_title_glow.gdshader" id="1_shdr"]
+
+[resource]
+shader = ExtResource("1_shdr")
+shader_parameter/top_color = Color(1, 0.18, 0.28, 1)
+shader_parameter/mid_color = Color(1, 0.45, 0.75, 1)
+shader_parameter/bottom_color = Color(0.75, 0.08, 0.95, 1)
+shader_parameter/outline_color = Color(0, 0, 0, 1)
+shader_parameter/outline_thickness = 1.8
+shader_parameter/shine_speed = 0.55
+shader_parameter/glitch_intensity = 0.6

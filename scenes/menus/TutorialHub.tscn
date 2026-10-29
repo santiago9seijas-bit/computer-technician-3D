@@ -1,0 +1,330 @@
+[gd_scene format=3 load_steps=8]
+
+[ext_resource type="Script" path="res://scripts/menus/TutorialHub.gd" id="1_tut"]
+[ext_resource type="Script" path="res://scripts/menus/CyberButton.gd" id="2_cbtn"]
+[ext_resource type="Theme" path="res://styles/cyberpunk_theme.tres" id="3_theme"]
+[ext_resource type="FontFile" uid="uid://dbcug8887dro7" path="res://assets/fonts/Bungee-Regular.ttf" id="4_title_font"]
+[ext_resource type="Material" uid="uid://cglitchmat8211" path="res://styles/cyber_glitch_sprite.tres" id="5_glitch_mat"]
+[ext_resource type="PackedScene" path="res://scenes/ui/CyberBackgroundFrame.tscn" id="6_bg_frame"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_deployed"]
+content_margin_left = 22.0
+content_margin_top = 18.0
+content_margin_right = 22.0
+content_margin_bottom = 18.0
+
+[node name="TutorialHub" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("3_theme")
+script = ExtResource("1_tut")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.04, 0.01, 0.08, 1)
+
+[node name="TopBar" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 30.0
+offset_top = 16.0
+offset_right = -30.0
+offset_bottom = 68.0
+grow_horizontal = 2
+theme_override_constants/separation = 20
+alignment = 0
+
+[node name="BtnVolver" type="Button" parent="TopBar"]
+custom_minimum_size = Vector2(140, 40)
+layout_mode = 2
+text = "◄ VOLVER"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 16.0
+
+[node name="TitleVBox" type="VBoxContainer" parent="TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 2
+
+[node name="Titulo" type="Label" parent="TopBar/TitleVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.12, 0.25, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 8
+theme_override_colors/font_shadow_color = Color(0.65, 0.02, 0.85, 0.85)
+theme_override_constants/shadow_outline_size = 8
+theme_override_fonts/font = ExtResource("4_title_font")
+theme_override_font_sizes/font_size = 20
+text = "CENTRO DE ENTRENAMIENTO // GUÍA TÉCNICA"
+
+[node name="Subtitulo" type="Label" parent="TopBar/TitleVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.5, 0.95, 0.85)
+theme_override_font_sizes/font_size = 12
+text = "Selecciona la división técnica (Reparación, Sistema o Servidor) y haz clic en una tarjeta para desplegar su ficha."
+
+[node name="ModeSelector" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 180.0
+offset_top = 74.0
+offset_right = -180.0
+offset_bottom = 116.0
+grow_horizontal = 2
+theme_override_constants/separation = 14
+alignment = 1
+
+[node name="BtnReparacion" type="Button" parent="ModeSelector"]
+custom_minimum_size = Vector2(240, 38)
+layout_mode = 2
+text = "REPARACIÓN (6)"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 16.0
+
+[node name="BtnSistema" type="Button" parent="ModeSelector"]
+custom_minimum_size = Vector2(240, 38)
+layout_mode = 2
+text = "SISTEMA (6)"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 16.0
+
+[node name="BtnServidor" type="Button" parent="ModeSelector"]
+custom_minimum_size = Vector2(240, 38)
+layout_mode = 2
+text = "SERVIDOR (6)"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 16.0
+
+[node name="CardsScroll" type="ScrollContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -550.0
+offset_top = -230.0
+offset_right = 550.0
+offset_bottom = 325.0
+grow_horizontal = 2
+grow_vertical = 2
+horizontal_scroll_mode = 3
+vertical_scroll_mode = 1
+
+[node name="CardsGrid" type="GridContainer" parent="CardsScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/h_separation = 20
+theme_override_constants/v_separation = 20
+columns = 3
+
+[node name="DeployedModal" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="DimOverlay" type="ColorRect" parent="DeployedModal"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.02, 0.005, 0.04, 0.9)
+
+[node name="DeployedCard" type="PanelContainer" parent="DeployedModal"]
+custom_minimum_size = Vector2(980, 560)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -490.0
+offset_top = -280.0
+offset_right = 490.0
+offset_bottom = 280.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(490, 280)
+theme_override_styles/panel = SubResource("StyleBoxEmpty_deployed")
+
+[node name="CyberBackgroundFrame" parent="DeployedModal/DeployedCard" instance=ExtResource("6_bg_frame")]
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="DeployedModal/DeployedCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 22
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 22
+theme_override_constants/margin_bottom = 18
+
+[node name="VBox" type="VBoxContainer" parent="DeployedModal/DeployedCard/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Header" type="HBoxContainer" parent="DeployedModal/DeployedCard/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="TitleVBox" type="VBoxContainer" parent="DeployedModal/DeployedCard/Margin/VBox/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 2
+
+[node name="Badge" type="Label" parent="DeployedModal/DeployedCard/Margin/VBox/Header/TitleVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.1, 0.95, 1)
+theme_override_font_size_override = 11
+theme_override_font_sizes/font_size = 11
+text = "[ DIVISIÓN: REPARACIÓN ]"
+
+[node name="Title" type="Label" parent="DeployedModal/DeployedCard/Margin/VBox/Header/TitleVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.15, 0.35, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 8
+theme_override_fonts/font = ExtResource("4_title_font")
+theme_override_font_sizes/font_size = 20
+text = "FAN COOLER"
+
+[node name="Subtitle" type="Label" parent="DeployedModal/DeployedCard/Margin/VBox/Header/TitleVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.85, 0.9, 0.85)
+theme_override_font_sizes/font_size = 12
+text = "DISIPADOR TÉRMICO ACTIVO PWM"
+
+[node name="BtnCloseDeployed" type="Button" parent="DeployedModal/DeployedCard/Margin/VBox/Header"]
+custom_minimum_size = Vector2(160, 40)
+layout_mode = 2
+text = "✖ CERRAR FICHA"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 14.0
+
+[node name="HSeparator" type="HSeparator" parent="DeployedModal/DeployedCard/Margin/VBox"]
+layout_mode = 2
+
+[node name="ContentHBox" type="HBoxContainer" parent="DeployedModal/DeployedCard/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 22
+
+[node name="LeftCol" type="VBoxContainer" parent="DeployedModal/DeployedCard/Margin/VBox/ContentHBox"]
+custom_minimum_size = Vector2(340, 0)
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="PreviewBox" type="PanelContainer" parent="DeployedModal/DeployedCard/Margin/VBox/ContentHBox/LeftCol"]
+custom_minimum_size = Vector2(0, 240)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Preview" type="TextureRect" parent="DeployedModal/DeployedCard/Margin/VBox/ContentHBox/LeftCol/PreviewBox"]
+texture_filter = 1
+material = ExtResource("5_glitch_mat")
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="StatusTag" type="Label" parent="DeployedModal/DeployedCard/Margin/VBox/ContentHBox/LeftCol"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 1, 0.6, 1)
+theme_override_font_sizes/font_size = 11
+text = "● LABORATORIO ACTIVO · SIMULADOR LISTO"
+horizontal_alignment = 1
+
+[node name="BtnPlayMinigame" type="Button" parent="DeployedModal/DeployedCard/Margin/VBox/ContentHBox/LeftCol"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+text = "▶ PROBAR MINIJUEGO"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 16.0
+
+[node name="RightCol" type="PanelContainer" parent="DeployedModal/DeployedCard/Margin/VBox/ContentHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Margin" type="MarginContainer" parent="DeployedModal/DeployedCard/Margin/VBox/ContentHBox/RightCol"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 10
+
+[node name="Scroll" type="ScrollContainer" parent="DeployedModal/DeployedCard/Margin/VBox/ContentHBox/RightCol/Margin"]
+layout_mode = 2
+horizontal_scroll_mode = 3
+vertical_scroll_mode = 1
+
+[node name="TextVBox" type="VBoxContainer" parent="DeployedModal/DeployedCard/Margin/VBox/ContentHBox/RightCol/Margin/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="LblQueEs" type="Label" parent="DeployedModal/DeployedCard/Margin/VBox/ContentHBox/RightCol/Margin/Scroll/TextVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 12
+text = "⚡ ¿QUÉ ES?: ..."
+autowrap_mode = 2
+
+[node name="Sep1" type="HSeparator" parent="DeployedModal/DeployedCard/Margin/VBox/ContentHBox/RightCol/Margin/Scroll/TextVBox"]
+layout_mode = 2
+
+[node name="LblImportancia" type="Label" parent="DeployedModal/DeployedCard/Margin/VBox/ContentHBox/RightCol/Margin/Scroll/TextVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.3, 0.45, 1)
+theme_override_font_sizes/font_size = 12
+text = "🔥 IMPORTANCIA: ..."
+autowrap_mode = 2
+
+[node name="Sep2" type="HSeparator" parent="DeployedModal/DeployedCard/Margin/VBox/ContentHBox/RightCol/Margin/Scroll/TextVBox"]
+layout_mode = 2
+
+[node name="LblQueHace" type="Label" parent="DeployedModal/DeployedCard/Margin/VBox/ContentHBox/RightCol/Margin/Scroll/TextVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.35, 1, 1)
+theme_override_font_sizes/font_size = 12
+text = "⚙️ ¿QUÉ HACE?: ..."
+autowrap_mode = 2
+
+[node name="Sep3" type="HSeparator" parent="DeployedModal/DeployedCard/Margin/VBox/ContentHBox/RightCol/Margin/Scroll/TextVBox"]
+layout_mode = 2
+
+[node name="LblPasos" type="Label" parent="DeployedModal/DeployedCard/Margin/VBox/ContentHBox/RightCol/Margin/Scroll/TextVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.85, 0.9, 0.9)
+theme_override_font_sizes/font_size = 12
+text = "🛠️ MECÁNICA DE SERVICIO / PROCEDIMIENTO:\n..."
+autowrap_mode = 2
+
+[node name="MinigameContainer" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2

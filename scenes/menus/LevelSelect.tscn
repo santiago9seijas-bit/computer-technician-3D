@@ -1,10 +1,19 @@
-[gd_scene format=3 load_steps=6]
+[gd_scene format=3 load_steps=10]
 
 [ext_resource type="Script" path="res://scripts/menus/LevelSelect.gd" id="1_sel"]
 [ext_resource type="Script" path="res://scripts/menus/ConstellationGraph.gd" id="2_graph"]
 [ext_resource type="Script" path="res://scripts/menus/CyberButton.gd" id="3_cbtn"]
 [ext_resource type="Theme" path="res://styles/cyberpunk_theme.tres" id="4_theme"]
 [ext_resource type="PackedScene" path="res://scenes/menus/LevelCard.tscn" id="5_card"]
+[ext_resource type="FontFile" uid="uid://dbcug8887dro7" path="res://assets/fonts/Bungee-Regular.ttf" id="6_title_font"]
+[ext_resource type="Material" uid="uid://cglitchmat8211" path="res://styles/cyber_glitch_sprite.tres" id="7_glitch_mat"]
+[ext_resource type="PackedScene" path="res://scenes/ui/CyberBackgroundFrame.tscn" id="8_bg_frame"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_deployed"]
+content_margin_left = 22.0
+content_margin_top = 18.0
+content_margin_right = 22.0
+content_margin_bottom = 18.0
 
 [node name="LevelSelect" type="Control"]
 layout_mode = 3
@@ -23,7 +32,60 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.05, 0.02, 0.10, 1)
+color = Color(0.05, 0.02, 0.1, 1)
+
+[node name="ConstellationArea" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+
+[node name="GraphLines" type="Control" parent="ConstellationArea"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("2_graph")
+
+[node name="TutorialArea" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+
+[node name="CardsScroll" type="ScrollContainer" parent="TutorialArea"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -560.0
+offset_top = -175.0
+offset_right = 560.0
+offset_bottom = 295.0
+grow_horizontal = 2
+grow_vertical = 2
+horizontal_scroll_mode = 3
+vertical_scroll_mode = 1
+
+[node name="CardsGrid" type="GridContainer" parent="TutorialArea/CardsScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/h_separation = 20
+theme_override_constants/v_separation = 20
+columns = 3
 
 [node name="TopBar" type="HBoxContainer" parent="."]
 layout_mode = 1
@@ -110,17 +172,17 @@ script = ExtResource("3_cbtn")
 slant = 16.0
 
 [node name="BtnSistema" type="Button" parent="ModeSelector"]
-custom_minimum_size = Vector2(190, 38)
+custom_minimum_size = Vector2(200, 38)
 layout_mode = 2
-text = "SISTEMA (12) 🔒"
+text = "SISTEMA (12)"
 flat = true
 script = ExtResource("3_cbtn")
 slant = 16.0
 
 [node name="BtnServidor" type="Button" parent="ModeSelector"]
-custom_minimum_size = Vector2(190, 38)
+custom_minimum_size = Vector2(200, 38)
 layout_mode = 2
-text = "SERVIDOR (12) 🔒"
+text = "SERVIDOR (12)"
 flat = true
 script = ExtResource("3_cbtn")
 slant = 16.0
@@ -129,18 +191,21 @@ slant = 16.0
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_left = 440.0
+offset_left = 300.0
 offset_top = 130.0
-offset_right = -440.0
+offset_right = -300.0
 offset_bottom = 170.0
 grow_horizontal = 2
 
 [node name="BannerLabel" type="Label" parent="SectionBanner"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.08, 0.45, 1)
-theme_override_colors/font_shadow_color = Color(1, 0.08, 0.45, 0.6)
+theme_override_colors/font_color = Color(1, 0.1, 0.25, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 8
+theme_override_colors/font_shadow_color = Color(0.65, 0, 0.85, 0.8)
+theme_override_fonts/font = ExtResource("6_title_font")
 theme_override_font_sizes/font_size = 18
-text = "SECCIÓN DE REPARACIÓN"
+text = "SECCIÓN DE REPARACIÓN // MAPA DE HARDWARE"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -157,81 +222,26 @@ grow_horizontal = 2
 [node name="Col1" type="Label" parent="ColumnHeaders"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0, 0.9, 1, 0.9)
+theme_override_colors/font_color = Color(1, 0.2, 0.45, 0.95)
 theme_override_font_sizes/font_size = 13
-text = "BÁSICOS - 1/3"
+text = "ETAPA 1: TALLER BÁSICO [1-4]"
 horizontal_alignment = 1
 
 [node name="Col2" type="Label" parent="ColumnHeaders"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.5, 0.5, 0.7, 0.7)
+theme_override_colors/font_color = Color(0.85, 0.4, 0.95, 0.85)
 theme_override_font_sizes/font_size = 13
-text = "AVANZADOS CERRADA"
+text = "ETAPA 2: HARDWARE AVANZADO [5-8]"
 horizontal_alignment = 1
 
 [node name="Col3" type="Label" parent="ColumnHeaders"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.5, 0.5, 0.7, 0.7)
+theme_override_colors/font_color = Color(0.7, 0.2, 0.9, 0.85)
 theme_override_font_sizes/font_size = 13
-text = "MAESTRÍA CERRADA"
+text = "ETAPA 3: MAESTRÍA DE DIAGNÓSTICO [9-12]"
 horizontal_alignment = 1
-
-[node name="ConstellationArea" type="Control" parent="."]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -540.0
-offset_top = -125.0
-offset_right = 540.0
-offset_bottom = 275.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="GraphLines" type="Control" parent="ConstellationArea"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-script = ExtResource("2_graph")
-
-[node name="Node1" type="Button" parent="ConstellationArea"]
-custom_minimum_size = Vector2(48, 48)
-layout_mode = 0
-offset_left = 96.0
-offset_top = 216.0
-offset_right = 144.0
-offset_bottom = 264.0
-flat = true
-text = "1"
-
-[node name="Node2" type="Button" parent="ConstellationArea"]
-custom_minimum_size = Vector2(40, 40)
-layout_mode = 0
-offset_left = 240.0
-offset_top = 120.0
-offset_right = 280.0
-offset_bottom = 160.0
-disabled = true
-flat = true
-text = "🔒"
-
-[node name="Node3" type="Button" parent="ConstellationArea"]
-custom_minimum_size = Vector2(40, 40)
-layout_mode = 0
-offset_left = 240.0
-offset_top = 320.0
-offset_right = 280.0
-offset_bottom = 360.0
-disabled = true
-flat = true
-text = "🔒"
 
 [node name="FooterHint" type="Label" parent="."]
 layout_mode = 1
@@ -243,11 +253,208 @@ offset_top = -45.0
 offset_bottom = -18.0
 grow_horizontal = 2
 grow_vertical = 0
-theme_override_colors/font_color = Color(0.6, 0.6, 0.8, 0.75)
-theme_override_font_sizes/font_size = 14
-text = "⌜  CLIC EN LA ESFERA PARA ABRIR EL NIVEL  ⌟"
+theme_override_colors/font_color = Color(0.8, 0.7, 0.9, 0.85)
+theme_override_font_sizes/font_size = 13
+text = "⌜  CLIC EN CUALQUIER NODO PARA INSPECCIONAR SUS DATOS TÉCNICOS  ⌟"
 horizontal_alignment = 1
 
 [node name="LevelCardModal" parent="." instance=ExtResource("5_card")]
 visible = false
 layout_mode = 1
+
+[node name="DeployedModal" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+
+[node name="DimOverlay" type="ColorRect" parent="DeployedModal"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.02, 0.005, 0.04, 0.92)
+mouse_filter = 0
+
+[node name="DeployedCard" type="PanelContainer" parent="DeployedModal"]
+custom_minimum_size = Vector2(980, 560)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -490.0
+offset_top = -280.0
+offset_right = 490.0
+offset_bottom = 280.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(490, 280)
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_deployed")
+
+[node name="CyberBackgroundFrame" parent="DeployedModal/DeployedCard" instance=ExtResource("8_bg_frame")]
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="DeployedModal/DeployedCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 22
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 22
+theme_override_constants/margin_bottom = 18
+
+[node name="VBox" type="VBoxContainer" parent="DeployedModal/DeployedCard/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Header" type="HBoxContainer" parent="DeployedModal/DeployedCard/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="TitleVBox" type="VBoxContainer" parent="DeployedModal/DeployedCard/Margin/VBox/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 2
+
+[node name="Badge" type="Label" parent="DeployedModal/DeployedCard/Margin/VBox/Header/TitleVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.1, 0.95, 1)
+theme_override_font_sizes/font_size = 11
+text = "[ DIVISIÓN: REPARACIÓN ]"
+
+[node name="Title" type="Label" parent="DeployedModal/DeployedCard/Margin/VBox/Header/TitleVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.15, 0.35, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 8
+theme_override_fonts/font = ExtResource("6_title_font")
+theme_override_font_sizes/font_size = 20
+text = "FAN COOLER"
+
+[node name="Subtitle" type="Label" parent="DeployedModal/DeployedCard/Margin/VBox/Header/TitleVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.85, 0.9, 0.85)
+theme_override_font_sizes/font_size = 12
+text = "DISIPADOR TÉRMICO ACTIVO PWM"
+
+[node name="BtnCloseDeployed" type="Button" parent="DeployedModal/DeployedCard/Margin/VBox/Header"]
+custom_minimum_size = Vector2(160, 40)
+layout_mode = 2
+text = "✖ CERRAR FICHA"
+flat = true
+script = ExtResource("3_cbtn")
+slant = 14.0
+
+[node name="HSeparator" type="HSeparator" parent="DeployedModal/DeployedCard/Margin/VBox"]
+layout_mode = 2
+
+[node name="ContentHBox" type="HBoxContainer" parent="DeployedModal/DeployedCard/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 22
+
+[node name="LeftCol" type="VBoxContainer" parent="DeployedModal/DeployedCard/Margin/VBox/ContentHBox"]
+custom_minimum_size = Vector2(340, 0)
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="PreviewBox" type="PanelContainer" parent="DeployedModal/DeployedCard/Margin/VBox/ContentHBox/LeftCol"]
+custom_minimum_size = Vector2(0, 240)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Preview" type="TextureRect" parent="DeployedModal/DeployedCard/Margin/VBox/ContentHBox/LeftCol/PreviewBox"]
+texture_filter = 1
+material = ExtResource("7_glitch_mat")
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="StatusTag" type="Label" parent="DeployedModal/DeployedCard/Margin/VBox/ContentHBox/LeftCol"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 1, 0.6, 1)
+theme_override_font_sizes/font_size = 11
+text = "● LABORATORIO ACTIVO · SIMULADOR LISTO"
+horizontal_alignment = 1
+
+[node name="BtnPlayMinigame" type="Button" parent="DeployedModal/DeployedCard/Margin/VBox/ContentHBox/LeftCol"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+text = "▶ PROBAR MINIJUEGO"
+flat = true
+script = ExtResource("3_cbtn")
+slant = 16.0
+
+[node name="RightCol" type="PanelContainer" parent="DeployedModal/DeployedCard/Margin/VBox/ContentHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Margin" type="MarginContainer" parent="DeployedModal/DeployedCard/Margin/VBox/ContentHBox/RightCol"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 10
+
+[node name="Scroll" type="ScrollContainer" parent="DeployedModal/DeployedCard/Margin/VBox/ContentHBox/RightCol/Margin"]
+layout_mode = 2
+horizontal_scroll_mode = 3
+vertical_scroll_mode = 1
+
+[node name="TextVBox" type="VBoxContainer" parent="DeployedModal/DeployedCard/Margin/VBox/ContentHBox/RightCol/Margin/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="LblQueEs" type="Label" parent="DeployedModal/DeployedCard/Margin/VBox/ContentHBox/RightCol/Margin/Scroll/TextVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 12
+text = "⚡ ¿QUÉ ES?: ..."
+autowrap_mode = 2
+
+[node name="Sep1" type="HSeparator" parent="DeployedModal/DeployedCard/Margin/VBox/ContentHBox/RightCol/Margin/Scroll/TextVBox"]
+layout_mode = 2
+
+[node name="LblImportancia" type="Label" parent="DeployedModal/DeployedCard/Margin/VBox/ContentHBox/RightCol/Margin/Scroll/TextVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.3, 0.45, 1)
+theme_override_font_sizes/font_size = 12
+text = "🔥 IMPORTANCIA: ..."
+autowrap_mode = 2
+
+[node name="Sep2" type="HSeparator" parent="DeployedModal/DeployedCard/Margin/VBox/ContentHBox/RightCol/Margin/Scroll/TextVBox"]
+layout_mode = 2
+
+[node name="LblQueHace" type="Label" parent="DeployedModal/DeployedCard/Margin/VBox/ContentHBox/RightCol/Margin/Scroll/TextVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.35, 1, 1)
+theme_override_font_sizes/font_size = 12
+text = "⚙️ ¿QUÉ HACE?: ..."
+autowrap_mode = 2
+
+[node name="Sep3" type="HSeparator" parent="DeployedModal/DeployedCard/Margin/VBox/ContentHBox/RightCol/Margin/Scroll/TextVBox"]
+layout_mode = 2
+
+[node name="LblPasos" type="Label" parent="DeployedModal/DeployedCard/Margin/VBox/ContentHBox/RightCol/Margin/Scroll/TextVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.85, 0.9, 0.9)
+theme_override_font_sizes/font_size = 12
+text = "🛠️ MECÁNICA DE SERVICIO / PROCEDIMIENTO:\n..."
+autowrap_mode = 2
+
+[node name="MinigameContainer" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
