@@ -25,4 +25,11 @@ En este directorio se mantiene el registro y métodos de descarga de todas las v
 ---
 
 ## 🗄️ Historial de Versiones Anteriores
-- **Version 0.0.0 Alpha**: Primer lanzamiento con soporte base de simulación y taller 3D.
+
+### 📦 Versión 0.0.0 Alpha
+- **Nombre de la versión:** `Version 0.0.0 Alpha`
+- **Estado:** Alpha inicial
+- **Archivo:** `ComputerTechnician3D-Windows-v0.0.0-alpha.zip`
+- **Enlace de descarga directa:**  
+  👉 **[Descargar ComputerTechnician3D-Windows-v0.0.0-alpha.zip](https://github.com/santiago9seijas-bit/computer-technician-3D/releases/download/v0.0.0-alpha/ComputerTechnician3D-Windows-v0.0.0-alpha.zip)**
+- **Descripción:** Primer lanzamiento con taller 3D, inspección de PC y minijuegos base de memoria RAM, HDD SATA y Fan Cooler.

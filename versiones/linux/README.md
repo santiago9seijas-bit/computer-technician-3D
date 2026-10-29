@@ -38,4 +38,17 @@ chmod +x ComputerTechnician3D.x86_64
 ---
 
 ## 🗄️ Historial de Versiones Anteriores
-- **Version 0.0.0 Alpha**: Primer lanzamiento oficial con taller 3D y mecánicas base.
+
+### 📦 Versión 0.0.0 Alpha
+- **Nombre de la versión:** `Version 0.0.0 Alpha`
+- **Estado:** Alpha inicial
+- **Archivo:** `ComputerTechnician3D-Linux-v0.0.0-alpha.zip`
+- **Enlace de descarga directa:**  
+  👉 **[Descargar ComputerTechnician3D-Linux-v0.0.0-alpha.zip](https://github.com/santiago9seijas-bit/computer-technician-3D/releases/download/v0.0.0-alpha/ComputerTechnician3D-Linux-v0.0.0-alpha.zip)**
+- **Descarga rápida por terminal:**
+  ```bash
+  wget https://github.com/santiago9seijas-bit/computer-technician-3D/releases/download/v0.0.0-alpha/ComputerTechnician3D-Linux-v0.0.0-alpha.zip
+  unzip ComputerTechnician3D-Linux-v0.0.0-alpha.zip -d ComputerTechnician3D-Linux-v0.0.0
+  chmod +x ComputerTechnician3D-Linux-v0.0.0/ComputerTechnician3D.x86_64
+  ```
+- **Descripción:** Primer lanzamiento oficial con taller 3D, inspección de PC y minijuegos base de memoria RAM, HDD SATA y Fan Cooler.
