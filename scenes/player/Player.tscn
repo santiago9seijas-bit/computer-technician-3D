@@ -1,6 +1,7 @@
-[gd_scene format=3 load_steps=3]
+[gd_scene format=3 load_steps=4]
 
 [ext_resource type="Script" path="res://scripts/player/Player.gd" id="1_player"]
+[ext_resource type="PackedScene" path="res://scenes/player/CharacterModel.tscn" id="2_model"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1"]
 radius = 0.4
@@ -20,3 +21,16 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
 target_position = Vector3(0, 0, -3.2)
 collide_with_areas = true
 collide_with_bodies = true
+
+[node name="ModelRoot" type="Node3D" parent="."]
+
+[node name="CharacterModel" parent="ModelRoot" instance=ExtResource("2_model")]
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="ModelRoot"]
+root_node = NodePath("..")
+
+[node name="IntroCameraPivot" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
+
+[node name="IntroCamera3D" type="Camera3D" parent="IntroCameraPivot"]
+transform = Transform3D(1, 0, 0, 0, 0.965926, 0.258819, 0, -0.258819, 0.965926, 0, 0.8, 2.6)

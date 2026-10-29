@@ -51,7 +51,7 @@ var panel_target_x: float = 240.0 # (1280 - 800) / 2 = 240.0
 func _ready() -> void:
 	modulate = Color.WHITE
 	if version_label:
-		version_label.text = "Version 0.0.1 Alpha"
+		version_label.text = "Version 0.0.2 Alpha"
 	header_orig_x = header_container.position.x
 	buttons_orig_x = vbox_container.position.x
 	deco_orig_x = decoracion.position.x

@@ -6,24 +6,18 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/CyberBackgroundFrame.tscn" id="4_bg_frame"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_card"]
-content_margin_left = 26.0
-content_margin_top = 22.0
-content_margin_right = 26.0
-content_margin_bottom = 22.0
+content_margin_left = 20.0
+content_margin_top = 18.0
+content_margin_right = 20.0
+content_margin_bottom = 18.0
 
 [node name="LevelCardModal" type="PanelContainer"]
-custom_minimum_size = Vector2(640, 370)
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -320.0
-offset_top = -185.0
-offset_right = 320.0
-offset_bottom = 185.0
-grow_horizontal = 2
-grow_vertical = 2
+custom_minimum_size = Vector2(460, 310)
+offset_left = 480.0
+offset_top = 235.0
+offset_right = 940.0
+offset_bottom = 545.0
+pivot_offset = Vector2(230, 155)
 theme = ExtResource("3_theme")
 theme_override_styles/panel = SubResource("StyleBoxEmpty_card")
 script = ExtResource("1_card")
@@ -31,99 +25,71 @@ script = ExtResource("1_card")
 [node name="CyberBackgroundFrame" parent="." instance=ExtResource("4_bg_frame")]
 layout_mode = 2
 
-[node name="BtnClose" type="Button" parent="."]
-custom_minimum_size = Vector2(36, 36)
+[node name="VBox" type="VBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="HeaderHBox" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+
+[node name="TitleVBox" type="VBoxContainer" parent="VBox/HeaderHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 2
+
+[node name="Titulo" type="Label" parent="VBox/HeaderHBox/TitleVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.9, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0.9, 1, 0.4)
+theme_override_font_sizes/font_size = 17
+text = "NIVEL 1 · MONTAJE FAN COOLER"
+
+[node name="Subtitulo" type="Label" parent="VBox/HeaderHBox/TitleVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.15, 0.35, 1)
+theme_override_font_sizes/font_size = 12
+text = "REPARACIÓN · ETAPA I · [DISPONIBLE ▶]"
+
+[node name="BtnClose" type="Button" parent="VBox/HeaderHBox"]
+custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 size_flags_horizontal = 8
 size_flags_vertical = 0
 text = "✕"
 flat = true
 script = ExtResource("2_cbtn")
-slant = 8.0
+slant = 6.0
 
-[node name="HBox" type="HBoxContainer" parent="."]
+[node name="Divider" type="ColorRect" parent="VBox"]
+custom_minimum_size = Vector2(0, 1.5)
 layout_mode = 2
-theme_override_constants/separation = 26
+color = Color(0, 0.85, 1, 0.35)
 
-[node name="BadgeContainer" type="VBoxContainer" parent="HBox"]
-custom_minimum_size = Vector2(160, 0)
+[node name="QueHayTitulo" type="Label" parent="VBox"]
 layout_mode = 2
-alignment = 1
+theme_override_colors/font_color = Color(1, 0.1, 0.45, 1)
+theme_override_font_sizes/font_size = 12
+text = "DESCRIPCIÓN DEL DIAGNÓSTICO"
 
-[node name="CircleBadge" type="Panel" parent="HBox/BadgeContainer"]
-custom_minimum_size = Vector2(120, 120)
+[node name="Descripcion" type="Label" parent="VBox"]
 layout_mode = 2
-size_flags_horizontal = 4
-
-[node name="NumberLabel" type="Label" parent="HBox/BadgeContainer/CircleBadge"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_colors/font_color = Color(1, 0.15, 0.55, 1)
-theme_override_colors/font_shadow_color = Color(1, 0.08, 0.45, 0.7)
-theme_override_constants/shadow_outline_size = 12
-theme_override_font_sizes/font_size = 56
-text = "1"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Dots" type="Label" parent="HBox/BadgeContainer"]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.2, 0.6, 0.8)
-theme_override_font_sizes/font_size = 16
-text = "• • •"
-horizontal_alignment = 1
-
-[node name="VBox" type="VBoxContainer" parent="HBox"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 10
-alignment = 1
-
-[node name="Titulo" type="Label" parent="HBox/VBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0, 0.9, 1, 1)
-theme_override_colors/font_shadow_color = Color(0, 0.9, 1, 0.5)
-theme_override_font_sizes/font_size = 20
-text = "NIVEL 1 · MEMORIA Y DISCO"
-
-[node name="Subtitulo" type="Label" parent="HBox/VBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.8, 0.8, 0.95, 1)
-theme_override_font_sizes/font_size = 13
-text = "ETAPA BÁSICOS  ☆☆☆ 0/3"
-
-[node name="QueHayTitulo" type="Label" parent="HBox/VBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.08, 0.45, 1)
-theme_override_font_sizes/font_size = 14
-text = "QUÉ HAY EN ESTE NIVEL"
-
-[node name="Descripcion" type="Label" parent="HBox/VBox"]
-layout_mode = 2
+size_flags_vertical = 3
 theme_override_colors/font_color = Color(0.85, 0.85, 0.95, 1)
 theme_override_font_sizes/font_size = 12
-text = "Nivel 1 - MEMORIA Y DISCO - etapa BÁSICOS.
-3 computadoras contra un cronómetro de 120 segundos.
-Cada reparación suma 100 puntos y devuelve 10 segundos.
-Solo aparecen estas piezas: RAM, Disco Duro, Fuente, Grafica, Placa Madre.
-La sala es pequeña: escritorios, cajas de repuestos y papelera cerca."
+text = "3 computadoras contra reloj con sobrecalentamiento térmico severo. Identifica el conector PWM de 4 pines y desacopla la tornillería Cruz o Pala."
 autowrap_mode = 2
 
-[node name="Record" type="Label" parent="HBox/VBox"]
+[node name="Record" type="Label" parent="VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
-theme_override_font_sizes/font_size = 13
-text = "RÉCORD 300 puntos · DIFICULTAD NORMAL"
+theme_override_font_sizes/font_size = 12
+text = "HERRAMIENTAS: [1] Cruz / [2] Pala · LÍMITE: 120s · 100 PTS"
 
-[node name="BtnJugarNivel" type="Button" parent="HBox/VBox"]
-custom_minimum_size = Vector2(210, 46)
+[node name="BtnJugarNivel" type="Button" parent="VBox"]
+custom_minimum_size = Vector2(210, 42)
 layout_mode = 2
 size_flags_horizontal = 4
-text = "JUGAR NIVEL"
+text = "JUGAR NIVEL ▶"
 flat = true
 script = ExtResource("2_cbtn")
-slant = 20.0
+slant = 16.0

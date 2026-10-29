@@ -28,6 +28,7 @@ static var initial_tab: String = "niveles"
 # --- Área de Constelación (Niveles) ---
 @onready var constellation_area: Control = $ConstellationArea
 @onready var graph_lines: Control = $ConstellationArea/GraphLines
+@onready var card_dim_overlay: ColorRect = $CardDimOverlay
 @onready var level_card_modal: Control = $LevelCardModal
 
 # --- Área de Tutoriales (Centro de Entrenamiento) ---
@@ -80,6 +81,9 @@ var node_buttons: Array[Button] = []
 var current_minigame_instance: Node = null
 var active_card_data: Dictionary = {}
 var _card_slots: Array[Button] = []
+var is_level_zoomed: bool = false
+var active_zoomed_index: int = -1
+var camera_zoom_tween: Tween = null
 
 # =============================================================================
 # BASE DE DATOS DE LOS 12 NIVELES POR MODO (TODOS BLOQUEADOS CON INSPECCIÓN ACTIVA)
@@ -796,8 +800,17 @@ func _ready() -> void:
 	btn_servidor.pressed.connect(func(): _switch_mode("servidor"))
 	
 	# Modales
+	if card_dim_overlay:
+		card_dim_overlay.visible = false
+		card_dim_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+		card_dim_overlay.gui_input.connect(func(event: InputEvent):
+			if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+				_unzoom_camera()
+		)
 	if level_card_modal:
 		level_card_modal.visible = false
+		if level_card_modal.has_signal("closed"):
+			level_card_modal.closed.connect(_unzoom_camera)
 	if deployed_modal:
 		deployed_modal.visible = false
 	if dim_overlay:
@@ -834,6 +847,8 @@ func _process(_delta: float) -> void:
 # CONMUTACIÓN INSTANTÁNEA DE PESTAÑAS (0 MS RETRASO, FLUIDEZ ABSOLUTA)
 # =============================================================================
 func _switch_main_tab(tab_name: String, instant: bool = false) -> void:
+	if is_level_zoomed:
+		_unzoom_camera()
 	current_tab = tab_name
 	_update_tab_buttons_visuals()
 	_update_mode_buttons()
@@ -889,6 +904,8 @@ func _update_tab_buttons_visuals() -> void:
 # CONMUTACIÓN DE MODO / DIVISIÓN (REPARACIÓN, SISTEMA, SERVIDOR)
 # =============================================================================
 func _switch_mode(mode_name: String) -> void:
+	if is_level_zoomed:
+		_unzoom_camera()
 	if current_mode == mode_name:
 		return
 		
@@ -973,9 +990,10 @@ func _create_node_hitboxes() -> void:
 	
 	for i in range(12):
 		var btn = Button.new()
-		btn.custom_minimum_size = Vector2(56, 56)
+		btn.custom_minimum_size = Vector2(60, 60)
 		btn.flat = true
 		btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		btn.button_down.connect(_on_node_pressed.bind(i))
 		btn.pressed.connect(_on_node_clicked.bind(i))
 		constellation_area.add_child(btn)
 		node_buttons.append(btn)
@@ -989,16 +1007,83 @@ func _update_node_hitboxes_positions() -> void:
 	for i in range(min(node_buttons.size(), pts.size())):
 		var btn = node_buttons[i]
 		var np = pts[i]
-		btn.position = np - Vector2(28, 28)
+		btn.position = np - Vector2(30, 30)
+
+func _on_node_pressed(index: int) -> void:
+	if graph_lines and graph_lines.has_method("trigger_node_click_zoom"):
+		graph_lines.trigger_node_click_zoom(index)
 
 func _on_node_clicked(index: int) -> void:
 	var list = LEVELS_DATA.get(current_mode, [])
-	if index < list.size() and level_card_modal:
-		var data = list[index]
-		if level_card_modal.has_method("setup_level"):
+	if index >= list.size():
+		return
+		
+	var data = list[index]
+	is_level_zoomed = true
+	active_zoomed_index = index
+	
+	if graph_lines and graph_lines.has_method("trigger_node_click_zoom"):
+		graph_lines.trigger_node_click_zoom(index)
+		
+	# ZOOM DE CÁMARA AL CÍRCULO CLICKEADO:
+	# El mapa hace zoom y encuadra el círculo ampliado en el lado izquierdo (X=260, Y=390)
+	var node_pos = graph_lines.nodes[index] if (graph_lines and index < graph_lines.nodes.size()) else Vector2(120, 440)
+	var zoom_factor: float = 2.1
+	var target_screen_pos = Vector2(260, 390)
+	var target_area_pos = target_screen_pos - node_pos * zoom_factor
+	
+	constellation_area.pivot_offset = Vector2.ZERO
+	
+	if camera_zoom_tween and camera_zoom_tween.is_valid():
+		camera_zoom_tween.kill()
+		
+	camera_zoom_tween = create_tween().set_parallel(true)
+	camera_zoom_tween.tween_property(constellation_area, "position", target_area_pos, 0.42)\
+		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	camera_zoom_tween.tween_property(constellation_area, "scale", Vector2(zoom_factor, zoom_factor), 0.42)\
+		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+		
+	# Habilitar el overlay invisible de captura de clics fuera de la tarjeta
+	if card_dim_overlay:
+		card_dim_overlay.visible = true
+		card_dim_overlay.color = Color(0, 0, 0, 0)
+		
+	# Desplegar la ficha técnica compacta al lado derecho (X=480)
+	if level_card_modal:
+		if level_card_modal.has_method("open_card"):
+			level_card_modal.open_card(data)
+		elif level_card_modal.has_method("setup_level"):
 			level_card_modal.setup_level(data)
+			level_card_modal.visible = true
 		else:
 			level_card_modal.visible = true
+
+func _unzoom_camera() -> void:
+	if not is_level_zoomed:
+		return
+	is_level_zoomed = false
+	active_zoomed_index = -1
+	
+	if card_dim_overlay:
+		card_dim_overlay.visible = false
+		
+	if level_card_modal:
+		if level_card_modal.has_method("close_card"):
+			level_card_modal.close_card()
+		else:
+			level_card_modal.visible = false
+			
+	if camera_zoom_tween and camera_zoom_tween.is_valid():
+		camera_zoom_tween.kill()
+		
+	camera_zoom_tween = create_tween().set_parallel(true)
+	camera_zoom_tween.tween_property(constellation_area, "position", Vector2.ZERO, 0.38)\
+		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	camera_zoom_tween.tween_property(constellation_area, "scale", Vector2.ONE, 0.38)\
+		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+
+func _close_level_card() -> void:
+	_unzoom_camera()
 
 # =============================================================================
 # CONSTRUCCIÓN Y FILTRADO INSTANTÁNEO DE TARJETAS (REUTILIZACIÓN DE SLOTS, 0 MS)

@@ -11,6 +11,13 @@ extends Control
 @onready var game_over_panel: PanelContainer = $GameOverPanel
 @onready var win_panel: PanelContainer = $WinPanel
 
+var cinematic_overlay: Control = null
+var top_cinematic_bar: ColorRect = null
+var bottom_cinematic_bar: ColorRect = null
+var optic_flash_rect: ColorRect = null
+var optic_text_label: Label = null
+var is_cinematic_active: bool = false
+
 func _ready() -> void:
 	game_over_panel.visible = false
 	win_panel.visible = false
@@ -26,6 +33,133 @@ func _ready() -> void:
 	
 	_update_backpack_ui([])
 	_update_tools_ui(0)
+
+func _create_cinematic_overlay() -> void:
+	if cinematic_overlay:
+		return
+	cinematic_overlay = Control.new()
+	cinematic_overlay.name = "CinematicOverlay"
+	cinematic_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	cinematic_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	cinematic_overlay.visible = false
+	add_child(cinematic_overlay)
+	
+	# Barra superior estilo panorámico de cine cyberpunk
+	top_cinematic_bar = ColorRect.new()
+	top_cinematic_bar.color = Color(0.04, 0.02, 0.09, 0.95)
+	top_cinematic_bar.anchor_right = 1.0
+	top_cinematic_bar.offset_bottom = 54.0
+	cinematic_overlay.add_child(top_cinematic_bar)
+	
+	var top_line = ColorRect.new()
+	top_line.color = Color(0.0, 0.9, 1.0, 0.8)
+	top_line.anchor_right = 1.0
+	top_line.anchor_top = 1.0
+	top_line.anchor_bottom = 1.0
+	top_line.offset_top = -2.0
+	top_cinematic_bar.add_child(top_line)
+	
+	var top_lbl = Label.new()
+	top_lbl.text = "// PROTOCOLO DE TALLER // SINCRONIZANDO TÉCNICO //"
+	top_lbl.set_anchors_preset(Control.PRESET_FULL_RECT)
+	top_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	top_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	top_lbl.modulate = Color(0.0, 0.95, 1.0, 1.0)
+	top_cinematic_bar.add_child(top_lbl)
+	
+	# Barra inferior con aviso para saltar
+	bottom_cinematic_bar = ColorRect.new()
+	bottom_cinematic_bar.color = Color(0.04, 0.02, 0.09, 0.95)
+	bottom_cinematic_bar.anchor_top = 1.0
+	bottom_cinematic_bar.anchor_right = 1.0
+	bottom_cinematic_bar.anchor_bottom = 1.0
+	bottom_cinematic_bar.offset_top = -54.0
+	cinematic_overlay.add_child(bottom_cinematic_bar)
+	
+	var bot_line = ColorRect.new()
+	bot_line.color = Color(1.0, 0.1, 0.5, 0.8)
+	bot_line.anchor_right = 1.0
+	bot_line.offset_bottom = 2.0
+	bottom_cinematic_bar.add_child(bot_line)
+	
+	var bot_lbl = Label.new()
+	bot_lbl.text = "[ESPACIO / CLIC] PARA SALTAR INTRO"
+	bot_lbl.set_anchors_preset(Control.PRESET_FULL_RECT)
+	bot_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	bot_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	bot_lbl.modulate = Color(0.85, 0.85, 0.95, 0.85)
+	bottom_cinematic_bar.add_child(bot_lbl)
+	
+	# Destello óptico (visera cibernética)
+	optic_flash_rect = ColorRect.new()
+	optic_flash_rect.color = Color(0.0, 0.85, 1.0, 0.0)
+	optic_flash_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+	optic_flash_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	cinematic_overlay.add_child(optic_flash_rect)
+	
+	# Texto de inicio óptico
+	optic_text_label = Label.new()
+	optic_text_label.text = "[ SISTEMA ÓPTICO SINCRONIZADO // VISOR EN LÍNEA ]"
+	optic_text_label.set_anchors_preset(Control.PRESET_CENTER)
+	optic_text_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	optic_text_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	optic_text_label.modulate = Color(0.0, 1.0, 0.8, 0.0)
+	cinematic_overlay.add_child(optic_text_label)
+
+func setup_cinematic_mode() -> void:
+	_create_cinematic_overlay()
+	is_cinematic_active = true
+	cinematic_overlay.visible = true
+	
+	# Ocultar temporalmente los paneles de juego hasta entrar en 1ra persona
+	for panel_name in ["TopLeft", "TopCenter", "BottomLeft", "TopRight", "Center", "BottomCenter"]:
+		var p = get_node_or_null(panel_name) as Control
+		if p:
+			p.modulate.a = 0.0
+			
+	top_cinematic_bar.position.y = -60.0
+	bottom_cinematic_bar.position.y = 60.0
+	
+	var tw = create_tween().set_parallel(true)
+	tw.tween_property(top_cinematic_bar, "position:y", 0.0, 0.4).set_trans(Tween.TRANS_CUBIC)
+	tw.tween_property(bottom_cinematic_bar, "position:y", 0.0, 0.4).set_trans(Tween.TRANS_CUBIC)
+
+func play_optic_boot_transition(callback: Callable = Callable()) -> void:
+	if not cinematic_overlay:
+		return
+	var tw = create_tween()
+	# Destello cian óptico sutil
+	tw.tween_property(optic_flash_rect, "color:a", 0.45, 0.12).set_trans(Tween.TRANS_QUAD)
+	tw.parallel().tween_property(optic_text_label, "modulate:a", 1.0, 0.12)
+	tw.tween_property(optic_flash_rect, "color:a", 0.0, 0.28).set_trans(Tween.TRANS_QUAD)
+	tw.parallel().tween_property(optic_text_label, "modulate:a", 0.0, 0.5)
+	
+	# Deslizar barras panorámicas hacia fuera
+	tw.parallel().tween_property(top_cinematic_bar, "position:y", -60.0, 0.35)
+	tw.parallel().tween_property(bottom_cinematic_bar, "position:y", 60.0, 0.35)
+	
+	# Desvanecer y mostrar paneles HUD de gameplay
+	for panel_name in ["TopLeft", "TopCenter", "BottomLeft", "TopRight", "Center", "BottomCenter"]:
+		var p = get_node_or_null(panel_name) as Control
+		if p:
+			tw.parallel().tween_property(p, "modulate:a", 1.0, 0.4)
+			
+	tw.chain().tween_callback(func():
+		is_cinematic_active = false
+		if cinematic_overlay:
+			cinematic_overlay.visible = false
+		if callback.is_valid():
+			callback.call()
+	)
+
+func skip_cinematic() -> void:
+	is_cinematic_active = false
+	if cinematic_overlay:
+		cinematic_overlay.visible = false
+	for panel_name in ["TopLeft", "TopCenter", "BottomLeft", "TopRight", "Center", "BottomCenter"]:
+		var p = get_node_or_null(panel_name) as Control
+		if p:
+			p.modulate.a = 1.0
 
 func set_interaction_prompt(text: String) -> void:
 	prompt_label.text = text
@@ -80,13 +214,6 @@ func _on_tool_selected(tool_id: int) -> void:
 	_update_tools_ui(tool_id)
 
 func _update_tools_ui(active_tool: int) -> void:
-	var tool_names = [
-		"1. Destornillador ★",
-		"2. Destornillador ▬",
-		"3. Cautín",
-		"4. Multímetro",
-		"5. Limpiador"
-	]
 	for i in range(tools_bar.get_child_count()):
 		var btn = tools_bar.get_child(i) as Button
 		if btn:

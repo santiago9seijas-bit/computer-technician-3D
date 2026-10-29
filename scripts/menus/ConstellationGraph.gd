@@ -26,6 +26,43 @@ var transition_start_nodes: Array[Vector2] = []
 var transition_target_nodes: Array[Vector2] = []
 var mode_switch_pulse: float = 0.0
 
+# Micro-animación de zoom táctil sobre los círculos de nivel
+var node_zoom_scales: Array[float] = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+var node_ripples: Array[float] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+var node_press_tweens: Dictionary = {}
+
+func trigger_node_click_zoom(index: int) -> void:
+	if index < 0 or index >= node_zoom_scales.size():
+		return
+	if node_press_tweens.has(index) and node_press_tweens[index] != null and node_press_tweens[index].is_valid():
+		node_press_tweens[index].kill()
+		
+	node_ripples[index] = 1.0
+	var tw = create_tween()
+	node_press_tweens[index] = tw
+	
+	# Expansión reactiva inmediata de zoom a 1.38x
+	tw.tween_method(func(v: float):
+		if index < node_zoom_scales.size():
+			node_zoom_scales[index] = v
+		queue_redraw()
+	, node_zoom_scales[index], 1.38, 0.11).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	
+	# Rebote elástico regresando a 1.0x
+	tw.tween_method(func(v: float):
+		if index < node_zoom_scales.size():
+			node_zoom_scales[index] = v
+		queue_redraw()
+	, 1.38, 1.0, 0.28).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	
+	# Onda de choque expansiva (ripple)
+	var tw_rip = create_tween()
+	tw_rip.tween_method(func(v: float):
+		if index < node_ripples.size():
+			node_ripples[index] = v
+		queue_redraw()
+	, 1.0, 0.0, 0.45).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+
 # -----------------------------------------------------------------------------
 # CIRCUITOS Y PULSOS
 # -----------------------------------------------------------------------------
@@ -469,74 +506,130 @@ func _draw() -> void:
 	for i in range(nodes.size()):
 		var np = nodes[i]
 		var is_hovered = (hovered_node_index == i)
+		# SOLO el nivel de reparación (Nivel 1, índice 0) está en ROJO indicando que está disponible para jugar
+		var is_playable = (current_mode == "reparacion" and i == 0)
+		var zoom_scale = node_zoom_scales[i] if i < node_zoom_scales.size() else 1.0
+		var ripple = node_ripples[i] if i < node_ripples.size() else 0.0
 
-		# --- MICRO-ANIMACIÓN A: Pulso de Respiración del Núcleo ---
+		# --- MICRO-ANIMACIÓN A: Pulso de Respiración del Núcleo escalado por Zoom ---
 		var node_phase = float(i) * 0.52
 		var core_breath = sin(anim_offset * 3.0 + node_phase) * 0.5 + 0.5
-		var breath_radius = 21.0 + core_breath * 2.2 if not is_hovered else 25.0
+		var base_radius = (21.0 + core_breath * 2.2) if not is_hovered else 25.0
+		var breath_radius = base_radius * zoom_scale
+
+		# --- MICRO-ANIMACIÓN ZOOM ONDA EXPANSIVA (RIPPLE AL PRESIONAR) ---
+		if ripple > 0.01:
+			var rip_r = lerp(26.0, 68.0, 1.0 - ripple) * zoom_scale
+			var rip_a = ripple * 0.85
+			var rip_col = Color(1.0, 0.08, 0.25, rip_a) if is_playable else Color(0.2, 0.85, 1.0, rip_a)
+			draw_arc(np, rip_r, 0, TAU, 32, rip_col, 2.6)
 
 		# --- Zócalo base en la placa ---
-		draw_circle(np, 32.0, Color(0.75, 0.05, 0.35, 0.08))
-		draw_arc(np, 28.0, 0, TAU, 32, Color(0.5, 0.05, 0.7, 0.38), 1.5)
+		var socket_bg = Color(0.8, 0.05, 0.22, 0.16) if is_playable else Color(0.12, 0.3, 0.48, 0.08)
+		var socket_arc = Color(1.0, 0.08, 0.25, 0.55) if is_playable else Color(0.22, 0.42, 0.6, 0.32)
+		draw_circle(np, 32.0 * zoom_scale, socket_bg)
+		draw_arc(np, 28.0 * zoom_scale, 0, TAU, 32, socket_arc, 1.5)
 
-		# --- MICRO-ANIMACIÓN B: Marcas cardinales tácticas que oscilan ---
-		var tick_offset = 32.0 + core_breath * 2.0
-		draw_line(np + Vector2(-tick_offset, 0), np + Vector2(-tick_offset + 5, 0), Color(1.0, 0.15, 0.35, 0.5), 1.5)
-		draw_line(np + Vector2(tick_offset - 5, 0), np + Vector2(tick_offset, 0), Color(1.0, 0.15, 0.35, 0.5), 1.5)
-		draw_line(np + Vector2(0, -tick_offset), np + Vector2(0, -tick_offset + 5), Color(1.0, 0.15, 0.35, 0.5), 1.5)
-		draw_line(np + Vector2(0, tick_offset - 5), np + Vector2(0, tick_offset), Color(1.0, 0.15, 0.35, 0.5), 1.5)
+		# --- MICRO-ANIMACIÓN B: Marcas cardinales tácticas que oscilan con Zoom ---
+		var tick_offset = (32.0 + core_breath * 2.0) * zoom_scale
+		var tick_col = Color(1.0, 0.1, 0.28, 0.85) if is_playable else Color(0.25, 0.5, 0.68, 0.38)
+		draw_line(np + Vector2(-tick_offset, 0), np + Vector2(-tick_offset + 5 * zoom_scale, 0), tick_col, 1.5)
+		draw_line(np + Vector2(tick_offset - 5 * zoom_scale, 0), np + Vector2(tick_offset, 0), tick_col, 1.5)
+		draw_line(np + Vector2(0, -tick_offset), np + Vector2(0, -tick_offset + 5 * zoom_scale), tick_col, 1.5)
+		draw_line(np + Vector2(0, tick_offset - 5 * zoom_scale), np + Vector2(0, tick_offset), tick_col, 1.5)
 
-		# --- MICRO-ANIMACIÓN C: Anillos segmentados rotatorios ---
+		# --- MICRO-ANIMACIÓN C: Anillos segmentados rotatorios escalados con Zoom ---
 		var rot_cw = anim_offset * (1.2 + float(i % 3) * 0.3)
 		var rot_ccw = -anim_offset * (0.9 + float((i + 1) % 3) * 0.25)
+		var ring_r1 = 25.5 * zoom_scale
+		var ring_r2 = 23.0 * zoom_scale
 
-		# Anillo exterior rotatorio segmentado (3 arcos)
-		draw_arc(np, 25.5, rot_cw, rot_cw + PI * 0.45, 12, Color(1.0, 0.1, 0.35, 0.65), 1.5)
-		draw_arc(np, 25.5, rot_cw + PI * 0.7, rot_cw + PI * 1.15, 12, Color(0.8, 0.1, 0.95, 0.65), 1.5)
-		draw_arc(np, 25.5, rot_cw + PI * 1.4, rot_cw + PI * 1.85, 12, Color(1.0, 0.25, 0.5, 0.65), 1.5)
+		if is_playable:
+			# ROJO RADIANTE (ÚNICO DISPONIBLE PARA JUGAR)
+			draw_arc(np, ring_r1, rot_cw, rot_cw + PI * 0.45, 12, Color(1.0, 0.08, 0.25, 0.9), 1.8)
+			draw_arc(np, ring_r1, rot_cw + PI * 0.7, rot_cw + PI * 1.15, 12, Color(1.0, 0.22, 0.38, 0.9), 1.8)
+			draw_arc(np, ring_r1, rot_cw + PI * 1.4, rot_cw + PI * 1.85, 12, Color(1.0, 0.12, 0.28, 0.9), 1.8)
 
-		# Anillo intermedio contra-rotatorio (2 arcos)
-		draw_arc(np, 23.0, rot_ccw, rot_ccw + PI * 0.6, 12, Color(0.85, 0.1, 1.0, 0.5), 1.2)
-		draw_arc(np, 23.0, rot_ccw + PI, rot_ccw + PI * 1.6, 12, Color(1.0, 0.15, 0.4, 0.5), 1.2)
+			draw_arc(np, ring_r2, rot_ccw, rot_ccw + PI * 0.6, 12, Color(1.0, 0.18, 0.35, 0.75), 1.4)
+			draw_arc(np, ring_r2, rot_ccw + PI, rot_ccw + PI * 1.6, 12, Color(1.0, 0.28, 0.45, 0.75), 1.4)
+		else:
+			# COOL CYBER / AZUL ACERO OSCURO (BLOQUEADOS)
+			draw_arc(np, ring_r1, rot_cw, rot_cw + PI * 0.45, 12, Color(0.25, 0.48, 0.65, 0.4), 1.4)
+			draw_arc(np, ring_r1, rot_cw + PI * 0.7, rot_cw + PI * 1.15, 12, Color(0.2, 0.4, 0.58, 0.4), 1.4)
+			draw_arc(np, ring_r1, rot_cw + PI * 1.4, rot_cw + PI * 1.85, 12, Color(0.28, 0.52, 0.7, 0.4), 1.4)
+
+			draw_arc(np, ring_r2, rot_ccw, rot_ccw + PI * 0.6, 12, Color(0.18, 0.36, 0.52, 0.35), 1.2)
+			draw_arc(np, ring_r2, rot_ccw + PI, rot_ccw + PI * 1.6, 12, Color(0.22, 0.42, 0.58, 0.35), 1.2)
 
 		# --- Esfera de cristal oscuro central ---
-		draw_circle(np, breath_radius, Color(0.06, 0.015, 0.12, 0.96))
+		var crystal_col = Color(0.14, 0.015, 0.04, 0.98) if is_playable else Color(0.04, 0.03, 0.08, 0.96)
+		draw_circle(np, breath_radius, crystal_col)
 
-		# Borde de neón con colorimetría variable (Rojo Carmesí <-> Púrpura)
-		var base_neon = Color(1.0, 0.12, 0.38, 1.0).lerp(Color(0.8, 0.1, 0.98, 1.0), core_breath)
-		if is_hovered:
-			base_neon = Color(0.0, 1.0, 0.75, 1.0)
-		draw_arc(np, breath_radius, 0, TAU, 32, base_neon, 2.4 if is_hovered else 1.8)
+		# Borde de neón con colorimetría variable:
+		# Si es jugable: ¡ROJO CIBERNÉTICO VIBRANTE!
+		# Si está bloqueado: Azul/Cian acero tenue (o cian brillante en hover)
+		var base_neon: Color
+		if is_playable:
+			base_neon = Color(1.0, 0.06, 0.22, 1.0).lerp(Color(1.0, 0.25, 0.4, 1.0), core_breath)
+			if is_hovered:
+				base_neon = Color(1.0, 0.45, 0.55, 1.0)
+		else:
+			base_neon = Color(0.22, 0.45, 0.62, 0.65).lerp(Color(0.18, 0.35, 0.52, 0.65), core_breath)
+			if is_hovered:
+				base_neon = Color(0.0, 1.0, 0.75, 1.0)
 
-		# --- MICRO-ANIMACIÓN D: Shimmer de Escaneo sobre el Candado ---
-		var lock_y_scan = (sin(anim_offset * 3.5 + float(i) * 0.7) + 1.0) * 0.5
-		var lock_col = Color(1.0, 0.2, 0.45, 0.95) if not is_hovered else Color(0.0, 1.0, 0.75, 0.95)
+		draw_arc(np, breath_radius, 0, TAU, 32, base_neon, 2.5 if is_hovered or is_playable else 1.6)
 
-		# Candado Tecnológico Vectorial 🔒
-		var lock_w = 12.0
-		var lock_h = 9.0
-		var lock_pos = Vector2(np.x - lock_w * 0.5, np.y - 1.5)
-		draw_rect(Rect2(lock_pos.x, lock_pos.y, lock_w, lock_h), lock_col, false, 1.5)
-		draw_arc(np + Vector2(0, -1.5), 4.2, PI, TAU, 14, lock_col, 1.5)
+		# Aura roja de halo exterior para el nivel jugable
+		if is_playable:
+			var halo_r = breath_radius + (3.2 + core_breath * 2.5) * zoom_scale
+			draw_arc(np, halo_r, 0, TAU, 32, Color(1.0, 0.08, 0.25, 0.42 + core_breath * 0.25), 1.5)
 
-		# Ojo de cerradura
-		draw_circle(np + Vector2(0, 2.0), 1.3, Color(0.06, 0.015, 0.12, 1.0))
-		draw_line(np + Vector2(0, 2.0), np + Vector2(0, 5.0), Color(0.06, 0.015, 0.12, 1.0), 1.3)
+		# --- ÍCONO CENTRAL (PLAY ▶ SI ES JUGABLE, CANDADO 🔒 SI ESTÁ BLOQUEADO) ---
+		if is_playable:
+			# Triángulo de Jugar ▶ en Rojo Neón / Blanco Brillante
+			var tri_sz = 6.5 * zoom_scale
+			var p_top = np + Vector2(-tri_sz * 0.65, -tri_sz)
+			var p_bot = np + Vector2(-tri_sz * 0.65, tri_sz)
+			var p_tip = np + Vector2(tri_sz * 1.1, 0.0)
+			var tri_col = Color(1.0, 0.12, 0.28, 0.95) if not is_hovered else Color(1.0, 0.35, 0.48, 1.0)
+			draw_colored_polygon([p_top, p_tip, p_bot], tri_col)
+			draw_polyline([p_top, p_tip, p_bot, p_top], Color(1.0, 0.9, 0.95, 1.0), 1.3)
+		else:
+			# Candado Tecnológico Vectorial 🔒 en Azul Acero / Cian
+			var lock_col = Color(0.4, 0.62, 0.78, 0.75) if not is_hovered else Color(0.0, 1.0, 0.75, 0.95)
+			var lock_w = 12.0 * zoom_scale
+			var lock_h = 9.0 * zoom_scale
+			var lock_pos = Vector2(np.x - lock_w * 0.5, np.y - 1.5 * zoom_scale)
+			draw_rect(Rect2(lock_pos.x, lock_pos.y, lock_w, lock_h), lock_col, false, 1.5)
+			draw_arc(np + Vector2(0, -1.5 * zoom_scale), 4.2 * zoom_scale, PI, TAU, 14, lock_col, 1.5)
 
-		# Línea de shimmer que recorre el cuerpo del candado
-		var scan_py = lock_pos.y + lock_y_scan * lock_h
-		draw_line(Vector2(lock_pos.x + 1.0, scan_py), Vector2(lock_pos.x + lock_w - 1.0, scan_py), Color(1.0, 1.0, 1.0, 0.6 * core_breath), 1.0)
+			# Ojo de cerradura
+			draw_circle(np + Vector2(0, 2.0 * zoom_scale), 1.3 * zoom_scale, Color(0.04, 0.03, 0.08, 1.0))
+			draw_line(np + Vector2(0, 2.0 * zoom_scale), np + Vector2(0, 5.0 * zoom_scale), Color(0.04, 0.03, 0.08, 1.0), 1.3)
 
 		# --- Número de nivel con halo superior ---
 		var lvl_str = str(i + 1)
-		var num_color = Color.WHITE if is_hovered else Color(0.9, 0.85, 1.0, 0.9)
-		draw_string(font, np + Vector2(-4, -28), lvl_str, HORIZONTAL_ALIGNMENT_CENTER, -1, 12, num_color)
+		var num_color: Color
+		if is_playable:
+			num_color = Color(1.0, 0.92, 0.95, 1.0)
+		elif is_hovered:
+			num_color = Color.WHITE
+		else:
+			num_color = Color(0.55, 0.7, 0.82, 0.75)
+			
+		draw_string(font, np + Vector2(-4, -28 * zoom_scale), lvl_str, HORIZONTAL_ALIGNMENT_CENTER, -1, int(12 * zoom_scale), num_color)
+
+		# Etiqueta de "JUGAR" para el nivel disponible
+		if is_playable:
+			var act_col = Color(1.0, 0.2, 0.35, 0.9 if not is_hovered else 1.0)
+			draw_string(font, np + Vector2(-16, 21 * zoom_scale), "JUGAR", HORIZONTAL_ALIGNMENT_CENTER, -1, 8, act_col)
 
 		# --- MICRO-ANIMACIÓN E: Corchetes Tácticos de Selección en Hover ---
 		if is_hovered:
-			var b_dist = 33.0 + core_breath * 2.0
-			var b_sz = 9.0
-			var b_col = Color(0.0, 1.0, 0.8, 0.95)
+			var b_dist = (33.0 + core_breath * 2.0) * zoom_scale
+			var b_sz = 9.0 * zoom_scale
+			var b_col = Color(1.0, 0.2, 0.35, 0.95) if is_playable else Color(0.0, 1.0, 0.8, 0.95)
 			# ⌜
 			draw_line(np + Vector2(-b_dist, -b_dist), np + Vector2(-b_dist + b_sz, -b_dist), b_col, 2.2)
 			draw_line(np + Vector2(-b_dist, -b_dist), np + Vector2(-b_dist, -b_dist + b_sz), b_col, 2.2)
@@ -552,9 +645,9 @@ func _draw() -> void:
 
 			# Onda expansiva en hover
 			var ripple_t = fmod(anim_offset * 1.5, 1.0)
-			var ripple_r = lerp(26.0, 48.0, ripple_t)
+			var ripple_r = lerp(26.0, 48.0, ripple_t) * zoom_scale
 			var ripple_a = (1.0 - ripple_t) * 0.4
-			draw_arc(np, ripple_r, 0, TAU, 32, Color(0.0, 1.0, 0.8, ripple_a), 1.5)
+			draw_arc(np, ripple_r, 0, TAU, 32, b_col, 1.5)
 
 func _draw_circuit_line(p1: Vector2, p2: Vector2, alpha: float, seed_val: int) -> void:
 	# Glow exterior amplio en púrpura neón
