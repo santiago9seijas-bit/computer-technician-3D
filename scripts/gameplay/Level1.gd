@@ -16,13 +16,36 @@ func _ready() -> void:
 	if btn_siguiente:
 		btn_siguiente.pressed.connect(_on_siguiente)
 
+	# Pre-inicializar el nivel con el tiempo en 120s pero el contador apagado
+	GameManager.start_level(120.0)
+	GameManager.timer_active = false
+
 	# Iniciar cinemática de entrada orbital vistosa
 	if player and player.has_method("play_intro_cinematic"):
 		player.play_intro_cinematic(func():
-			GameManager.start_level(120.0)
+			_show_mission_briefing()
 		)
 	else:
-		GameManager.start_level(120.0)
+		_show_mission_briefing()
+
+func _show_mission_briefing() -> void:
+	# Asegurar que el temporizador permanezca en pausa
+	GameManager.timer_active = false
+	if player and player.has_method("set_movement_enabled"):
+		player.set_movement_enabled(false)
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	
+	var intro_scene = preload("res://scenes/ui/LevelIntroModal.tscn")
+	var modal = intro_scene.instantiate()
+	add_child(modal)
+	modal.started.connect(func():
+		# Hasta que el jugador no cierre con la 'X' o 'Iniciar', el contador no baja
+		GameManager.timer_active = true
+		if player and player.has_method("set_movement_enabled"):
+			player.set_movement_enabled(true)
+		else:
+			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	)
 
 func _on_reintentar() -> void:
 	get_tree().reload_current_scene()

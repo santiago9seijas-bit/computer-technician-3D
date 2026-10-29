@@ -1,33 +1,40 @@
-[gd_scene format=3 load_steps=6]
+[gd_scene format=3 load_steps=5]
 
 [ext_resource type="Script" path="res://scripts/menus/LevelCard.gd" id="1_card"]
 [ext_resource type="Script" path="res://scripts/menus/CyberButton.gd" id="2_cbtn"]
 [ext_resource type="Theme" path="res://styles/cyberpunk_theme.tres" id="3_theme"]
-[ext_resource type="PackedScene" path="res://scenes/ui/CyberBackgroundFrame.tscn" id="4_bg_frame"]
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_card"]
-content_margin_left = 20.0
-content_margin_top = 18.0
-content_margin_right = 20.0
-content_margin_bottom = 18.0
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_clean"]
+bg_color = Color(0.04, 0.015, 0.08, 0.94)
+border_width_left = 2
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 2
+border_color = Color(0, 0.9, 1, 0.75)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+content_margin_left = 16.0
+content_margin_top = 12.0
+content_margin_right = 16.0
+content_margin_bottom = 12.0
+shadow_color = Color(0, 0.9, 1, 0.12)
+shadow_size = 6
 
 [node name="LevelCardModal" type="PanelContainer"]
-custom_minimum_size = Vector2(460, 310)
-offset_left = 480.0
-offset_top = 235.0
-offset_right = 940.0
-offset_bottom = 545.0
-pivot_offset = Vector2(230, 155)
+custom_minimum_size = Vector2(440, 0)
+offset_left = 380.0
+offset_top = 280.0
+offset_right = 820.0
+offset_bottom = 410.0
 theme = ExtResource("3_theme")
-theme_override_styles/panel = SubResource("StyleBoxEmpty_card")
+theme_override_styles/panel = SubResource("StyleBoxFlat_clean")
 script = ExtResource("1_card")
-
-[node name="CyberBackgroundFrame" parent="." instance=ExtResource("4_bg_frame")]
-layout_mode = 2
 
 [node name="VBox" type="VBoxContainer" parent="."]
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 5
 
 [node name="HeaderHBox" type="HBoxContainer" parent="VBox"]
 layout_mode = 2
@@ -35,61 +42,49 @@ layout_mode = 2
 [node name="TitleVBox" type="VBoxContainer" parent="VBox/HeaderHBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 2
+theme_override_constants/separation = 1
 
 [node name="Titulo" type="Label" parent="VBox/HeaderHBox/TitleVBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0.9, 1, 1)
 theme_override_colors/font_shadow_color = Color(0, 0.9, 1, 0.4)
-theme_override_font_sizes/font_size = 17
+theme_override_font_sizes/font_size = 14
 text = "NIVEL 1 · MONTAJE FAN COOLER"
+autowrap_mode = 2
 
 [node name="Subtitulo" type="Label" parent="VBox/HeaderHBox/TitleVBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.15, 0.35, 1)
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 11
 text = "REPARACIÓN · ETAPA I · [DISPONIBLE ▶]"
+autowrap_mode = 2
 
 [node name="BtnClose" type="Button" parent="VBox/HeaderHBox"]
-custom_minimum_size = Vector2(32, 32)
+custom_minimum_size = Vector2(24, 24)
 layout_mode = 2
 size_flags_horizontal = 8
 size_flags_vertical = 0
 text = "✕"
 flat = true
 script = ExtResource("2_cbtn")
-slant = 6.0
+slant = 5.0
 
 [node name="Divider" type="ColorRect" parent="VBox"]
 custom_minimum_size = Vector2(0, 1.5)
 layout_mode = 2
 color = Color(0, 0.85, 1, 0.35)
 
-[node name="QueHayTitulo" type="Label" parent="VBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.1, 0.45, 1)
-theme_override_font_sizes/font_size = 12
-text = "DESCRIPCIÓN DEL DIAGNÓSTICO"
-
 [node name="Descripcion" type="Label" parent="VBox"]
 layout_mode = 2
-size_flags_vertical = 3
 theme_override_colors/font_color = Color(0.85, 0.85, 0.95, 1)
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 11
+theme_override_constants/line_spacing = 2
 text = "3 computadoras contra reloj con sobrecalentamiento térmico severo. Identifica el conector PWM de 4 pines y desacopla la tornillería Cruz o Pala."
 autowrap_mode = 2
 
 [node name="Record" type="Label" parent="VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 10
 text = "HERRAMIENTAS: [1] Cruz / [2] Pala · LÍMITE: 120s · 100 PTS"
-
-[node name="BtnJugarNivel" type="Button" parent="VBox"]
-custom_minimum_size = Vector2(210, 42)
-layout_mode = 2
-size_flags_horizontal = 4
-text = "JUGAR NIVEL ▶"
-flat = true
-script = ExtResource("2_cbtn")
-slant = 16.0
+autowrap_mode = 2

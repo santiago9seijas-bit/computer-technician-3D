@@ -620,11 +620,6 @@ func _draw() -> void:
 			
 		draw_string(font, np + Vector2(-4, -28 * zoom_scale), lvl_str, HORIZONTAL_ALIGNMENT_CENTER, -1, int(12 * zoom_scale), num_color)
 
-		# Etiqueta de "JUGAR" para el nivel disponible
-		if is_playable:
-			var act_col = Color(1.0, 0.2, 0.35, 0.9 if not is_hovered else 1.0)
-			draw_string(font, np + Vector2(-16, 21 * zoom_scale), "JUGAR", HORIZONTAL_ALIGNMENT_CENTER, -1, 8, act_col)
-
 		# --- MICRO-ANIMACIÓN E: Corchetes Tácticos de Selección en Hover ---
 		if is_hovered:
 			var b_dist = (33.0 + core_breath * 2.0) * zoom_scale

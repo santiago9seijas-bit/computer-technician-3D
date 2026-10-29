@@ -30,6 +30,7 @@ static var initial_tab: String = "niveles"
 @onready var graph_lines: Control = $ConstellationArea/GraphLines
 @onready var card_dim_overlay: ColorRect = $CardDimOverlay
 @onready var level_card_modal: Control = $LevelCardModal
+@onready var btn_play_level1: Button = $BtnPlayLevel1
 
 # --- Área de Tutoriales (Centro de Entrenamiento) ---
 @onready var tutorial_area: Control = $TutorialArea
@@ -46,6 +47,7 @@ static var initial_tab: String = "niveles"
 @onready var deployed_badge: Label = $DeployedModal/DeployedCard/Margin/VBox/Header/TitleVBox/Badge
 @onready var deployed_preview: TextureRect = $DeployedModal/DeployedCard/Margin/VBox/ContentHBox/LeftCol/PreviewBox/Preview
 @onready var deployed_btn_play: Button = $DeployedModal/DeployedCard/Margin/VBox/ContentHBox/LeftCol/BtnPlayMinigame
+@onready var deployed_btn_play_3d: Button = $DeployedModal/DeployedCard/Margin/VBox/ContentHBox/LeftCol/BtnPlayLevel3D
 @onready var lbl_que_es: Label = $DeployedModal/DeployedCard/Margin/VBox/ContentHBox/RightCol/Margin/Scroll/TextVBox/LblQueEs
 @onready var lbl_importancia: Label = $DeployedModal/DeployedCard/Margin/VBox/ContentHBox/RightCol/Margin/Scroll/TextVBox/LblImportancia
 @onready var lbl_que_hace: Label = $DeployedModal/DeployedCard/Margin/VBox/ContentHBox/RightCol/Margin/Scroll/TextVBox/LblQueHace
@@ -805,6 +807,12 @@ func _ready() -> void:
 		card_dim_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
 		card_dim_overlay.gui_input.connect(func(event: InputEvent):
 			if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+				# Si hace clic en el círculo ampliado del nivel 1 (radio 85px desde Vector2(260, 390)), iniciar el nivel
+				if is_level_zoomed and active_zoomed_index == 0 and current_mode == "reparacion":
+					var dist = event.position.distance_to(Vector2(260, 390))
+					if dist <= 85.0:
+						_play_level_1()
+						return
 				_unzoom_camera()
 		)
 	if level_card_modal:
@@ -822,6 +830,10 @@ func _ready() -> void:
 		
 	btn_close_deployed.pressed.connect(_close_deployed_card)
 	deployed_btn_play.pressed.connect(_on_deployed_play_pressed)
+	if deployed_btn_play_3d:
+		deployed_btn_play_3d.pressed.connect(_play_level_1)
+	if btn_play_level1:
+		btn_play_level1.pressed.connect(_play_level_1)
 	
 	if graph_lines and graph_lines.has_signal("mode_transition_completed"):
 		graph_lines.mode_transition_completed.connect(_update_node_hitboxes_positions)
@@ -852,6 +864,7 @@ func _switch_main_tab(tab_name: String, instant: bool = false) -> void:
 	current_tab = tab_name
 	_update_tab_buttons_visuals()
 	_update_mode_buttons()
+	_update_btn_play_level1_visibility()
 
 	if current_tab == "niveles":
 		tutorial_area.visible = false
@@ -911,6 +924,7 @@ func _switch_mode(mode_name: String) -> void:
 		
 	current_mode = mode_name
 	_update_mode_buttons()
+	_update_btn_play_level1_visibility()
 	
 	if current_tab == "niveles":
 		_update_headers_for_mode()
@@ -1019,6 +1033,12 @@ func _on_node_clicked(index: int) -> void:
 		return
 		
 	var data = list[index]
+	
+	# Si ya está en zoom sobre el nivel 1 y hacen clic sobre el nodo 1 de reparación, lanzar el nivel inmediatamente
+	if is_level_zoomed and active_zoomed_index == 0 and index == 0 and current_mode == "reparacion":
+		_play_level_1()
+		return
+		
 	is_level_zoomed = true
 	active_zoomed_index = index
 	
@@ -1032,31 +1052,40 @@ func _on_node_clicked(index: int) -> void:
 	var target_screen_pos = Vector2(260, 390)
 	var target_area_pos = target_screen_pos - node_pos * zoom_factor
 	
-	constellation_area.pivot_offset = Vector2.ZERO
+	if constellation_area:
+		constellation_area.pivot_offset = Vector2.ZERO
 	
 	if camera_zoom_tween and camera_zoom_tween.is_valid():
 		camera_zoom_tween.kill()
 		
 	camera_zoom_tween = create_tween().set_parallel(true)
-	camera_zoom_tween.tween_property(constellation_area, "position", target_area_pos, 0.42)\
-		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	camera_zoom_tween.tween_property(constellation_area, "scale", Vector2(zoom_factor, zoom_factor), 0.42)\
-		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	if constellation_area:
+		camera_zoom_tween.tween_property(constellation_area, "position", target_area_pos, 0.42)\
+			.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+		camera_zoom_tween.tween_property(constellation_area, "scale", Vector2(zoom_factor, zoom_factor), 0.42)\
+			.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+		
+	# Mostrar el botón "DALE CLIC PARA INICIAR" bajo el círculo ampliado SOLO cuando se da clic al nivel 1
+	if btn_play_level1:
+		if index == 0 and current_mode == "reparacion":
+			btn_play_level1.visible = true
+			btn_play_level1.text = "▶ DALE CLIC PARA INICIAR"
+			btn_play_level1.modulate.a = 0.0
+			btn_play_level1.position = Vector2(140, 460)
+			btn_play_level1.size = Vector2(240, 40)
+			camera_zoom_tween.tween_property(btn_play_level1, "position:y", 475.0, 0.42)\
+				.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+			camera_zoom_tween.tween_property(btn_play_level1, "modulate:a", 1.0, 0.32)
+		else:
+			btn_play_level1.visible = false
 		
 	# Habilitar el overlay invisible de captura de clics fuera de la tarjeta
 	if card_dim_overlay:
 		card_dim_overlay.visible = true
 		card_dim_overlay.color = Color(0, 0, 0, 0)
 		
-	# Desplegar la ficha técnica compacta al lado derecho (X=480)
 	if level_card_modal:
-		if level_card_modal.has_method("open_card"):
-			level_card_modal.open_card(data)
-		elif level_card_modal.has_method("setup_level"):
-			level_card_modal.setup_level(data)
-			level_card_modal.visible = true
-		else:
-			level_card_modal.visible = true
+		level_card_modal.visible = false
 
 func _unzoom_camera() -> void:
 	if not is_level_zoomed:
@@ -1077,10 +1106,29 @@ func _unzoom_camera() -> void:
 		camera_zoom_tween.kill()
 		
 	camera_zoom_tween = create_tween().set_parallel(true)
-	camera_zoom_tween.tween_property(constellation_area, "position", Vector2.ZERO, 0.38)\
-		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	camera_zoom_tween.tween_property(constellation_area, "scale", Vector2.ONE, 0.38)\
-		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	if constellation_area:
+		camera_zoom_tween.tween_property(constellation_area, "position", Vector2.ZERO, 0.38)\
+			.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+		camera_zoom_tween.tween_property(constellation_area, "scale", Vector2.ONE, 0.38)\
+			.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+		
+	if btn_play_level1 and btn_play_level1.visible:
+		camera_zoom_tween.tween_property(btn_play_level1, "modulate:a", 0.0, 0.22)
+		camera_zoom_tween.chain().tween_callback(func():
+			if btn_play_level1 and not is_level_zoomed:
+				btn_play_level1.visible = false
+		)
+
+func _update_btn_play_level1_visibility() -> void:
+	if not btn_play_level1:
+		return
+	btn_play_level1.visible = (is_level_zoomed and active_zoomed_index == 0 and current_mode == "reparacion" and current_tab == "niveles")
+
+func _play_level_1() -> void:
+	var gm = get_node_or_null("/root/GameManager")
+	if gm and gm.has_method("start_level"):
+		gm.start_level(120.0)
+	get_tree().change_scene_to_file("res://scenes/gameplay/Level1.tscn")
 
 func _close_level_card() -> void:
 	_unzoom_camera()
@@ -1336,6 +1384,13 @@ func _open_deployed_card(data: Dictionary) -> void:
 		deployed_btn_play.text = "🔒 SIMULADOR EN CALIBRACIÓN"
 		deployed_btn_play.disabled = true
 		deployed_btn_play.modulate = Color(0.6, 0.6, 0.6, 0.7)
+		
+	if deployed_btn_play_3d:
+		if data.get("id", "") == "cooler":
+			deployed_btn_play_3d.visible = true
+			deployed_btn_play_3d.modulate = Color(1.0, 0.15, 0.35, 1.0)
+		else:
+			deployed_btn_play_3d.visible = false
 		
 	deployed_modal.visible = true
 	deployed_card.scale = Vector2(0.85, 0.85)
