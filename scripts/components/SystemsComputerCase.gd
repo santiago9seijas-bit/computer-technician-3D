@@ -86,11 +86,18 @@ func interact(player) -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	
 	modal.connect("inspection_closed", func():
-		player.set_movement_enabled(true)
-		if player.hud_node:
-			player.hud_node.visible = true
-		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
-		update_3d_state()
+		if is_fully_repaired():
+			player.set_movement_enabled(false)
+			if player.hud_node:
+				player.hud_node.visible = true
+			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+			update_3d_state()
+		else:
+			player.set_movement_enabled(true)
+			if player.hud_node:
+				player.hud_node.visible = true
+			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+			update_3d_state()
 	)
 	
 	get_tree().root.add_child(modal)

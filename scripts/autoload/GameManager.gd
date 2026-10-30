@@ -170,6 +170,9 @@ func win_level() -> void:
 	var final_stars = calculate_stars()
 	level_completed.emit(final_stars, score)
 
+func complete_level() -> void:
+	win_level()
+
 func trigger_game_over(reason: String) -> void:
 	timer_active = false
 	game_over_triggered.emit(reason)

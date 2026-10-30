@@ -100,10 +100,16 @@ func _refresh_ui() -> void:
 		pc_state_badge.text = "¡PC DE SISTEMAS 100% OPERATIVA · 7/7 TAREAS RESUELTAS! ✓"
 		pc_state_badge.modulate = Color(0.2, 1.0, 0.4)
 		status_summary.text = "Todos los servicios de software y ciberseguridad han sido restaurados con éxito."
+		if btn_volver:
+			btn_volver.text = "★ COMPLETAR TRABAJO Y ENTREGAR TERMINAL ★"
+			btn_volver.modulate = Color(0.2, 1.0, 0.5)
 	else:
 		pc_state_badge.text = "ESTADO: INCIDENCIAS PENDIENTES (" + str(fixed_count) + "/7 COMPLETADAS)"
 		pc_state_badge.modulate = Color(1.0, 0.85, 0.2)
 		status_summary.text = "Haz clic en cualquiera de los módulos para iniciar el diagnóstico y reparación de software."
+		if btn_volver:
+			btn_volver.text = "◀ VOLVER A LA ESTACIÓN"
+			btn_volver.modulate = Color(1.0, 1.0, 1.0)
 
 func _update_btn_style(btn: Button, title: String, subtitle: String, status: String) -> void:
 	if not btn: return
