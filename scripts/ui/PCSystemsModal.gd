@@ -89,17 +89,17 @@ func _refresh_ui() -> void:
 		pc_state_badge.modulate = Color(0.2, 1.0, 0.4)
 		status_summary.text = "Todos los servicios de software y ciberseguridad han sido restaurados con éxito."
 	else:
-		pc_state_badge.text = "ESTADO: INCIDENCIAS PENDIENTES (%d/7 COMPLETADAS)" % fixed_count
+		pc_state_badge.text = "ESTADO: INCIDENCIAS PENDIENTES (" + str(fixed_count) + "/7 COMPLETADAS)"
 		pc_state_badge.modulate = Color(1.0, 0.85, 0.2)
 		status_summary.text = "Haz clic en cualquiera de los módulos para iniciar el diagnóstico y reparación de software."
 
 func _update_btn_style(btn: Button, title: String, subtitle: String, status: String) -> void:
 	if not btn: return
 	if status == "fixed":
-		btn.text = "✓ %s\n%s\n[ RESTAURADO / OK ]" % [title, subtitle]
+		btn.text = "✓ " + title + "\n" + subtitle + "\n[ RESTAURADO / OK ]"
 		btn.modulate = Color(0.3, 1.0, 0.5, 1.0)
 	else:
-		btn.text = "⚡ %s\n%s\n[ PENDIENTE // CLIC PARA INICIAR ]" % [title, subtitle]
+		btn.text = "⚡ " + title + "\n" + subtitle + "\n[ PENDIENTE // CLIC PARA INICIAR ]"
 		btn.modulate = Color(1.0, 0.4, 0.5, 1.0)
 
 func _launch_minigame(task_name: String, scene_packed: PackedScene) -> void:
@@ -117,9 +117,9 @@ func _launch_minigame(task_name: String, scene_packed: PackedScene) -> void:
 				current_pc.components[task_name] = "fixed"
 				current_pc.update_3d_state()
 			GameManager.register_repair(100, 15.0)
-			_show_feedback("✓ ¡Incidencia de %s resuelta con éxito!" % task_name, true)
+			_show_feedback("✓ ¡Incidencia de " + task_name + " resuelta con éxito!", true)
 		else:
-			_show_feedback("Incidencia de %s no completada." % task_name, false)
+			_show_feedback("Incidencia de " + task_name + " no completada.", false)
 		_refresh_ui()
 	)
 
