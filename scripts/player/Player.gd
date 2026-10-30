@@ -18,9 +18,16 @@ var hud_node: Control = null
 var is_in_cinematic: bool = false
 var intro_tween: Tween = null
 var intro_callback: Callable = Callable()
+var _cached_mesh_instances: Array[MeshInstance3D] = []
 
 func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	if character_model:
+		var found = character_model.find_children("*", "MeshInstance3D")
+		for node in found:
+			var mi = node as MeshInstance3D
+			if mi:
+				_cached_mesh_instances.append(mi)
 	_setup_animation_player()
 	# En vista primera persona habitual, ocultar malla para no bloquear cámara pero manteniendo sombras
 	set_character_shadows_only(true)
@@ -49,16 +56,9 @@ func _setup_animation_player() -> void:
 		animation_player.play("idle")
 
 func set_character_shadows_only(shadows_only: bool) -> void:
-	if not character_model:
-		return
-	var mesh_instances = character_model.find_children("*", "MeshInstance3D")
-	for mesh_node in mesh_instances:
-		var mi = mesh_node as MeshInstance3D
-		if mi:
-			if shadows_only:
-				mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY
-			else:
-				mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+	var mode = GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY if shadows_only else GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+	for mi in _cached_mesh_instances:
+		mi.cast_shadow = mode
 
 func play_intro_cinematic(on_finished: Callable = Callable()) -> void:
 	is_in_cinematic = true
@@ -73,9 +73,9 @@ func play_intro_cinematic(on_finished: Callable = Callable()) -> void:
 		hud_node.setup_cinematic_mode()
 	
 	# Configuración inicial de la cámara aérea orbital
-	intro_camera_pivot.rotation.y = deg_to_rad(140.0)
-	intro_camera.position = Vector3(0.0, 0.7, 2.8)
-	intro_camera.rotation.x = deg_to_rad(-14.0)
+	intro_camera_pivot.rotation.y = deg_to_rad(120.0)
+	intro_camera.position = Vector3(0.0, 0.6, 2.4)
+	intro_camera.rotation.x = deg_to_rad(-12.0)
 	intro_camera.fov = 68.0
 	intro_camera.make_current()
 	
@@ -83,28 +83,21 @@ func play_intro_cinematic(on_finished: Callable = Callable()) -> void:
 		intro_tween.kill()
 		
 	intro_tween = create_tween()
-	intro_tween.set_parallel(true)
+	var duration: float = 1.6
 	
-	var duration: float = 2.5
-	# Giro orbital alrededor del personaje
+	intro_tween.set_parallel(true)
 	intro_tween.tween_property(intro_camera_pivot, "rotation:y", 0.0, duration)\
-		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
-		
-	# Acercamiento hacia la cabeza / cuencas oculares del personaje (Y=0.4 en pivote Y=1.2 = Y=1.6)
+		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	intro_tween.tween_property(intro_camera, "position", Vector3(0.0, 0.4, 0.05), duration)\
-		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
-		
-	# Nivelar el ángulo vertical
+		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	intro_tween.tween_property(intro_camera, "rotation:x", 0.0, duration)\
-		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
-		
-	# Transición suave de campo visual
+		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	intro_tween.tween_property(intro_camera, "fov", camera.fov, duration)\
-		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 		
-	# Justo antes de concluir (a 2.2s), disparar destello de arranque óptico
+	# Disparar arranque óptico al final de la transición
 	intro_tween.chain().tween_callback(_on_cinematic_optic_trigger)
-	intro_tween.tween_interval(0.3)
+	intro_tween.tween_interval(0.2)
 	intro_tween.chain().tween_callback(_finish_intro_cinematic)
 
 func _on_cinematic_optic_trigger() -> void:

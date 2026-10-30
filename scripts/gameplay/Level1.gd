@@ -1,5 +1,7 @@
 extends Node3D
 
+const INTRO_SCENE: PackedScene = preload("res://scenes/ui/LevelIntroModal.tscn")
+
 @onready var player: CharacterBody3D = $Player
 @onready var hud: Control = $CanvasLayerHUD/HUD
 @onready var pause_menu: Control = $CanvasLayerPause/PauseMenu
@@ -35,8 +37,7 @@ func _show_mission_briefing() -> void:
 		player.set_movement_enabled(false)
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	
-	var intro_scene = preload("res://scenes/ui/LevelIntroModal.tscn")
-	var modal = intro_scene.instantiate()
+	var modal = INTRO_SCENE.instantiate()
 	add_child(modal)
 	modal.started.connect(func():
 		# Hasta que el jugador no cierre con la 'X' o 'Iniciar', el contador no baja

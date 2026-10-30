@@ -33,6 +33,7 @@ func _ready() -> void:
 	
 	_update_backpack_ui([])
 	_update_tools_ui(0)
+	_create_cinematic_overlay()
 
 func _create_cinematic_overlay() -> void:
 	if cinematic_overlay:

@@ -221,13 +221,13 @@ var LEVELS_DATA: Dictionary = {
 	"sistema": [
 		{
 			"number": 1,
-			"title": "NIVEL 1 · ORDEN DE ARRANQUE BIOS",
-			"stage": "ETAPA I: BIOS & BOOT",
+			"title": "NIVEL 1 · TERMINAL DE SISTEMAS Y SOFTWARE",
+			"stage": "ETAPA I: SISTEMAS & CIBERSEGURIDAD",
 			"mode_name": "SISTEMA",
-			"color_accent": Color(1.0, 0.15, 0.45),
-			"description": "Error 'No bootable device found'. Ingresa a la interfaz UEFI y reordena la secuencia para priorizar el SSD NVMe principal.",
-			"requirements": "TECLADO INDUSTRIAL · LÍMITE: 120s · RECOMPENSA: 100 PTS",
-			"can_play": false
+			"color_accent": Color(0.0, 0.95, 1.0),
+			"description": "Estación de trabajo con fallas críticas de software.\nAccede a la PC y restaura los 7 módulos (Instalación de SO, Drivers, Malware, Adware, Debugger, USB Booteable y Ciberdefensa Arcade).",
+			"requirements": "CONSOLA DE SISTEMAS · LÍMITE: 900s · RECOMPENSA: 100 PTS",
+			"can_play": true
 		},
 		{
 			"number": 2,
@@ -1081,7 +1081,7 @@ func _on_node_clicked(index: int) -> void:
 		
 	# Mostrar el botón "DALE CLIC PARA INICIAR" bajo el círculo ampliado SOLO cuando se da clic al nivel 1
 	if btn_play_level1:
-		if index == 0 and current_mode == "reparacion":
+		if index == 0 and (current_mode == "reparacion" or current_mode == "sistema"):
 			btn_play_level1.visible = true
 			btn_play_level1.text = "▶ DALE CLIC PARA INICIAR"
 			btn_play_level1.modulate.a = 0.0
@@ -1127,13 +1127,16 @@ func _unzoom_camera() -> void:
 func _update_btn_play_level1_visibility() -> void:
 	if not btn_play_level1:
 		return
-	btn_play_level1.visible = (is_level_zoomed and active_zoomed_index == 0 and current_mode == "reparacion" and current_tab == "niveles")
+	btn_play_level1.visible = (is_level_zoomed and active_zoomed_index == 0 and (current_mode == "reparacion" or current_mode == "sistema") and current_tab == "niveles")
 
 func _play_level_1() -> void:
 	var gm = get_node_or_null("/root/GameManager")
 	if gm and gm.has_method("start_level"):
-		gm.start_level(120.0)
-	get_tree().change_scene_to_file("res://scenes/gameplay/Level1.tscn")
+		gm.start_level(900.0)
+	if current_mode == "sistema":
+		get_tree().change_scene_to_file("res://scenes/gameplay/LevelSystems1.tscn")
+	else:
+		get_tree().change_scene_to_file("res://scenes/gameplay/Level1.tscn")
 
 func _close_level_card() -> void:
 	_unzoom_camera()
