@@ -383,7 +383,8 @@ func _seat_new_mobo() -> void:
 	var tw = create_tween().set_parallel(true)
 	tw.tween_property(mobo_board, "position:x", 0.0, 0.35)
 	tw.tween_property(mobo_board, "position:y", 0.0, 0.35).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	tw.tween_property(mobo_board, "modulate:a", 1.0, 0.35)
+	tw.tween_property(mobo_board, "modulate", Color(1.0, 1.0, 1.0, 1.0), 0.35)
+	tw.chain().tween_callback(func(): mobo_board.modulate = Color(1.0, 1.0, 1.0, 1.0))
 	
 	btn_extract_mobo.visible = false
 	current_phase = Phase.STANDOFFS_INSTALL
@@ -438,12 +439,8 @@ func _on_mobo_board_gui_input(event: InputEvent) -> void:
 			else:
 				if is_dragging_mobo:
 					is_dragging_mobo = false
-					var diff = event.global_position.y - drag_start_y
-					if diff >= 30.0:
-						_seat_new_mobo()
-					else:
-						var tw = create_tween()
-						tw.tween_property(mobo_board, "position:y", -80.0, 0.2)
+					# Tanto si se hace clic como si se arrastra hacia abajo, se coloca la placa
+					_seat_new_mobo()
 		elif event is InputEventMouseMotion and is_dragging_mobo:
 			var push = clamp(event.global_position.y - drag_start_y, 0.0, 80.0)
 			mobo_board.position.y = -80.0 + push
