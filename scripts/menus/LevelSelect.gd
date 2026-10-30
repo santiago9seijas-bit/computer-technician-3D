@@ -29,7 +29,6 @@ static var initial_tab: String = "niveles"
 @onready var constellation_area: Control = $ConstellationArea
 @onready var graph_lines: Control = $ConstellationArea/GraphLines
 @onready var card_dim_overlay: ColorRect = $CardDimOverlay
-@onready var level_card_modal: Control = $LevelCardModal
 @onready var btn_play_level1: Button = $BtnPlayLevel1
 
 # --- Área de Tutoriales (Centro de Entrenamiento) ---
@@ -836,10 +835,6 @@ func _ready() -> void:
 						return
 				_unzoom_camera()
 		)
-	if level_card_modal:
-		level_card_modal.visible = false
-		if level_card_modal.has_signal("closed"):
-			level_card_modal.closed.connect(_unzoom_camera)
 	if deployed_modal:
 		deployed_modal.visible = false
 	if dim_overlay:
@@ -1102,9 +1097,6 @@ func _on_node_clicked(index: int) -> void:
 	if card_dim_overlay:
 		card_dim_overlay.visible = true
 		card_dim_overlay.color = Color(0, 0, 0, 0)
-		
-	if level_card_modal:
-		level_card_modal.visible = false
 
 func _unzoom_camera() -> void:
 	if not is_level_zoomed:
@@ -1114,12 +1106,6 @@ func _unzoom_camera() -> void:
 	
 	if card_dim_overlay:
 		card_dim_overlay.visible = false
-		
-	if level_card_modal:
-		if level_card_modal.has_method("close_card"):
-			level_card_modal.close_card()
-		else:
-			level_card_modal.visible = false
 			
 	if camera_zoom_tween and camera_zoom_tween.is_valid():
 		camera_zoom_tween.kill()

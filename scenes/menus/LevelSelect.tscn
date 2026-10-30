@@ -4,7 +4,6 @@
 [ext_resource type="Script" path="res://scripts/menus/ConstellationGraph.gd" id="2_graph"]
 [ext_resource type="Script" path="res://scripts/menus/CyberButton.gd" id="3_cbtn"]
 [ext_resource type="Theme" path="res://styles/cyberpunk_theme.tres" id="4_theme"]
-[ext_resource type="PackedScene" path="res://scenes/menus/LevelCard.tscn" id="5_card"]
 [ext_resource type="FontFile" uid="uid://dbcug8887dro7" path="res://assets/fonts/Bungee-Regular.ttf" id="6_title_font"]
 [ext_resource type="Material" uid="uid://cglitchmat8211" path="res://styles/cyber_glitch_sprite.tres" id="7_glitch_mat"]
 [ext_resource type="PackedScene" path="res://scenes/ui/CyberBackgroundFrame.tscn" id="8_bg_frame"]
@@ -267,15 +266,6 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.02, 0.01, 0.05, 0.85)
-
-[node name="LevelCardModal" parent="." instance=ExtResource("5_card")]
-visible = false
-custom_minimum_size = Vector2(440, 0)
-layout_mode = 0
-offset_left = 380.0
-offset_top = 280.0
-offset_right = 820.0
-offset_bottom = 410.0
 
 [node name="BtnPlayLevel1" type="Button" parent="."]
 visible = false
