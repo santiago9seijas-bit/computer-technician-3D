@@ -325,7 +325,14 @@ func _complete_hdd_removal() -> void:
 		GameManager.add_item_to_backpack({"name": "Disco Duro", "broken": true})
 		old_part_extracted.emit()
 		
-		# Asegurar que haya un Disco Duro nuevo en la mochila para la fase de colocación
+		if not is_tutorial_mode:
+			status_label.text = "✓ Disco Duro averiado extraído. Busca el repuesto en el taller."
+			status_label.modulate = Color(0.2, 1.0, 0.5, 1)
+			await get_tree().create_timer(1.2).timeout
+			minigame_finished.emit(true)
+			return
+		
+		# Modo tutorial:
 		var has_new = false
 		for it in GameManager.backpack:
 			if it.get("name") == "Disco Duro" and not it.get("broken", true):

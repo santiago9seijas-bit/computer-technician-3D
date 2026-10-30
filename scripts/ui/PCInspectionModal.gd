@@ -321,9 +321,13 @@ func _open_cooler_minigame(is_empty: bool) -> void:
 		minigame.queue_free()
 		modal_control.visible = true
 		if success:
-			current_pc.components["Fan Cooler"] = "fixed"
-			current_pc.update_3d_state()
-			GameManager.register_repair(100, 10.0)
+			if is_empty:
+				current_pc.components["Fan Cooler"] = "fixed"
+				current_pc.update_3d_state()
+				GameManager.register_repair(100, 10.0)
+				_show_feedback("✓ ¡Fan Cooler nuevo instalado y testeado!", true)
+			else:
+				_show_feedback("✓ Fan Cooler averiado retirado. Slot libre para repuesto.", true)
 		_refresh_ui()
 	)
 
@@ -342,9 +346,13 @@ func _open_ram_minigame(is_empty: bool) -> void:
 		minigame.queue_free()
 		modal_control.visible = true
 		if success:
-			current_pc.components["RAM"] = "fixed"
-			current_pc.update_3d_state()
-			GameManager.register_repair(100, 10.0)
+			if is_empty:
+				current_pc.components["RAM"] = "fixed"
+				current_pc.update_3d_state()
+				GameManager.register_repair(100, 10.0)
+				_show_feedback("✓ ¡Módulo RAM nuevo instalado y testeado!", true)
+			else:
+				_show_feedback("✓ Módulo RAM averiado retirado. Slot libre para repuesto.", true)
 		_refresh_ui()
 	)
 
@@ -366,9 +374,13 @@ func _open_hdd_minigame(is_empty: bool) -> void:
 		minigame.queue_free()
 		modal_control.visible = true
 		if success:
-			current_pc.components["Disco Duro"] = "fixed"
-			current_pc.update_3d_state()
-			GameManager.register_repair(100, 10.0)
+			if is_empty:
+				current_pc.components["Disco Duro"] = "fixed"
+				current_pc.update_3d_state()
+				GameManager.register_repair(100, 10.0)
+				_show_feedback("✓ ¡Disco Duro nuevo instalado y testeado!", true)
+			else:
+				_show_feedback("✓ Disco Duro averiado retirado. Bahía libre para repuesto.", true)
 		_refresh_ui()
 	)
 
@@ -387,9 +399,13 @@ func _open_gpu_minigame(is_empty: bool) -> void:
 		minigame.queue_free()
 		modal_control.visible = true
 		if success:
-			current_pc.components["Grafica"] = "fixed"
-			current_pc.update_3d_state()
-			GameManager.register_repair(100, 10.0)
+			if is_empty:
+				current_pc.components["Grafica"] = "fixed"
+				current_pc.update_3d_state()
+				GameManager.register_repair(100, 10.0)
+				_show_feedback("✓ ¡Tarjeta Gráfica nueva instalada y testeada!", true)
+			else:
+				_show_feedback("✓ Tarjeta Gráfica averiada retirada. Slot PCIe libre para repuesto.", true)
 		_refresh_ui()
 	)
 
@@ -408,9 +424,13 @@ func _open_psu_minigame(is_empty: bool) -> void:
 		minigame.queue_free()
 		modal_control.visible = true
 		if success:
-			current_pc.components["Fuente"] = "fixed"
-			current_pc.update_3d_state()
-			GameManager.register_repair(100, 10.0)
+			if is_empty:
+				current_pc.components["Fuente"] = "fixed"
+				current_pc.update_3d_state()
+				GameManager.register_repair(100, 10.0)
+				_show_feedback("✓ ¡Fuente de alimentación nueva instalada y testeada!", true)
+			else:
+				_show_feedback("✓ Fuente averiada retirada. Túnel de chasis libre para repuesto.", true)
 		_refresh_ui()
 	)
 
@@ -429,9 +449,13 @@ func _open_mobo_minigame(is_empty: bool) -> void:
 		minigame.queue_free()
 		modal_control.visible = true
 		if success:
-			current_pc.components["Placa Madre"] = "fixed"
-			current_pc.update_3d_state()
-			GameManager.register_repair(150, 15.0)
+			if is_empty:
+				current_pc.components["Placa Madre"] = "fixed"
+				current_pc.update_3d_state()
+				GameManager.register_repair(150, 15.0)
+				_show_feedback("✓ ¡Placa Madre nueva instalada y testeada!", true)
+			else:
+				_show_feedback("✓ Placa Madre averiada retirada. Chasis libre para repuesto.", true)
 		_refresh_ui()
 	)
 

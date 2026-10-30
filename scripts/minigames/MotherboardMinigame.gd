@@ -764,7 +764,13 @@ func _on_extract_mobo_pressed() -> void:
 	GameManager.add_item_to_backpack({"name": "Placa Madre", "broken": true})
 	old_part_extracted.emit()
 	
-	# Asegurar que haya una Placa Madre nueva en la mochila para la fase de colocación
+	if not is_tutorial_mode:
+		_show_warning("✓ Placa Madre averiada extraída. Busca el repuesto nuevo en el taller.", Color(0.2, 1.0, 0.5))
+		await get_tree().create_timer(1.2).timeout
+		minigame_finished.emit(true)
+		return
+	
+	# Modo tutorial:
 	var has_new = false
 	for it in GameManager.backpack:
 		if it.get("name") == "Placa Madre" and not it.get("broken", true):
@@ -782,8 +788,10 @@ func _on_extract_mobo_pressed() -> void:
 	btn_extract_mobo.visible = true
 	btn_extract_mobo.disabled = false
 	btn_extract_mobo.text = "⇪ MONTAR PLACA MADRE NUEVA (ARRASTRA O CLIC)"
-	btn_extract_mobo.pressed.disconnect(_on_extract_mobo_pressed)
-	btn_extract_mobo.pressed.connect(_seat_new_mobo)
+	if btn_extract_mobo.pressed.is_connected(_on_extract_mobo_pressed):
+		btn_extract_mobo.pressed.disconnect(_on_extract_mobo_pressed)
+	if not btn_extract_mobo.pressed.is_connected(_seat_new_mobo):
+		btn_extract_mobo.pressed.connect(_seat_new_mobo)
 	
 	standoff_screws_removed = [true, true, true, true, true, true]
 	for b in standoff_buttons:

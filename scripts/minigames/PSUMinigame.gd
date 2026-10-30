@@ -508,7 +508,13 @@ func _on_slide_psu_pressed() -> void:
 	GameManager.add_item_to_backpack({"name": "Fuente", "broken": true})
 	old_part_extracted.emit()
 	
-	# Asegurar que haya una Fuente nueva en la mochila para la fase de colocación
+	if not is_tutorial_mode:
+		_show_warning("✓ Fuente averiada extraída. Busca el repuesto nuevo en el taller.", Color(0.2, 1.0, 0.4))
+		await get_tree().create_timer(1.2).timeout
+		minigame_finished.emit(true)
+		return
+	
+	# Modo tutorial:
 	var has_new = false
 	for it in GameManager.backpack:
 		if it.get("name") == "Fuente" and not it.get("broken", true):
@@ -526,8 +532,10 @@ func _on_slide_psu_pressed() -> void:
 	btn_slide_psu.visible = true
 	btn_slide_psu.disabled = false
 	btn_slide_psu.text = "⇪ INSTALAR FUENTE NUEVA (ARRASTRA O CLIC)"
-	btn_slide_psu.pressed.disconnect(_on_slide_psu_pressed)
-	btn_slide_psu.pressed.connect(_seat_new_psu)
+	if btn_slide_psu.pressed.is_connected(_on_slide_psu_pressed):
+		btn_slide_psu.pressed.disconnect(_on_slide_psu_pressed)
+	if not btn_slide_psu.pressed.is_connected(_seat_new_psu):
+		btn_slide_psu.pressed.connect(_seat_new_psu)
 	
 	screws_removed = [true, true, true, true]
 	for b in screw_buttons:

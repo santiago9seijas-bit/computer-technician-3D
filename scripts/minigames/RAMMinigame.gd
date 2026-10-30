@@ -312,7 +312,13 @@ func _complete_ram_removal() -> void:
 		GameManager.add_item_to_backpack({"name": "RAM", "broken": true})
 		old_part_extracted.emit()
 		
-		# Asegurar que haya una RAM nueva en la mochila para la fase de colocación
+		if not is_tutorial_mode:
+			_show_floating_feedback("✓ Módulo RAM averiado extraído. Busca el repuesto en el taller.", COLOR_GREEN)
+			await get_tree().create_timer(1.2).timeout
+			minigame_finished.emit(true)
+			return
+		
+		# Modo tutorial:
 		var has_new = false
 		for it in GameManager.backpack:
 			if it.get("name") == "RAM" and not it.get("broken", true):

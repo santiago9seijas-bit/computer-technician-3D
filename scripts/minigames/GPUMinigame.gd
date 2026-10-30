@@ -37,6 +37,9 @@ var is_power_disconnected: bool = false
 var is_pcie_latch_unlocked: bool = false
 var is_extracted: bool = false
 
+const CABLE_Y_CONNECTED: float = 65.0
+const CABLE_Y_DISCONNECTED: float = 15.0
+
 var is_dragging_gpu: bool = false
 var drag_start_y: float = 0.0
 
@@ -88,16 +91,22 @@ func _ready() -> void:
 		if tabs:
 			tabs.queue_free()
 	
+	pcie_latch_btn.pivot_offset = Vector2(35, 14)
+	
 	if start_as_empty_slot:
 		current_state = State.EMPTY_SLOT
 		gpu_container.visible = true
 		gpu_container.position.y = -100.0
 		gpu_container.modulate = Color(0.3, 0.9, 1.0, 0.65)
 		cable_container.visible = false
+		cable_container.position.y = CABLE_Y_DISCONNECTED
+		is_power_disconnected = true
 		btn_extract.visible = true
 		btn_extract.text = "⇪ INSTALAR GPU NUEVA (ARRASTRA O CLIC)"
-		btn_extract.pressed.disconnect(_on_extract_pressed)
-		btn_extract.pressed.connect(_seat_new_gpu)
+		if btn_extract.pressed.is_connected(_on_extract_pressed):
+			btn_extract.pressed.disconnect(_on_extract_pressed)
+		if not btn_extract.pressed.is_connected(_seat_new_gpu):
+			btn_extract.pressed.connect(_seat_new_gpu)
 		btn_screw_1.visible = false
 		btn_screw_2.visible = false
 		screws_removed = [true, true]
@@ -108,6 +117,10 @@ func _ready() -> void:
 		pcie_latch_btn.modulate = Color(1.0, 0.8, 0.2)
 		_select_guide_tab(1)
 	else:
+		cable_container.position.y = CABLE_Y_CONNECTED
+		cable_container.visible = true
+		is_power_disconnected = false
+		btn_cable_clip.disabled = false
 		btn_extract.text = "▲ EXTRAER TARJETA GRÁFICA (GPU)"
 		_select_guide_tab(0)
 		
@@ -138,7 +151,7 @@ func _setup_quitar_phase() -> void:
 	gpu_container.position.y = 0.0
 	gpu_container.modulate = Color(1, 1, 1, 1)
 	cable_container.visible = true
-	cable_container.position.y = 0.0
+	cable_container.position.y = CABLE_Y_CONNECTED
 	cable_container.modulate.a = 1.0
 	is_power_disconnected = false
 	btn_cable_clip.disabled = false
@@ -172,6 +185,9 @@ func _setup_empty_slot_phase() -> void:
 	gpu_container.position.y = -100.0
 	gpu_container.modulate = Color(0.3, 0.9, 1.0, 0.65)
 	cable_container.visible = false
+	cable_container.position.y = CABLE_Y_DISCONNECTED
+	is_power_disconnected = true
+	btn_cable_clip.disabled = false
 	btn_extract.visible = true
 	btn_extract.disabled = false
 	btn_extract.text = "⇪ INSTALAR GPU NUEVA (ARRASTRA O CLIC)"
@@ -231,7 +247,8 @@ func _seat_new_gpu() -> void:
 	
 	is_power_disconnected = true
 	cable_container.visible = true
-	cable_container.modulate.a = 0.6
+	cable_container.position.y = CABLE_Y_DISCONNECTED
+	cable_container.modulate.a = 0.8
 	btn_cable_clip.disabled = false
 	cable_hint.text = "HAZ CLIC PARA CONECTAR CABLE PCIE 8-PIN"
 	cable_hint.modulate = Color(1.0, 0.85, 0.2)
@@ -345,8 +362,8 @@ func _on_cable_pressed() -> void:
 			return
 		is_power_disconnected = false
 		var tw = create_tween().set_parallel(true)
-		tw.tween_property(cable_container, "position:y", cable_container.position.y + 70.0, 0.4).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-		tw.tween_property(cable_container, "modulate:a", 1.0, 0.4)
+		tw.tween_property(cable_container, "position:y", CABLE_Y_CONNECTED, 0.35).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		tw.tween_property(cable_container, "modulate:a", 1.0, 0.35)
 		cable_hint.text = "✓ ALIMENTACIÓN PCIe 8-PIN CONECTADA"
 		cable_hint.modulate = Color(0.2, 1.0, 0.4)
 		btn_cable_clip.disabled = true
@@ -359,8 +376,8 @@ func _on_cable_pressed() -> void:
 	
 	is_power_disconnected = true
 	var tw = create_tween().set_parallel(true)
-	tw.tween_property(cable_container, "position:y", cable_container.position.y - 70.0, 0.4).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	tw.tween_property(cable_container, "modulate:a", 0.3, 0.4)
+	tw.tween_property(cable_container, "position:y", CABLE_Y_DISCONNECTED, 0.35).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tw.tween_property(cable_container, "modulate:a", 0.4, 0.35)
 	cable_hint.text = "✓ ALIMENTACIÓN DESCONECTADA"
 	cable_hint.modulate = Color(0.2, 1.0, 0.4)
 	btn_cable_clip.disabled = true
@@ -491,7 +508,13 @@ func _on_extract_pressed() -> void:
 	GameManager.add_item_to_backpack({"name": "Grafica", "broken": true})
 	old_part_extracted.emit()
 	
-	# Asegurar que haya una GPU nueva en la mochila para la fase de colocación
+	if not is_tutorial_mode:
+		_show_warning("✓ GPU averiada extraída. Slot vacío. Busca el repuesto nuevo en el taller.", Color(0.2, 1.0, 0.4))
+		await get_tree().create_timer(1.2).timeout
+		minigame_finished.emit(true)
+		return
+	
+	# Solo en modo tutorial (práctica continua):
 	var has_new = false
 	for it in GameManager.backpack:
 		if it.get("name") == "Grafica" and not it.get("broken", true):
@@ -509,8 +532,10 @@ func _on_extract_pressed() -> void:
 	btn_extract.visible = true
 	btn_extract.disabled = false
 	btn_extract.text = "⇪ INSTALAR GPU NUEVA (ARRASTRA O CLIC)"
-	btn_extract.pressed.disconnect(_on_extract_pressed)
-	btn_extract.pressed.connect(_seat_new_gpu)
+	if btn_extract.pressed.is_connected(_on_extract_pressed):
+		btn_extract.pressed.disconnect(_on_extract_pressed)
+	if not btn_extract.pressed.is_connected(_seat_new_gpu):
+		btn_extract.pressed.connect(_seat_new_gpu)
 	
 	_show_warning("✓ FASE 1 (QUITAR) SUPERADA ➔ AHORA FASE 2: MONTAJE DEL REPUESTO (INVERSO)", Color(0.2, 1.0, 0.5))
 	_update_status()
@@ -553,7 +578,8 @@ func _update_status() -> void:
 			status_label.modulate = Color(0.2, 1.0, 0.4)
 
 func _show_success_flow() -> void:
+	current_state = State.COMPLETED
 	_update_status()
-	_show_warning("✓ ¡REPARACIÓN INTEGRAL SUPERADA! Has completado tanto el desmontaje como el montaje inverso.", Color(0.2, 1.0, 0.4))
-	await get_tree().create_timer(1.6).timeout
+	_show_warning("✓ ¡REPARACIÓN COMPLETADA! GPU instalada y testeada con éxito.", Color(0.2, 1.0, 0.4))
+	await get_tree().create_timer(1.2).timeout
 	minigame_finished.emit(true)

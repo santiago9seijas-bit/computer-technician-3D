@@ -439,7 +439,13 @@ func _on_extract_cooler_pressed() -> void:
 		GameManager.add_item_to_backpack({"name": "Fan Cooler", "broken": true})
 		old_part_extracted.emit()
 		
-		# Asegurar que haya un Fan Cooler nuevo en la mochila para la fase de colocación
+		if not is_tutorial_mode:
+			_show_floating_feedback("✓ Fan Cooler averiado extraído. Busca el repuesto en el taller.", Color(0.2, 1.0, 0.5))
+			await get_tree().create_timer(1.2).timeout
+			minigame_finished.emit(true)
+			return
+		
+		# Modo tutorial:
 		var has_new = false
 		for it in GameManager.backpack:
 			if it.get("name") == "Fan Cooler" and not it.get("broken", true):
