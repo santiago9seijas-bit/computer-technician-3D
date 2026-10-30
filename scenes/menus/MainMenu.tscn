@@ -273,7 +273,7 @@ text = "HARDWARE WORKSHOP // REPAIR OS v2.0"
 layout_mode = 2
 theme_override_colors/font_color = Color(0.65, 0.4, 0.7, 0.7)
 theme_override_font_sizes/font_size = 12
-text = "Version 0.0.2 Alpha"
+text = "Version 0.0.3 Alpha"
 horizontal_alignment = 2
 
 [node name="DarkenOverlay" type="ColorRect" parent="."]

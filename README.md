@@ -1,8 +1,8 @@
-# 🛠️ Computer Technician 3D (Version 0.0.2 Alpha)
+# 🛠️ Computer Technician 3D (Version 0.0.3 Alpha)
 
 [![Godot Engine](https://img.shields.io/badge/Godot-4.x-blue.svg?logo=godotengine)](https://godotengine.org)
 [![Platform](https://img.shields.io/badge/Platforms-Linux%20%7C%20Windows-green.svg)](#descargas--instalaci%C3%B3n)
-[![Release](https://img.shields.io/badge/Release-Version%200.0.2%20Alpha-magenta.svg)](https://github.com/santiago9seijas-bit/computer-technician-3D/releases)
+[![Release](https://img.shields.io/badge/Release-Version%200.0.3%20Alpha-magenta.svg)](https://github.com/santiago9seijas-bit/computer-technician-3D/releases)
 [![Versiones](https://img.shields.io/badge/Carpeta-Versiones-orange.svg)](versiones/README.md)
 
 **Computer Technician 3D** es un simulador inmersivo en primera persona desarrollado en Godot 4 con estética cyberpunk/sci-fi. Asume el papel de un técnico informático del futuro en un taller especializado, diagnostica componentes dañados, realiza pruebas de hardware e interactúa con minijuegos dinámicos para reparar PCs y módulos cibernéticos.
