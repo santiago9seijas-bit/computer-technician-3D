@@ -107,10 +107,24 @@ func _select_guide_tab(idx: int) -> void:
 		btn_tab_quitar.modulate = Color(1.2, 1.2, 0.4, 1.0)
 		btn_tab_poner.modulate = Color(0.7, 0.7, 0.7, 0.7)
 		guide_text.text = "FASE 1 (QUITAR): Arrastra hacia arriba lados izq y der (un poquitito). Luego arrastra el centro para retirar la RAM."
+		_setup_quitar_phase()
 	else:
 		btn_tab_quitar.modulate = Color(0.7, 0.7, 0.7, 0.7)
 		btn_tab_poner.modulate = Color(0.2, 1.0, 0.5, 1.0)
 		guide_text.text = "FASE 2 (PONER AL REVÉS): El zócalo está vacío. Arrastra hacia abajo las flechas superiores (izq y der) y al tercer jalón (centro) la RAM baja y se engancha."
+		_start_install_drag_phase()
+
+func _setup_quitar_phase() -> void:
+	current_state = State.EXTRACT_SIDES
+	ram_stick.visible = true
+	ram_stick.modulate = Color(1, 1, 1, 1)
+	ram_stick.position.y = _get_base_y()
+	ram_stick.rotation_degrees = 0.0
+	empty_slot_label.visible = false
+	install_top_area.visible = false
+	left_unseated = false
+	right_unseated = false
+	_update_ui_state()
 
 func _init_base_position() -> void:
 	await get_tree().process_frame

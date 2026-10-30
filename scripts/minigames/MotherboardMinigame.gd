@@ -166,10 +166,37 @@ func _select_guide_tab(idx: int) -> void:
 		btn_tab_quitar.modulate = Color(1.2, 1.2, 0.4, 1.0)
 		btn_tab_poner.modulate = Color(0.7, 0.7, 0.7, 0.7)
 		guide_text.text = "PASOS DE DESMONTAJE (QUITAR): 1. Desmontar componentes/cables (ATX/EPS, GPU, Cooler, M.2, RAM) · 2. Retirar 6 standoffs con [1]/[2] · 3. Extraer placa madre"
+		if is_mobo_install_phase() or current_phase == Phase.INSTALL_MOBO:
+			_setup_quitar_phase()
 	else:
 		btn_tab_quitar.modulate = Color(0.7, 0.7, 0.7, 0.7)
 		btn_tab_poner.modulate = Color(0.2, 1.0, 0.5, 1.0)
 		guide_text.text = "PASOS DE MONTAJE (CÓMO PONER AL REVÉS): 1. Montar placa madre nueva contra el I/O Shield · 2. Atornillar 6 standoffs y conectar arneses ATX y EPS (cualquier orden)"
+		if not is_mobo_install_phase() and current_phase != Phase.INSTALL_MOBO:
+			_setup_empty_tray_phase()
+
+func _setup_quitar_phase() -> void:
+	current_phase = Phase.COMPONENTS
+	is_mobo_lifted = false
+	mobo_board.visible = true
+	mobo_board.position.y = 0.0
+	mobo_board.modulate = Color(1, 1, 1, 1)
+	btn_extract_mobo.visible = false
+	_update_status()
+
+func _setup_empty_tray_phase() -> void:
+	current_phase = Phase.INSTALL_MOBO
+	mobo_board.visible = true
+	mobo_board.position.y = -80.0
+	mobo_board.modulate = Color(0.3, 0.9, 1.0, 0.65)
+	btn_extract_mobo.visible = true
+	btn_extract_mobo.disabled = false
+	btn_extract_mobo.text = "⇪ MONTAR PLACA MADRE NUEVA (ARRASTRA O CLIC)"
+	standoff_screws_removed = [true, true, true, true, true, true]
+	for b in standoff_buttons:
+		b.visible = false
+		b.disabled = true
+	_update_status()
 
 func _seat_new_mobo() -> void:
 	var found_idx = -1

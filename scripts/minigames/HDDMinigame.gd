@@ -91,10 +91,34 @@ func _select_guide_tab(idx: int) -> void:
 		btn_tab_quitar.modulate = Color(1.2, 1.2, 0.4, 1.0)
 		btn_tab_poner.modulate = Color(0.7, 0.7, 0.7, 0.7)
 		guide_text.text = "FASE 1 (QUITAR): Retira el tornillo de bahía con [1] Cruz o [2] Pala y arrastra el disco hacia arriba."
+		if current_state == State.EMPTY_BAY or current_state == State.INSERT_DRAG_DOWN or current_state == State.SCREW_BACK:
+			_setup_quitar_phase()
 	else:
 		btn_tab_quitar.modulate = Color(0.7, 0.7, 0.7, 0.7)
 		btn_tab_poner.modulate = Color(0.2, 1.0, 0.5, 1.0)
 		guide_text.text = "FASE 2 (PONER AL REVÉS): Coloca el disco nuevo en la bahía, arrástralo hacia abajo y ajusta el tornillo."
+		if current_state == State.UNSCREW or current_state == State.EXTRACT_DRAG_UP:
+			_setup_empty_bay_phase()
+
+func _setup_quitar_phase() -> void:
+	current_state = State.UNSCREW
+	disk_panel.visible = true
+	disk_panel.position.y = 0.0
+	disk_panel.modulate = Color(1, 1, 1, 1)
+	empty_bay_label.visible = false
+	screw_container.visible = true
+	btn_screw.visible = true
+	btn_screw.disabled = false
+	btn_screw.modulate = Color(1, 1, 1, 1)
+	_update_ui_state()
+
+func _setup_empty_bay_phase() -> void:
+	current_state = State.EMPTY_BAY
+	disk_panel.visible = false
+	empty_bay_label.visible = true
+	screw_container.visible = false
+	_update_ui_state()
+	_refresh_backpack_ui()
 
 func _on_tool_selected(tool_id: int) -> void:
 	_update_tool_buttons(tool_id)

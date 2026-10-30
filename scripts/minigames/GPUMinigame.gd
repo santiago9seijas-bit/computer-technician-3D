@@ -112,10 +112,64 @@ func _select_guide_tab(idx: int) -> void:
 		btn_tab_quitar.modulate = Color(1.2, 1.2, 0.4, 1.0)
 		btn_tab_poner.modulate = Color(0.7, 0.7, 0.7, 0.7)
 		guide_text.text = "PASOS DE DESMONTAJE (QUITAR): 1. Desconecta cable PCIe 8P · 2. Retira 2 tornillos de bracket con [1]/[2] · 3. Abre pestillo PCIe · 4. Extrae GPU."
+		if is_install_phase() or current_state == State.EMPTY_SLOT:
+			_setup_quitar_phase()
 	else:
 		btn_tab_quitar.modulate = Color(0.7, 0.7, 0.7, 0.7)
 		btn_tab_poner.modulate = Color(0.2, 1.0, 0.5, 1.0)
 		guide_text.text = "PASOS DE MONTAJE (CÓMO PONER AL REVÉS): 1. Monta la GPU nueva en el slot PCIe · 2. Cierra pestillo, atornilla bracket y conecta cable (cualquier orden)."
+		if not is_install_phase() and current_state != State.EMPTY_SLOT:
+			_setup_empty_slot_phase()
+
+func _setup_quitar_phase() -> void:
+	current_state = State.DISCONNECT_POWER
+	is_extracted = false
+	gpu_container.visible = true
+	gpu_container.position.y = 0.0
+	gpu_container.modulate = Color(1, 1, 1, 1)
+	cable_container.visible = true
+	cable_container.position.y = 0.0
+	cable_container.modulate.a = 1.0
+	is_power_disconnected = false
+	btn_cable_clip.disabled = false
+	cable_hint.text = "CLIC PARA DESCONECTAR CABLE PCIE 8-PIN"
+	cable_hint.modulate = Color(1, 0.85, 0.2)
+	screws_removed = [false, false]
+	btn_screw_1.visible = true
+	btn_screw_1.disabled = false
+	btn_screw_1.modulate.a = 1.0
+	icon_screw_1.scale = Vector2(1, 1)
+	btn_screw_2.visible = true
+	btn_screw_2.disabled = false
+	btn_screw_2.modulate.a = 1.0
+	icon_screw_2.scale = Vector2(1, 1)
+	is_pcie_latch_unlocked = false
+	pcie_latch_btn.rotation_degrees = 0.0
+	pcie_latch_btn.text = "TRABADO"
+	pcie_latch_btn.modulate = Color(0.2, 1.0, 0.4)
+	latch_status_label.text = "PESTILLO PCIE: TRABADO"
+	latch_status_label.modulate = Color(1, 0.3, 0.3)
+	btn_extract.visible = false
+	_update_status()
+
+func _setup_empty_slot_phase() -> void:
+	current_state = State.EMPTY_SLOT
+	gpu_container.visible = true
+	gpu_container.position.y = -100.0
+	gpu_container.modulate = Color(0.3, 0.9, 1.0, 0.65)
+	cable_container.visible = false
+	btn_extract.visible = true
+	btn_extract.disabled = false
+	btn_extract.text = "⇪ INSTALAR GPU NUEVA (ARRASTRA O CLIC)"
+	btn_screw_1.visible = false
+	btn_screw_2.visible = false
+	screws_removed = [true, true]
+	is_pcie_latch_unlocked = true
+	latch_status_label.text = "PESTILLO PCIE: ABIERTO"
+	pcie_latch_btn.rotation_degrees = 45.0
+	pcie_latch_btn.text = "ABIERTO"
+	pcie_latch_btn.modulate = Color(1.0, 0.8, 0.2)
+	_update_status()
 
 func _seat_new_gpu() -> void:
 	var found_idx = -1

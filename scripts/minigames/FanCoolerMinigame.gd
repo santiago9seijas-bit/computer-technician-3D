@@ -160,10 +160,42 @@ func _select_tab(idx: int) -> void:
 		btn_tab_quitar.modulate = Color(1.2, 1.2, 0.4, 1.0)
 		btn_tab_poner.modulate = Color(0.7, 0.7, 0.7, 0.7)
 		instructions_text.text = "• FASE 1: DESMONTAJE (QUITAR)\n\n1. Desconecta el cable PWM de alimentación (clic en el cable).\n2. Identifica la cabeza de cada tornillo: Cruz [1] o Pala [2].\n3. Retira los 4 tornillos de sujeción.\n4. Al quedar libre, presiona 'EXTRAER DISIPADOR'."
+		if current_state == State.EMPTY_SOCKET or current_state == State.FASTEN_SCREWS or current_state == State.CONNECT_CABLE:
+			_setup_quitar_phase()
 	else:
 		btn_tab_quitar.modulate = Color(0.7, 0.7, 0.7, 0.7)
 		btn_tab_poner.modulate = Color(0.2, 1.0, 0.5, 1.0)
-		instructions_text.text = "• FASE 2: MONTAJE INVERSO (PONER)\n\n1. Selecciona el Fan Cooler nuevo en tu mochila para montarlo en la CPU.\n2. Ajusta los 4 tornillos en cruz con Cruz [1] o Pala [2].\n3. Conecta el cable de alimentación PWM al zócalo de la placa madre."
+		instructions_text.text = "• FASE 2: MONTAJE INVERSO (PONER)\n\n1. Arrastra el Fan Cooler nuevo hacia el zócalo.\n2. Ajusta los 4 tornillos con Cruz [1] o Pala [2].\n3. Conecta el cable PWM (tornillos y cable en cualquier orden)."
+		if current_state != State.EMPTY_SOCKET and current_state != State.FASTEN_SCREWS and current_state != State.CONNECT_CABLE:
+			current_state = State.EMPTY_SOCKET
+			_setup_empty_socket_visual()
+			_update_status()
+			_refresh_backpack_ui()
+
+func _setup_quitar_phase() -> void:
+	current_state = State.IN_PROGRESS
+	cooler_sprite.visible = true
+	cooler_sprite.modulate = Color(1, 1, 1, 1)
+	cooler_sprite.position = default_cooler_pos
+	cooler_sprite.texture = tex_cooler_connected
+	is_cable_disconnected = false
+	cable_button.visible = true
+	cable_hint.visible = true
+	cable_hint.modulate.a = 1.0
+	cable_hint.text = "🔌 CABLE (CLIC PARA DESCONECTAR)"
+	screws_container.visible = true
+	for i in range(4):
+		screws_removed[i] = false
+		if i < screw_buttons.size():
+			screw_buttons[i].visible = true
+			screw_buttons[i].disabled = false
+		if i < screw_icons.size():
+			screw_icons[i].modulate.a = 1.0
+			screw_icons[i].rotation = 0.0
+			screw_icons[i].scale = Vector2(1, 1)
+	cooler_extract_btn.visible = false
+	_update_status()
+	_refresh_backpack_ui()
 
 func _on_backpack_changed(_items: Array) -> void:
 	_refresh_backpack_ui()

@@ -119,10 +119,62 @@ func _select_guide_tab(idx: int) -> void:
 		btn_tab_quitar.modulate = Color(1.2, 1.2, 0.4, 1.0)
 		btn_tab_poner.modulate = Color(0.7, 0.7, 0.7, 0.7)
 		guide_text.text = "PASOS DE DESMONTAJE (QUITAR): 1. Desconectar ATX 24P · 2. Desconectar EPS 8P · 3. Retirar 4 tornillos chasis con [1]/[2] · 4. Deslizar fuente"
+		if is_install_phase() or current_state == State.EMPTY_TUNNEL:
+			_setup_quitar_phase()
 	else:
 		btn_tab_quitar.modulate = Color(0.7, 0.7, 0.7, 0.7)
 		btn_tab_poner.modulate = Color(0.2, 1.0, 0.5, 1.0)
 		guide_text.text = "PASOS DE MONTAJE (CÓMO PONER AL REVÉS): 1. Deslizar fuente nueva en el túnel · 2. Ajustar 4 tornillos y conectar EPS 8P y ATX 24P (cualquier orden)"
+		if not is_install_phase() and current_state != State.EMPTY_TUNNEL:
+			_setup_empty_tunnel_phase()
+
+func _setup_quitar_phase() -> void:
+	current_state = State.DISCONNECT_ATX24
+	is_psu_slid_out = false
+	psu_body.visible = true
+	psu_body.position.x = default_psu_x
+	psu_body.modulate = Color(1, 1, 1, 1)
+	cable_atx24.visible = true
+	cable_atx24.modulate.a = 1.0
+	btn_atx24.disabled = false
+	lbl_atx24.text = "ARNÉS ATX 24P (CLIC PARA DESCONECTAR)"
+	is_atx24_disconnected = false
+	cable_eps8.visible = true
+	cable_eps8.modulate.a = 1.0
+	btn_eps8.disabled = false
+	lbl_eps8.text = "CABLE EPS 8P (CLIC PARA DESCONECTAR)"
+	is_eps8_disconnected = false
+	screws_removed = [false, false, false, false]
+	for i in range(screw_buttons.size()):
+		var b = screw_buttons[i]
+		b.visible = true
+		b.disabled = false
+		b.modulate.a = 1.0
+		if i < screw_icons.size():
+			screw_icons[i].scale = Vector2(1, 1)
+			screw_icons[i].rotation_degrees = 0.0
+	btn_slide_psu.visible = false
+	_update_status()
+
+func _setup_empty_tunnel_phase() -> void:
+	current_state = State.EMPTY_TUNNEL
+	psu_body.visible = true
+	psu_body.position.x = default_psu_x + 200.0
+	psu_body.modulate = Color(0.3, 0.9, 1.0, 0.65)
+	cable_atx24.modulate.a = 0.3
+	cable_eps8.modulate.a = 0.3
+	btn_atx24.disabled = true
+	btn_eps8.disabled = true
+	lbl_atx24.text = "ATX 24P (DESCONECTADO)"
+	lbl_eps8.text = "EPS 8P (DESCONECTADO)"
+	btn_slide_psu.visible = true
+	btn_slide_psu.disabled = false
+	btn_slide_psu.text = "⇪ INSTALAR FUENTE NUEVA (ARRASTRA O CLIC)"
+	screws_removed = [true, true, true, true]
+	for b in screw_buttons:
+		b.visible = false
+		b.disabled = true
+	_update_status()
 
 func _seat_new_psu() -> void:
 	var found_idx = -1
