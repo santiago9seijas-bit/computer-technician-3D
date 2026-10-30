@@ -49,10 +49,10 @@ Puedes descargar los binarios compilados directamente desde la pestaña de **[Re
 
 ### 🐧 Linux (x86_64)
 
-1. Descarga el archivo `ComputerTechnician3D-Linux-v0.0.0-alpha.zip`.
+1. Descarga el archivo `ComputerTechnician3D-Linux-v0.0.3-alpha.zip`.
 2. Descomprime el archivo en la carpeta que desees:
    ```bash
-   unzip ComputerTechnician3D-Linux-v0.0.0-alpha.zip -d ComputerTechnician3D-Linux
+   unzip ComputerTechnician3D-Linux-v0.0.3-alpha.zip -d ComputerTechnician3D-Linux
    cd ComputerTechnician3D-Linux
    ```
 3. Otorga permisos de ejecución al ejecutable:
@@ -70,7 +70,7 @@ Puedes descargar los binarios compilados directamente desde la pestaña de **[Re
 
 ### 🪟 Windows (x86_64)
 
-1. Descarga el archivo `ComputerTechnician3D-Windows-v0.0.0-alpha.zip`.
+1. Descarga el archivo `ComputerTechnician3D-Windows-v0.0.3-alpha.zip`.
 2. Haz clic derecho y selecciona **Extraer todo...**.
 3. Abre la carpeta resultante y ejecuta `ComputerTechnician3D.exe`.
 *(Nota: Asegúrate de mantener el archivo `.pck` en la misma carpeta que el ejecutable).*

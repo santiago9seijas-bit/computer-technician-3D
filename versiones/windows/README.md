@@ -4,18 +4,18 @@ En este directorio se mantiene el registro y métodos de descarga de todas las v
 
 ---
 
-## 📌 Versión 0.0.2 Alpha (Lanzamiento Actual)
+## 📌 Versión 0.0.3 Alpha (Lanzamiento Actual)
 
-- **Nombre de la versión:** `Version 0.0.2 Alpha`
+- **Nombre de la versión:** `Version 0.0.3 Alpha`
 - **Estado:** Alpha
-- **Archivo:** `ComputerTechnician3D-Windows-v0.0.2-alpha.zip`
+- **Archivo:** `ComputerTechnician3D-Windows-v0.0.3-alpha.zip`
 - **Enlace de descarga directa:**  
-  👉 **[Descargar ComputerTechnician3D-Windows-v0.0.2-alpha.zip](https://github.com/santiago9seijas-bit/computer-technician-3D/releases/download/v0.0.2-alpha/ComputerTechnician3D-Windows-v0.0.2-alpha.zip)**
+  👉 **[Descargar ComputerTechnician3D-Windows-v0.0.3-alpha.zip](https://github.com/santiago9seijas-bit/computer-technician-3D/releases/download/v0.0.3-alpha/ComputerTechnician3D-Windows-v0.0.3-alpha.zip)**
 
 ### 💻 Método de Descarga e Instalación
 
 1. **Descarga:**
-   - Haz clic en el enlace de descarga directa anterior, o entra a la página de [GitHub Releases](https://github.com/santiago9seijas-bit/computer-technician-3D/releases/tag/v0.0.2-alpha) y descarga `ComputerTechnician3D-Windows-v0.0.2-alpha.zip`.
+   - Haz clic en el enlace de descarga directa anterior, o entra a la página de [GitHub Releases](https://github.com/santiago9seijas-bit/computer-technician-3D/releases/tag/v0.0.3-alpha) y descarga `ComputerTechnician3D-Windows-v0.0.3-alpha.zip`.
 2. **Extracción:**
    - Haz clic derecho sobre el archivo `.zip` descargado.
    - Selecciona **"Extraer todo..."** y elige una carpeta de tu preferencia.
@@ -25,6 +25,14 @@ En este directorio se mantiene el registro y métodos de descarga de todas las v
 ---
 
 ## 🗄️ Historial de Versiones Anteriores
+
+### 📦 Versión 0.0.2 Alpha
+- **Nombre de la versión:** `Version 0.0.2 Alpha`
+- **Estado:** Alpha
+- **Archivo:** `ComputerTechnician3D-Windows-v0.0.2-alpha.zip`
+- **Enlace de descarga directa:**  
+  👉 **[Descargar ComputerTechnician3D-Windows-v0.0.2-alpha.zip](https://github.com/santiago9seijas-bit/computer-technician-3D/releases/download/v0.0.2-alpha/ComputerTechnician3D-Windows-v0.0.2-alpha.zip)**
+- **Descripción:** Integración de personaje 3D con retargeting humanoide, cinemática orbital de entrada, zoom de cámara dinámico y ficha técnica compacta.
 
 ### 📦 Versión 0.0.1 Alpha
 - **Nombre de la versión:** `Version 0.0.1 Alpha`
