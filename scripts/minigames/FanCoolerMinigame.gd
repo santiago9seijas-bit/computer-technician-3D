@@ -19,6 +19,7 @@ enum State {
 
 var current_state: State = State.IN_PROGRESS
 var start_as_empty_slot: bool = false
+var is_tutorial_mode: bool = false
 var is_cable_disconnected: bool = false
 var screws_fastened: Array[bool] = [false, false, false, false]
 
@@ -77,6 +78,9 @@ func _ready() -> void:
 	
 	btn_tab_quitar.pressed.connect(func(): _select_tab(0))
 	btn_tab_poner.pressed.connect(func(): _select_tab(1))
+	
+	if not is_tutorial_mode and btn_tab_quitar.get_parent():
+		btn_tab_quitar.get_parent().visible = false
 	
 	if start_as_empty_slot:
 		current_state = State.EMPTY_SOCKET

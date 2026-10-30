@@ -26,6 +26,7 @@ enum State {
 
 var current_state: State = State.DISCONNECT_POWER
 var start_as_empty_slot: bool = false
+var is_tutorial_mode: bool = false
 
 # Estado de los tornillos del bracket (2 tornillos)
 var screw_types: Array[String] = ["cruz", "cruz"]
@@ -81,6 +82,9 @@ func _ready() -> void:
 	
 	btn_tab_quitar.pressed.connect(func(): _select_guide_tab(0))
 	btn_tab_poner.pressed.connect(func(): _select_guide_tab(1))
+	
+	if not is_tutorial_mode and btn_tab_quitar.get_parent():
+		btn_tab_quitar.get_parent().visible = false
 	
 	if start_as_empty_slot:
 		current_state = State.EMPTY_SLOT

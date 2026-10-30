@@ -675,6 +675,7 @@ func _launch_minigame(scene: PackedScene) -> void:
 		current_minigame_instance.queue_free()
 		
 	var inst = scene.instantiate()
+	inst.set("is_tutorial_mode", true)
 	current_minigame_instance = inst
 	minigame_container.add_child(inst)
 	

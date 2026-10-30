@@ -31,6 +31,7 @@ enum Phase {
 
 var current_phase: Phase = Phase.COMPONENTS
 var start_as_empty_slot: bool = false
+var is_tutorial_mode: bool = false
 
 # 1. Cables
 var is_atx24_unplugged: bool = false
@@ -140,6 +141,9 @@ func _ready() -> void:
 	
 	btn_tab_quitar.pressed.connect(func(): _select_guide_tab(0))
 	btn_tab_poner.pressed.connect(func(): _select_guide_tab(1))
+	
+	if not is_tutorial_mode and btn_tab_quitar.get_parent():
+		btn_tab_quitar.get_parent().visible = false
 	
 	if start_as_empty_slot:
 		_setup_empty_tray_phase()

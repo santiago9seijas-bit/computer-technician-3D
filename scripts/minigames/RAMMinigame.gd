@@ -12,6 +12,7 @@ enum State {
 
 var current_state: State = State.EXTRACT_SIDES
 var start_as_empty_slot: bool = false
+var is_tutorial_mode: bool = false
 
 # Estados de extracción de la RAM vieja (hacia arriba)
 var left_unseated: bool = false
@@ -88,6 +89,9 @@ func _ready() -> void:
 	
 	btn_tab_quitar.pressed.connect(func(): _select_guide_tab(0))
 	btn_tab_poner.pressed.connect(func(): _select_guide_tab(1))
+	
+	if not is_tutorial_mode and btn_tab_quitar.get_parent():
+		btn_tab_quitar.get_parent().visible = false
 	
 	if start_as_empty_slot:
 		_start_install_drag_phase()

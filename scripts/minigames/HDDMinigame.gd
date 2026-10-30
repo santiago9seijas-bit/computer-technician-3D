@@ -14,6 +14,7 @@ enum State {
 
 var current_state: State = State.UNSCREW
 var start_as_empty_slot: bool = false
+var is_tutorial_mode: bool = false
 
 var screw_type: String = "cruz"
 var required_tool_id: int = 1
@@ -61,6 +62,9 @@ func _ready() -> void:
 	
 	btn_tab_quitar.pressed.connect(func(): _select_guide_tab(0))
 	btn_tab_poner.pressed.connect(func(): _select_guide_tab(1))
+	
+	if not is_tutorial_mode and btn_tab_quitar.get_parent():
+		btn_tab_quitar.get_parent().visible = false
 	
 	# Si no se pasó un tipo persistente, elegir aleatoriamente
 	if screw_type == "" or (not start_as_empty_slot and screw_type == "cruz"):

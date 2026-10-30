@@ -31,6 +31,7 @@ enum State {
 
 var current_state: State = State.DISCONNECT_ATX24
 var start_as_empty_slot: bool = false
+var is_tutorial_mode: bool = false
 
 var is_atx24_disconnected: bool = false
 var is_eps8_disconnected: bool = false
@@ -83,6 +84,9 @@ func _ready() -> void:
 	
 	btn_tab_quitar.pressed.connect(func(): _select_guide_tab(0))
 	btn_tab_poner.pressed.connect(func(): _select_guide_tab(1))
+	
+	if not is_tutorial_mode and btn_tab_quitar.get_parent():
+		btn_tab_quitar.get_parent().visible = false
 	
 	if start_as_empty_slot:
 		current_state = State.EMPTY_TUNNEL

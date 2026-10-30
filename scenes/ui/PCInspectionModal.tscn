@@ -41,10 +41,10 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -480.0
-offset_top = -280.0
-offset_right = 480.0
-offset_bottom = 280.0
+offset_left = -500.0
+offset_top = -320.0
+offset_right = 500.0
+offset_bottom = 320.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxEmpty_frame")
@@ -99,7 +99,7 @@ theme_override_constants/v_separation = 14
 columns = 3
 
 [node name="BtnRAM" type="Button" parent="ModalControl/Panel/VBox/GridContainer"]
-custom_minimum_size = Vector2(290, 150)
+custom_minimum_size = Vector2(290, 115)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -113,7 +113,7 @@ slant = 10.0
 custom_font_size = 14
 
 [node name="BtnHDD" type="Button" parent="ModalControl/Panel/VBox/GridContainer"]
-custom_minimum_size = Vector2(290, 150)
+custom_minimum_size = Vector2(290, 115)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -127,7 +127,7 @@ slant = 10.0
 custom_font_size = 14
 
 [node name="BtnGPU" type="Button" parent="ModalControl/Panel/VBox/GridContainer"]
-custom_minimum_size = Vector2(290, 150)
+custom_minimum_size = Vector2(290, 115)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -141,7 +141,7 @@ slant = 10.0
 custom_font_size = 14
 
 [node name="BtnPSU" type="Button" parent="ModalControl/Panel/VBox/GridContainer"]
-custom_minimum_size = Vector2(290, 150)
+custom_minimum_size = Vector2(290, 115)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -155,7 +155,7 @@ slant = 10.0
 custom_font_size = 14
 
 [node name="BtnMOBO" type="Button" parent="ModalControl/Panel/VBox/GridContainer"]
-custom_minimum_size = Vector2(290, 150)
+custom_minimum_size = Vector2(290, 115)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -169,7 +169,7 @@ slant = 10.0
 custom_font_size = 14
 
 [node name="BtnCooler" type="Button" parent="ModalControl/Panel/VBox/GridContainer"]
-custom_minimum_size = Vector2(290, 150)
+custom_minimum_size = Vector2(290, 115)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -184,6 +184,53 @@ custom_font_size = 14
 
 [node name="HSeparator2" type="HSeparator" parent="ModalControl/Panel/VBox"]
 layout_mode = 2
+
+[node name="BackpackSection" type="VBoxContainer" parent="ModalControl/Panel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="BackpackTitle" type="Label" parent="ModalControl/Panel/VBox/BackpackSection"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 12
+text = "🎒 TU MOCHILA (3 SLOTS) · Arrastra o selecciona el repuesto para instalarlo en el componente:"
+horizontal_alignment = 1
+
+[node name="BackpackSlots" type="HBoxContainer" parent="ModalControl/Panel/VBox/BackpackSection"]
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="Slot0" type="Button" parent="ModalControl/Panel/VBox/BackpackSection/BackpackSlots"]
+custom_minimum_size = Vector2(280, 50)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "[ VACÍO ]"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 8.0
+custom_font_size = 12
+
+[node name="Slot1" type="Button" parent="ModalControl/Panel/VBox/BackpackSection/BackpackSlots"]
+custom_minimum_size = Vector2(280, 50)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "[ VACÍO ]"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 8.0
+custom_font_size = 12
+
+[node name="Slot2" type="Button" parent="ModalControl/Panel/VBox/BackpackSection/BackpackSlots"]
+custom_minimum_size = Vector2(280, 50)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "[ VACÍO ]"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 8.0
+custom_font_size = 12
 
 [node name="Footer" type="HBoxContainer" parent="ModalControl/Panel/VBox"]
 layout_mode = 2
