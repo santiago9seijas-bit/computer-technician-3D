@@ -74,22 +74,24 @@ func get_interaction_prompt() -> String:
 	return "[E] Acceder a la Terminal de Sistemas y Ciberseguridad"
 
 func interact(player) -> void:
-	var hud = player.hud_node
-	if hud and hud.has_node("PCSystemsModal"):
+	if get_tree().root.has_node("PCSystemsModal"):
 		return
 		
 	var modal = systems_modal_scene.instantiate()
-	modal.setup_pc(self)
+	modal.name = "PCSystemsModal"
 	
 	player.set_movement_enabled(false)
+	if player.hud_node:
+		player.hud_node.visible = false
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	
 	modal.connect("inspection_closed", func():
 		player.set_movement_enabled(true)
+		if player.hud_node:
+			player.hud_node.visible = true
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+		update_3d_state()
 	)
 	
-	if hud:
-		hud.add_child(modal)
-	else:
-		get_tree().root.add_child(modal)
+	get_tree().root.add_child(modal)
+	modal.setup_pc(self)

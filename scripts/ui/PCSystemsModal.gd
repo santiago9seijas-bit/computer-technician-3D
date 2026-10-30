@@ -53,15 +53,27 @@ func _ready() -> void:
 	btn_comp_usb.pressed.connect(func(): _launch_minigame("Pendrive USB", usb_minigame_scene))
 	btn_comp_arcade.pressed.connect(func(): _launch_minigame("Arcade Ciberdefensa", arcade_minigame_scene))
 	
-	_refresh_ui()
+	if current_pc != null:
+		_refresh_ui()
+
+func _unhandled_input(event: InputEvent) -> void:
+	if not modal_control or not modal_control.visible:
+		return
+	if event.is_action_pressed("ui_cancel") or (event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE):
+		get_viewport().set_input_as_handled()
+		_on_volver_pressed()
 
 func setup_pc(pc_ref) -> void:
 	current_pc = pc_ref
-	_refresh_ui()
+	if is_inside_tree() and pc_state_badge != null:
+		_refresh_ui()
 
 func _refresh_ui() -> void:
-	if current_pc == null:
+	if not is_inside_tree() or current_pc == null or pc_state_badge == null:
 		return
+		
+	if title_label and current_pc:
+		title_label.text = "TERMINAL DE SISTEMAS & SOFTWARE // WORKSTATION #" + str(current_pc.pc_id)
 		
 	var os_status = current_pc.components.get("Sistema Operativo", "broken")
 	var driver_status = current_pc.components.get("Drivers", "broken")
@@ -112,6 +124,7 @@ func _launch_minigame(task_name: String, scene_packed: PackedScene) -> void:
 	minigame.connect("minigame_finished", func(success: bool):
 		minigame.queue_free()
 		modal_control.visible = true
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 		if success:
 			if current_pc:
 				current_pc.components[task_name] = "fixed"
