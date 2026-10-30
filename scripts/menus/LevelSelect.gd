@@ -828,7 +828,7 @@ func _ready() -> void:
 		card_dim_overlay.gui_input.connect(func(event: InputEvent):
 			if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 				# Si hace clic en el círculo ampliado del nivel 1 (radio 85px desde Vector2(260, 390)), iniciar el nivel
-				if is_level_zoomed and active_zoomed_index == 0 and current_mode == "reparacion":
+				if is_level_zoomed and active_zoomed_index == 0 and (current_mode == "reparacion" or current_mode == "sistema"):
 					var dist = event.position.distance_to(Vector2(260, 390))
 					if dist <= 85.0:
 						_play_level_1()
@@ -1048,8 +1048,8 @@ func _on_node_clicked(index: int) -> void:
 		
 	var data = list[index]
 	
-	# Si ya está en zoom sobre el nivel 1 y hacen clic sobre el nodo 1 de reparación, lanzar el nivel inmediatamente
-	if is_level_zoomed and active_zoomed_index == 0 and index == 0 and current_mode == "reparacion":
+	# Si ya está en zoom sobre el nivel 1 y hacen clic sobre el nodo 1, lanzar el nivel inmediatamente
+	if is_level_zoomed and active_zoomed_index == 0 and index == 0 and (current_mode == "reparacion" or current_mode == "sistema"):
 		_play_level_1()
 		return
 		

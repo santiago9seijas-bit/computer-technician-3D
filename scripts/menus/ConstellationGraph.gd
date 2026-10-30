@@ -507,7 +507,7 @@ func _draw() -> void:
 		var np = nodes[i]
 		var is_hovered = (hovered_node_index == i)
 		# SOLO el nivel de reparación (Nivel 1, índice 0) está en ROJO indicando que está disponible para jugar
-		var is_playable = (current_mode == "reparacion" and i == 0)
+		var is_playable = (i == 0 and (current_mode == "reparacion" or current_mode == "sistema"))
 		var zoom_scale = node_zoom_scales[i] if i < node_zoom_scales.size() else 1.0
 		var ripple = node_ripples[i] if i < node_ripples.size() else 0.0
 
