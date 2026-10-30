@@ -84,12 +84,12 @@ func _ready() -> void:
 			symptom_report = mobo_symptoms[rng.randi_range(0, mobo_symptoms.size() - 1)]
 			
 	components = {
-		"Fan Cooler": "broken" if target_fault_component == "Fan Cooler" else "ok",
-		"RAM": "broken" if target_fault_component == "RAM" else "ok",
-		"Disco Duro": "broken" if target_fault_component == "Disco Duro" else "ok",
-		"Grafica": "broken" if target_fault_component == "Grafica" else "ok",
-		"Fuente": "broken" if target_fault_component == "Fuente" else "ok",
-		"Placa Madre": "broken" if target_fault_component == "Placa Madre" else "ok"
+		"Fan Cooler": "broken",
+		"RAM": "broken",
+		"Disco Duro": "broken",
+		"Grafica": "broken",
+		"Fuente": "broken",
+		"Placa Madre": "broken"
 	}
 		
 	update_3d_state()
@@ -100,37 +100,47 @@ func _process(delta: float) -> void:
 		arrow_mesh.position.y = original_arrow_y + sin(t * 3.0) * 0.08
 
 func is_fully_repaired() -> bool:
-	return components.get(target_fault_component) == "fixed"
+	for comp in components.keys():
+		if components[comp] == "broken" or components[comp] == "empty":
+			return false
+	return true
 
 func update_3d_state() -> void:
 	if not label_3d:
 		return
 		
+	var fixed_count = 0
+	var empty_count = 0
+	for comp in components.keys():
+		if components[comp] == "fixed":
+			fixed_count += 1
+		elif components[comp] == "empty":
+			empty_count += 1
+			
 	if is_fully_repaired():
 		if not is_completed:
 			is_completed = true
 			GameManager.computers_fixed += 1
 			GameManager.register_repair(150, 15.0)
 			
-		label_3d.text = "PC #%d [REPARADA Y OPERATIVA ✓]" % pc_id
+		label_3d.text = "PC #%d [TODAS LAS PIEZAS REPARADAS (6/6) ✓]" % pc_id
 		label_3d.modulate = Color(0.0, 1.0, 0.4, 1.0)
 		if arrow_mesh:
 			arrow_mesh.visible = false
 		if status_light:
 			status_light.light_color = Color(0.0, 1.0, 0.5, 1.0)
 	else:
-		var state_comp = components.get(target_fault_component)
-		if state_comp == "empty":
-			label_3d.text = "PC #%d [ESPERANDO REPUESTO: %s]" % [pc_id, target_fault_component]
+		if empty_count > 0:
+			label_3d.text = "PC #%d [%d PIEZA(S) VACÍAS - ESPERANDO REPUESTO]" % [pc_id, empty_count]
 			label_3d.modulate = Color(1.0, 0.75, 0.1, 1.0)
 		else:
-			label_3d.text = "PC #%d [REPORTE DE FALLA PENDIENTE]" % pc_id
-			label_3d.modulate = Color(1.0, 0.2, 0.45, 1.0)
+			label_3d.text = "PC #%d [BANCO DE PRUEBAS · %d/6 REPARADOS]" % [pc_id, fixed_count]
+			label_3d.modulate = Color(0.2, 0.8, 1.0, 1.0)
 			
 		if arrow_mesh:
 			arrow_mesh.visible = true
 		if status_light:
-			status_light.light_color = Color(1.0, 0.1, 0.4, 1.0)
+			status_light.light_color = Color(0.2, 0.8, 1.0, 1.0)
 
 func get_interaction_prompt() -> String:
 	if is_completed:

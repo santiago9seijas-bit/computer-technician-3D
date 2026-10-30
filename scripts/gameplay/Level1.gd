@@ -16,8 +16,8 @@ func _ready() -> void:
 	if btn_siguiente:
 		btn_siguiente.pressed.connect(_on_siguiente)
 
-	# Pre-inicializar el nivel con el tiempo en 120s pero el contador apagado
-	GameManager.start_level(120.0)
+	# Pre-inicializar el nivel con tiempo suficiente (900s) para probar todos los minijuegos
+	GameManager.start_level(900.0)
 	GameManager.timer_active = false
 
 	# Iniciar cinemática de entrada orbital vistosa
