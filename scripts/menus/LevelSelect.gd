@@ -496,7 +496,7 @@ var ALL_TUTORIAL_CARDS: Array[Dictionary] = [
 		"que_es": "Memoria de acceso aleatorio de ultra alta velocidad y almacenamiento volátil, con conexión directa al controlador de memoria de la CPU.",
 		"importancia": "FUNDAMENTAL: Celdas defectuosas o pistas con falso contacto causan cuelgues repentinos, pantallas azules (BSOD) o ausencia de video al encender.",
 		"que_hace": "Almacena en tiempo real el código ejecutable y datos temporales del sistema operativo y programas abiertos, permitiendo transferencias a gigabytes por segundo.",
-		"pasos": "🔻 FASE 1: DESMONTAJE (QUITAR):\n1. Arrastra las trabas laterales hacia ARRIBA.\n2. Arrastra el centro de la RAM hacia ARRIBA para extraer.\n\n🔺 FASE 2: MONTAJE INVERSO (PONER):\n1. Arrastra la nueva RAM al zócalo alineando la muesca central.\n2. Arrastra el centro hacia ABAJO para asentar contactos.\n3. Presiona las trabas laterales hacia ABAJO para asegurar.",
+		"pasos": "🔻 FASE 1: DESMONTAJE (QUITAR):\n1. Arrastra las trabas laterales (izq/der) hacia ARRIBA (se levantan un poquitito).\n2. Arrastra el centro de la RAM hacia ARRIBA para retirarla por completo.\n\n🔺 FASE 2: MONTAJE INVERSO (PONER):\n1. Con el zócalo vacío, arrastra hacia ABAJO las flechas superiores (izq y der).\n2. Al tercer jalón hacia ABAJO (flecha central), la RAM desciende y se engancha en la ranura gris.",
 		"is_ready": true,
 		"handler": "launch_ram"
 	},

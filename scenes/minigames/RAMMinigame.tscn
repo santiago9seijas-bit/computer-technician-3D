@@ -251,6 +251,106 @@ text = "▲
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[node name="InstallTopArea" type="Control" parent="ModalControl/Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea"]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -182.0
+offset_top = -140.0
+offset_right = 182.0
+offset_bottom = -25.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TopZoneLeft" type="Control" parent="ModalControl/Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea/InstallTopArea"]
+custom_minimum_size = Vector2(105, 115)
+layout_mode = 1
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_right = 105.0
+grow_vertical = 2
+
+[node name="LblTopLeft" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea/InstallTopArea/TopZoneLeft"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 0.2, 0.25, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 26
+text = "▼
+●"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TopZoneCenter" type="Control" parent="ModalControl/Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea/InstallTopArea"]
+custom_minimum_size = Vector2(154, 115)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -77.0
+offset_top = -57.5
+offset_right = 77.0
+offset_bottom = 57.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="LblTopCenter" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea/InstallTopArea/TopZoneCenter"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 0.2, 0.25, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 26
+text = "▼
+●"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TopZoneRight" type="Control" parent="ModalControl/Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea/InstallTopArea"]
+custom_minimum_size = Vector2(105, 115)
+layout_mode = 1
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -105.0
+grow_horizontal = 0
+grow_vertical = 2
+
+[node name="LblTopRight" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea/InstallTopArea/TopZoneRight"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 0.2, 0.25, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 26
+text = "▼
+●"
+horizontal_alignment = 1
+vertical_alignment = 1
+
 [node name="BackpackPanel" type="PanelContainer" parent="ModalControl/Panel/VBox/ContentHBox"]
 custom_minimum_size = Vector2(250, 270)
 layout_mode = 2
