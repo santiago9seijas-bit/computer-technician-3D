@@ -453,17 +453,17 @@ func _latch_ram_into_socket() -> void:
 	ram_stick.visible = true
 	ram_stick.rotation_degrees = 0.0
 	ram_stick.modulate = Color(1, 1, 1, 0.0)
-	ram_stick.position.y = default_seated_y - 100.0
+	ram_stick.position.y = default_seated_y - 40.0
 	
 	# Desvanecer las flechas superiores
 	var tw_top = create_tween()
 	tw_top.tween_property(install_top_area, "modulate:a", 0.0, 0.2)
 	tw_top.tween_callback(func(): install_top_area.visible = false)
 	
-	# Animación de enganche ("se engancha en lo gris")
+	# Animación de enganche ("se engancha en lo gris" sin pasarse del sitio)
 	var tw = create_tween().set_parallel(true)
 	tw.tween_property(ram_stick, "modulate:a", 1.0, 0.15)
-	tw.tween_property(ram_stick, "position:y", default_seated_y, 0.35).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tw.tween_property(ram_stick, "position:y", default_seated_y, 0.25).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	
 	# Pulso visual en la base gris al trabarse
 	var tw_base = create_tween()

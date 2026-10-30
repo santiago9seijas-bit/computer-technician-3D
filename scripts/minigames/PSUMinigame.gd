@@ -154,6 +154,10 @@ func _setup_quitar_phase() -> void:
 			screw_icons[i].scale = Vector2(1, 1)
 			screw_icons[i].rotation_degrees = 0.0
 	btn_slide_psu.visible = false
+	if btn_slide_psu.pressed.is_connected(_seat_new_psu):
+		btn_slide_psu.pressed.disconnect(_seat_new_psu)
+	if not btn_slide_psu.pressed.is_connected(_on_slide_psu_pressed):
+		btn_slide_psu.pressed.connect(_on_slide_psu_pressed)
 	_update_status()
 
 func _setup_empty_tunnel_phase() -> void:
@@ -170,6 +174,10 @@ func _setup_empty_tunnel_phase() -> void:
 	btn_slide_psu.visible = true
 	btn_slide_psu.disabled = false
 	btn_slide_psu.text = "⇪ INSTALAR FUENTE NUEVA (ARRASTRA O CLIC)"
+	if not btn_slide_psu.pressed.is_connected(_seat_new_psu):
+		btn_slide_psu.pressed.connect(_seat_new_psu)
+	if btn_slide_psu.pressed.is_connected(_on_slide_psu_pressed):
+		btn_slide_psu.pressed.disconnect(_on_slide_psu_pressed)
 	screws_removed = [true, true, true, true]
 	for b in screw_buttons:
 		b.visible = false
@@ -188,8 +196,8 @@ func _seat_new_psu() -> void:
 		
 	psu_body.visible = true
 	var tw = create_tween().set_parallel(true)
-	tw.tween_property(psu_body, "position:x", default_psu_x, 0.45).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	tw.tween_property(psu_body, "modulate", Color(1, 1, 1, 1), 0.45)
+	tw.tween_property(psu_body, "position:x", default_psu_x, 0.3).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tw.tween_property(psu_body, "modulate", Color(1, 1, 1, 1), 0.3)
 	
 	btn_slide_psu.visible = false
 	current_state = State.SCREW_CHASSIS

@@ -142,18 +142,7 @@ func _ready() -> void:
 	btn_tab_poner.pressed.connect(func(): _select_guide_tab(1))
 	
 	if start_as_empty_slot:
-		current_phase = Phase.INSTALL_MOBO
-		mobo_board.visible = true
-		mobo_board.position.y = -80.0
-		mobo_board.modulate = Color(0.3, 0.9, 1.0, 0.65)
-		btn_extract_mobo.visible = true
-		btn_extract_mobo.text = "⇪ MONTAR PLACA MADRE NUEVA (ARRASTRA O CLIC)"
-		btn_extract_mobo.pressed.disconnect(_on_extract_mobo_pressed)
-		btn_extract_mobo.pressed.connect(_seat_new_mobo)
-		standoff_screws_removed = [true, true, true, true, true, true]
-		for b in standoff_buttons:
-			b.visible = false
-			b.disabled = true
+		_setup_empty_tray_phase()
 		_select_guide_tab(1)
 	else:
 		btn_extract_mobo.text = "▲ EXTRAER PLACA MADRE DEL GABINETE"
@@ -182,6 +171,11 @@ func _setup_quitar_phase() -> void:
 	mobo_board.position.y = 0.0
 	mobo_board.modulate = Color(1, 1, 1, 1)
 	btn_extract_mobo.visible = false
+	btn_extract_mobo.text = "▲ EXTRAER PLACA MADRE DEL GABINETE"
+	if btn_extract_mobo.pressed.is_connected(_seat_new_mobo):
+		btn_extract_mobo.pressed.disconnect(_seat_new_mobo)
+	if not btn_extract_mobo.pressed.is_connected(_on_extract_mobo_pressed):
+		btn_extract_mobo.pressed.connect(_on_extract_mobo_pressed)
 	_update_status()
 
 func _setup_empty_tray_phase() -> void:
@@ -192,6 +186,10 @@ func _setup_empty_tray_phase() -> void:
 	btn_extract_mobo.visible = true
 	btn_extract_mobo.disabled = false
 	btn_extract_mobo.text = "⇪ MONTAR PLACA MADRE NUEVA (ARRASTRA O CLIC)"
+	if btn_extract_mobo.pressed.is_connected(_on_extract_mobo_pressed):
+		btn_extract_mobo.pressed.disconnect(_on_extract_mobo_pressed)
+	if not btn_extract_mobo.pressed.is_connected(_seat_new_mobo):
+		btn_extract_mobo.pressed.connect(_seat_new_mobo)
 	standoff_screws_removed = [true, true, true, true, true, true]
 	for b in standoff_buttons:
 		b.visible = false
@@ -210,8 +208,8 @@ func _seat_new_mobo() -> void:
 		
 	mobo_board.visible = true
 	var tw = create_tween().set_parallel(true)
-	tw.tween_property(mobo_board, "position:y", 0.0, 0.45).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	tw.tween_property(mobo_board, "modulate:a", 1.0, 0.45)
+	tw.tween_property(mobo_board, "position:y", 0.0, 0.35).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tw.tween_property(mobo_board, "modulate:a", 1.0, 0.35)
 	
 	btn_extract_mobo.visible = false
 	current_phase = Phase.STANDOFFS_INSTALL

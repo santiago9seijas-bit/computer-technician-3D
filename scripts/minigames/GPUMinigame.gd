@@ -150,6 +150,10 @@ func _setup_quitar_phase() -> void:
 	latch_status_label.text = "PESTILLO PCIE: TRABADO"
 	latch_status_label.modulate = Color(1, 0.3, 0.3)
 	btn_extract.visible = false
+	if btn_extract.pressed.is_connected(_seat_new_gpu):
+		btn_extract.pressed.disconnect(_seat_new_gpu)
+	if not btn_extract.pressed.is_connected(_on_extract_pressed):
+		btn_extract.pressed.connect(_on_extract_pressed)
 	_update_status()
 
 func _setup_empty_slot_phase() -> void:
@@ -161,6 +165,10 @@ func _setup_empty_slot_phase() -> void:
 	btn_extract.visible = true
 	btn_extract.disabled = false
 	btn_extract.text = "⇪ INSTALAR GPU NUEVA (ARRASTRA O CLIC)"
+	if not btn_extract.pressed.is_connected(_seat_new_gpu):
+		btn_extract.pressed.connect(_seat_new_gpu)
+	if btn_extract.pressed.is_connected(_on_extract_pressed):
+		btn_extract.pressed.disconnect(_on_extract_pressed)
 	btn_screw_1.visible = false
 	btn_screw_2.visible = false
 	screws_removed = [true, true]
@@ -183,8 +191,8 @@ func _seat_new_gpu() -> void:
 		
 	gpu_container.visible = true
 	var tw = create_tween().set_parallel(true)
-	tw.tween_property(gpu_container, "position:y", 0.0, 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	tw.tween_property(gpu_container, "modulate", Color(1, 1, 1, 1), 0.3)
+	tw.tween_property(gpu_container, "position:y", 0.0, 0.25).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tw.tween_property(gpu_container, "modulate", Color(1, 1, 1, 1), 0.25)
 	
 	btn_extract.visible = false
 	current_state = State.LATCH_NEW_GPU

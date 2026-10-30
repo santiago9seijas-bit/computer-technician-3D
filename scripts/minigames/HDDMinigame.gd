@@ -113,9 +113,11 @@ func _setup_quitar_phase() -> void:
 	_update_ui_state()
 
 func _setup_empty_bay_phase() -> void:
-	current_state = State.EMPTY_BAY
-	disk_panel.visible = false
-	empty_bay_label.visible = true
+	current_state = State.INSERT_DRAG_DOWN
+	disk_panel.visible = true
+	disk_panel.position.y = -50.0
+	disk_panel.modulate = Color(0, 0.95, 1, 0.8)
+	empty_bay_label.visible = false
 	screw_container.visible = false
 	_update_ui_state()
 	_refresh_backpack_ui()
@@ -354,7 +356,7 @@ func _insert_hdd_from_backpack(index: int) -> void:
 
 func _seat_new_hdd() -> void:
 	var tween = create_tween()
-	tween.tween_property(disk_panel, "position:y", 0.0, 0.25).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
+	tween.tween_property(disk_panel, "position:y", 0.0, 0.22).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	tween.tween_callback(func():
 		current_state = State.SCREW_BACK
 		_update_ui_state()
