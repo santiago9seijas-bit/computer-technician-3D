@@ -25,12 +25,12 @@ corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mobo"]
-bg_color = Color(0.09, 0.1, 0.14, 0.98)
+bg_color = Color(0.1, 0.11, 0.12, 0.98)
 border_width_left = 3
 border_width_top = 3
 border_width_right = 3
 border_width_bottom = 3
-border_color = Color(0.3, 0.85, 1, 0.8)
+border_color = Color(0.4, 0.44, 0.48, 0.9)
 corner_radius_top_left = 8
 corner_radius_top_right = 8
 corner_radius_bottom_right = 8
@@ -300,7 +300,7 @@ offset_left = 15.0
 offset_top = 8.0
 offset_right = 280.0
 offset_bottom = 24.0
-theme_override_colors/font_color = Color(0.3, 0.9, 1, 0.9)
+theme_override_colors/font_color = Color(0.85, 0.88, 0.92, 0.95)
 theme_override_font_sizes/font_size = 10
 text = "ASUS ROG STRIX Z790-E // LGA 1700 ATX"
 
@@ -381,7 +381,7 @@ offset_top = 4.0
 offset_right = 60.0
 offset_bottom = 18.0
 grow_horizontal = 2
-theme_override_colors/font_color = Color(0.3, 0.8, 1, 1)
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
 theme_override_font_sizes/font_size = 9
 text = "FAN COOLER CPU"
 horizontal_alignment = 1

@@ -34,10 +34,26 @@ var start_as_empty_slot: bool = false
 var is_tutorial_mode: bool = false
 
 # Reinstalación de componentes al montar placa nueva
+var is_reinstall_cooler_seated: bool = false
+var reinstall_cooler_screws_done: Array[bool] = [false, false, false, false]
+var is_reinstall_cooler_pwm_done: bool = false
 var is_reinstall_cooler_done: bool = false
+
+var is_reinstall_ram_seated: bool = false
+var is_reinstall_ram_top_done: bool = false
+var is_reinstall_ram_bot_done: bool = false
 var is_reinstall_ram_done: bool = false
+
+var is_reinstall_m2_seated: bool = false
+var is_reinstall_m2_screw_done: bool = false
 var is_reinstall_m2_done: bool = false
+
+var is_reinstall_gpu_seated: bool = false
+var is_reinstall_gpu_latch_done: bool = false
+var is_reinstall_gpu_bracket_done: bool = false
+var is_reinstall_gpu_cable_done: bool = false
 var is_reinstall_gpu_done: bool = false
+
 var is_reinstall_atx_done: bool = false
 var is_reinstall_eps_done: bool = false
 
@@ -201,12 +217,12 @@ func _create_ghost_overlay(parent_panel: Control, label_text: String) -> Button:
 	btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	
 	var sb_normal = StyleBoxFlat.new()
-	sb_normal.bg_color = Color(0.08, 0.16, 0.25, 0.55)
+	sb_normal.bg_color = Color(0.12, 0.13, 0.16, 0.65)
 	sb_normal.border_width_left = 2
 	sb_normal.border_width_top = 2
 	sb_normal.border_width_right = 2
 	sb_normal.border_width_bottom = 2
-	sb_normal.border_color = Color(0.2, 0.9, 0.6, 0.8)
+	sb_normal.border_color = Color(0.8, 0.8, 0.85, 0.7)
 	sb_normal.corner_radius_top_left = 4
 	sb_normal.corner_radius_top_right = 4
 	sb_normal.corner_radius_bottom_left = 4
@@ -214,8 +230,8 @@ func _create_ghost_overlay(parent_panel: Control, label_text: String) -> Button:
 	btn.add_theme_stylebox_override("normal", sb_normal)
 	
 	var sb_hover = sb_normal.duplicate()
-	sb_hover.bg_color = Color(0.15, 0.45, 0.35, 0.8)
-	sb_hover.border_color = Color(1.0, 1.0, 0.3, 1.0)
+	sb_hover.bg_color = Color(0.2, 0.22, 0.26, 0.85)
+	sb_hover.border_color = Color(1.0, 1.0, 0.4, 1.0)
 	btn.add_theme_stylebox_override("hover", sb_hover)
 	
 	btn.add_theme_color_override("font_color", Color(1.0, 1.0, 1.0, 1.0))
@@ -287,7 +303,7 @@ func _setup_quitar_phase() -> void:
 	btn_extract_cooler.disabled = false
 	
 	# Restaurar M.2
-	is_m2_armor_removed = false
+	is_m2_armor_removed = true
 	is_m2_screw_removed = false
 	is_m2_sprung_up = false
 	is_m2_extracted = false
@@ -295,12 +311,12 @@ func _setup_quitar_phase() -> void:
 	m2_container.position.x = 465.0
 	m2_container.modulate = Color(1, 1, 1, 1)
 	m2_pcb_panel.rotation_degrees = 0.0
-	btn_m2_armor.visible = true
-	btn_m2_armor.disabled = false
-	btn_m2_armor.modulate.a = 1.0
-	btn_m2_screw.visible = false
+	btn_m2_armor.visible = false
+	btn_m2_screw.visible = true
 	btn_m2_screw.disabled = false
 	btn_m2_screw.modulate.a = 1.0
+	icon_m2_screw.rotation_degrees = 0.0
+	icon_m2_screw.scale = Vector2(1, 1)
 	btn_extract_m2.visible = false
 	btn_extract_m2.disabled = false
 	
@@ -344,7 +360,7 @@ func _setup_empty_tray_phase() -> void:
 	mobo_board.visible = true
 	mobo_board.position.x = 0.0
 	mobo_board.position.y = -80.0
-	mobo_board.modulate = Color(0.3, 0.9, 1.0, 0.65)
+	mobo_board.modulate = Color(1.0, 1.0, 1.0, 0.75)
 	
 	# Las partes desmontables deben estar ocultas inicialmente (solo el zócalo del procesador queda pegado a la placa)
 	cooler_container.visible = false
@@ -493,11 +509,11 @@ func _setup_ui() -> void:
 			cooler_screw_buttons.append(btn)
 			
 	# 4. M.2
-	icon_m2_armor.texture = tex_screw_cruz
+	btn_m2_armor.visible = false
 	icon_m2_screw.texture = tex_screw_cruz
-	btn_m2_armor.pressed.connect(_on_m2_armor_pressed)
+	icon_m2_screw.pivot_offset = Vector2(10, 10)
 	btn_m2_screw.pressed.connect(_on_m2_screw_pressed)
-	btn_m2_screw.visible = false
+	btn_m2_screw.visible = true
 	btn_extract_m2.pressed.connect(_on_extract_m2_pressed)
 	btn_extract_m2.visible = false
 	
@@ -592,16 +608,32 @@ func _start_reinstall_components_phase() -> void:
 	current_phase = Phase.REINSTALL_COMPONENTS
 	_clean_reinstall_overlays()
 	
+	is_reinstall_cooler_seated = false
+	reinstall_cooler_screws_done = [false, false, false, false]
+	is_reinstall_cooler_pwm_done = false
 	is_reinstall_cooler_done = false
+	
+	is_reinstall_ram_seated = false
+	is_reinstall_ram_top_done = false
+	is_reinstall_ram_bot_done = false
 	is_reinstall_ram_done = false
+	
+	is_reinstall_m2_seated = false
+	is_reinstall_m2_screw_done = false
 	is_reinstall_m2_done = false
+	
+	is_reinstall_gpu_seated = false
+	is_reinstall_gpu_latch_done = false
+	is_reinstall_gpu_bracket_done = false
+	is_reinstall_gpu_cable_done = false
 	is_reinstall_gpu_done = false
+	
 	is_reinstall_atx_done = false
 	is_reinstall_eps_done = false
 	
-	_show_warning("✓ ¡Standoffs asegurados! Haz clic en las piezas transparentes para colocarlas una a una.", Color(0.2, 1.0, 0.4))
+	_show_warning("✓ ¡Standoffs asegurados! Haz clic en cada pieza para colocarla, fijar sus tornillos y conectarla.", Color(0.2, 1.0, 0.4))
 	
-	# Mostrar las piezas transparentes (ghosted / preview)
+	# Mostrar las piezas transparentes neutrales (sin tinte azul)
 	_setup_transparent_cooler()
 	_setup_transparent_ram()
 	_setup_transparent_m2()
@@ -614,135 +646,272 @@ func _setup_transparent_cooler() -> void:
 	cooler_container.visible = true
 	cooler_container.position.y = 35.0
 	cooler_container.scale = Vector2(1, 1)
-	cooler_container.modulate = Color(0.4, 0.9, 1.0, 0.35)
+	cooler_container.modulate = Color(1.0, 1.0, 1.0, 0.4)
 	btn_extract_cooler.visible = false
-	btn_cooler_pwm.disabled = true
-	btn_cooler_pwm.text = "🔌 PWM 4P"
+	btn_cooler_pwm.visible = false
 	for b in cooler_screw_buttons:
-		b.visible = true
-		b.disabled = true
-		b.modulate.a = 0.6
+		b.visible = false
 	var btn = _create_ghost_overlay(cooler_container, "⇪ CLIC PARA COLOCAR\nFAN COOLER")
 	btn.pressed.connect(_on_ghost_cooler_clicked)
 
 func _setup_transparent_ram() -> void:
 	ram_container.visible = true
 	ram_container.position.y = 35.0
-	ram_container.modulate = Color(0.9, 0.3, 1.0, 0.35)
+	ram_container.modulate = Color(1.0, 1.0, 1.0, 0.4)
 	btn_extract_ram.visible = false
-	btn_ram_latch_top.text = "TRABA SUP"
-	btn_ram_latch_top.disabled = true
-	btn_ram_latch_bot.text = "TRABA INF"
-	btn_ram_latch_bot.disabled = true
+	btn_ram_latch_top.visible = false
+	btn_ram_latch_bot.visible = false
 	var btn = _create_ghost_overlay(ram_container, "⇪ CLIC PARA COLOCAR\nMEMORIA RAM")
 	btn.pressed.connect(_on_ghost_ram_clicked)
 
 func _setup_transparent_m2() -> void:
 	m2_container.visible = true
 	m2_container.position.x = 465.0
-	m2_container.modulate = Color(0.2, 0.9, 0.7, 0.35)
+	m2_container.modulate = Color(1.0, 1.0, 1.0, 0.4)
 	m2_pcb_panel.rotation_degrees = 0.0
 	btn_extract_m2.visible = false
+	btn_m2_armor.visible = false
 	btn_m2_screw.visible = false
-	btn_m2_armor.visible = true
-	btn_m2_armor.disabled = true
-	btn_m2_armor.modulate.a = 0.6
 	var btn = _create_ghost_overlay(m2_container, "⇪ CLIC PARA COLOCAR\nSSD M.2")
 	btn.pressed.connect(_on_ghost_m2_clicked)
 
 func _setup_transparent_gpu() -> void:
 	gpu_container.visible = true
 	gpu_container.position.y = 195.0
-	gpu_container.modulate = Color(1.0, 0.25, 0.5, 0.35)
+	gpu_container.modulate = Color(1.0, 1.0, 1.0, 0.4)
 	btn_extract_gpu.visible = false
-	btn_gpu_bracket.visible = true
-	btn_gpu_bracket.disabled = true
-	btn_gpu_bracket.modulate.a = 0.6
-	btn_gpu_cable.visible = true
-	btn_gpu_cable.disabled = true
-	btn_gpu_cable.modulate.a = 0.6
-	btn_gpu_cable.text = "🔌 PCIe 8-Pin"
-	btn_gpu_latch.visible = true
-	btn_gpu_latch.modulate = Color(1.0, 0.25, 0.5, 0.35)
-	btn_gpu_latch.text = "ABIERTO"
+	btn_gpu_bracket.visible = false
+	btn_gpu_cable.visible = false
+	btn_gpu_latch.visible = false
 	var btn = _create_ghost_overlay(gpu_container, "⇪ CLIC PARA COLOCAR\nTARJETA GPU")
 	btn.pressed.connect(_on_ghost_gpu_clicked)
 
 func _setup_transparent_cables() -> void:
 	cable_atx_btn.visible = true
 	cable_atx_btn.disabled = false
-	cable_atx_btn.text = "🔌 ATX 24P\n(CLIC)"
-	cable_atx_btn.modulate = Color(1.0, 0.85, 0.2, 0.4)
+	cable_atx_btn.text = "🔌 CONECTAR\nATX 24P"
+	cable_atx_btn.modulate = Color(1.0, 0.85, 0.2, 0.8)
 	
 	cable_eps_btn.visible = true
 	cable_eps_btn.disabled = false
-	cable_eps_btn.text = "🔌 EPS 8P\n(CLIC)"
-	cable_eps_btn.modulate = Color(1.0, 0.85, 0.2, 0.4)
+	cable_eps_btn.text = "🔌 CONECTAR\nEPS 8P"
+	cable_eps_btn.modulate = Color(1.0, 0.85, 0.2, 0.8)
 
+# --- 1. FAN COOLER ---
 func _on_ghost_cooler_clicked() -> void:
-	if is_reinstall_cooler_done: return
-	is_reinstall_cooler_done = true
+	if is_reinstall_cooler_seated: return
+	is_reinstall_cooler_seated = true
 	var overlay = cooler_container.get_node_or_null("GhostOverlay")
 	if overlay: overlay.queue_free()
 	
 	var tw = create_tween().set_parallel(true)
-	tw.tween_property(cooler_container, "modulate", Color(1, 1, 1, 1), 0.25).set_trans(Tween.TRANS_QUAD)
-	tw.tween_property(cooler_container, "scale", Vector2(1.0, 1.0), 0.25)
+	tw.tween_property(cooler_container, "modulate", Color(1, 1, 1, 1), 0.2)
+	
+	for i in range(4):
+		var b = cooler_screw_buttons[i]
+		var icon = cooler_screw_icons[i]
+		b.visible = true
+		b.disabled = false
+		b.modulate.a = 0.5
+		icon.scale = Vector2(0.5, 0.5)
+		icon.rotation_degrees = 0.0
+		
+	btn_cooler_pwm.visible = true
+	btn_cooler_pwm.disabled = false
+	btn_cooler_pwm.text = "🔌 CONECTAR PWM"
+	btn_cooler_pwm.modulate = Color(1.0, 0.85, 0.2)
+	
+	_show_warning("✓ Fan Cooler posicionado. Atornilla los 4 tornillos con [1]/[2] y conecta el cable PWM.", Color(1.0, 0.85, 0.2))
+	_update_status()
+
+func _on_reinstall_cooler_screw(idx: int) -> void:
+	if reinstall_cooler_screws_done[idx]: return
+	var req = 1 if cooler_screw_types[idx] == "cruz" else 2
+	var tname = "Cruz [1]" if req == 1 else "Pala [2]"
+	if GameManager.equipped_tool != req:
+		_show_warning("Usa Destornillador " + tname + " para este tornillo del cooler.", Color(1.0, 0.3, 0.3))
+		return
+	reinstall_cooler_screws_done[idx] = true
+	var btn = cooler_screw_buttons[idx]
+	var icon = cooler_screw_icons[idx]
+	var tw = create_tween().set_parallel(true)
+	tw.tween_property(icon, "rotation_degrees", -720.0, 0.25)
+	tw.tween_property(icon, "scale", Vector2(1.0, 1.0), 0.25)
+	tw.tween_property(btn, "modulate:a", 1.0, 0.25)
+	btn.disabled = true
+	_check_cooler_reinstall_done()
+
+func _on_reinstall_cooler_pwm() -> void:
+	if is_reinstall_cooler_pwm_done: return
+	is_reinstall_cooler_pwm_done = true
+	btn_cooler_pwm.disabled = true
 	btn_cooler_pwm.text = "✓ PWM OK"
 	btn_cooler_pwm.modulate = Color(0.2, 1.0, 0.4)
-	for b in cooler_screw_buttons:
-		b.modulate.a = 1.0
-		
-	_show_warning("✓ ¡Fan Cooler ensamblado sobre la CPU con seguro PWM!", Color(0.2, 1.0, 0.4))
-	_check_reinstall_completed()
+	_show_warning("✓ Cable PWM 4P conectado.", Color(0.2, 1.0, 0.4))
+	_check_cooler_reinstall_done()
 
+func _check_cooler_reinstall_done() -> void:
+	var all_screws = true
+	for s in reinstall_cooler_screws_done:
+		if not s: all_screws = false; break
+	if all_screws and is_reinstall_cooler_pwm_done and not is_reinstall_cooler_done:
+		is_reinstall_cooler_done = true
+		_show_warning("✓ ¡Fan Cooler completamente atornillado y conectado!", Color(0.2, 1.0, 0.4))
+		_check_reinstall_completed()
+	else:
+		_update_status()
+
+# --- 2. MEMORIA RAM ---
 func _on_ghost_ram_clicked() -> void:
-	if is_reinstall_ram_done: return
-	is_reinstall_ram_done = true
+	if is_reinstall_ram_seated: return
+	is_reinstall_ram_seated = true
 	var overlay = ram_container.get_node_or_null("GhostOverlay")
 	if overlay: overlay.queue_free()
 	
 	var tw = create_tween().set_parallel(true)
-	tw.tween_property(ram_container, "modulate", Color(1, 1, 1, 1), 0.25).set_trans(Tween.TRANS_QUAD)
-	btn_ram_latch_top.text = "TRABADO ✓"
-	btn_ram_latch_top.modulate = Color(0.2, 1.0, 0.4)
-	btn_ram_latch_bot.text = "TRABADO ✓"
-	btn_ram_latch_bot.modulate = Color(0.2, 1.0, 0.4)
+	tw.tween_property(ram_container, "modulate", Color(1, 1, 1, 1), 0.2)
 	
-	_show_warning("✓ ¡Memoria RAM calzada y trabada en el zócalo!", Color(0.2, 1.0, 0.4))
-	_check_reinstall_completed()
+	btn_ram_latch_top.visible = true
+	btn_ram_latch_top.disabled = false
+	btn_ram_latch_top.text = "CERRAR TRABA"
+	btn_ram_latch_top.modulate = Color(1.0, 0.85, 0.2)
+	
+	btn_ram_latch_bot.visible = true
+	btn_ram_latch_bot.disabled = false
+	btn_ram_latch_bot.text = "CERRAR TRABA"
+	btn_ram_latch_bot.modulate = Color(1.0, 0.85, 0.2)
+	
+	_show_warning("✓ Memoria RAM calzada en el zócalo. Cierra las 2 trabas de sujeción.", Color(1.0, 0.85, 0.2))
+	_update_status()
 
+func _on_reinstall_ram_latch(pos: String) -> void:
+	if pos == "top":
+		if is_reinstall_ram_top_done: return
+		is_reinstall_ram_top_done = true
+		btn_ram_latch_top.text = "✓ TRABA SUP"
+		btn_ram_latch_top.modulate = Color(0.2, 1.0, 0.4)
+		btn_ram_latch_top.disabled = true
+	else:
+		if is_reinstall_ram_bot_done: return
+		is_reinstall_ram_bot_done = true
+		btn_ram_latch_bot.text = "✓ TRABA INF"
+		btn_ram_latch_bot.modulate = Color(0.2, 1.0, 0.4)
+		btn_ram_latch_bot.disabled = true
+		
+	if is_reinstall_ram_top_done and is_reinstall_ram_bot_done and not is_reinstall_ram_done:
+		is_reinstall_ram_done = true
+		_show_warning("✓ ¡Memoria RAM asegurada con ambas trabas bloqueadas!", Color(0.2, 1.0, 0.4))
+		_check_reinstall_completed()
+	else:
+		_update_status()
+
+# --- 3. SSD M.2 ---
 func _on_ghost_m2_clicked() -> void:
-	if is_reinstall_m2_done: return
-	is_reinstall_m2_done = true
+	if is_reinstall_m2_seated: return
+	is_reinstall_m2_seated = true
 	var overlay = m2_container.get_node_or_null("GhostOverlay")
 	if overlay: overlay.queue_free()
 	
 	var tw = create_tween().set_parallel(true)
-	tw.tween_property(m2_container, "modulate", Color(1, 1, 1, 1), 0.25).set_trans(Tween.TRANS_QUAD)
-	btn_m2_armor.visible = true
-	btn_m2_armor.modulate.a = 1.0
+	tw.tween_property(m2_container, "modulate", Color(1, 1, 1, 1), 0.2)
 	
-	_show_warning("✓ ¡SSD M.2 insertado y fijado con su disipador térmico!", Color(0.2, 1.0, 0.4))
+	btn_m2_screw.visible = true
+	btn_m2_screw.disabled = false
+	btn_m2_screw.modulate.a = 0.5
+	icon_m2_screw.scale = Vector2(0.5, 0.5)
+	icon_m2_screw.rotation_degrees = 0.0
+	
+	_show_warning("✓ SSD M.2 insertado. Atornilla el tornillo con Destornillador Cruz [1].", Color(1.0, 0.85, 0.2))
+	_update_status()
+
+func _on_reinstall_m2_screw_pressed() -> void:
+	if is_reinstall_m2_screw_done: return
+	if GameManager.equipped_tool != 1:
+		_show_warning("Usa Destornillador Cruz fino [1] para atornillar el SSD M.2.", Color(1.0, 0.3, 0.3))
+		return
+	is_reinstall_m2_screw_done = true
+	is_reinstall_m2_done = true
+	var tw = create_tween().set_parallel(true)
+	tw.tween_property(icon_m2_screw, "rotation_degrees", -720.0, 0.25)
+	tw.tween_property(icon_m2_screw, "scale", Vector2(1.0, 1.0), 0.25)
+	tw.tween_property(btn_m2_screw, "modulate:a", 1.0, 0.25)
+	btn_m2_screw.disabled = true
+	
+	_show_warning("✓ ¡SSD M.2 fijado y asegurado con su tornillo!", Color(0.2, 1.0, 0.4))
 	_check_reinstall_completed()
 
+# --- 4. GPU ---
 func _on_ghost_gpu_clicked() -> void:
-	if is_reinstall_gpu_done: return
-	is_reinstall_gpu_done = true
+	if is_reinstall_gpu_seated: return
+	is_reinstall_gpu_seated = true
 	var overlay = gpu_container.get_node_or_null("GhostOverlay")
 	if overlay: overlay.queue_free()
 	
 	var tw = create_tween().set_parallel(true)
-	tw.tween_property(gpu_container, "modulate", Color(1, 1, 1, 1), 0.25).set_trans(Tween.TRANS_QUAD)
-	tw.tween_property(btn_gpu_latch, "modulate", Color(0.2, 1.0, 0.4, 1.0), 0.25)
-	btn_gpu_latch.text = "TRABADO ✓"
-	btn_gpu_bracket.modulate.a = 1.0
-	btn_gpu_cable.modulate.a = 1.0
-	btn_gpu_cable.text = "✓ PCIe 8P"
+	tw.tween_property(gpu_container, "modulate", Color(1, 1, 1, 1), 0.2)
 	
-	_show_warning("✓ ¡Tarjeta Gráfica colocada, pestillo PCIe trabado y conectada!", Color(0.2, 1.0, 0.4))
-	_check_reinstall_completed()
+	btn_gpu_latch.visible = true
+	btn_gpu_latch.disabled = false
+	btn_gpu_latch.text = "TRABAR PESTILLO"
+	btn_gpu_latch.modulate = Color(1.0, 0.85, 0.2)
+	
+	btn_gpu_bracket.visible = true
+	btn_gpu_bracket.disabled = false
+	btn_gpu_bracket.modulate.a = 0.5
+	icon_gpu_bracket.scale = Vector2(0.5, 0.5)
+	icon_gpu_bracket.rotation_degrees = 0.0
+	
+	btn_gpu_cable.visible = true
+	btn_gpu_cable.disabled = false
+	btn_gpu_cable.text = "🔌 CONECTAR PCIe 8P"
+	btn_gpu_cable.modulate = Color(1.0, 0.85, 0.2)
+	
+	_show_warning("✓ GPU calzada en el zócalo. Traba el pestillo, atornilla el bracket y conecta el cable PCIe.", Color(1.0, 0.85, 0.2))
+	_update_status()
 
+func _on_reinstall_gpu_latch() -> void:
+	if is_reinstall_gpu_latch_done: return
+	is_reinstall_gpu_latch_done = true
+	btn_gpu_latch.text = "✓ TRABADO"
+	btn_gpu_latch.modulate = Color(0.2, 1.0, 0.4)
+	btn_gpu_latch.disabled = true
+	_show_warning("✓ Pestillo PCIe trabado.", Color(0.2, 1.0, 0.4))
+	_check_gpu_reinstall_done()
+
+func _on_reinstall_gpu_bracket() -> void:
+	if is_reinstall_gpu_bracket_done: return
+	var req = 1 if gpu_bracket_screw_type == "cruz" else 2
+	var tname = "Cruz [1]" if req == 1 else "Pala [2]"
+	if GameManager.equipped_tool != req:
+		_show_warning("Usa Destornillador " + tname + " para el tornillo del bracket PCI.", Color(1.0, 0.3, 0.3))
+		return
+	is_reinstall_gpu_bracket_done = true
+	var tw = create_tween().set_parallel(true)
+	tw.tween_property(icon_gpu_bracket, "rotation_degrees", -720.0, 0.25)
+	tw.tween_property(icon_gpu_bracket, "scale", Vector2(1.0, 1.0), 0.25)
+	tw.tween_property(btn_gpu_bracket, "modulate:a", 1.0, 0.25)
+	btn_gpu_bracket.disabled = true
+	_show_warning("✓ Tornillo del bracket PCI atornillado.", Color(0.2, 1.0, 0.4))
+	_check_gpu_reinstall_done()
+
+func _on_reinstall_gpu_cable() -> void:
+	if is_reinstall_gpu_cable_done: return
+	is_reinstall_gpu_cable_done = true
+	btn_gpu_cable.disabled = true
+	btn_gpu_cable.text = "✓ PCIe 8P OK"
+	btn_gpu_cable.modulate = Color(0.2, 1.0, 0.4)
+	_show_warning("✓ Cable PCIe 8-Pin conectado a la GPU.", Color(0.2, 1.0, 0.4))
+	_check_gpu_reinstall_done()
+
+func _check_gpu_reinstall_done() -> void:
+	if is_reinstall_gpu_latch_done and is_reinstall_gpu_bracket_done and is_reinstall_gpu_cable_done and not is_reinstall_gpu_done:
+		is_reinstall_gpu_done = true
+		_show_warning("✓ ¡Tarjeta Gráfica completamente trabada, atornillada y conectada!", Color(0.2, 1.0, 0.4))
+		_check_reinstall_completed()
+	else:
+		_update_status()
+
+# --- 5. CABLES ---
 func _on_ghost_atx_clicked() -> void:
 	if is_reinstall_atx_done: return
 	is_reinstall_atx_done = true
@@ -823,6 +992,10 @@ func _check_phase_cables() -> void:
 # 2. TARJETA GRÁFICA (GPU)
 # =============================================================================
 func _on_gpu_cable_pressed() -> void:
+	if current_phase == Phase.REINSTALL_COMPONENTS:
+		_on_reinstall_gpu_cable()
+		return
+
 	if is_gpu_cable_unplugged: return
 	is_gpu_cable_unplugged = true
 	btn_gpu_cable.disabled = true
@@ -833,6 +1006,10 @@ func _on_gpu_cable_pressed() -> void:
 	_check_gpu_ready()
 
 func _on_gpu_bracket_pressed() -> void:
+	if current_phase == Phase.REINSTALL_COMPONENTS:
+		_on_reinstall_gpu_bracket()
+		return
+
 	if is_gpu_bracket_unscrewed: return
 	var req = 1 if gpu_bracket_screw_type == "cruz" else 2
 	var tname = "Cruz [1]" if req == 1 else "Pala [2]"
@@ -850,7 +1027,7 @@ func _on_gpu_bracket_pressed() -> void:
 
 func _on_gpu_latch_pressed() -> void:
 	if current_phase == Phase.REINSTALL_COMPONENTS:
-		_on_ghost_gpu_clicked()
+		_on_reinstall_gpu_latch()
 		return
 
 	if is_gpu_latch_opened: return
@@ -884,6 +1061,10 @@ func _on_extract_gpu_pressed() -> void:
 # 3. DISIPADOR (FAN COOLER)
 # =============================================================================
 func _on_cooler_pwm_pressed() -> void:
+	if current_phase == Phase.REINSTALL_COMPONENTS:
+		_on_reinstall_cooler_pwm()
+		return
+
 	if is_cooler_pwm_unplugged: return
 	is_cooler_pwm_unplugged = true
 	btn_cooler_pwm.disabled = true
@@ -893,6 +1074,10 @@ func _on_cooler_pwm_pressed() -> void:
 	_check_cooler_ready()
 
 func _on_cooler_screw_pressed(idx: int) -> void:
+	if current_phase == Phase.REINSTALL_COMPONENTS:
+		_on_reinstall_cooler_screw(idx)
+		return
+
 	if cooler_screws_removed[idx]: return
 	var req = 1 if cooler_screw_types[idx] == "cruz" else 2
 	var tname = "Cruz [1]" if req == 1 else "Pala [2]"
@@ -940,24 +1125,16 @@ func _on_extract_cooler_pressed() -> void:
 # 4. ALMACENAMIENTO SSD M.2 (NVME)
 # =============================================================================
 func _on_m2_armor_pressed() -> void:
-	if is_m2_armor_removed: return
-	if GameManager.equipped_tool != 1:
-		_show_warning("Usa Destornillador Cruz [1] para retirar el tornillo del M.2 Armor.", Color(1.0, 0.3, 0.3))
-		return
-	is_m2_armor_removed = true
-	btn_m2_armor.disabled = true
-	var tw = create_tween().set_parallel(true)
-	tw.tween_property(icon_m2_armor, "rotation_degrees", 720.0, 0.3)
-	tw.tween_property(btn_m2_armor, "modulate:a", 0.0, 0.3)
-	await tw.finished
-	btn_m2_armor.visible = false
-	btn_m2_screw.visible = true
-	_show_warning("✓ Armadura térmica M.2 retirada. Retira el micro-tornillo de standoff.", Color(0.2, 1.0, 0.4))
+	pass
 
 func _on_m2_screw_pressed() -> void:
-	if not is_m2_armor_removed or is_m2_screw_removed: return
+	if current_phase == Phase.REINSTALL_COMPONENTS:
+		_on_reinstall_m2_screw_pressed()
+		return
+
+	if is_m2_screw_removed: return
 	if GameManager.equipped_tool != 1:
-		_show_warning("Usa Destornillador Cruz fino [1] para el micro-tornillo.", Color(1.0, 0.3, 0.3))
+		_show_warning("Usa Destornillador Cruz fino [1] para el micro-tornillo M.2.", Color(1.0, 0.3, 0.3))
 		return
 	is_m2_screw_removed = true
 	btn_m2_screw.disabled = true
@@ -972,7 +1149,7 @@ func _on_m2_screw_pressed() -> void:
 	var tw_pop = create_tween()
 	tw_pop.tween_property(m2_pcb_panel, "rotation_degrees", -16.0, 0.3).set_trans(Tween.TRANS_BOUNCE)
 	btn_extract_m2.visible = true
-	_show_warning("✓ ¡POP! SSD elevado a 30° por el resorte. Desliza en diagonal.", Color(1.0, 0.85, 0.2))
+	_show_warning("✓ ¡POP! Tornillo M.2 retirado. SSD elevado a 30° por el resorte. Desliza en diagonal.", Color(1.0, 0.85, 0.2))
 
 func _on_extract_m2_pressed() -> void:
 	if is_m2_extracted: return
@@ -990,6 +1167,10 @@ func _on_extract_m2_pressed() -> void:
 # 5. MEMORIA RAM
 # =============================================================================
 func _on_ram_latch_pressed(pos: String) -> void:
+	if current_phase == Phase.REINSTALL_COMPONENTS:
+		_on_reinstall_ram_latch(pos)
+		return
+
 	if pos == "top":
 		is_ram_left_latch = true
 		btn_ram_latch_top.text = "ABIERTA"
@@ -1154,18 +1335,27 @@ func _update_status() -> void:
 				if r: s_rem += 1
 			phase_tracker.text = "MONTAJE: ATORNILLAR STANDOFFS (%d/6 restantes)" % s_rem
 			status_label.text = "Paso 2: Atornilla los 6 tornillos Standoff al gabinete con [1] Cruz o [2] Pala (%d restantes)." % s_rem
-			status_label.modulate = Color(0.2, 0.9, 1.0)
+			status_label.modulate = Color(1.0, 0.85, 0.2)
 		Phase.REINSTALL_COMPONENTS:
 			var pending: Array[String] = []
-			if not is_reinstall_cooler_done: pending.append("Cooler")
-			if not is_reinstall_ram_done: pending.append("RAM")
-			if not is_reinstall_m2_done: pending.append("SSD M.2")
-			if not is_reinstall_gpu_done: pending.append("GPU")
+			if not is_reinstall_cooler_done:
+				if not is_reinstall_cooler_seated: pending.append("Cooler (colocar)")
+				elif not is_reinstall_cooler_pwm_done: pending.append("Cooler (PWM)")
+				else: pending.append("Cooler (tornillos)")
+			if not is_reinstall_ram_done:
+				if not is_reinstall_ram_seated: pending.append("RAM (colocar)")
+				else: pending.append("RAM (trabas)")
+			if not is_reinstall_m2_done:
+				if not is_reinstall_m2_seated: pending.append("SSD M.2 (colocar)")
+				else: pending.append("SSD M.2 (tornillo)")
+			if not is_reinstall_gpu_done:
+				if not is_reinstall_gpu_seated: pending.append("GPU (colocar)")
+				else: pending.append("GPU (tornillo/traba/cable)")
 			if not is_reinstall_atx_done: pending.append("Cable ATX")
 			if not is_reinstall_eps_done: pending.append("Cable EPS")
-			phase_tracker.text = "MONTAJE: REINSTALAR COMPONENTES (%d/6 pendientes)" % pending.size()
-			status_label.text = "Paso 3: Haz clic en las piezas transparentes para colocarlas una a una: " + ", ".join(pending) + "."
-			status_label.modulate = Color(0.2, 1.0, 0.6)
+			phase_tracker.text = "MONTAJE: REINSTALAR Y FIJAR (%d/6 pendientes)" % pending.size()
+			status_label.text = "Coloca las piezas, atornilla sus tornillos y conéctalas: " + ", ".join(pending) + "."
+			status_label.modulate = Color(1.0, 0.85, 0.2)
 		Phase.COMPLETED:
 			phase_tracker.text = "¡OPERACIÓN COMPLETADA! ✓"
 			status_label.text = "¡Placa madre asegurada y todos los componentes reinstalados con éxito!"
