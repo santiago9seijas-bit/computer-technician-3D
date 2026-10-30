@@ -37,6 +37,10 @@ extends Control
 @onready var btn_holo: Button = $ConfigPanel/Margin/VBox/OptionsVBox/HoloRow/BtnHolo
 
 var LevelSelectScript = preload("res://scripts/menus/LevelSelect.gd")
+var arcade_scene: PackedScene = preload("res://scenes/minigames/MalwareInvadersMinigame.tscn")
+
+const KONAMI_CODE: Array[String] = ["up", "up", "down", "down", "left", "right", "left", "right", "b", "a"]
+var konami_buffer: Array[String] = []
 
 var is_transitioning: bool = false
 var active_panel: Control = null
@@ -79,6 +83,76 @@ func _ready() -> void:
 	)
 	
 	_setup_configuration_controls()
+
+func _input(event: InputEvent) -> void:
+	if active_panel != null or is_transitioning or get_tree().root.has_node("MalwareInvadersMinigame"):
+		return
+		
+	var input_key = ""
+	if event is InputEventKey and event.pressed and not event.echo:
+		var k = event.keycode if event.keycode != 0 else event.physical_keycode
+		match k:
+			KEY_UP:
+				input_key = "up"
+			KEY_DOWN:
+				input_key = "down"
+			KEY_LEFT:
+				input_key = "left"
+			KEY_RIGHT:
+				input_key = "right"
+			KEY_B:
+				input_key = "b"
+			KEY_A:
+				input_key = "a"
+	elif event is InputEventJoypadButton and event.pressed:
+		match event.button_index:
+			JOY_BUTTON_DPAD_UP:
+				input_key = "up"
+			JOY_BUTTON_DPAD_DOWN:
+				input_key = "down"
+			JOY_BUTTON_DPAD_LEFT:
+				input_key = "left"
+			JOY_BUTTON_DPAD_RIGHT:
+				input_key = "right"
+			JOY_BUTTON_B:
+				input_key = "b"
+			JOY_BUTTON_A:
+				input_key = "a"
+				
+	if input_key != "":
+		konami_buffer.append(input_key)
+		if konami_buffer.size() > KONAMI_CODE.size():
+			konami_buffer.pop_front()
+			
+		if konami_buffer == KONAMI_CODE:
+			konami_buffer.clear()
+			get_viewport().set_input_as_handled()
+			_launch_arcade_easter_egg()
+
+func _launch_arcade_easter_egg() -> void:
+	if get_tree().root.has_node("MalwareInvadersMinigame"):
+		return
+		
+	# Destello cian retro confirmando el código secreto
+	var flash = ColorRect.new()
+	flash.color = Color(0.0, 0.95, 1.0, 0.45)
+	flash.set_anchors_preset(Control.PRESET_FULL_RECT)
+	flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(flash)
+	
+	var tw = create_tween()
+	tw.tween_property(flash, "modulate:a", 0.0, 0.4)
+	tw.tween_callback(flash.queue_free)
+	
+	var arcade = arcade_scene.instantiate()
+	arcade.name = "MalwareInvadersMinigame"
+	arcade.set("is_tutorial_mode", false)
+	get_tree().root.add_child(arcade)
+	
+	arcade.connect("minigame_finished", func(_success: bool):
+		arcade.queue_free()
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if active_panel != null and event.is_action_pressed("ui_cancel"):
