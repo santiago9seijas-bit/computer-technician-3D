@@ -76,11 +76,13 @@ func _ready() -> void:
 	
 	GameManager.backpack_updated.connect(_on_backpack_changed)
 	
-	btn_tab_quitar.pressed.connect(func(): _select_tab(0))
-	btn_tab_poner.pressed.connect(func(): _select_tab(1))
-	
-	if not is_tutorial_mode and btn_tab_quitar.get_parent():
-		btn_tab_quitar.get_parent().visible = false
+	if is_tutorial_mode:
+		btn_tab_quitar.pressed.connect(func(): _select_tab(0))
+		btn_tab_poner.pressed.connect(func(): _select_tab(1))
+	else:
+		var tabs = btn_tab_quitar.get_parent()
+		if tabs:
+			tabs.queue_free()
 	
 	if start_as_empty_slot:
 		current_state = State.EMPTY_SOCKET
@@ -134,7 +136,7 @@ func _seat_cooler_into_socket() -> void:
 			break
 			
 	var tw = create_tween()
-	tw.tween_property(cooler_sprite, "position", default_cooler_pos, 0.25).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tw.tween_property(cooler_sprite, "position", default_cooler_pos, 0.25).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	tw.parallel().tween_property(cooler_sprite, "modulate", Color(1, 1, 1, 1), 0.25)
 	
 	screws_container.visible = true
@@ -160,17 +162,21 @@ func _seat_cooler_into_socket() -> void:
 	_refresh_backpack_ui()
 
 func _select_tab(idx: int) -> void:
+	if is_instance_valid(btn_tab_quitar) and is_instance_valid(btn_tab_poner):
+		if idx == 0:
+			btn_tab_quitar.modulate = Color(1.2, 1.2, 0.4, 1.0)
+			btn_tab_poner.modulate = Color(0.7, 0.7, 0.7, 0.7)
+		else:
+			btn_tab_quitar.modulate = Color(0.7, 0.7, 0.7, 0.7)
+			btn_tab_poner.modulate = Color(0.2, 1.0, 0.5, 1.0)
+			
 	if idx == 0:
-		btn_tab_quitar.modulate = Color(1.2, 1.2, 0.4, 1.0)
-		btn_tab_poner.modulate = Color(0.7, 0.7, 0.7, 0.7)
 		instructions_text.text = "• FASE 1: DESMONTAJE (QUITAR)\n\n1. Desconecta el cable PWM de alimentación (clic en el cable).\n2. Identifica la cabeza de cada tornillo: Cruz [1] o Pala [2].\n3. Retira los 4 tornillos de sujeción.\n4. Al quedar libre, presiona 'EXTRAER DISIPADOR'."
-		if current_state == State.EMPTY_SOCKET or current_state == State.FASTEN_SCREWS or current_state == State.CONNECT_CABLE:
+		if is_tutorial_mode and (current_state == State.EMPTY_SOCKET or current_state == State.FASTEN_SCREWS or current_state == State.CONNECT_CABLE):
 			_setup_quitar_phase()
 	else:
-		btn_tab_quitar.modulate = Color(0.7, 0.7, 0.7, 0.7)
-		btn_tab_poner.modulate = Color(0.2, 1.0, 0.5, 1.0)
 		instructions_text.text = "• FASE 2: MONTAJE INVERSO (PONER)\n\n1. Arrastra el Fan Cooler nuevo hacia el zócalo.\n2. Ajusta los 4 tornillos con Cruz [1] o Pala [2].\n3. Conecta el cable PWM (tornillos y cable en cualquier orden)."
-		if current_state != State.EMPTY_SOCKET and current_state != State.FASTEN_SCREWS and current_state != State.CONNECT_CABLE:
+		if is_tutorial_mode and (current_state != State.EMPTY_SOCKET and current_state != State.FASTEN_SCREWS and current_state != State.CONNECT_CABLE):
 			current_state = State.EMPTY_SOCKET
 			_setup_empty_socket_visual()
 			_update_status()

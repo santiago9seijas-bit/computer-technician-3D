@@ -139,11 +139,13 @@ func _ready() -> void:
 	_setup_ui()
 	_update_tool_buttons()
 	
-	btn_tab_quitar.pressed.connect(func(): _select_guide_tab(0))
-	btn_tab_poner.pressed.connect(func(): _select_guide_tab(1))
-	
-	if not is_tutorial_mode and btn_tab_quitar.get_parent():
-		btn_tab_quitar.get_parent().visible = false
+	if is_tutorial_mode:
+		btn_tab_quitar.pressed.connect(func(): _select_guide_tab(0))
+		btn_tab_poner.pressed.connect(func(): _select_guide_tab(1))
+	else:
+		var tabs = btn_tab_quitar.get_parent()
+		if tabs:
+			tabs.queue_free()
 	
 	if start_as_empty_slot:
 		_setup_empty_tray_phase()
@@ -155,17 +157,21 @@ func _ready() -> void:
 	_update_status()
 
 func _select_guide_tab(idx: int) -> void:
+	if is_instance_valid(btn_tab_quitar) and is_instance_valid(btn_tab_poner):
+		if idx == 0:
+			btn_tab_quitar.modulate = Color(1.2, 1.2, 0.4, 1.0)
+			btn_tab_poner.modulate = Color(0.7, 0.7, 0.7, 0.7)
+		else:
+			btn_tab_quitar.modulate = Color(0.7, 0.7, 0.7, 0.7)
+			btn_tab_poner.modulate = Color(0.2, 1.0, 0.5, 1.0)
+			
 	if idx == 0:
-		btn_tab_quitar.modulate = Color(1.2, 1.2, 0.4, 1.0)
-		btn_tab_poner.modulate = Color(0.7, 0.7, 0.7, 0.7)
 		guide_text.text = "PASOS DE DESMONTAJE (QUITAR): 1. Desmontar componentes/cables (ATX/EPS, GPU, Cooler, M.2, RAM) · 2. Retirar 6 standoffs con [1]/[2] · 3. Extraer placa madre"
-		if is_mobo_install_phase() or current_phase == Phase.INSTALL_MOBO:
+		if is_tutorial_mode and (is_mobo_install_phase() or current_phase == Phase.INSTALL_MOBO):
 			_setup_quitar_phase()
 	else:
-		btn_tab_quitar.modulate = Color(0.7, 0.7, 0.7, 0.7)
-		btn_tab_poner.modulate = Color(0.2, 1.0, 0.5, 1.0)
 		guide_text.text = "PASOS DE MONTAJE (CÓMO PONER AL REVÉS): 1. Montar placa madre nueva contra el I/O Shield · 2. Atornillar 6 standoffs y conectar arneses ATX y EPS (cualquier orden)"
-		if not is_mobo_install_phase() and current_phase != Phase.INSTALL_MOBO:
+		if is_tutorial_mode and (not is_mobo_install_phase() and current_phase != Phase.INSTALL_MOBO):
 			_setup_empty_tray_phase()
 
 func _setup_quitar_phase() -> void:

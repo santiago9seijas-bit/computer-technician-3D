@@ -82,11 +82,13 @@ func _ready() -> void:
 	_setup_ui()
 	_update_tool_buttons()
 	
-	btn_tab_quitar.pressed.connect(func(): _select_guide_tab(0))
-	btn_tab_poner.pressed.connect(func(): _select_guide_tab(1))
-	
-	if not is_tutorial_mode and btn_tab_quitar.get_parent():
-		btn_tab_quitar.get_parent().visible = false
+	if is_tutorial_mode:
+		btn_tab_quitar.pressed.connect(func(): _select_guide_tab(0))
+		btn_tab_poner.pressed.connect(func(): _select_guide_tab(1))
+	else:
+		var tabs = btn_tab_quitar.get_parent()
+		if tabs:
+			tabs.queue_free()
 	
 	if start_as_empty_slot:
 		current_state = State.EMPTY_TUNNEL
@@ -119,17 +121,21 @@ func _ready() -> void:
 	_update_status()
 
 func _select_guide_tab(idx: int) -> void:
+	if is_instance_valid(btn_tab_quitar) and is_instance_valid(btn_tab_poner):
+		if idx == 0:
+			btn_tab_quitar.modulate = Color(1.2, 1.2, 0.4, 1.0)
+			btn_tab_poner.modulate = Color(0.7, 0.7, 0.7, 0.7)
+		else:
+			btn_tab_quitar.modulate = Color(0.7, 0.7, 0.7, 0.7)
+			btn_tab_poner.modulate = Color(0.2, 1.0, 0.5, 1.0)
+			
 	if idx == 0:
-		btn_tab_quitar.modulate = Color(1.2, 1.2, 0.4, 1.0)
-		btn_tab_poner.modulate = Color(0.7, 0.7, 0.7, 0.7)
 		guide_text.text = "PASOS DE DESMONTAJE (QUITAR): 1. Desconectar ATX 24P · 2. Desconectar EPS 8P · 3. Retirar 4 tornillos chasis con [1]/[2] · 4. Deslizar fuente"
-		if is_install_phase() or current_state == State.EMPTY_TUNNEL:
+		if is_tutorial_mode and (is_install_phase() or current_state == State.EMPTY_TUNNEL):
 			_setup_quitar_phase()
 	else:
-		btn_tab_quitar.modulate = Color(0.7, 0.7, 0.7, 0.7)
-		btn_tab_poner.modulate = Color(0.2, 1.0, 0.5, 1.0)
 		guide_text.text = "PASOS DE MONTAJE (CÓMO PONER AL REVÉS): 1. Deslizar fuente nueva en el túnel · 2. Ajustar 4 tornillos y conectar EPS 8P y ATX 24P (cualquier orden)"
-		if not is_install_phase() and current_state != State.EMPTY_TUNNEL:
+		if is_tutorial_mode and (not is_install_phase() and current_state != State.EMPTY_TUNNEL):
 			_setup_empty_tunnel_phase()
 
 func _setup_quitar_phase() -> void:

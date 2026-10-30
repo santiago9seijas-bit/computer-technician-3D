@@ -87,11 +87,13 @@ func _ready() -> void:
 	
 	GameManager.backpack_updated.connect(_on_backpack_changed)
 	
-	btn_tab_quitar.pressed.connect(func(): _select_guide_tab(0))
-	btn_tab_poner.pressed.connect(func(): _select_guide_tab(1))
-	
-	if not is_tutorial_mode and btn_tab_quitar.get_parent():
-		btn_tab_quitar.get_parent().visible = false
+	if is_tutorial_mode:
+		btn_tab_quitar.pressed.connect(func(): _select_guide_tab(0))
+		btn_tab_poner.pressed.connect(func(): _select_guide_tab(1))
+	else:
+		var tabs = btn_tab_quitar.get_parent()
+		if tabs:
+			tabs.queue_free()
 	
 	if start_as_empty_slot:
 		_start_install_drag_phase()
@@ -107,16 +109,22 @@ func _ready() -> void:
 	_refresh_backpack_ui()
 
 func _select_guide_tab(idx: int) -> void:
+	if is_instance_valid(btn_tab_quitar) and is_instance_valid(btn_tab_poner):
+		if idx == 0:
+			btn_tab_quitar.modulate = Color(1.2, 1.2, 0.4, 1.0)
+			btn_tab_poner.modulate = Color(0.7, 0.7, 0.7, 0.7)
+		else:
+			btn_tab_quitar.modulate = Color(0.7, 0.7, 0.7, 0.7)
+			btn_tab_poner.modulate = Color(0.2, 1.0, 0.5, 1.0)
+			
 	if idx == 0:
-		btn_tab_quitar.modulate = Color(1.2, 1.2, 0.4, 1.0)
-		btn_tab_poner.modulate = Color(0.7, 0.7, 0.7, 0.7)
 		guide_text.text = "FASE 1 (QUITAR): Arrastra hacia arriba lados izq y der (un poquitito). Luego arrastra el centro para retirar la RAM."
-		_setup_quitar_phase()
+		if is_tutorial_mode:
+			_setup_quitar_phase()
 	else:
-		btn_tab_quitar.modulate = Color(0.7, 0.7, 0.7, 0.7)
-		btn_tab_poner.modulate = Color(0.2, 1.0, 0.5, 1.0)
 		guide_text.text = "FASE 2 (PONER AL REVÉS): El zócalo está vacío. Arrastra hacia abajo las flechas superiores (izq y der) y al tercer jalón (centro) la RAM baja y se engancha."
-		_start_install_drag_phase()
+		if is_tutorial_mode:
+			_start_install_drag_phase()
 
 func _setup_quitar_phase() -> void:
 	current_state = State.EXTRACT_SIDES

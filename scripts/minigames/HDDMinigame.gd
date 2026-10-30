@@ -60,11 +60,13 @@ func _ready() -> void:
 	disk_panel.gui_input.connect(_on_disk_gui_input)
 	GameManager.backpack_updated.connect(_on_backpack_changed)
 	
-	btn_tab_quitar.pressed.connect(func(): _select_guide_tab(0))
-	btn_tab_poner.pressed.connect(func(): _select_guide_tab(1))
-	
-	if not is_tutorial_mode and btn_tab_quitar.get_parent():
-		btn_tab_quitar.get_parent().visible = false
+	if is_tutorial_mode:
+		btn_tab_quitar.pressed.connect(func(): _select_guide_tab(0))
+		btn_tab_poner.pressed.connect(func(): _select_guide_tab(1))
+	else:
+		var tabs = btn_tab_quitar.get_parent()
+		if tabs:
+			tabs.queue_free()
 	
 	# Si no se pasó un tipo persistente, elegir aleatoriamente
 	if screw_type == "" or (not start_as_empty_slot and screw_type == "cruz"):
@@ -91,17 +93,21 @@ func _ready() -> void:
 	_refresh_backpack_ui()
 
 func _select_guide_tab(idx: int) -> void:
+	if is_instance_valid(btn_tab_quitar) and is_instance_valid(btn_tab_poner):
+		if idx == 0:
+			btn_tab_quitar.modulate = Color(1.2, 1.2, 0.4, 1.0)
+			btn_tab_poner.modulate = Color(0.7, 0.7, 0.7, 0.7)
+		else:
+			btn_tab_quitar.modulate = Color(0.7, 0.7, 0.7, 0.7)
+			btn_tab_poner.modulate = Color(0.2, 1.0, 0.5, 1.0)
+			
 	if idx == 0:
-		btn_tab_quitar.modulate = Color(1.2, 1.2, 0.4, 1.0)
-		btn_tab_poner.modulate = Color(0.7, 0.7, 0.7, 0.7)
 		guide_text.text = "FASE 1 (QUITAR): Retira el tornillo de bahía con [1] Cruz o [2] Pala y arrastra el disco hacia arriba."
-		if current_state == State.EMPTY_BAY or current_state == State.INSERT_DRAG_DOWN or current_state == State.SCREW_BACK:
+		if is_tutorial_mode and (current_state == State.EMPTY_BAY or current_state == State.INSERT_DRAG_DOWN or current_state == State.SCREW_BACK):
 			_setup_quitar_phase()
 	else:
-		btn_tab_quitar.modulate = Color(0.7, 0.7, 0.7, 0.7)
-		btn_tab_poner.modulate = Color(0.2, 1.0, 0.5, 1.0)
 		guide_text.text = "FASE 2 (PONER AL REVÉS): Coloca el disco nuevo en la bahía, arrástralo hacia abajo y ajusta el tornillo."
-		if current_state == State.UNSCREW or current_state == State.EXTRACT_DRAG_UP:
+		if is_tutorial_mode and (current_state == State.UNSCREW or current_state == State.EXTRACT_DRAG_UP):
 			_setup_empty_bay_phase()
 
 func _setup_quitar_phase() -> void:
