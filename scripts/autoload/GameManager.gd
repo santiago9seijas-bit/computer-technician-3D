@@ -35,7 +35,8 @@ var spares_stock: Dictionary = {
 	"Fan Cooler": 3,
 	"Fuente": 2,
 	"Grafica": 2,
-	"Placa Madre": 2
+	"Placa Madre": 2,
+	"CPU": 2
 }
 
 # Estado de pausa
@@ -89,7 +90,8 @@ func start_level(initial_time: float = 120.0) -> void:
 		"Fan Cooler": 3,
 		"Fuente": 2,
 		"Grafica": 2,
-		"Placa Madre": 2
+		"Placa Madre": 2,
+		"CPU": 2
 	}
 	
 	score_updated.emit(score, 0)
@@ -152,7 +154,8 @@ func request_spares_refill() -> void:
 		"Fan Cooler": 3,
 		"Fuente": 2,
 		"Grafica": 2,
-		"Placa Madre": 2
+		"Placa Madre": 2,
+		"CPU": 2
 	}
 	spares_repopulated.emit()
 

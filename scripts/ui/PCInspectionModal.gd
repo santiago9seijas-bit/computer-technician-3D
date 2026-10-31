@@ -9,6 +9,7 @@ var hdd_minigame_scene: PackedScene = preload("res://scenes/minigames/HDDMinigam
 var gpu_minigame_scene: PackedScene = preload("res://scenes/minigames/GPUMinigame.tscn")
 var psu_minigame_scene: PackedScene = preload("res://scenes/minigames/PSUMinigame.tscn")
 var mobo_minigame_scene: PackedScene = preload("res://scenes/minigames/MotherboardMinigame.tscn")
+var cpu_minigame_scene: PackedScene = preload("res://scenes/minigames/CPUMinigame.tscn")
 
 @onready var modal_control: Control = $ModalControl
 @onready var title_label: Label = $ModalControl/Panel/VBox/Header/TitleLabel
@@ -21,6 +22,7 @@ var mobo_minigame_scene: PackedScene = preload("res://scenes/minigames/Motherboa
 @onready var btn_comp_gpu: Button = $ModalControl/Panel/VBox/GridContainer/BtnGPU
 @onready var btn_comp_psu: Button = $ModalControl/Panel/VBox/GridContainer/BtnPSU
 @onready var btn_comp_mobo: Button = $ModalControl/Panel/VBox/GridContainer/BtnMOBO
+@onready var btn_comp_cpu: Button = $ModalControl/Panel/VBox/GridContainer/BtnCPU
 
 @onready var slot_0: Button = $ModalControl/Panel/VBox/BackpackSection/BackpackSlots/Slot0
 @onready var slot_1: Button = $ModalControl/Panel/VBox/BackpackSection/BackpackSlots/Slot1
@@ -47,7 +49,8 @@ func _ready() -> void:
 		btn_comp_cooler: "Fan Cooler",
 		btn_comp_gpu: "Grafica",
 		btn_comp_psu: "Fuente",
-		btn_comp_mobo: "Placa Madre"
+		btn_comp_mobo: "Placa Madre",
+		btn_comp_cpu: "CPU"
 	}
 	
 	btn_comp_ram.pressed.connect(func(): _handle_component_interaction("RAM"))
@@ -56,6 +59,7 @@ func _ready() -> void:
 	btn_comp_gpu.pressed.connect(func(): _handle_component_interaction("Grafica"))
 	btn_comp_psu.pressed.connect(func(): _handle_component_interaction("Fuente"))
 	btn_comp_mobo.pressed.connect(func(): _handle_component_interaction("Placa Madre"))
+	btn_comp_cpu.pressed.connect(func(): _handle_component_interaction("CPU"))
 	
 	slot_buttons = [slot_0, slot_1, slot_2]
 	for i in range(slot_buttons.size()):
@@ -241,6 +245,7 @@ func _refresh_ui() -> void:
 	var gpu_status = current_pc.components.get("Grafica", "ok")
 	var psu_status = current_pc.components.get("Fuente", "ok")
 	var mobo_status = current_pc.components.get("Placa Madre", "ok")
+	var cpu_status = current_pc.components.get("CPU", "ok")
 	
 	_update_button_style(btn_comp_ram, "MEMORIA RAM", "DDR5 16GB", ram_status)
 	_update_button_style(btn_comp_hdd, "DISCO DURO", "SATA SSD 1TB", hdd_status)
@@ -248,6 +253,7 @@ func _refresh_ui() -> void:
 	_update_button_style(btn_comp_gpu, "TARJETA GRÁFICA", "RTX 4070 OC", gpu_status)
 	_update_button_style(btn_comp_psu, "FUENTE DE PODER", "850W GOLD", psu_status)
 	_update_button_style(btn_comp_mobo, "PLACA MADRE", "CHIPSET Z790", mobo_status)
+	_update_button_style(btn_comp_cpu, "PROCESADOR (CPU)", "LGA 1700 OCTA-CORE", cpu_status)
 	
 	# Actualizar slots de mochila
 	for i in range(slot_buttons.size()):
@@ -276,13 +282,14 @@ func _refresh_ui() -> void:
 		if current_pc.components[comp] == "fixed":
 			fixed_count += 1
 
+	var total_comps = current_pc.components.size()
 	if current_pc.is_fully_repaired():
-		pc_state_badge.text = "PC COMPLETAMENTE REPARADA · 6/6 PIEZAS TESTEADAS ✓"
+		pc_state_badge.text = "PC COMPLETAMENTE REPARADA · " + str(total_comps) + "/" + str(total_comps) + " PIEZAS TESTEADAS ✓"
 		pc_state_badge.modulate = Color(0, 1, 0.5, 1)
 		status_summary.text = "¡Diagnóstico y reparación exitosos! La máquina bootea al 100%."
 		status_summary.modulate = Color(0, 1, 0.5, 1)
 	else:
-		pc_state_badge.text = "BANCO DE REPARACIÓN ACTIVO · [%d/6 REPARADOS]" % fixed_count
+		pc_state_badge.text = "BANCO DE REPARACIÓN ACTIVO · [" + str(fixed_count) + "/" + str(total_comps) + " REPARADOS]"
 		pc_state_badge.modulate = Color(1, 0.8, 0.1, 1)
 		if selected_backpack_idx < 0:
 			status_summary.text = "Arrastra un repuesto de tu mochila al componente dañado para montarlo, o haz clic para desmontar."
@@ -305,6 +312,8 @@ func _open_minigame_by_name(comp_name: String, is_empty: bool) -> void:
 			_open_psu_minigame(is_empty)
 		"Placa Madre":
 			_open_mobo_minigame(is_empty)
+		"CPU":
+			_open_cpu_minigame(is_empty)
 
 func _open_cooler_minigame(is_empty: bool) -> void:
 	modal_control.visible = false
@@ -456,6 +465,32 @@ func _open_mobo_minigame(is_empty: bool) -> void:
 				_show_feedback("✓ ¡Placa Madre nueva instalada y testeada!", true)
 			else:
 				_show_feedback("✓ Placa Madre averiada retirada. Chasis libre para repuesto.", true)
+		_refresh_ui()
+	)
+
+func _open_cpu_minigame(is_empty: bool) -> void:
+	modal_control.visible = false
+	var minigame = cpu_minigame_scene.instantiate()
+	minigame.start_as_empty_slot = is_empty
+	minigame.set("is_tutorial_mode", false)
+	get_tree().root.add_child(minigame)
+	
+	minigame.connect("old_part_extracted", func():
+		current_pc.components["CPU"] = "empty"
+		current_pc.update_3d_state()
+	)
+	minigame.connect("minigame_finished", func(success: bool):
+		minigame.queue_free()
+		modal_control.visible = true
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+		if success:
+			if is_empty:
+				current_pc.components["CPU"] = "fixed"
+				current_pc.update_3d_state()
+				GameManager.register_repair(120, 12.0)
+				_show_feedback("✓ ¡Procesador nuevo instalado y testeado!", true)
+			else:
+				_show_feedback("✓ CPU averiado retirado. Socket listo para repuesto.", true)
 		_refresh_ui()
 	)
 

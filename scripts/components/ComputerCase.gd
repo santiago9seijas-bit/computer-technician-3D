@@ -10,7 +10,8 @@ var components: Dictionary = {
 	"Disco Duro": "broken",
 	"Grafica": "broken",
 	"Fuente": "broken",
-	"Placa Madre": "broken"
+	"Placa Madre": "broken",
+	"CPU": "broken"
 }
 
 var saved_screw_type: String = ""
@@ -52,13 +53,15 @@ func update_3d_state() -> void:
 		elif components[comp] == "empty":
 			empty_count += 1
 			
+	var total_comps = components.size()
 	if is_fully_repaired():
 		if not is_completed:
 			is_completed = true
 			GameManager.computers_fixed += 1
 			GameManager.register_repair(150, 15.0)
+			GameManager.win_level()
 			
-		label_3d.text = "PC #%d [TODAS LAS PIEZAS REPARADAS (6/6) ✓]" % pc_id
+		label_3d.text = "PC #%d [TODAS LAS PIEZAS REPARADAS (%d/%d) ✓]" % [pc_id, total_comps, total_comps]
 		label_3d.modulate = Color(0.0, 1.0, 0.4, 1.0)
 		if arrow_mesh:
 			arrow_mesh.visible = false
@@ -69,7 +72,7 @@ func update_3d_state() -> void:
 			label_3d.text = "PC #%d [%d PIEZA(S) VACÍAS - ESPERANDO REPUESTO]" % [pc_id, empty_count]
 			label_3d.modulate = Color(1.0, 0.75, 0.1, 1.0)
 		else:
-			label_3d.text = "PC #%d [BANCO DE PRUEBAS · %d/6 REPARADOS]" % [pc_id, fixed_count]
+			label_3d.text = "PC #%d [BANCO DE PRUEBAS · %d/%d REPARADOS]" % [pc_id, fixed_count, total_comps]
 			label_3d.modulate = Color(0.2, 0.8, 1.0, 1.0)
 			
 		if arrow_mesh:
@@ -91,8 +94,16 @@ func interact(player) -> void:
 	modal.setup_pc(self)
 	
 	modal.connect("inspection_closed", func():
-		player.set_movement_enabled(true)
-		if player.hud_node:
-			player.hud_node.visible = true
-		update_3d_state()
+		if is_fully_repaired():
+			player.set_movement_enabled(false)
+			if player.hud_node:
+				player.hud_node.visible = true
+			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+			update_3d_state()
+		else:
+			player.set_movement_enabled(true)
+			if player.hud_node:
+				player.hud_node.visible = true
+			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+			update_3d_state()
 	)
