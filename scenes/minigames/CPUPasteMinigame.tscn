@@ -1,4 +1,4 @@
-[gd_scene format=3 load_steps=9]
+[gd_scene format=3 load_steps=12]
 
 [ext_resource type="Script" path="res://scripts/minigames/CPUPasteMinigame.gd" id="1_paste"]
 [ext_resource type="Script" path="res://scripts/menus/CyberButton.gd" id="2_cbtn"]
@@ -35,6 +35,46 @@ corner_radius_top_left = 8
 corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_target"]
+bg_color = Color(0, 0.9, 1, 0.15)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0, 1, 0.8, 0.9)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_new_paste"]
+bg_color = Color(0.72, 0.76, 0.82, 0.98)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.9, 0.95, 1, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+shadow_color = Color(0, 0, 0, 0.45)
+shadow_size = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dispenser_cube"]
+bg_color = Color(0.24, 0.26, 0.3, 0.96)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.1, 0.85, 0.7, 0.9)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0, 0, 0, 0.45)
+shadow_size = 6
 
 [node name="CPUPasteMinigame" type="CanvasLayer"]
 layer = 12
@@ -93,7 +133,7 @@ theme_override_colors/font_shadow_color = Color(0.02, 0.45, 0.35, 0.85)
 theme_override_constants/shadow_outline_size = 8
 theme_override_fonts/font = ExtResource("4_title_font")
 theme_override_font_sizes/font_size = 20
-text = "REPARACIÓN A FONDO: LIMPIEZA DE PASTA TÉRMICA"
+text = "REPARACIÓN A FONDO: LIMPIEZA Y REAPLICACIÓN DE PASTA TÉRMICA"
 horizontal_alignment = 1
 
 [node name="ToolBar" type="HBoxContainer" parent="ModalControl/Panel/VBox/Header"]
@@ -102,26 +142,34 @@ theme_override_constants/separation = 14
 alignment = 1
 
 [node name="BtnTool1" type="Button" parent="ModalControl/Panel/VBox/Header/ToolBar"]
-custom_minimum_size = Vector2(230, 36)
+custom_minimum_size = Vector2(180, 36)
 layout_mode = 2
-text = "[1] Pinzas / Manos Libres"
+text = "[1] Pinzas"
 flat = true
 script = ExtResource("2_cbtn")
-slant = 14.0
+slant = 12.0
 
 [node name="BtnTool2" type="Button" parent="ModalControl/Panel/VBox/Header/ToolBar"]
-custom_minimum_size = Vector2(230, 36)
+custom_minimum_size = Vector2(210, 36)
 layout_mode = 2
-text = "[2] Paño con Isopropílico"
+text = "[2] Paño Isopropílico"
 flat = true
 script = ExtResource("2_cbtn")
-slant = 14.0
+slant = 12.0
+
+[node name="BtnTool3" type="Button" parent="ModalControl/Panel/VBox/Header/ToolBar"]
+custom_minimum_size = Vector2(210, 36)
+layout_mode = 2
+text = "[3] Jeringa de Pasta"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 12.0
 
 [node name="StatusLabel" type="Label" parent="ModalControl/Panel/VBox/Header"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
 theme_override_font_sizes/font_size = 14
-text = "Frota suavemente el paño con alcohol isopropílico sobre la pasta vieja para disolverla."
+text = "PASO 1 (LIMPIAR): Frota el [2] Paño Isopropílico sobre la pasta seca para disolverla."
 horizontal_alignment = 1
 
 [node name="WarningLabel" type="Label" parent="ModalControl/Panel/VBox"]
@@ -131,30 +179,53 @@ theme_override_font_sizes/font_size = 13
 horizontal_alignment = 1
 
 [node name="WorkArea" type="Control" parent="ModalControl/Panel/VBox"]
-custom_minimum_size = Vector2(850, 340)
+custom_minimum_size = Vector2(850, 360)
 layout_mode = 2
 
-[node name="CleanProgress" type="HBoxContainer" parent="ModalControl/Panel/VBox/WorkArea"]
+[node name="ProgressBars" type="VBoxContainer" parent="ModalControl/Panel/VBox/WorkArea"]
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -180.0
-offset_top = 4.0
-offset_right = 180.0
-offset_bottom = 28.0
+offset_left = -230.0
+offset_top = 0.0
+offset_right = 230.0
+offset_bottom = 48.0
 grow_horizontal = 2
+theme_override_constants/separation = 4
+alignment = 1
+
+[node name="CleanProgress" type="HBoxContainer" parent="ModalControl/Panel/VBox/WorkArea/ProgressBars"]
+layout_mode = 2
 theme_override_constants/separation = 10
 alignment = 1
 
-[node name="Lbl" type="Label" parent="ModalControl/Panel/VBox/WorkArea/CleanProgress"]
+[node name="Lbl" type="Label" parent="ModalControl/Panel/VBox/WorkArea/ProgressBars/CleanProgress"]
+custom_minimum_size = Vector2(170, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.3, 0.9, 1, 1)
 theme_override_font_sizes/font_size = 11
-text = "LIMPIEZA DE IHS:"
+text = "1. LIMPIEZA DE IHS:"
 
-[node name="ProgressBar" type="ProgressBar" parent="ModalControl/Panel/VBox/WorkArea/CleanProgress"]
-custom_minimum_size = Vector2(200, 16)
+[node name="ProgressBar" type="ProgressBar" parent="ModalControl/Panel/VBox/WorkArea/ProgressBars/CleanProgress"]
+custom_minimum_size = Vector2(220, 16)
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="ApplyProgress" type="HBoxContainer" parent="ModalControl/Panel/VBox/WorkArea/ProgressBars"]
+layout_mode = 2
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="Lbl" type="Label" parent="ModalControl/Panel/VBox/WorkArea/ProgressBars/ApplyProgress"]
+custom_minimum_size = Vector2(170, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.1, 1, 0.6, 1)
+theme_override_font_sizes/font_size = 11
+text = "2. APLICACIÓN DE PASTA: 0%"
+
+[node name="ProgressBar" type="ProgressBar" parent="ModalControl/Panel/VBox/WorkArea/ProgressBars/ApplyProgress"]
+custom_minimum_size = Vector2(220, 16)
 layout_mode = 2
 size_flags_vertical = 4
 
@@ -165,10 +236,10 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -170.0
-offset_top = -135.0
-offset_right = 170.0
-offset_bottom = 135.0
+offset_left = -165.0
+offset_top = -95.0
+offset_right = 165.0
+offset_bottom = 165.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_socket")
@@ -201,6 +272,7 @@ offset_right = 95.0
 offset_bottom = 95.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_ihs")
 
 [node name="CPUBrand" type="Label" parent="ModalControl/Panel/VBox/WorkArea/SocketBase/CPUIHS"]
@@ -236,6 +308,7 @@ offset_right = 75.0
 offset_bottom = 75.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 1
 mouse_default_cursor_shape = 2
 color = Color(0.48, 0.5, 0.53, 0.96)
 
@@ -257,6 +330,104 @@ theme_override_font_sizes/font_size = 10
 text = "PASTA SECA
 (Frota para limpiar)"
 horizontal_alignment = 1
+
+[node name="ApplyTarget" type="Panel" parent="ModalControl/Panel/VBox/WorkArea/SocketBase/CPUIHS"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -50.0
+offset_top = -50.0
+offset_right = 50.0
+offset_bottom = 50.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+mouse_default_cursor_shape = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_target")
+
+[node name="TargetLabel" type="Label" parent="ModalControl/Panel/VBox/WorkArea/SocketBase/CPUIHS/ApplyTarget"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -45.0
+offset_top = -20.0
+offset_right = 45.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0, 1, 0.8, 1)
+theme_override_font_sizes/font_size = 10
+text = "🎯
+[ ZONA IHS ]"
+horizontal_alignment = 1
+
+[node name="NewPasteDot" type="Panel" parent="ModalControl/Panel/VBox/WorkArea/SocketBase/CPUIHS"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -40.0
+offset_top = -40.0
+offset_right = 40.0
+offset_bottom = 40.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_new_paste")
+
+[node name="DotLabel" type="Label" parent="ModalControl/Panel/VBox/WorkArea/SocketBase/CPUIHS/NewPasteDot"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -35.0
+offset_top = -14.0
+offset_right = 35.0
+offset_bottom = 14.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.12, 0.15, 0.2, 1)
+theme_override_font_sizes/font_size = 9
+text = "PASTA NUEVA
+[ ✓ ]"
+horizontal_alignment = 1
+
+[node name="DispenserCube" type="Panel" parent="ModalControl/Panel/VBox/WorkArea"]
+z_index = 10
+layout_mode = 0
+offset_left = 45.0
+offset_top = 135.0
+offset_right = 155.0
+offset_bottom = 245.0
+mouse_filter = 0
+mouse_default_cursor_shape = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_dispenser_cube")
+
+[node name="CubeLabel" type="Label" parent="ModalControl/Panel/VBox/WorkArea/DispenserCube"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.85, 0.9, 0.95, 1)
+theme_override_font_sizes/font_size = 10
+text = "PASTA
+TÉRMICA
+[ PASA VARIAS
+VECES ]"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="Footer" type="HBoxContainer" parent="ModalControl/Panel/VBox"]
 layout_mode = 2

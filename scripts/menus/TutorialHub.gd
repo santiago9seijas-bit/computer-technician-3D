@@ -42,6 +42,7 @@ var MotherboardScene = preload("res://scenes/minigames/MotherboardMinigame.tscn"
 var LiquidCoolingScene = preload("res://scenes/minigames/LiquidCoolingMinigame.tscn")
 var CPUPasteScene = preload("res://scenes/minigames/CPUPasteMinigame.tscn")
 var CPUPinsScene = preload("res://scenes/minigames/CPUPinsMinigame.tscn")
+var DustCleanerScene = preload("res://scenes/minigames/DustCleanerMinigame.tscn")
 
 var current_minigame_instance: Node = null
 var active_card_data: Dictionary = {}
@@ -201,7 +202,7 @@ var ALL_CARDS: Array[Dictionary] = [
 		"que_es": "Limpieza y remoción de compuesto térmico degradado, seco o solidificado sobre el dispersor térmico integrado (IHS) de la CPU.",
 		"importancia": "CRÍTICA: Una pasta térmica reseca pierde conductividad térmica, elevando la temperatura del procesador y provocando apagados forzados o estrangulamiento térmico.",
 		"que_hace": "Disuelve químicamente los silicatos y partículas metálicas secas con alcohol isopropílico al 99% mediante fricción circular sin dejar residuos conductores.",
-		"pasos": "1. Selecciona el paño con alcohol isopropílico [2].\n2. Realiza movimientos suaves o clic sobre la mancha de pasta vieja.\n3. Frota continuamente hasta alcanzar el 100% de limpieza y evaporación del compuesto.",
+		"pasos": "1. Selecciona la herramienta Limpiador [5] para acceder a la estación de mantenimiento.\n2. Con el paño isopropílico, frota continuamente sobre el procesador hasta disolver la pasta seca.\n3. Arrastra el dispensador varias veces sobre la CPU para distribuir la nueva pasta térmica al 100%.",
 		"is_ready": true,
 		"handler": "launch_thermal_paste"
 	},
@@ -216,9 +217,24 @@ var ALL_CARDS: Array[Dictionary] = [
 		"que_es": "Inspección microscópica y corrección angular de la matriz de pines del procesador o zócalo LGA/PGA dañados por mala inserción.",
 		"importancia": "VITAL: Un solo pin doblado que toque un contacto contiguo genera un cortocircuito directo entre rieles de voltaje (VCC) o líneas PCIe/DRAM, impidiendo que la placa encienda.",
 		"que_hace": "Restaura la verticalidad ortogonal de 90° de cada pin desviado mediante presión micrométrica guiada hasta garantizar contacto eléctrico óptimo.",
-		"pasos": "1. Inspecciona la matriz de 8x10 pines bajo el microscopio óptico.\n2. Identifica los pines con desvío angular resaltados en advertencia naranja.\n3. Haz clic cuidadosamente sobre cada pin doblado para enderezarlo a 90°.\n4. Completa la corrección del 100% de los pines averiados.",
+		"pasos": "1. Selecciona la herramienta Cautín [3] para habilitar la micro-inspección.\n2. Inspecciona la matriz de 8x10 pines bajo el microscopio óptico.\n3. Identifica los pines con desvío angular resaltados en advertencia naranja.\n4. Haz clic cuidadosamente sobre cada pin doblado para enderezarlo a 90°.\n5. Completa la corrección del 100% de los pines averiados.",
 		"is_ready": true,
 		"handler": "launch_cpu_pins"
+	},
+	{
+		"division": "reparacion_fondo",
+		"id": "dust_cleaner",
+		"title": "DESOBSTRUCCIÓN DE PELUSA",
+		"subtitle": "LIMPIEZA DE DISIPADORES & ALETAS",
+		"category": "MANTENIMIENTO TÉRMICO",
+		"texture_path": "res://pixel art/fancooler conectado.png",
+		"color_accent": Color(0.2, 0.95, 0.7, 1.0),
+		"que_es": "Limpieza profunda de cúmulos de pelusa, polvo apelmazado y fibras alojadas entre las aletas de disipación y aspas.",
+		"importancia": "MÁXIMA: Las aletas de aluminio tupidas por pelusa estrangulan el flujo de aire, provocando sobrecalentamiento crítico de más de 95°C y thermal throttling.",
+		"que_hace": "Remueve mecánicamente cada obstrucción de pelusa y polvo con el Limpiador [5] hasta recuperar el 100% del paso de aire frío.",
+		"pasos": "1. Selecciona la herramienta Limpiador [5].\n2. Cepilla o haz clic sobre cada cúmulo de pelusa alojado en el disipador.\n3. Desobstruye todas las áreas hasta restaurar el 100% del flujo de aire.",
+		"is_ready": true,
+		"handler": "launch_dust_cleaner"
 	},
 
 	# =========================================================================
@@ -714,6 +730,8 @@ func _on_deployed_play_pressed() -> void:
 			_launch_minigame(CPUPasteScene)
 		"launch_cpu_pins":
 			_launch_minigame(CPUPinsScene)
+		"launch_dust_cleaner":
+			_launch_minigame(DustCleanerScene)
 
 func _launch_minigame(scene: PackedScene) -> void:
 	if is_instance_valid(current_minigame_instance):

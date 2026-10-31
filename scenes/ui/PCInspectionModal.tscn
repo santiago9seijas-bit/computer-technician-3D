@@ -223,7 +223,7 @@ layout_mode = 2
 size_flags_vertical = 3
 
 [node name="BtnSacar" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardRAM/Margin/VBox"]
-custom_minimum_size = Vector2(0, 28)
+custom_minimum_size = Vector2(0, 30)
 layout_mode = 2
 mouse_default_cursor_shape = 2
 theme_override_font_sizes/font_size = 11
@@ -267,7 +267,7 @@ layout_mode = 2
 size_flags_vertical = 3
 
 [node name="BtnSacar" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardHDD/Margin/VBox"]
-custom_minimum_size = Vector2(0, 28)
+custom_minimum_size = Vector2(0, 30)
 layout_mode = 2
 mouse_default_cursor_shape = 2
 theme_override_font_sizes/font_size = 11
@@ -311,7 +311,7 @@ layout_mode = 2
 size_flags_vertical = 3
 
 [node name="BtnSacar" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardGPU/Margin/VBox"]
-custom_minimum_size = Vector2(0, 28)
+custom_minimum_size = Vector2(0, 30)
 layout_mode = 2
 mouse_default_cursor_shape = 2
 theme_override_font_sizes/font_size = 11
@@ -355,7 +355,7 @@ layout_mode = 2
 size_flags_vertical = 3
 
 [node name="BtnSacar" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardPSU/Margin/VBox"]
-custom_minimum_size = Vector2(0, 28)
+custom_minimum_size = Vector2(0, 30)
 layout_mode = 2
 mouse_default_cursor_shape = 2
 theme_override_font_sizes/font_size = 11
@@ -404,7 +404,7 @@ layout_mode = 2
 size_flags_vertical = 3
 
 [node name="BtnSacar" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardMOBO/Margin/VBox"]
-custom_minimum_size = Vector2(0, 28)
+custom_minimum_size = Vector2(0, 30)
 layout_mode = 2
 mouse_default_cursor_shape = 2
 theme_override_font_sizes/font_size = 11
@@ -448,7 +448,7 @@ layout_mode = 2
 size_flags_vertical = 3
 
 [node name="BtnSacar" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCooler/Margin/VBox"]
-custom_minimum_size = Vector2(0, 28)
+custom_minimum_size = Vector2(0, 30)
 layout_mode = 2
 mouse_default_cursor_shape = 2
 theme_override_font_sizes/font_size = 11
@@ -489,10 +489,10 @@ horizontal_alignment = 1
 
 [node name="CPUButtons" type="VBoxContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCPU/Margin/VBox"]
 layout_mode = 2
-theme_override_constants/separation = 3
+theme_override_constants/separation = 5
 
 [node name="BtnSacar" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCPU/Margin/VBox/CPUButtons"]
-custom_minimum_size = Vector2(0, 24)
+custom_minimum_size = Vector2(0, 30)
 layout_mode = 2
 mouse_default_cursor_shape = 2
 theme_override_font_sizes/font_size = 11
@@ -501,22 +501,24 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_btn_sacar_hover")
 text = "⬇ SACAR"
 
 [node name="BtnLimpiar" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCPU/Margin/VBox/CPUButtons"]
-custom_minimum_size = Vector2(0, 24)
+visible = false
+custom_minimum_size = Vector2(0, 30)
 layout_mode = 2
 mouse_default_cursor_shape = 2
 theme_override_font_sizes/font_size = 11
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_limpiar_normal")
 theme_override_styles/hover = SubResource("StyleBoxFlat_btn_limpiar_hover")
-text = "🧼 LIMPIAR"
+text = "🧼 LIMPIAR PASTA (LIMPIADOR [5])"
 
 [node name="BtnPines" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCPU/Margin/VBox/CPUButtons"]
-custom_minimum_size = Vector2(0, 24)
+visible = false
+custom_minimum_size = Vector2(0, 30)
 layout_mode = 2
 mouse_default_cursor_shape = 2
 theme_override_font_sizes/font_size = 11
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_pines_normal")
 theme_override_styles/hover = SubResource("StyleBoxFlat_btn_pines_hover")
-text = "📍 PINES"
+text = "📍 ALINEAR PINES (CAUTÍN [3])"
 
 [node name="HSeparator2" type="HSeparator" parent="ModalControl/Panel/VBox"]
 layout_mode = 2
@@ -567,6 +569,63 @@ flat = true
 script = ExtResource("2_cbtn")
 slant = 8.0
 custom_font_size = 12
+
+[node name="ToolsSection" type="HBoxContainer" parent="ModalControl/Panel/VBox"]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="ToolsLabel" type="Label" parent="ModalControl/Panel/VBox/ToolsSection"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 11
+text = "🛠️ HERRAMIENTA [1-5]:"
+
+[node name="BtnTool1" type="Button" parent="ModalControl/Panel/VBox/ToolsSection"]
+custom_minimum_size = Vector2(130, 34)
+layout_mode = 2
+text = "1. Estrella ★"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 10.0
+custom_font_size = 11
+
+[node name="BtnTool2" type="Button" parent="ModalControl/Panel/VBox/ToolsSection"]
+custom_minimum_size = Vector2(130, 34)
+layout_mode = 2
+text = "2. Pala ▬"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 10.0
+custom_font_size = 11
+
+[node name="BtnTool3" type="Button" parent="ModalControl/Panel/VBox/ToolsSection"]
+custom_minimum_size = Vector2(130, 34)
+layout_mode = 2
+text = "3. Cautín 🔥"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 10.0
+custom_font_size = 11
+
+[node name="BtnTool4" type="Button" parent="ModalControl/Panel/VBox/ToolsSection"]
+custom_minimum_size = Vector2(130, 34)
+layout_mode = 2
+text = "4. Multímetro ⚡"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 10.0
+custom_font_size = 11
+
+[node name="BtnTool5" type="Button" parent="ModalControl/Panel/VBox/ToolsSection"]
+custom_minimum_size = Vector2(130, 34)
+layout_mode = 2
+text = "5. Limpiador 🧹"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 10.0
+custom_font_size = 11
 
 [node name="Footer" type="HBoxContainer" parent="ModalControl/Panel/VBox"]
 layout_mode = 2

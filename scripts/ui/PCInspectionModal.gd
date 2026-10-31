@@ -12,6 +12,7 @@ var mobo_minigame_scene: PackedScene = preload("res://scenes/minigames/Motherboa
 var cpu_minigame_scene: PackedScene = preload("res://scenes/minigames/CPUMinigame.tscn")
 var cpupaste_minigame_scene: PackedScene = preload("res://scenes/minigames/CPUPasteMinigame.tscn")
 var cpupins_minigame_scene: PackedScene = preload("res://scenes/minigames/CPUPinsMinigame.tscn")
+var dustcleaner_minigame_scene: PackedScene = preload("res://scenes/minigames/DustCleanerMinigame.tscn")
 
 @onready var modal_control: Control = $ModalControl
 @onready var title_label: Label = $ModalControl/Panel/VBox/Header/TitleLabel
@@ -49,6 +50,13 @@ var cpupins_minigame_scene: PackedScene = preload("res://scenes/minigames/CPUPin
 @onready var btn_cpu_limpiar: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCPU/Margin/VBox/CPUButtons/BtnLimpiar
 @onready var btn_cpu_pines: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCPU/Margin/VBox/CPUButtons/BtnPines
 
+# Botones de herramientas en la modal
+@onready var btn_tool_1: Button = $ModalControl/Panel/VBox/ToolsSection/BtnTool1
+@onready var btn_tool_2: Button = $ModalControl/Panel/VBox/ToolsSection/BtnTool2
+@onready var btn_tool_3: Button = $ModalControl/Panel/VBox/ToolsSection/BtnTool3
+@onready var btn_tool_4: Button = $ModalControl/Panel/VBox/ToolsSection/BtnTool4
+@onready var btn_tool_5: Button = $ModalControl/Panel/VBox/ToolsSection/BtnTool5
+
 # Mochila
 @onready var slot_0: Button = $ModalControl/Panel/VBox/BackpackSection/BackpackSlots/Slot0
 @onready var slot_1: Button = $ModalControl/Panel/VBox/BackpackSection/BackpackSlots/Slot1
@@ -59,6 +67,8 @@ var cpupins_minigame_scene: PackedScene = preload("res://scenes/minigames/CPUPin
 var slot_buttons: Array[Button] = []
 var comp_cards: Dictionary = {}
 var comp_sacar_btns: Dictionary = {}
+var comp_limpiar_btns: Dictionary = {}
+var comp_pines_btns: Dictionary = {}
 var comp_status_labels: Dictionary = {}
 var card_styleboxes: Dictionary = {}
 
@@ -122,9 +132,78 @@ func _ready() -> void:
 		# Permitir también hacer clic en el cuadro para interactuar/instalar
 		card.gui_input.connect(func(event): _on_card_gui_input(comp_name, event))
 	
-	# Botones extra del CPU
-	btn_cpu_limpiar.pressed.connect(_open_cpu_limpiar)
-	btn_cpu_pines.pressed.connect(_open_cpu_pines)
+	# Registrar botones del CPU
+	btn_cpu_limpiar.pressed.connect(func(): _on_limpiar_pressed("CPU"))
+	btn_cpu_pines.pressed.connect(func(): _on_pines_pressed("CPU"))
+	comp_limpiar_btns["CPU"] = btn_cpu_limpiar
+	comp_pines_btns["CPU"] = btn_cpu_pines
+	
+	# Estilos para botones de herramientas en las demás piezas
+	var style_limpiar_normal = btn_cpu_limpiar.get_theme_stylebox("normal")
+	var style_limpiar_hover = btn_cpu_limpiar.get_theme_stylebox("hover")
+	var style_pines_normal = btn_cpu_pines.get_theme_stylebox("normal")
+	var style_pines_hover = btn_cpu_pines.get_theme_stylebox("hover")
+	
+	var comp_limpiar_labels = {
+		"RAM": "🧼 LIMPIAR CONTACTOS [5]",
+		"Disco Duro": "🧼 LIMPIAR PUERTOS SATA [5]",
+		"Grafica": "🧼 LIMPIAR DISIPADOR & FANS [5]",
+		"Fuente": "🧼 LIMPIAR FILTRO / POLVO [5]",
+		"Placa Madre": "🧼 LIMPIAR CHIPSET / PISTAS [5]",
+		"Fan Cooler": "🧼 LIMPIAR ALETAS & ASPAS [5]"
+	}
+
+	var comp_pines_labels = {
+		"RAM": "📍 SOLDAR PINES / PISTAS [3]",
+		"Disco Duro": "📍 SOLDAR PINES SATA [3]",
+		"Grafica": "📍 SOLDAR PINES PCIE [3]",
+		"Fuente": "📍 SOLDAR CABLES / PINES [3]",
+		"Placa Madre": "📍 SOLDAR SOCKET / PISTAS [3]",
+		"Fan Cooler": "📍 SOLDAR CONECTOR PWM [3]"
+	}
+	
+	for comp_name in comp_cards.keys():
+		if comp_name == "CPU":
+			continue
+		var btn_sacar = comp_sacar_btns[comp_name]
+		var parent_vbox = btn_sacar.get_parent()
+		
+		# Botón Limpiar [5]
+		var btn_limpiar = Button.new()
+		btn_limpiar.custom_minimum_size = Vector2(0, 30)
+		btn_limpiar.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		btn_limpiar.add_theme_font_size_override("font_size", 11)
+		if style_limpiar_normal:
+			btn_limpiar.add_theme_stylebox_override("normal", style_limpiar_normal)
+		if style_limpiar_hover:
+			btn_limpiar.add_theme_stylebox_override("hover", style_limpiar_hover)
+		btn_limpiar.text = comp_limpiar_labels.get(comp_name, "🧼 LIMPIAR [5]")
+		btn_limpiar.visible = false
+		btn_limpiar.pressed.connect(func(): _on_limpiar_pressed(comp_name))
+		parent_vbox.add_child(btn_limpiar)
+		comp_limpiar_btns[comp_name] = btn_limpiar
+		
+		# Botón Pines / Soldar [3]
+		var btn_pines = Button.new()
+		btn_pines.custom_minimum_size = Vector2(0, 30)
+		btn_pines.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		btn_pines.add_theme_font_size_override("font_size", 11)
+		if style_pines_normal:
+			btn_pines.add_theme_stylebox_override("normal", style_pines_normal)
+		if style_pines_hover:
+			btn_pines.add_theme_stylebox_override("hover", style_pines_hover)
+		btn_pines.text = comp_pines_labels.get(comp_name, "📍 SOLDAR / PINES [3]")
+		btn_pines.visible = false
+		btn_pines.pressed.connect(func(): _on_pines_pressed(comp_name))
+		parent_vbox.add_child(btn_pines)
+		comp_pines_btns[comp_name] = btn_pines
+	
+	# Botones de selección rápida de herramientas
+	btn_tool_1.pressed.connect(func(): GameManager.select_tool(1))
+	btn_tool_2.pressed.connect(func(): GameManager.select_tool(2))
+	btn_tool_3.pressed.connect(func(): GameManager.select_tool(3))
+	btn_tool_4.pressed.connect(func(): GameManager.select_tool(4))
+	btn_tool_5.pressed.connect(func(): GameManager.select_tool(5))
 	
 	# Mochila
 	slot_buttons = [slot_0, slot_1, slot_2]
@@ -134,6 +213,7 @@ func _ready() -> void:
 		slot_btn.pressed.connect(func(): _on_slot_clicked(i))
 		
 	GameManager.backpack_updated.connect(func(_b): _refresh_ui())
+	GameManager.tool_selected.connect(func(_tool_id): _refresh_ui())
 
 func setup_pc(pc_node) -> void:
 	current_pc = pc_node
@@ -169,6 +249,27 @@ func _input(event: InputEvent) -> void:
 			_highlight_component_under_cursor(event.global_position)
 		elif event is InputEventMouseButton and not event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 			_finish_drag(event.global_position)
+
+func _unhandled_key_input(event: InputEvent) -> void:
+	if not modal_control.visible:
+		return
+	if event is InputEventKey and event.pressed and not event.is_echo():
+		match event.keycode:
+			KEY_1, KEY_KP_1:
+				GameManager.select_tool(1)
+				get_viewport().set_input_as_handled()
+			KEY_2, KEY_KP_2:
+				GameManager.select_tool(2)
+				get_viewport().set_input_as_handled()
+			KEY_3, KEY_KP_3:
+				GameManager.select_tool(3)
+				get_viewport().set_input_as_handled()
+			KEY_4, KEY_KP_4:
+				GameManager.select_tool(4)
+				get_viewport().set_input_as_handled()
+			KEY_5, KEY_KP_5:
+				GameManager.select_tool(5)
+				get_viewport().set_input_as_handled()
 
 func _create_drag_preview(item_name: String) -> void:
 	if is_instance_valid(drag_preview):
@@ -277,35 +378,80 @@ func _on_sacar_pressed(comp_name: String) -> void:
 	if current_pc == null:
 		return
 		
-	# Si hay un repuesto seleccionado de la mochila, intentar colocarlo
-	if selected_backpack_idx >= 0 and selected_backpack_idx < GameManager.backpack.size():
-		_try_install_spare(selected_backpack_idx, comp_name)
-		return
-		
 	var status = current_pc.components.get(comp_name, "ok")
 	if status == "empty":
-		_show_feedback("🎒 El slot de [%s] está vacío. Toma un repuesto nuevo de la caja en la sala y arrástralo aquí." % comp_name, false)
+		_show_feedback("🎒 El slot de [%s] está vacío. Arrastra el repuesto nuevo desde tu mochila aquí para montarlo." % comp_name, false)
 		return
 		
 	if comp_name == "CPU":
-		_on_cpu_sacar_pressed()
+		_open_cpu_minigame(false)
 	else:
 		_open_minigame_by_name(comp_name, false)
 
-func _on_cpu_sacar_pressed() -> void:
-	var status = current_pc.components.get("CPU", "ok") if current_pc else "ok"
-	if status == "empty":
-		if selected_backpack_idx >= 0 and selected_backpack_idx < GameManager.backpack.size():
-			_try_install_spare(selected_backpack_idx, "CPU")
-		else:
-			_show_feedback("🎒 El socket de CPU está vacío. Toma un repuesto nuevo de la sala o de tu mochila.", false)
-	else:
-		_open_cpu_minigame(false)
+# =============================================================================
+# ACCIONES DE HERRAMIENTAS ESPECIALES: LIMPIADOR [5] Y CAUTÍN [3] EN TODAS LAS PIEZAS
+# =============================================================================
+var cpu_paste_done: bool = false
+var cpu_pins_done: bool = false
 
-# =============================================================================
-# BOTONES EXTRA DEL CPU: LIMPIAR Y PINES
-# =============================================================================
+func _on_limpiar_pressed(comp_name: String) -> void:
+	if not GameManager.is_cleaning_tool_equipped():
+		_show_feedback("⚠️ Necesitas seleccionar el Limpiador [5] para realizar la limpieza.", false)
+		return
+	if current_pc == null:
+		return
+	var status = current_pc.components.get(comp_name, "ok")
+	if status == "empty":
+		_show_feedback("🎒 El slot de [%s] está vacío. No hay componente para limpiar." % comp_name, false)
+		return
+
+	if comp_name == "CPU":
+		_open_cpu_limpiar()
+	else:
+		_open_dust_cleaner(comp_name)
+
+func _open_dust_cleaner(comp_name: String) -> void:
+	if not GameManager.is_cleaning_tool_equipped():
+		_show_feedback("⚠️ Necesitas seleccionar el Limpiador [5] para desobstruir la pelusa.", false)
+		return
+	modal_control.visible = false
+	var minigame = dustcleaner_minigame_scene.instantiate()
+	if minigame.has_method("setup_component"):
+		minigame.setup_component(comp_name)
+	get_tree().root.add_child(minigame)
+	
+	minigame.connect("minigame_finished", func(success: bool):
+		minigame.queue_free()
+		modal_control.visible = true
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+		if success:
+			GameManager.register_repair(70, 5.0)
+			_show_feedback("✓ ¡Limpieza profunda en [%s] completada al 100%%! Pelusa y polvo eliminados." % comp_name, true)
+		_refresh_ui()
+	)
+
+func _on_pines_pressed(comp_name: String) -> void:
+	if not GameManager.is_soldering_tool_equipped():
+		_show_feedback("⚠️ Necesitas seleccionar el Cautín [3] para realizar micro-soldadura.", false)
+		return
+	if current_pc == null:
+		return
+	var status = current_pc.components.get(comp_name, "ok")
+	if status == "empty":
+		_show_feedback("🎒 El slot de [%s] está vacío. No hay circuitos para soldar." % comp_name, false)
+		return
+
+	if comp_name == "CPU":
+		_open_cpu_pines()
+	else:
+		GameManager.register_repair(50, 3.0)
+		_show_feedback("✓ ¡Micro-soldadura con Cautín [3] en [%s] completada! Pines, pistas y conectores reparados." % comp_name, true)
+		_refresh_ui()
+
 func _open_cpu_limpiar() -> void:
+	if not GameManager.is_cleaning_tool_equipped():
+		_show_feedback("⚠️ Necesitas seleccionar el Limpiador [5] para limpiar y renovar pasta.", false)
+		return
 	modal_control.visible = false
 	var minigame = cpupaste_minigame_scene.instantiate()
 	minigame.set("is_tutorial_mode", false)
@@ -316,12 +462,16 @@ func _open_cpu_limpiar() -> void:
 		modal_control.visible = true
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 		if success:
+			cpu_paste_done = true
 			GameManager.register_repair(60, 5.0)
-			_show_feedback("✓ ¡Pasta térmica del procesador limpiada con éxito!", true)
+			_check_cpu_repaired_status("✓ ¡Pasta térmica renovada al 100% con nueva capa protectora!")
 		_refresh_ui()
 	)
 
 func _open_cpu_pines() -> void:
+	if not GameManager.is_soldering_tool_equipped():
+		_show_feedback("⚠️ Necesitas seleccionar el Cautín [3] para manipular los pines.", false)
+		return
 	modal_control.visible = false
 	var minigame = cpupins_minigame_scene.instantiate()
 	get_tree().root.add_child(minigame)
@@ -331,10 +481,22 @@ func _open_cpu_pines() -> void:
 		modal_control.visible = true
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 		if success:
+			cpu_pins_done = true
 			GameManager.register_repair(80, 5.0)
-			_show_feedback("✓ ¡Pines del CPU alineados y corregidos a 90°!", true)
+			_check_cpu_repaired_status("✓ ¡Pines del CPU alineados y corregidos a 90°!")
 		_refresh_ui()
 	)
+
+func _check_cpu_repaired_status(msg: String) -> void:
+	if current_pc and current_pc.components.get("CPU", "") != "empty":
+		if cpu_paste_done and cpu_pins_done:
+			current_pc.components["CPU"] = "fixed"
+			current_pc.update_3d_state()
+			_show_feedback("✓ ¡CPU REPARADO AL 100%! Pasta térmica nueva y pines enderezados.", true)
+		else:
+			_show_feedback(msg, true)
+	else:
+		_show_feedback(msg, true)
 
 # =============================================================================
 # ACTUALIZACIÓN DE INTERFAZ Y ESTILOS
@@ -351,7 +513,7 @@ func _apply_card_border_color(sb: StyleBoxFlat, status: String) -> void:
 			sb.border_color = Color(0.15, 0.85, 1.0, 0.85)
 
 func _refresh_ui() -> void:
-	if current_pc == null:
+	if current_pc == null or not ("components" in current_pc):
 		return
 		
 	var comp_subtitles = {
@@ -377,23 +539,69 @@ func _refresh_ui() -> void:
 			"empty":
 				lbl.text = "%s\n[ SLOT VACÍO ]" % sub
 				lbl.modulate = Color(1.0, 0.8, 0.1, 1.0)
-				btn_sacar.text = "📦 MONTAR"
-				btn_sacar.modulate = Color(1.0, 0.9, 0.2, 1.0)
+				btn_sacar.text = "ARRASTRA REPUESTO"
+				btn_sacar.disabled = true
+				btn_sacar.modulate = Color(0.6, 0.6, 0.6, 0.5)
 			"fixed":
 				lbl.text = "%s\n[ REPARADO ✓ ]" % sub
 				lbl.modulate = Color(0.0, 1.0, 0.55, 1.0)
 				btn_sacar.text = "⬇ SACAR"
+				btn_sacar.disabled = false
 				btn_sacar.modulate = Color(1.0, 1.0, 1.0, 1.0)
 			"broken":
 				lbl.text = "%s\n[ AVERIADO ⚠️ ]" % sub
 				lbl.modulate = Color(1.0, 0.35, 0.35, 1.0)
 				btn_sacar.text = "⬇ SACAR"
-				btn_sacar.modulate = Color(1.0, 1.0, 1.0, 1.0)
+				btn_sacar.disabled = false
+				btn_sacar.modulate = Color(1.0, 0.35, 0.35, 1.0)
 			_:
 				lbl.text = "%s\n[ INSTALADO ]" % sub
 				lbl.modulate = Color(0.15, 0.85, 1.0, 1.0)
 				btn_sacar.text = "⬇ SACAR"
+				btn_sacar.disabled = false
 				btn_sacar.modulate = Color(1.0, 1.0, 1.0, 1.0)
+				
+		if comp_name == "CPU":
+			match status:
+				"empty":
+					btn_sacar_cpu.disabled = true
+					btn_sacar_cpu.text = "ARRASTRA CPU"
+					btn_sacar_cpu.modulate = Color(0.6, 0.6, 0.6, 0.5)
+				"fixed":
+					btn_sacar_cpu.disabled = false
+					btn_sacar_cpu.text = "⬇ SACAR"
+					btn_sacar_cpu.modulate = Color(1.0, 1.0, 1.0, 1.0)
+				_:
+					btn_sacar_cpu.disabled = false
+					btn_sacar_cpu.text = "⬇ SACAR"
+					btn_sacar_cpu.modulate = Color(1.0, 0.4, 0.4, 1.0)
+
+	# REGLA OBLIGATORIA PARA TODAS LAS PIEZAS:
+	# Los botones de Cautín [3] y Limpiador [5] solo son visibles con su herramienta activa
+	var is_cautin_equipped: bool = GameManager.is_soldering_tool_equipped()
+	var is_cleaner_equipped: bool = GameManager.is_cleaning_tool_equipped()
+
+	for comp_name in comp_cards.keys():
+		var status = current_pc.components.get(comp_name, "ok")
+		var is_empty = (status == "empty")
+		
+		if comp_limpiar_btns.has(comp_name):
+			var btn_l: Button = comp_limpiar_btns[comp_name]
+			btn_l.visible = is_cleaner_equipped
+			btn_l.disabled = is_empty
+			if is_empty:
+				btn_l.modulate = Color(0.6, 0.6, 0.6, 0.5)
+			else:
+				btn_l.modulate = Color(1.0, 1.0, 1.0, 1.0)
+				
+		if comp_pines_btns.has(comp_name):
+			var btn_p: Button = comp_pines_btns[comp_name]
+			btn_p.visible = is_cautin_equipped
+			btn_p.disabled = is_empty
+			if is_empty:
+				btn_p.modulate = Color(0.6, 0.6, 0.6, 0.5)
+			else:
+				btn_p.modulate = Color(1.0, 1.0, 1.0, 1.0)
 	
 	# Actualizar slots de mochila
 	for i in range(slot_buttons.size()):
@@ -416,6 +624,16 @@ func _refresh_ui() -> void:
 		else:
 			slot_btn.text = "Slot %d: [ VACÍO ]\n(Busca repuestos en sala)" % (i + 1)
 			slot_btn.modulate = Color(0.5, 0.5, 0.5, 0.5)
+
+	# Actualizar botones de barra de herramientas en la modal
+	var active_t = GameManager.equipped_tool
+	var tool_btns = [btn_tool_1, btn_tool_2, btn_tool_3, btn_tool_4, btn_tool_5]
+	for idx in range(tool_btns.size()):
+		var t_btn = tool_btns[idx]
+		if (idx + 1) == active_t:
+			t_btn.modulate = Color(1.3, 1.3, 0.35, 1.0) # Seleccionado / brillante
+		else:
+			t_btn.modulate = Color(0.7, 0.7, 0.7, 0.75)
 	
 	var fixed_count = 0
 	for comp in current_pc.components.keys():

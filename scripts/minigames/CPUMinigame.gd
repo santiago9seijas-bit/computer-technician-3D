@@ -223,6 +223,7 @@ func _on_cpu_clicked() -> void:
 		
 	current_phase = Phase.COMPLETED
 	cpu_chip.disabled = true
+	GameManager.add_item_to_backpack({"name": "CPU", "broken": true})
 	old_part_extracted.emit()
 	
 	_show_feedback("✓ ¡CPU retirado con éxito! El socket está listo para el repuesto.", Color(0.0, 1.0, 0.5))
@@ -294,6 +295,13 @@ func _complete_lever_up() -> void:
 	lever_arrow.visible = false
 	current_phase = Phase.COMPLETED
 	
+	# Retirar el repuesto nuevo de la mochila si el jugador tenía uno
+	for i in range(GameManager.backpack.size()):
+		var it = GameManager.backpack[i]
+		if it.get("name") == "CPU" and not it.get("broken", true):
+			GameManager.remove_item_from_backpack(i)
+			break
+			
 	_show_feedback("✓ ¡Palanca trabada y protección asegurada con éxito!", Color(0.0, 1.0, 0.5))
 	_update_ui_state()
 	

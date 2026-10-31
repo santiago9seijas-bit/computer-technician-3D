@@ -34,6 +34,13 @@ func _ready() -> void:
 	_update_backpack_ui([])
 	_update_tools_ui(0)
 	_create_cinematic_overlay()
+	
+	# Conectar botones de la barra de herramientas al hacer clic con el mouse
+	for i in range(tools_bar.get_child_count()):
+		var btn = tools_bar.get_child(i) as Button
+		if btn:
+			var t_id = i + 1
+			btn.pressed.connect(func(): GameManager.select_tool(t_id))
 
 func _create_cinematic_overlay() -> void:
 	if cinematic_overlay:
@@ -118,12 +125,12 @@ func setup_cinematic_mode() -> void:
 		if p:
 			p.modulate.a = 0.0
 			
-	top_cinematic_bar.position.y = -60.0
-	bottom_cinematic_bar.position.y = 60.0
+	top_cinematic_bar.modulate.a = 0.0
+	bottom_cinematic_bar.modulate.a = 0.0
 	
 	var tw = create_tween().set_parallel(true)
-	tw.tween_property(top_cinematic_bar, "position:y", 0.0, 0.4).set_trans(Tween.TRANS_CUBIC)
-	tw.tween_property(bottom_cinematic_bar, "position:y", 0.0, 0.4).set_trans(Tween.TRANS_CUBIC)
+	tw.tween_property(top_cinematic_bar, "modulate:a", 1.0, 0.4).set_trans(Tween.TRANS_CUBIC)
+	tw.tween_property(bottom_cinematic_bar, "modulate:a", 1.0, 0.4).set_trans(Tween.TRANS_CUBIC)
 
 func play_optic_boot_transition(callback: Callable = Callable()) -> void:
 	if not cinematic_overlay:
@@ -135,9 +142,9 @@ func play_optic_boot_transition(callback: Callable = Callable()) -> void:
 	tw.tween_property(optic_flash_rect, "color:a", 0.0, 0.28).set_trans(Tween.TRANS_QUAD)
 	tw.parallel().tween_property(optic_text_label, "modulate:a", 0.0, 0.5)
 	
-	# Deslizar barras panorámicas hacia fuera
-	tw.parallel().tween_property(top_cinematic_bar, "position:y", -60.0, 0.35)
-	tw.parallel().tween_property(bottom_cinematic_bar, "position:y", 60.0, 0.35)
+	# Desvanecer barras panorámicas hacia fuera
+	tw.parallel().tween_property(top_cinematic_bar, "modulate:a", 0.0, 0.35)
+	tw.parallel().tween_property(bottom_cinematic_bar, "modulate:a", 0.0, 0.35)
 	
 	# Desvanecer y mostrar paneles HUD de gameplay
 	for panel_name in ["TopLeft", "TopCenter", "BottomLeft", "TopRight", "Center", "BottomCenter"]:

@@ -1,0 +1,190 @@
+[gd_scene format=3 load_steps=9]
+
+[ext_resource type="Script" path="res://scripts/minigames/DustCleanerMinigame.gd" id="1_dust"]
+[ext_resource type="Script" path="res://scripts/menus/CyberButton.gd" id="2_cbtn"]
+[ext_resource type="Theme" path="res://styles/cyberpunk_theme.tres" id="3_theme"]
+[ext_resource type="FontFile" uid="uid://dbcug8887dro7" path="res://assets/fonts/Bungee-Regular.ttf" id="4_title_font"]
+[ext_resource type="PackedScene" path="res://scenes/ui/CyberBackgroundFrame.tscn" id="5_bg_frame"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_frame"]
+content_margin_left = 24.0
+content_margin_top = 20.0
+content_margin_right = 24.0
+content_margin_bottom = 20.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_heatsink_frame"]
+bg_color = Color(0.07, 0.09, 0.12, 0.98)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.1, 0.9, 0.7, 0.75)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_size = 8
+shadow_color = Color(0, 0, 0, 0.5)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_victory"]
+bg_color = Color(0.04, 0.18, 0.12, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.2, 1, 0.5, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[node name="DustCleanerMinigame" type="CanvasLayer"]
+layer = 12
+script = ExtResource("1_dust")
+
+[node name="ModalControl" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("3_theme")
+
+[node name="DimOverlay" type="ColorRect" parent="ModalControl"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.02, 0.04, 0.08, 0.95)
+
+[node name="Panel" type="PanelContainer" parent="ModalControl"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -460.0
+offset_top = -320.0
+offset_right = 460.0
+offset_bottom = 320.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_frame")
+
+[node name="CyberBackgroundFrame" parent="ModalControl/Panel" instance=ExtResource("5_bg_frame")]
+layout_mode = 2
+
+[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Header" type="VBoxContainer" parent="ModalControl/Panel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="TitleLabel" type="Label" parent="ModalControl/Panel/VBox/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.95, 0.7, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 8
+theme_override_colors/font_shadow_color = Color(0.05, 0.55, 0.45, 0.85)
+theme_override_constants/shadow_outline_size = 8
+theme_override_fonts/font = ExtResource("4_title_font")
+theme_override_font_sizes/font_size = 18
+text = "MANTENIMIENTO TÉRMICO: LIMPIEZA DE PELUSA Y POLVO"
+horizontal_alignment = 1
+
+[node name="StatusLabel" type="Label" parent="ModalControl/Panel/VBox/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 13
+text = "Pasa la brocha o haz clic sobre cada cúmulo de pelusa para liberar las aletas de aluminio."
+horizontal_alignment = 1
+
+[node name="ProgressLabel" type="Label" parent="ModalControl/Panel/VBox/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 1, 0.6, 1)
+theme_override_font_sizes/font_size = 12
+text = "PELUSA RETIRADA: 0 / 12 (0%)"
+horizontal_alignment = 1
+
+[node name="ProgressBar" type="ProgressBar" parent="ModalControl/Panel/VBox/Header"]
+custom_minimum_size = Vector2(280, 12)
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="WorkArea" type="Control" parent="ModalControl/Panel/VBox"]
+custom_minimum_size = Vector2(860, 400)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="HeatsinkFrame" type="PanelContainer" parent="ModalControl/Panel/VBox/WorkArea"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -390.0
+offset_top = -185.0
+offset_right = 390.0
+offset_bottom = 185.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_heatsink_frame")
+
+[node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/WorkArea/HeatsinkFrame"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="HeatsinkArea" type="Control" parent="ModalControl/Panel/VBox/WorkArea/HeatsinkFrame/Margin"]
+layout_mode = 2
+
+[node name="WarningLabel" type="Label" parent="ModalControl/Panel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 1, 0.5, 1)
+theme_override_font_sizes/font_size = 12
+horizontal_alignment = 1
+
+[node name="VictoryBanner" type="PanelContainer" parent="ModalControl/Panel/VBox"]
+visible = false
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_victory")
+
+[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/VictoryBanner"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Title" type="Label" parent="ModalControl/Panel/VBox/VictoryBanner/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 1, 0.5, 1)
+theme_override_fonts/font = ExtResource("4_title_font")
+theme_override_font_sizes/font_size = 14
+text = "★ ¡DISIPADOR Y REJILLAS DESOBSTRUIDAS AL 100%! ★"
+horizontal_alignment = 1
+
+[node name="Desc" type="Label" parent="ModalControl/Panel/VBox/VictoryBanner/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.95, 0.9, 1)
+theme_override_font_sizes/font_size = 11
+text = "El flujo de aire térmico a través de las aletas de aluminio ha sido restablecido. Temperaturas nominales garantizadas."
+horizontal_alignment = 1
+
+[node name="Footer" type="HBoxContainer" parent="ModalControl/Panel/VBox"]
+layout_mode = 2
+alignment = 2
+
+[node name="BtnCancel" type="Button" parent="ModalControl/Panel/VBox/Footer"]
+custom_minimum_size = Vector2(220, 36)
+layout_mode = 2
+text = "CANCELAR / CERRAR"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 12.0

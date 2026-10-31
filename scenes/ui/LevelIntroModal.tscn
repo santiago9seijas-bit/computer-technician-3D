@@ -115,7 +115,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(1, 0.92, 0.6, 1)
 theme_override_font_sizes/font_size = 12
-text = "OBJETIVO: Probar y reparar cualquiera de los 6 componentes de la PC (Fan Cooler, RAM, Disco Duro, GPU, Fuente, Placa Madre)."
+text = "OBJETIVO: Probar y reparar los componentes de la PC, incluyendo la nueva suite de CPU (Quitar/Poner con palanca, Limpieza profunda de pasta y Alineación de pines)."
 autowrap_mode = 2
 
 [node name="DiagBox" type="HBoxContainer" parent="CardModal/Margin/VBox/ContentVBox"]
@@ -133,7 +133,10 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(1, 0.6, 0.2, 1)
 theme_override_font_sizes/font_size = 12
-text = "DIAGNÓSTICO: Todas las piezas cuentan con su minijuego de extracción y modo inverso de montaje habilitados para prueba."
+text = "DIAGNÓSTICO: Pulsa [E] frente a la PC. En la tarjeta del procesador dispones de:
+• [SACAR] / [REPUESTO]: Mecánica de palanca y placa de carga del zócalo LGA 1700.
+• [LIMPIAR PASTA]: Selecciona el Limpiador [5] para retirar pasta seca con paño y aplicar pasta nueva con el dispensador.
+• [ALINEAR PINES]: Selecciona el Cautín [3] para habilitar la micro-inspección y corregir pines a 90°."
 autowrap_mode = 2
 
 [node name="ToolsBox" type="HBoxContainer" parent="CardModal/Margin/VBox/ContentVBox"]

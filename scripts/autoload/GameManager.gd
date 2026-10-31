@@ -74,6 +74,15 @@ func select_tool(tool_id: int) -> void:
 	equipped_tool = tool_id
 	tool_selected.emit(equipped_tool)
 
+func is_tool_equipped(tool_id: int) -> bool:
+	return equipped_tool == tool_id
+
+func is_soldering_tool_equipped() -> bool:
+	return equipped_tool == 3
+
+func is_cleaning_tool_equipped() -> bool:
+	return equipped_tool == 5
+
 func start_level(initial_time: float = 120.0) -> void:
 	time_left = initial_time
 	score = 0

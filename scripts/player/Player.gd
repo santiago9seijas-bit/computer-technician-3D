@@ -81,9 +81,17 @@ func play_intro_cinematic(on_finished: Callable = Callable()) -> void:
 	
 	if intro_tween and intro_tween.is_valid():
 		intro_tween.kill()
+
+	# Esperar fotogramas para que el motor renderice el entorno 3D, compile shaders
+	# y estabilice el framerate antes de arrancar la animación orbital (evita el congelamiento y salto)
+	await get_tree().process_frame
+	await get_tree().process_frame
+
+	if not is_in_cinematic:
+		return
 		
 	intro_tween = create_tween()
-	var duration: float = 1.6
+	var duration: float = 1.8
 	
 	intro_tween.set_parallel(true)
 	intro_tween.tween_property(intro_camera_pivot, "rotation:y", 0.0, duration)\
@@ -150,11 +158,28 @@ func _unhandled_input(event: InputEvent) -> void:
 		
 	if not can_move or GameManager.is_game_paused:
 		return
-		
+
+	# Solo permitir rotación de cámara si el ratón está estrictamente capturado
 	if event is InputEventMouseMotion:
+		if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
+			return
 		rotate_y(-event.relative.x * mouse_sensitivity)
 		camera.rotate_x(-event.relative.y * mouse_sensitivity)
 		camera.rotation.x = clamp(camera.rotation.x, -deg_to_rad(80), deg_to_rad(80))
+		return
+		
+	# Si se hace clic en pantalla durante juego libre, asegurar captura del ratón
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
+			var root_node = get_tree().root
+			var modal_open = false
+			for modal_name in ["PCInspectionModal", "LevelIntroModal", "LevelSystemsIntroModal", "PCSystemsModal"]:
+				var found = root_node.find_child(modal_name, true, false)
+				if is_instance_valid(found) and found.visible:
+					modal_open = true
+					break
+			if not modal_open and not is_in_cinematic:
+				Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 func _physics_process(delta: float) -> void:
 	if not is_on_floor():

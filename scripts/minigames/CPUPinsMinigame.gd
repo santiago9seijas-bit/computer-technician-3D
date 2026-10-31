@@ -42,6 +42,7 @@ var pin_nodes: Dictionary = {}
 
 func _ready() -> void:
 	layer = 12
+	GameManager.select_tool(3)
 	btn_cancel.pressed.connect(func(): minigame_finished.emit(false))
 	victory_banner.visible = false
 	warning_label.text = ""

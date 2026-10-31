@@ -53,9 +53,10 @@ var deco_orig_x: float = 15.0
 var panel_target_x: float = 240.0 # (1280 - 800) / 2 = 240.0
 
 func _ready() -> void:
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	modulate = Color.WHITE
 	if version_label:
-		version_label.text = "Version 0.0.3 Alpha"
+		version_label.text = "Version 0.0.4 Alpha"
 	header_orig_x = header_container.position.x
 	buttons_orig_x = vbox_container.position.x
 	deco_orig_x = decoracion.position.x
