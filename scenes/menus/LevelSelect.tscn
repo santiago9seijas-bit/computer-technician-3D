@@ -154,37 +154,45 @@ text = "PUNTOS 1720   ★ 3"
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_left = 200.0
+offset_left = 60.0
 offset_top = 75.0
-offset_right = -200.0
+offset_right = -60.0
 offset_bottom = 117.0
 grow_horizontal = 2
 theme_override_constants/separation = 10
 alignment = 1
 
 [node name="BtnReparacion" type="Button" parent="ModeSelector"]
-custom_minimum_size = Vector2(200, 38)
+custom_minimum_size = Vector2(190, 38)
 layout_mode = 2
 text = "REPARACIÓN (12)"
 flat = true
 script = ExtResource("3_cbtn")
-slant = 16.0
+slant = 14.0
+
+[node name="BtnFondo" type="Button" parent="ModeSelector"]
+custom_minimum_size = Vector2(230, 38)
+layout_mode = 2
+text = "REPARACIÓN A FONDO (2)"
+flat = true
+script = ExtResource("3_cbtn")
+slant = 14.0
 
 [node name="BtnSistema" type="Button" parent="ModeSelector"]
-custom_minimum_size = Vector2(200, 38)
+custom_minimum_size = Vector2(190, 38)
 layout_mode = 2
 text = "SISTEMA (12)"
 flat = true
 script = ExtResource("3_cbtn")
-slant = 16.0
+slant = 14.0
 
 [node name="BtnServidor" type="Button" parent="ModeSelector"]
-custom_minimum_size = Vector2(200, 38)
+custom_minimum_size = Vector2(190, 38)
 layout_mode = 2
 text = "SERVIDOR (12)"
 flat = true
 script = ExtResource("3_cbtn")
-slant = 16.0
+slant = 14.0
 
 [node name="SectionBanner" type="PanelContainer" parent="."]
 layout_mode = 1

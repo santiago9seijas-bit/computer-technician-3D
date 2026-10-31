@@ -1,0 +1,272 @@
+[gd_scene format=3 load_steps=9]
+
+[ext_resource type="Script" path="res://scripts/minigames/CPUPasteMinigame.gd" id="1_paste"]
+[ext_resource type="Script" path="res://scripts/menus/CyberButton.gd" id="2_cbtn"]
+[ext_resource type="Theme" path="res://styles/cyberpunk_theme.tres" id="3_theme"]
+[ext_resource type="FontFile" uid="uid://dbcug8887dro7" path="res://assets/fonts/Bungee-Regular.ttf" id="4_title_font"]
+[ext_resource type="PackedScene" path="res://scenes/ui/CyberBackgroundFrame.tscn" id="5_bg_frame"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_frame"]
+content_margin_left = 24.0
+content_margin_top = 20.0
+content_margin_right = 24.0
+content_margin_bottom = 20.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_socket"]
+bg_color = Color(0.1, 0.1, 0.14, 0.98)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.1, 0.85, 0.7, 0.8)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ihs"]
+bg_color = Color(0.28, 0.3, 0.34, 1)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.65, 0.7, 0.75, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[node name="CPUPasteMinigame" type="CanvasLayer"]
+layer = 12
+script = ExtResource("1_paste")
+
+[node name="ModalControl" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("3_theme")
+
+[node name="DimOverlay" type="ColorRect" parent="ModalControl"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.04, 0.01, 0.08, 0.94)
+
+[node name="Panel" type="PanelContainer" parent="ModalControl"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -460.0
+offset_top = -290.0
+offset_right = 460.0
+offset_bottom = 290.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_frame")
+
+[node name="CyberBackgroundFrame" parent="ModalControl/Panel" instance=ExtResource("5_bg_frame")]
+layout_mode = 2
+
+[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Header" type="VBoxContainer" parent="ModalControl/Panel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Titulo" type="Label" parent="ModalControl/Panel/VBox/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.1, 0.95, 0.7, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 8
+theme_override_colors/font_shadow_color = Color(0.02, 0.45, 0.35, 0.85)
+theme_override_constants/shadow_outline_size = 8
+theme_override_fonts/font = ExtResource("4_title_font")
+theme_override_font_sizes/font_size = 20
+text = "REPARACIÓN A FONDO: LIMPIEZA DE PASTA TÉRMICA"
+horizontal_alignment = 1
+
+[node name="ToolBar" type="HBoxContainer" parent="ModalControl/Panel/VBox/Header"]
+layout_mode = 2
+theme_override_constants/separation = 14
+alignment = 1
+
+[node name="BtnTool1" type="Button" parent="ModalControl/Panel/VBox/Header/ToolBar"]
+custom_minimum_size = Vector2(230, 36)
+layout_mode = 2
+text = "[1] Pinzas / Manos Libres"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 14.0
+
+[node name="BtnTool2" type="Button" parent="ModalControl/Panel/VBox/Header/ToolBar"]
+custom_minimum_size = Vector2(230, 36)
+layout_mode = 2
+text = "[2] Paño con Isopropílico"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 14.0
+
+[node name="StatusLabel" type="Label" parent="ModalControl/Panel/VBox/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 14
+text = "Frota suavemente el paño con alcohol isopropílico sobre la pasta vieja para disolverla."
+horizontal_alignment = 1
+
+[node name="WarningLabel" type="Label" parent="ModalControl/Panel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 1, 0.6, 1)
+theme_override_font_sizes/font_size = 13
+horizontal_alignment = 1
+
+[node name="WorkArea" type="Control" parent="ModalControl/Panel/VBox"]
+custom_minimum_size = Vector2(850, 340)
+layout_mode = 2
+
+[node name="CleanProgress" type="HBoxContainer" parent="ModalControl/Panel/VBox/WorkArea"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -180.0
+offset_top = 4.0
+offset_right = 180.0
+offset_bottom = 28.0
+grow_horizontal = 2
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="Lbl" type="Label" parent="ModalControl/Panel/VBox/WorkArea/CleanProgress"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 11
+text = "LIMPIEZA DE IHS:"
+
+[node name="ProgressBar" type="ProgressBar" parent="ModalControl/Panel/VBox/WorkArea/CleanProgress"]
+custom_minimum_size = Vector2(200, 16)
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="SocketBase" type="Panel" parent="ModalControl/Panel/VBox/WorkArea"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -170.0
+offset_top = -135.0
+offset_right = 170.0
+offset_bottom = 135.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_socket")
+
+[node name="SocketLabel" type="Label" parent="ModalControl/Panel/VBox/WorkArea/SocketBase"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -120.0
+offset_top = 8.0
+offset_right = 120.0
+offset_bottom = 26.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.1, 0.85, 0.7, 0.9)
+theme_override_font_sizes/font_size = 11
+text = "ZÓCALO LGA 1700 // BANCO DE LIMPIEZA"
+horizontal_alignment = 1
+
+[node name="CPUIHS" type="Panel" parent="ModalControl/Panel/VBox/WorkArea/SocketBase"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -95.0
+offset_top = -95.0
+offset_right = 95.0
+offset_bottom = 95.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_ihs")
+
+[node name="CPUBrand" type="Label" parent="ModalControl/Panel/VBox/WorkArea/SocketBase/CPUIHS"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -80.0
+offset_top = -24.0
+offset_right = 80.0
+offset_bottom = 24.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.85, 0.9, 0.95, 0.9)
+theme_override_font_sizes/font_size = 12
+text = "CYBER_CORE i9-14900K
+24 CORES // 5.8 GHz
+MADE IN CYBERPUNK LABS"
+horizontal_alignment = 1
+
+[node name="PasteStain" type="ColorRect" parent="ModalControl/Panel/VBox/WorkArea/SocketBase/CPUIHS"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -75.0
+offset_top = -75.0
+offset_right = 75.0
+offset_bottom = 75.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_default_cursor_shape = 2
+color = Color(0.48, 0.5, 0.53, 0.96)
+
+[node name="PasteLabel" type="Label" parent="ModalControl/Panel/VBox/WorkArea/SocketBase/CPUIHS/PasteStain"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -60.0
+offset_top = -18.0
+offset_right = 60.0
+offset_bottom = 18.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.2, 0.22, 0.25, 1)
+theme_override_font_sizes/font_size = 10
+text = "PASTA SECA
+(Frota para limpiar)"
+horizontal_alignment = 1
+
+[node name="Footer" type="HBoxContainer" parent="ModalControl/Panel/VBox"]
+layout_mode = 2
+alignment = 1
+
+[node name="BtnCancel" type="Button" parent="ModalControl/Panel/VBox/Footer"]
+custom_minimum_size = Vector2(260, 36)
+layout_mode = 2
+text = "◄ CANCELAR / SALIR"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 12.0
+custom_font_size = 12

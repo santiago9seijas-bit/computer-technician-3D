@@ -10,8 +10,8 @@ var gpu_minigame_scene: PackedScene = preload("res://scenes/minigames/GPUMinigam
 var psu_minigame_scene: PackedScene = preload("res://scenes/minigames/PSUMinigame.tscn")
 var mobo_minigame_scene: PackedScene = preload("res://scenes/minigames/MotherboardMinigame.tscn")
 var cpu_minigame_scene: PackedScene = preload("res://scenes/minigames/CPUMinigame.tscn")
+var cpupaste_minigame_scene: PackedScene = preload("res://scenes/minigames/CPUPasteMinigame.tscn")
 var cpupins_minigame_scene: PackedScene = preload("res://scenes/minigames/CPUPinsMinigame.tscn")
-var cpu_extract_minigame_scene: PackedScene = preload("res://scenes/minigames/CPUExtractMinigame.tscn")
 
 @onready var modal_control: Control = $ModalControl
 @onready var title_label: Label = $ModalControl/Panel/VBox/Header/TitleLabel
@@ -300,15 +300,14 @@ func _on_cpu_sacar_pressed() -> void:
 		else:
 			_show_feedback("🎒 El socket de CPU está vacío. Toma un repuesto nuevo de la sala o de tu mochila.", false)
 	else:
-		_open_cpu_extract_minigame(false)
+		_open_cpu_minigame(false)
 
 # =============================================================================
 # BOTONES EXTRA DEL CPU: LIMPIAR Y PINES
 # =============================================================================
 func _open_cpu_limpiar() -> void:
 	modal_control.visible = false
-	var minigame = cpu_minigame_scene.instantiate()
-	minigame.start_as_empty_slot = false
+	var minigame = cpupaste_minigame_scene.instantiate()
 	minigame.set("is_tutorial_mode", false)
 	get_tree().root.add_child(minigame)
 	
@@ -610,11 +609,8 @@ func _open_mobo_minigame(is_empty: bool) -> void:
 	)
 
 func _open_cpu_minigame(is_empty: bool) -> void:
-	_open_cpu_extract_minigame(is_empty)
-
-func _open_cpu_extract_minigame(is_empty: bool) -> void:
 	modal_control.visible = false
-	var minigame = cpu_extract_minigame_scene.instantiate()
+	var minigame = cpu_minigame_scene.instantiate()
 	minigame.start_as_empty_slot = is_empty
 	minigame.set("is_tutorial_mode", false)
 	get_tree().root.add_child(minigame)

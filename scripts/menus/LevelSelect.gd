@@ -15,6 +15,7 @@ static var initial_tab: String = "niveles"
 @onready var top_bar: HBoxContainer = $TopBar
 @onready var mode_selector: HBoxContainer = $ModeSelector
 @onready var btn_reparacion: Button = $ModeSelector/BtnReparacion
+@onready var btn_fondo: Button = $ModeSelector/BtnFondo
 @onready var btn_sistema: Button = $ModeSelector/BtnSistema
 @onready var btn_servidor: Button = $ModeSelector/BtnServidor
 @onready var section_banner: PanelContainer = $SectionBanner
@@ -80,6 +81,8 @@ var _driver_updater_scene = null
 var _code_debugger_scene = null
 var _malware_invaders_scene = null
 var _usb_pendrive_scene = null
+var _cpu_paste_scene = null
+var _cpu_pins_scene = null
 
 # --- Variables de Estado ---
 var current_tab: String = "niveles"
@@ -537,10 +540,10 @@ var ALL_TUTORIAL_CARDS: Array[Dictionary] = [
 		"category": "PROCESAMIENTO",
 		"texture_path": "",
 		"color_accent": Color(0.9, 0.15, 0.9, 1.0),
-		"que_es": "Unidad central de procesamiento montada sobre la matriz de pines del zócalo con cubierta metálica IHS.",
-		"importancia": "MÁXIMA: La pasta térmica seca causa sobrecalentamiento. Manipular la palanca y esquinas previene doblar pines irreversibles.",
+		"que_es": "Unidad central de procesamiento montada sobre la matriz de pines del zócalo con placa de sujeción metálica y palanca de tensión.",
+		"importancia": "MÁXIMA: Manipular correctamente la palanca y la placa de carga previene doblar pines o quebrar la matriz del zócalo.",
 		"que_hace": "Ejecuta todas las operaciones del computador coordinando reloj y memoria a miles de millones de ciclos por segundo.",
-		"pasos": "1. Con [2] Paño Isopropílico, frota y disuelve los residuos de pasta térmica vieja del IHS.\n2. Desengancha la palanca de tensión del socket hacia el lateral y levántala a 90°.\n3. Abre la placa de presión metálica.\n4. Sujeta el procesador por las esquinas y levántalo con cuidado.",
+		"pasos": "🔻 FASE 1: DESMONTAJE (SACAR):\n1. Arrastra la palanca lateral hacia abajo para liberar la retención del socket.\n2. La placa de protección metálica se retira automáticamente.\n3. Haz clic sobre el CPU para extraerlo del zócalo.\n\n🔺 FASE 2: MONTAJE INVERSO (PONER):\n1. Con el socket abierto, haz clic en el zócalo para colocar el nuevo procesador.\n2. La protección metálica desciende cubriendo el procesador.\n3. Arrastra la palanca hacia arriba (al lado contrario) para asegurar y bloquear.",
 		"is_ready": true,
 		"handler": "launch_cpu"
 	},
@@ -603,6 +606,38 @@ var ALL_TUTORIAL_CARDS: Array[Dictionary] = [
 		"pasos": "1. Arrastra cada tubo rígido desde el rack izquierdo hacia sus racores en el mapa del chasis (Bomba ➔ GPU ➔ CPU ➔ RAM ➔ Radiador ➔ Depósito) hasta cerrar el circuito.\n2. Arrastra el bidón de líquido refrigerante hacia el tapón del depósito hasta alcanzar el 100% de llenado.\n3. Enciende el interruptor de la bomba D5 para purgar burbujas de aire y disipar el calor de GPU, CPU y RAM.",
 		"is_ready": true,
 		"handler": "launch_liquid_cooling"
+	},
+
+	# --- DIVISIÓN REPARACIÓN A FONDO (MICROMECÁNICA Y LIMPIEZA PROFUNDA) ---
+	{
+		"division": "reparacion_fondo",
+		"id": "thermal_paste",
+		"title": "LIMPIEZA DE PASTA TÉRMICA",
+		"subtitle": "DESINFECCIÓN CON ISOPROPÍLICO",
+		"category": "MANTENIMIENTO PROFUNDO",
+		"texture_path": "",
+		"color_accent": Color(0.1, 0.95, 0.7, 1.0),
+		"que_es": "Limpieza y remoción de compuesto térmico degradado, seco o solidificado sobre el dispersor térmico integrado (IHS) de la CPU.",
+		"importancia": "CRÍTICA: Una pasta térmica reseca pierde conductividad térmica, elevando la temperatura del procesador y provocando apagados forzados o estrangulamiento térmico.",
+		"que_hace": "Disuelve químicamente los silicatos y partículas metálicas secas con alcohol isopropílico al 99% mediante fricción circular sin dejar residuos conductores.",
+		"pasos": "1. Selecciona el paño con alcohol isopropílico [2].\n2. Realiza movimientos suaves o clic sobre la mancha de pasta vieja.\n3. Frota continuamente hasta alcanzar el 100% de limpieza y evaporación del compuesto.",
+		"is_ready": true,
+		"handler": "launch_thermal_paste"
+	},
+	{
+		"division": "reparacion_fondo",
+		"id": "cpu_pins",
+		"title": "ALINEACIÓN DE PINES (CPU)",
+		"subtitle": "MICROSCOPIA & CALIBRACIÓN A 90°",
+		"category": "MICROMECÁNICA AVANZADA",
+		"texture_path": "",
+		"color_accent": Color(1.0, 0.8, 0.15, 1.0),
+		"que_es": "Inspección microscópica y corrección angular de la matriz de pines del procesador o zócalo LGA/PGA dañados por mala inserción.",
+		"importancia": "VITAL: Un solo pin doblado que toque un contacto contiguo genera un cortocircuito directo entre rieles de voltaje (VCC) o líneas PCIe/DRAM, impidiendo que la placa encienda.",
+		"que_hace": "Restaura la verticalidad ortogonal de 90° de cada pin desviado mediante presión micrométrica guiada hasta garantizar contacto eléctrico óptimo.",
+		"pasos": "1. Inspecciona la matriz de 8x10 pines bajo el microscopio óptico.\n2. Identifica los pines con desvío angular resaltados en advertencia naranja.\n3. Haz clic cuidadosamente sobre cada pin doblado para enderezarlo a 90°.\n4. Completa la corrección del 100% de los pines averiados.",
+		"is_ready": true,
+		"handler": "launch_cpu_pins"
 	},
 
 	# --- DIVISIÓN SISTEMA (SOFTWARE & CIBERSEGURIDAD) ---
@@ -818,6 +853,7 @@ func _ready() -> void:
 	
 	# Selectores de modo/división
 	btn_reparacion.pressed.connect(func(): _switch_mode("reparacion"))
+	btn_fondo.pressed.connect(func(): _switch_mode("reparacion_fondo"))
 	btn_sistema.pressed.connect(func(): _switch_mode("sistema"))
 	btn_servidor.pressed.connect(func(): _switch_mode("servidor"))
 	
@@ -955,6 +991,7 @@ func _switch_mode(mode_name: String) -> void:
 func _update_mode_buttons() -> void:
 	var tabs = [
 		{"btn": btn_reparacion, "name": "reparacion"},
+		{"btn": btn_fondo, "name": "reparacion_fondo"},
 		{"btn": btn_sistema, "name": "sistema"},
 		{"btn": btn_servidor, "name": "servidor"}
 	]
@@ -962,18 +999,23 @@ func _update_mode_buttons() -> void:
 	var rep_count = 0
 	var sis_count = 0
 	var srv_count = 0
+	var fondo_count = 0
 	for c in ALL_TUTORIAL_CARDS:
 		match c.get("division", ""):
 			"reparacion": rep_count += 1
 			"sistema": sis_count += 1
 			"servidor": srv_count += 1
+			"reparacion_fondo": fondo_count += 1
 			
 	if current_tab == "niveles":
 		btn_reparacion.text = "REPARACIÓN (12)"
+		btn_fondo.visible = false
 		btn_sistema.text = "SISTEMA (12)"
 		btn_servidor.text = "SERVIDOR (12)"
 	else:
 		btn_reparacion.text = "REPARACIÓN (%d)" % rep_count
+		btn_fondo.visible = true
+		btn_fondo.text = "REPARACIÓN A FONDO (%d)" % fondo_count
 		btn_sistema.text = "SISTEMA (%d)" % sis_count
 		btn_servidor.text = "SERVIDOR (%d)" % srv_count
 	
@@ -997,6 +1039,11 @@ func _update_headers_for_mode() -> void:
 			col1_label.text = "ETAPA 1: TALLER BÁSICO [1-4]"
 			col2_label.text = "ETAPA 2: HARDWARE AVANZADO [5-8]"
 			col3_label.text = "ETAPA 3: MAESTRÍA DE DIAGNÓSTICO [9-12]"
+		"reparacion_fondo":
+			banner_label.text = "SECCIÓN: REPARACIÓN A FONDO // MANTENIMIENTO AVANZADO DE CPU"
+			col1_label.text = "PASTA TÉRMICA"
+			col2_label.text = "ALINEACIÓN DE PINES"
+			col3_label.text = "CALIBRACIÓN"
 		"sistema":
 			banner_label.text = "SECCIÓN DE SISTEMA // SOFTWARE, BIOS & SO"
 			col1_label.text = "ETAPA 1: BIOS & BOOT [1-4]"
@@ -1437,6 +1484,14 @@ func _on_deployed_play_pressed() -> void:
 			if not _cpu_scene:
 				_cpu_scene = load("res://scenes/minigames/CPUMinigame.tscn")
 			_launch_minigame(_cpu_scene)
+		"launch_thermal_paste":
+			if not _cpu_paste_scene:
+				_cpu_paste_scene = load("res://scenes/minigames/CPUPasteMinigame.tscn")
+			_launch_minigame(_cpu_paste_scene)
+		"launch_cpu_pins":
+			if not _cpu_pins_scene:
+				_cpu_pins_scene = load("res://scenes/minigames/CPUPinsMinigame.tscn")
+			_launch_minigame(_cpu_pins_scene)
 		"launch_m2":
 			if not _m2_scene:
 				_m2_scene = load("res://scenes/minigames/M2Minigame.tscn")

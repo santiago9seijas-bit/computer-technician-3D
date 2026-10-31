@@ -7,6 +7,7 @@ extends Control
 
 @onready var btn_volver: Button = $TopBar/BtnVolver
 @onready var btn_reparacion: Button = $ModeSelector/BtnReparacion
+@onready var btn_fondo: Button = $ModeSelector/BtnFondo
 @onready var btn_sistema: Button = $ModeSelector/BtnSistema
 @onready var btn_servidor: Button = $ModeSelector/BtnServidor
 
@@ -39,6 +40,8 @@ var M2Scene = preload("res://scenes/minigames/M2Minigame.tscn")
 var PSUScene = preload("res://scenes/minigames/PSUMinigame.tscn")
 var MotherboardScene = preload("res://scenes/minigames/MotherboardMinigame.tscn")
 var LiquidCoolingScene = preload("res://scenes/minigames/LiquidCoolingMinigame.tscn")
+var CPUPasteScene = preload("res://scenes/minigames/CPUPasteMinigame.tscn")
+var CPUPinsScene = preload("res://scenes/minigames/CPUPinsMinigame.tscn")
 
 var current_minigame_instance: Node = null
 var active_card_data: Dictionary = {}
@@ -182,6 +185,40 @@ var ALL_CARDS: Array[Dictionary] = [
 		"pasos": "1. Arrastra cada tubo rígido desde el rack izquierdo hacia sus racores en el mapa del chasis (Bomba ➔ GPU ➔ CPU ➔ RAM ➔ Radiador ➔ Depósito) hasta cerrar el circuito.\n2. Arrastra el bidón de líquido refrigerante hacia el tapón del depósito hasta alcanzar el 100% de llenado.\n3. Enciende el interruptor de la bomba D5 para purgar burbujas de aire y disipar el calor de GPU, CPU y RAM.",
 		"is_ready": true,
 		"handler": "launch_liquid_cooling"
+	},
+
+	# =========================================================================
+	# DIVISIÓN 4: REPARACIÓN A FONDO (MICROMECÁNICA Y LIMPIEZA PROFUNDA)
+	# =========================================================================
+	{
+		"division": "reparacion_fondo",
+		"id": "thermal_paste",
+		"title": "LIMPIEZA DE PASTA TÉRMICA",
+		"subtitle": "DESINFECCIÓN CON ISOPROPÍLICO",
+		"category": "MANTENIMIENTO PROFUNDO",
+		"texture_path": "",
+		"color_accent": Color(0.1, 0.95, 0.7, 1.0),
+		"que_es": "Limpieza y remoción de compuesto térmico degradado, seco o solidificado sobre el dispersor térmico integrado (IHS) de la CPU.",
+		"importancia": "CRÍTICA: Una pasta térmica reseca pierde conductividad térmica, elevando la temperatura del procesador y provocando apagados forzados o estrangulamiento térmico.",
+		"que_hace": "Disuelve químicamente los silicatos y partículas metálicas secas con alcohol isopropílico al 99% mediante fricción circular sin dejar residuos conductores.",
+		"pasos": "1. Selecciona el paño con alcohol isopropílico [2].\n2. Realiza movimientos suaves o clic sobre la mancha de pasta vieja.\n3. Frota continuamente hasta alcanzar el 100% de limpieza y evaporación del compuesto.",
+		"is_ready": true,
+		"handler": "launch_thermal_paste"
+	},
+	{
+		"division": "reparacion_fondo",
+		"id": "cpu_pins",
+		"title": "ALINEACIÓN DE PINES (CPU)",
+		"subtitle": "MICROSCOPIA & CALIBRACIÓN A 90°",
+		"category": "MICROMECÁNICA AVANZADA",
+		"texture_path": "",
+		"color_accent": Color(1.0, 0.8, 0.15, 1.0),
+		"que_es": "Inspección microscópica y corrección angular de la matriz de pines del procesador o zócalo LGA/PGA dañados por mala inserción.",
+		"importancia": "VITAL: Un solo pin doblado que toque un contacto contiguo genera un cortocircuito directo entre rieles de voltaje (VCC) o líneas PCIe/DRAM, impidiendo que la placa encienda.",
+		"que_hace": "Restaura la verticalidad ortogonal de 90° de cada pin desviado mediante presión micrométrica guiada hasta garantizar contacto eléctrico óptimo.",
+		"pasos": "1. Inspecciona la matriz de 8x10 pines bajo el microscopio óptico.\n2. Identifica los pines con desvío angular resaltados en advertencia naranja.\n3. Haz clic cuidadosamente sobre cada pin doblado para enderezarlo a 90°.\n4. Completa la corrección del 100% de los pines averiados.",
+		"is_ready": true,
+		"handler": "launch_cpu_pins"
 	},
 
 	# =========================================================================
@@ -414,18 +451,22 @@ func _update_division_buttons() -> void:
 	var rep_count = 0
 	var sis_count = 0
 	var srv_count = 0
+	var fondo_count = 0
 	for c in ALL_CARDS:
 		match c.get("division", ""):
 			"reparacion": rep_count += 1
 			"sistema": sis_count += 1
 			"servidor": srv_count += 1
+			"reparacion_fondo": fondo_count += 1
 			
 	btn_reparacion.text = "REPARACIÓN (%d)" % rep_count
+	btn_fondo.text = "REPARACIÓN A FONDO (%d)" % fondo_count
 	btn_sistema.text = "SISTEMA (%d)" % sis_count
 	btn_servidor.text = "SERVIDOR (%d)" % srv_count
 
 	var tabs = [
 		{"btn": btn_reparacion, "name": "reparacion"},
+		{"btn": btn_fondo, "name": "reparacion_fondo"},
 		{"btn": btn_sistema, "name": "sistema"},
 		{"btn": btn_servidor, "name": "servidor"}
 	]
@@ -669,6 +710,10 @@ func _on_deployed_play_pressed() -> void:
 			_launch_minigame(MotherboardScene)
 		"launch_liquid_cooling":
 			_launch_minigame(LiquidCoolingScene)
+		"launch_thermal_paste":
+			_launch_minigame(CPUPasteScene)
+		"launch_cpu_pins":
+			_launch_minigame(CPUPinsScene)
 
 func _launch_minigame(scene: PackedScene) -> void:
 	if is_instance_valid(current_minigame_instance):

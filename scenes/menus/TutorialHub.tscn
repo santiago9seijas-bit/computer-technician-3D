@@ -78,37 +78,45 @@ text = "Selecciona la división técnica (Reparación, Sistema o Servidor) y haz
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_left = 180.0
+offset_left = 60.0
 offset_top = 74.0
-offset_right = -180.0
+offset_right = -60.0
 offset_bottom = 116.0
 grow_horizontal = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 12
 alignment = 1
 
 [node name="BtnReparacion" type="Button" parent="ModeSelector"]
-custom_minimum_size = Vector2(240, 38)
+custom_minimum_size = Vector2(210, 38)
 layout_mode = 2
 text = "REPARACIÓN (6)"
 flat = true
 script = ExtResource("2_cbtn")
-slant = 16.0
+slant = 14.0
+
+[node name="BtnFondo" type="Button" parent="ModeSelector"]
+custom_minimum_size = Vector2(230, 38)
+layout_mode = 2
+text = "REPARACIÓN A FONDO (2)"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 14.0
 
 [node name="BtnSistema" type="Button" parent="ModeSelector"]
-custom_minimum_size = Vector2(240, 38)
+custom_minimum_size = Vector2(210, 38)
 layout_mode = 2
 text = "SISTEMA (6)"
 flat = true
 script = ExtResource("2_cbtn")
-slant = 16.0
+slant = 14.0
 
 [node name="BtnServidor" type="Button" parent="ModeSelector"]
-custom_minimum_size = Vector2(240, 38)
+custom_minimum_size = Vector2(210, 38)
 layout_mode = 2
 text = "SERVIDOR (6)"
 flat = true
 script = ExtResource("2_cbtn")
-slant = 16.0
+slant = 14.0
 
 [node name="CardsScroll" type="ScrollContainer" parent="."]
 layout_mode = 1
