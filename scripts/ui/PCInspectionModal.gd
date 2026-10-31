@@ -10,20 +10,45 @@ var gpu_minigame_scene: PackedScene = preload("res://scenes/minigames/GPUMinigam
 var psu_minigame_scene: PackedScene = preload("res://scenes/minigames/PSUMinigame.tscn")
 var mobo_minigame_scene: PackedScene = preload("res://scenes/minigames/MotherboardMinigame.tscn")
 var cpu_minigame_scene: PackedScene = preload("res://scenes/minigames/CPUMinigame.tscn")
+var cpupins_minigame_scene: PackedScene = preload("res://scenes/minigames/CPUPinsMinigame.tscn")
 
 @onready var modal_control: Control = $ModalControl
 @onready var title_label: Label = $ModalControl/Panel/VBox/Header/TitleLabel
 @onready var status_summary: Label = $ModalControl/Panel/VBox/Header/StatusSummary
 @onready var pc_state_badge: Label = $ModalControl/Panel/VBox/Header/BadgeLabel
 
-@onready var btn_comp_ram: Button = $ModalControl/Panel/VBox/GridContainer/BtnRAM
-@onready var btn_comp_hdd: Button = $ModalControl/Panel/VBox/GridContainer/BtnHDD
-@onready var btn_comp_cooler: Button = $ModalControl/Panel/VBox/GridContainer/BtnCooler
-@onready var btn_comp_gpu: Button = $ModalControl/Panel/VBox/GridContainer/BtnGPU
-@onready var btn_comp_psu: Button = $ModalControl/Panel/VBox/GridContainer/BtnPSU
-@onready var btn_comp_mobo: Button = $ModalControl/Panel/VBox/GridContainer/BtnMOBO
-@onready var btn_comp_cpu: Button = $ModalControl/Panel/VBox/GridContainer/BtnCPU
+# Cards (cuadros de componentes)
+@onready var card_ram: PanelContainer = $ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardRAM
+@onready var card_hdd: PanelContainer = $ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardHDD
+@onready var card_gpu: PanelContainer = $ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardGPU
+@onready var card_psu: PanelContainer = $ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardPSU
+@onready var card_mobo: PanelContainer = $ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardMOBO
+@onready var card_cooler: PanelContainer = $ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCooler
+@onready var card_cpu: PanelContainer = $ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCPU
 
+# Etiquetas de estado
+@onready var lbl_status_ram: Label = $ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardRAM/Margin/VBox/Status
+@onready var lbl_status_hdd: Label = $ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardHDD/Margin/VBox/Status
+@onready var lbl_status_gpu: Label = $ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardGPU/Margin/VBox/Status
+@onready var lbl_status_psu: Label = $ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardPSU/Margin/VBox/Status
+@onready var lbl_status_mobo: Label = $ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardMOBO/Margin/VBox/Status
+@onready var lbl_status_cooler: Label = $ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCooler/Margin/VBox/Status
+@onready var lbl_status_cpu: Label = $ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCPU/Margin/VBox/Status
+
+# Botones de sacar pieza
+@onready var btn_sacar_ram: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardRAM/Margin/VBox/BtnSacar
+@onready var btn_sacar_hdd: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardHDD/Margin/VBox/BtnSacar
+@onready var btn_sacar_gpu: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardGPU/Margin/VBox/BtnSacar
+@onready var btn_sacar_psu: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardPSU/Margin/VBox/BtnSacar
+@onready var btn_sacar_mobo: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardMOBO/Margin/VBox/BtnSacar
+@onready var btn_sacar_cooler: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCooler/Margin/VBox/BtnSacar
+@onready var btn_sacar_cpu: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCPU/Margin/VBox/CPUButtons/BtnSacar
+
+# Botones extra del CPU
+@onready var btn_cpu_limpiar: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCPU/Margin/VBox/CPUButtons/BtnLimpiar
+@onready var btn_cpu_pines: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCPU/Margin/VBox/CPUButtons/BtnPines
+
+# Mochila
 @onready var slot_0: Button = $ModalControl/Panel/VBox/BackpackSection/BackpackSlots/Slot0
 @onready var slot_1: Button = $ModalControl/Panel/VBox/BackpackSection/BackpackSlots/Slot1
 @onready var slot_2: Button = $ModalControl/Panel/VBox/BackpackSection/BackpackSlots/Slot2
@@ -31,7 +56,10 @@ var cpu_minigame_scene: PackedScene = preload("res://scenes/minigames/CPUMinigam
 @onready var btn_volver: Button = $ModalControl/Panel/VBox/Footer/BtnVolver
 
 var slot_buttons: Array[Button] = []
-var comp_buttons: Dictionary = {}
+var comp_cards: Dictionary = {}
+var comp_sacar_btns: Dictionary = {}
+var comp_status_labels: Dictionary = {}
+var card_styleboxes: Dictionary = {}
 
 # Estado de arrastre y selección de repuestos
 var selected_backpack_idx: int = -1
@@ -40,27 +68,64 @@ var dragged_backpack_idx: int = -1
 var drag_preview: PanelContainer = null
 
 func _ready() -> void:
-	layer = 10 # Prioridad por encima del HUD
+	layer = 10
 	btn_volver.pressed.connect(_on_volver_pressed)
 	
-	comp_buttons = {
-		btn_comp_ram: "RAM",
-		btn_comp_hdd: "Disco Duro",
-		btn_comp_cooler: "Fan Cooler",
-		btn_comp_gpu: "Grafica",
-		btn_comp_psu: "Fuente",
-		btn_comp_mobo: "Placa Madre",
-		btn_comp_cpu: "CPU"
+	comp_cards = {
+		"RAM": card_ram,
+		"Disco Duro": card_hdd,
+		"Grafica": card_gpu,
+		"Fuente": card_psu,
+		"Placa Madre": card_mobo,
+		"Fan Cooler": card_cooler,
+		"CPU": card_cpu
 	}
 	
-	btn_comp_ram.pressed.connect(func(): _handle_component_interaction("RAM"))
-	btn_comp_hdd.pressed.connect(func(): _handle_component_interaction("Disco Duro"))
-	btn_comp_cooler.pressed.connect(func(): _handle_component_interaction("Fan Cooler"))
-	btn_comp_gpu.pressed.connect(func(): _handle_component_interaction("Grafica"))
-	btn_comp_psu.pressed.connect(func(): _handle_component_interaction("Fuente"))
-	btn_comp_mobo.pressed.connect(func(): _handle_component_interaction("Placa Madre"))
-	btn_comp_cpu.pressed.connect(func(): _handle_component_interaction("CPU"))
+	comp_sacar_btns = {
+		"RAM": btn_sacar_ram,
+		"Disco Duro": btn_sacar_hdd,
+		"Grafica": btn_sacar_gpu,
+		"Fuente": btn_sacar_psu,
+		"Placa Madre": btn_sacar_mobo,
+		"Fan Cooler": btn_sacar_cooler,
+		"CPU": btn_sacar_cpu
+	}
 	
+	comp_status_labels = {
+		"RAM": lbl_status_ram,
+		"Disco Duro": lbl_status_hdd,
+		"Grafica": lbl_status_gpu,
+		"Fuente": lbl_status_psu,
+		"Placa Madre": lbl_status_mobo,
+		"Fan Cooler": lbl_status_cooler,
+		"CPU": lbl_status_cpu
+	}
+	
+	# Inicializar StyleBoxes únicos para cada cuadro
+	for comp_name in comp_cards.keys():
+		var card: PanelContainer = comp_cards[comp_name]
+		var sb: StyleBoxFlat = StyleBoxFlat.new()
+		sb.bg_color = Color(0.08, 0.03, 0.16, 0.92)
+		sb.set_border_width_all(2)
+		sb.border_color = Color(0.15, 0.85, 1.0, 0.85)
+		sb.set_corner_radius_all(6)
+		sb.shadow_size = 6
+		sb.shadow_color = Color(0, 0, 0, 0.35)
+		card.add_theme_stylebox_override("panel", sb)
+		card_styleboxes[comp_name] = sb
+		
+		# Conectar clic en botón SACAR de cada componente
+		var btn_sacar: Button = comp_sacar_btns[comp_name]
+		btn_sacar.pressed.connect(func(): _on_sacar_pressed(comp_name))
+		
+		# Permitir también hacer clic en el cuadro para interactuar/instalar
+		card.gui_input.connect(func(event): _on_card_gui_input(comp_name, event))
+	
+	# Botones extra del CPU
+	btn_cpu_limpiar.pressed.connect(_open_cpu_limpiar)
+	btn_cpu_pines.pressed.connect(_open_cpu_pines)
+	
+	# Mochila
 	slot_buttons = [slot_0, slot_1, slot_2]
 	for i in range(slot_buttons.size()):
 		var slot_btn = slot_buttons[i]
@@ -75,8 +140,13 @@ func setup_pc(pc_node) -> void:
 	_refresh_ui()
 
 # =============================================================================
-# ARRASTRE Y SOLTADO DE REPUESTOS DESDE LA MOCHILA
+# INTERACCIÓN CON TARJETAS Y ARRASTRE
 # =============================================================================
+func _on_card_gui_input(comp_name: String, event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		if selected_backpack_idx >= 0 and selected_backpack_idx < GameManager.backpack.size():
+			_try_install_spare(selected_backpack_idx, comp_name)
+
 func _on_slot_gui_input(idx: int, event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		if event.pressed:
@@ -108,7 +178,7 @@ func _create_drag_preview(item_name: String) -> void:
 	drag_preview.z_index = 100
 	
 	var lbl = Label.new()
-	lbl.text = "📦 REPUESTO: " + item_name + "\n(Suelta sobre la pieza para montar)"
+	lbl.text = "📦 REPUESTO: " + item_name + "\n(Suelta sobre el cuadro para montar)"
 	lbl.add_theme_color_override("font_color", Color(0, 1, 0.6))
 	lbl.add_theme_font_size_override("font_size", 12)
 	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -132,19 +202,21 @@ func _update_drag_preview_pos(global_pos: Vector2) -> void:
 		drag_preview.global_position = global_pos + Vector2(16, 16)
 
 func _highlight_component_under_cursor(mouse_pos: Vector2) -> void:
-	for btn in comp_buttons.keys():
-		if btn.get_global_rect().has_point(mouse_pos):
-			btn.modulate = Color(1.5, 1.4, 0.2, 1.0)
+	for comp_name in comp_cards.keys():
+		var card: PanelContainer = comp_cards[comp_name]
+		var sb: StyleBoxFlat = card_styleboxes[comp_name]
+		if card.get_global_rect().has_point(mouse_pos):
+			sb.border_color = Color(1.5, 1.4, 0.2, 1.0)
 		else:
-			var comp_name = comp_buttons[btn]
 			var st = current_pc.components.get(comp_name, "ok") if current_pc else "ok"
-			_apply_button_color(btn, st)
+			_apply_card_border_color(sb, st)
 
 func _finish_drag(drop_pos: Vector2) -> void:
 	var dropped_comp_name = ""
-	for btn in comp_buttons.keys():
-		if btn.get_global_rect().has_point(drop_pos):
-			dropped_comp_name = comp_buttons[btn]
+	for comp_name in comp_cards.keys():
+		var card: PanelContainer = comp_cards[comp_name]
+		if card.get_global_rect().has_point(drop_pos):
+			dropped_comp_name = comp_name
 			break
 			
 	var item_idx = dragged_backpack_idx
@@ -175,7 +247,7 @@ func _on_slot_clicked(idx: int) -> void:
 		return
 		
 	selected_backpack_idx = idx
-	_show_feedback("👉 Repuesto [%s] seleccionado. Haz clic en el componente de la PC o arrástralo para instalarlo." % it.get("name", ""), true)
+	_show_feedback("👉 Repuesto [%s] seleccionado. Haz clic en el cuadro del componente o en 'MONTAR' para instalarlo." % it.get("name", ""), true)
 	_refresh_ui()
 
 func _try_install_spare(backpack_idx: int, target_comp: String) -> void:
@@ -197,9 +269,13 @@ func _try_install_spare(backpack_idx: int, target_comp: String) -> void:
 	_show_feedback("✓ ¡Repuesto de %s verificado! Iniciando montaje..." % target_comp, true)
 	_open_minigame_by_name(target_comp, true)
 
-func _handle_component_interaction(comp_name: String) -> void:
-	if current_pc == null: return
-	
+# =============================================================================
+# ACCIÓN DEL BOTÓN SACAR (DESMONTAJE)
+# =============================================================================
+func _on_sacar_pressed(comp_name: String) -> void:
+	if current_pc == null:
+		return
+		
 	# Si hay un repuesto seleccionado de la mochila, intentar colocarlo
 	if selected_backpack_idx >= 0 and selected_backpack_idx < GameManager.backpack.size():
 		_try_install_spare(selected_backpack_idx, comp_name)
@@ -208,52 +284,110 @@ func _handle_component_interaction(comp_name: String) -> void:
 	var status = current_pc.components.get(comp_name, "ok")
 	if status == "empty":
 		_show_feedback("🎒 El slot de [%s] está vacío. Toma un repuesto nuevo de la caja en la sala y arrástralo aquí." % comp_name, false)
+		return
+		
+	if comp_name == "CPU":
+		_on_cpu_sacar_pressed()
 	else:
-		# Pieza instalada (averiada o testeada) -> Modo Desmontaje (Quitar)
 		_open_minigame_by_name(comp_name, false)
 
-func _apply_button_color(btn: Button, status: String) -> void:
-	match status:
-		"empty":
-			btn.modulate = Color(1.0, 0.85, 0.1, 1.0)
-		"fixed":
-			btn.modulate = Color(0.0, 1.0, 0.5, 1.0)
-		"broken":
-			btn.modulate = Color(1.0, 0.45, 0.35, 1.0)
-		_:
-			btn.modulate = Color(0.15, 0.85, 1.0, 0.9)
+func _on_cpu_sacar_pressed() -> void:
+	# El minijuego específico de sacar CPU se configurará según las especificaciones del usuario
+	_show_feedback("🔧 Desmontaje de CPU preparado. Listo para la extracción del procesador.", true)
 
-func _update_button_style(btn: Button, title: String, subtitle: String, status: String) -> void:
+# =============================================================================
+# BOTONES EXTRA DEL CPU: LIMPIAR Y PINES
+# =============================================================================
+func _open_cpu_limpiar() -> void:
+	modal_control.visible = false
+	var minigame = cpu_minigame_scene.instantiate()
+	minigame.start_as_empty_slot = false
+	minigame.set("is_tutorial_mode", false)
+	get_tree().root.add_child(minigame)
+	
+	minigame.connect("minigame_finished", func(success: bool):
+		minigame.queue_free()
+		modal_control.visible = true
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+		if success:
+			GameManager.register_repair(60, 5.0)
+			_show_feedback("✓ ¡Pasta térmica del procesador limpiada con éxito!", true)
+		_refresh_ui()
+	)
+
+func _open_cpu_pines() -> void:
+	modal_control.visible = false
+	var minigame = cpupins_minigame_scene.instantiate()
+	get_tree().root.add_child(minigame)
+	
+	minigame.connect("minigame_finished", func(success: bool):
+		minigame.queue_free()
+		modal_control.visible = true
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+		if success:
+			GameManager.register_repair(80, 5.0)
+			_show_feedback("✓ ¡Pines del CPU alineados y corregidos a 90°!", true)
+		_refresh_ui()
+	)
+
+# =============================================================================
+# ACTUALIZACIÓN DE INTERFAZ Y ESTILOS
+# =============================================================================
+func _apply_card_border_color(sb: StyleBoxFlat, status: String) -> void:
 	match status:
 		"empty":
-			btn.text = "%s\n\n[ SLOT VACÍO ]\n▶ Arrastra aquí el repuesto" % title
+			sb.border_color = Color(1.0, 0.8, 0.1, 0.9)
 		"fixed":
-			btn.text = "%s\n\n%s\n[ INSTALADO Y TESTEADO ✓ ]\n▶ Clic para desmontar" % [title, subtitle]
+			sb.border_color = Color(0.0, 1.0, 0.55, 0.9)
 		"broken":
-			btn.text = "%s\n\n%s\n[ PIEZA DAÑADA ⚠️ ]\n▶ Clic para desmontar\n(o arrastra repuesto para montar)" % [title, subtitle]
+			sb.border_color = Color(1.0, 0.25, 0.25, 0.9)
 		_:
-			btn.text = "%s\n\n%s\n[ INSTALADO ]\n▶ Clic para desmontar" % [title, subtitle]
-	_apply_button_color(btn, status)
+			sb.border_color = Color(0.15, 0.85, 1.0, 0.85)
 
 func _refresh_ui() -> void:
 	if current_pc == null:
 		return
 		
-	var ram_status = current_pc.components.get("RAM", "ok")
-	var hdd_status = current_pc.components.get("Disco Duro", "ok")
-	var cooler_status = current_pc.components.get("Fan Cooler", "ok")
-	var gpu_status = current_pc.components.get("Grafica", "ok")
-	var psu_status = current_pc.components.get("Fuente", "ok")
-	var mobo_status = current_pc.components.get("Placa Madre", "ok")
-	var cpu_status = current_pc.components.get("CPU", "ok")
+	var comp_subtitles = {
+		"RAM": "DDR5 16GB",
+		"Disco Duro": "SATA SSD 1TB",
+		"Grafica": "RTX 4070 OC",
+		"Fuente": "850W GOLD",
+		"Placa Madre": "CHIPSET Z790",
+		"Fan Cooler": "DISIPADOR PWM",
+		"CPU": "LGA 1700 OCTA-CORE"
+	}
 	
-	_update_button_style(btn_comp_ram, "MEMORIA RAM", "DDR5 16GB", ram_status)
-	_update_button_style(btn_comp_hdd, "DISCO DURO", "SATA SSD 1TB", hdd_status)
-	_update_button_style(btn_comp_cooler, "FAN COOLER (CPU)", "DISIPADOR PWM", cooler_status)
-	_update_button_style(btn_comp_gpu, "TARJETA GRÁFICA", "RTX 4070 OC", gpu_status)
-	_update_button_style(btn_comp_psu, "FUENTE DE PODER", "850W GOLD", psu_status)
-	_update_button_style(btn_comp_mobo, "PLACA MADRE", "CHIPSET Z790", mobo_status)
-	_update_button_style(btn_comp_cpu, "PROCESADOR (CPU)", "LGA 1700 OCTA-CORE", cpu_status)
+	for comp_name in comp_cards.keys():
+		var status = current_pc.components.get(comp_name, "ok")
+		var sb: StyleBoxFlat = card_styleboxes[comp_name]
+		_apply_card_border_color(sb, status)
+		
+		var lbl: Label = comp_status_labels[comp_name]
+		var sub = comp_subtitles.get(comp_name, "")
+		var btn_sacar: Button = comp_sacar_btns[comp_name]
+		
+		match status:
+			"empty":
+				lbl.text = "%s\n[ SLOT VACÍO ]" % sub
+				lbl.modulate = Color(1.0, 0.8, 0.1, 1.0)
+				btn_sacar.text = "📦 MONTAR"
+				btn_sacar.modulate = Color(1.0, 0.9, 0.2, 1.0)
+			"fixed":
+				lbl.text = "%s\n[ REPARADO ✓ ]" % sub
+				lbl.modulate = Color(0.0, 1.0, 0.55, 1.0)
+				btn_sacar.text = "⬇ SACAR"
+				btn_sacar.modulate = Color(1.0, 1.0, 1.0, 1.0)
+			"broken":
+				lbl.text = "%s\n[ AVERIADO ⚠️ ]" % sub
+				lbl.modulate = Color(1.0, 0.35, 0.35, 1.0)
+				btn_sacar.text = "⬇ SACAR"
+				btn_sacar.modulate = Color(1.0, 1.0, 1.0, 1.0)
+			_:
+				lbl.text = "%s\n[ INSTALADO ]" % sub
+				lbl.modulate = Color(0.15, 0.85, 1.0, 1.0)
+				btn_sacar.text = "⬇ SACAR"
+				btn_sacar.modulate = Color(1.0, 1.0, 1.0, 1.0)
 	
 	# Actualizar slots de mochila
 	for i in range(slot_buttons.size()):
@@ -268,7 +402,7 @@ func _refresh_ui() -> void:
 			else:
 				var is_selected = (i == selected_backpack_idx)
 				if is_selected:
-					slot_btn.text = "Slot %d: [ SELECCIONADO ]\n⚡ %s (Clic en componente)" % [i + 1, item_name]
+					slot_btn.text = "Slot %d: [ SELECCIONADO ]\n⚡ %s (Clic en cuadro)" % [i + 1, item_name]
 					slot_btn.modulate = Color(1.5, 1.4, 0.2, 1.0)
 				else:
 					slot_btn.text = "Slot %d: [ REPUESTO NUEVO ]\n⚡ %s (Arrastra a la PC)" % [i + 1, item_name]
@@ -292,7 +426,7 @@ func _refresh_ui() -> void:
 		pc_state_badge.text = "BANCO DE REPARACIÓN ACTIVO · [" + str(fixed_count) + "/" + str(total_comps) + " REPARADOS]"
 		pc_state_badge.modulate = Color(1, 0.8, 0.1, 1)
 		if selected_backpack_idx < 0:
-			status_summary.text = "Arrastra un repuesto de tu mochila al componente dañado para montarlo, o haz clic para desmontar."
+			status_summary.text = "Presiona 'SACAR' para desmontar piezas averiadas, o arrastra repuestos de tu mochila para montarlos."
 			status_summary.modulate = Color(0.2, 0.9, 1.0, 1)
 
 # =============================================================================
