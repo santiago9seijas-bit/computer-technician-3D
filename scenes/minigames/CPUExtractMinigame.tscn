@@ -1,0 +1,396 @@
+[gd_scene format=3 load_steps=12]
+
+[ext_resource type="Script" path="res://scripts/minigames/CPUExtractMinigame.gd" id="1_extract"]
+[ext_resource type="Script" path="res://scripts/menus/CyberButton.gd" id="2_cbtn"]
+[ext_resource type="Theme" path="res://styles/cyberpunk_theme.tres" id="3_theme"]
+[ext_resource type="FontFile" uid="uid://dbcug8887dro7" path="res://assets/fonts/Bungee-Regular.ttf" id="4_title_font"]
+[ext_resource type="PackedScene" path="res://scenes/ui/CyberBackgroundFrame.tscn" id="5_bg_frame"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_frame"]
+content_margin_left = 24.0
+content_margin_top = 18.0
+content_margin_right = 24.0
+content_margin_bottom = 18.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_socket"]
+bg_color = Color(0.08, 0.07, 0.12, 0.98)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.75, 0.1, 0.85, 0.85)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0, 0, 0, 0.45)
+shadow_size = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_matrix"]
+bg_color = Color(0.12, 0.1, 0.05, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.85, 0.7, 0.15, 0.7)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ihs"]
+bg_color = Color(0.24, 0.26, 0.3, 1)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.7, 0.75, 0.8, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_plate"]
+bg_color = Color(0.14, 0.16, 0.22, 0.65)
+border_width_left = 14
+border_width_top = 14
+border_width_right = 14
+border_width_bottom = 14
+border_color = Color(0.5, 0.55, 0.65, 0.95)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lever_handle"]
+bg_color = Color(0.25, 0.28, 0.35, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0, 0.95, 1, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+shadow_color = Color(0, 0.95, 1, 0.4)
+shadow_size = 4
+
+[node name="CPUExtractMinigame" type="CanvasLayer"]
+layer = 12
+script = ExtResource("1_extract")
+
+[node name="ModalControl" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("3_theme")
+
+[node name="DimOverlay" type="ColorRect" parent="ModalControl"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.04, 0.01, 0.08, 0.95)
+
+[node name="Panel" type="PanelContainer" parent="ModalControl"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -480.0
+offset_top = -310.0
+offset_right = 480.0
+offset_bottom = 310.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_frame")
+
+[node name="CyberBackgroundFrame" parent="ModalControl/Panel" instance=ExtResource("5_bg_frame")]
+layout_mode = 2
+
+[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Header" type="VBoxContainer" parent="ModalControl/Panel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="Titulo" type="Label" parent="ModalControl/Panel/VBox/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.1, 0.45, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 8
+theme_override_colors/font_shadow_color = Color(0.65, 0.02, 0.85, 0.85)
+theme_override_constants/shadow_outline_size = 8
+theme_override_fonts/font = ExtResource("4_title_font")
+theme_override_font_sizes/font_size = 18
+text = "MANTENIMIENTO: DESMONTAJE DE MICROPROCESADOR (CPU)"
+horizontal_alignment = 1
+
+[node name="StatusLabel" type="Label" parent="ModalControl/Panel/VBox/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 13
+text = "PASO 1: Arrastra la palanca hacia abajo para liberar la tensión de sujeción."
+horizontal_alignment = 1
+
+[node name="InstructionBadge" type="Label" parent="ModalControl/Panel/VBox/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 12
+text = "ACCION: ARRASTRA LA PALANCA HACIA ABAJO ↓"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="ModalControl/Panel/VBox"]
+layout_mode = 2
+
+[node name="FeedbackLabel" type="Label" parent="ModalControl/Panel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 1, 0.6, 1)
+theme_override_font_sizes/font_size = 12
+text = "Palanca lista para manipular."
+horizontal_alignment = 1
+
+[node name="WorkArea" type="Control" parent="ModalControl/Panel/VBox"]
+custom_minimum_size = Vector2(850, 350)
+layout_mode = 2
+
+[node name="SocketBase" type="Panel" parent="ModalControl/Panel/VBox/WorkArea"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -210.0
+offset_top = -150.0
+offset_right = 210.0
+offset_bottom = 150.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_socket")
+
+[node name="PinsMatrix" type="Panel" parent="ModalControl/Panel/VBox/WorkArea/SocketBase"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -115.0
+offset_top = -115.0
+offset_right = 85.0
+offset_bottom = 85.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+mouse_default_cursor_shape = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_matrix")
+
+[node name="MatrixText" type="Label" parent="ModalControl/Panel/VBox/WorkArea/SocketBase/PinsMatrix"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -80.0
+offset_top = -30.0
+offset_right = 80.0
+offset_bottom = 30.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.25, 0.9)
+theme_override_font_sizes/font_size = 11
+text = "MATRIZ DE PINES (LGA)
+[ ZÓCALO ABIERTO ]
+▶ Clic aquí para insertar"
+horizontal_alignment = 1
+
+[node name="CPUChip" type="Button" parent="ModalControl/Panel/VBox/WorkArea/SocketBase"]
+custom_minimum_size = Vector2(190, 190)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -110.0
+offset_top = -110.0
+offset_right = 80.0
+offset_bottom = 80.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+mouse_default_cursor_shape = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_ihs")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ihs")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ihs")
+
+[node name="CPULabel" type="Label" parent="ModalControl/Panel/VBox/WorkArea/SocketBase/CPUChip"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -80.0
+offset_top = -28.0
+offset_right = 80.0
+offset_bottom = 28.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.9, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 11
+text = "CYBER_CORE i9-14900K
+LGA 1700 OCTA-CORE
+[ CLIC PARA EXTRAER ]"
+horizontal_alignment = 1
+
+[node name="NotchIndicator" type="Label" parent="ModalControl/Panel/VBox/WorkArea/SocketBase/CPUChip"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 6.0
+offset_top = -24.0
+offset_right = 26.0
+offset_bottom = -4.0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 16
+text = "▲"
+
+[node name="LoadPlate" type="Panel" parent="ModalControl/Panel/VBox/WorkArea/SocketBase"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -120.0
+offset_top = -120.0
+offset_right = 90.0
+offset_bottom = 90.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_plate")
+
+[node name="PlateLabel" type="Label" parent="ModalControl/Panel/VBox/WorkArea/SocketBase/LoadPlate"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -80.0
+offset_top = -12.0
+offset_right = 80.0
+offset_bottom = 6.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.7, 0.75, 0.85, 0.9)
+theme_override_font_sizes/font_size = 10
+text = "[ PROTECCIÓN METÁLICA ]"
+horizontal_alignment = 1
+
+[node name="LeverArea" type="Control" parent="ModalControl/Panel/VBox/WorkArea/SocketBase"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -90.0
+offset_top = -115.0
+offset_right = -10.0
+offset_bottom = 115.0
+grow_horizontal = 0
+grow_vertical = 2
+
+[node name="LeverTrack" type="Panel" parent="ModalControl/Panel/VBox/WorkArea/SocketBase/LeverArea"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -10.0
+offset_top = -85.0
+offset_right = 10.0
+offset_bottom = 85.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="LeverStatusText" type="Label" parent="ModalControl/Panel/VBox/WorkArea/SocketBase/LeverArea"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -60.0
+offset_top = -25.0
+offset_right = 60.0
+offset_bottom = 1.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(1, 0.35, 0.35, 1)
+theme_override_font_sizes/font_size = 10
+text = "PALANCA:
+TRABADA [0°]"
+horizontal_alignment = 1
+
+[node name="LeverArrow" type="Label" parent="ModalControl/Panel/VBox/WorkArea/SocketBase/LeverArea"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -40.0
+offset_top = -25.0
+offset_right = 40.0
+offset_bottom = 25.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 11
+text = "▼
+ARRASTRA
+ABAJO"
+horizontal_alignment = 1
+
+[node name="LeverHandle" type="Button" parent="ModalControl/Panel/VBox/WorkArea/SocketBase/LeverArea"]
+custom_minimum_size = Vector2(36, 50)
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -18.0
+offset_right = 18.0
+offset_bottom = 50.0
+grow_horizontal = 2
+mouse_filter = 1
+mouse_default_cursor_shape = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_lever_handle")
+theme_override_styles/hover = SubResource("StyleBoxFlat_lever_handle")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_lever_handle")
+text = "❚❚❚"
+
+[node name="Footer" type="HBoxContainer" parent="ModalControl/Panel/VBox"]
+layout_mode = 2
+alignment = 1
+
+[node name="BtnCancel" type="Button" parent="ModalControl/Panel/VBox/Footer"]
+custom_minimum_size = Vector2(260, 36)
+layout_mode = 2
+text = "◄ CANCELAR / VOLVER"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 12.0
+custom_font_size = 12

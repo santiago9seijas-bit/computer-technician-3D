@@ -11,6 +11,7 @@ var psu_minigame_scene: PackedScene = preload("res://scenes/minigames/PSUMinigam
 var mobo_minigame_scene: PackedScene = preload("res://scenes/minigames/MotherboardMinigame.tscn")
 var cpu_minigame_scene: PackedScene = preload("res://scenes/minigames/CPUMinigame.tscn")
 var cpupins_minigame_scene: PackedScene = preload("res://scenes/minigames/CPUPinsMinigame.tscn")
+var cpu_extract_minigame_scene: PackedScene = preload("res://scenes/minigames/CPUExtractMinigame.tscn")
 
 @onready var modal_control: Control = $ModalControl
 @onready var title_label: Label = $ModalControl/Panel/VBox/Header/TitleLabel
@@ -292,8 +293,14 @@ func _on_sacar_pressed(comp_name: String) -> void:
 		_open_minigame_by_name(comp_name, false)
 
 func _on_cpu_sacar_pressed() -> void:
-	# El minijuego específico de sacar CPU se configurará según las especificaciones del usuario
-	_show_feedback("🔧 Desmontaje de CPU preparado. Listo para la extracción del procesador.", true)
+	var status = current_pc.components.get("CPU", "ok") if current_pc else "ok"
+	if status == "empty":
+		if selected_backpack_idx >= 0 and selected_backpack_idx < GameManager.backpack.size():
+			_try_install_spare(selected_backpack_idx, "CPU")
+		else:
+			_show_feedback("🎒 El socket de CPU está vacío. Toma un repuesto nuevo de la sala o de tu mochila.", false)
+	else:
+		_open_cpu_extract_minigame(false)
 
 # =============================================================================
 # BOTONES EXTRA DEL CPU: LIMPIAR Y PINES
@@ -603,8 +610,11 @@ func _open_mobo_minigame(is_empty: bool) -> void:
 	)
 
 func _open_cpu_minigame(is_empty: bool) -> void:
+	_open_cpu_extract_minigame(is_empty)
+
+func _open_cpu_extract_minigame(is_empty: bool) -> void:
 	modal_control.visible = false
-	var minigame = cpu_minigame_scene.instantiate()
+	var minigame = cpu_extract_minigame_scene.instantiate()
 	minigame.start_as_empty_slot = is_empty
 	minigame.set("is_tutorial_mode", false)
 	get_tree().root.add_child(minigame)
@@ -622,9 +632,9 @@ func _open_cpu_minigame(is_empty: bool) -> void:
 				current_pc.components["CPU"] = "fixed"
 				current_pc.update_3d_state()
 				GameManager.register_repair(120, 12.0)
-				_show_feedback("✓ ¡Procesador nuevo instalado y testeado!", true)
+				_show_feedback("✓ ¡Procesador nuevo montado y asegurado!", true)
 			else:
-				_show_feedback("✓ CPU averiado retirado. Socket listo para repuesto.", true)
+				_show_feedback("✓ CPU retirado. Socket listo para repuesto.", true)
 		_refresh_ui()
 	)
 
