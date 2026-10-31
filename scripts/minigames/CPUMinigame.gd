@@ -40,12 +40,10 @@ var current_phase: Phase = Phase.EXTRACT_LEVER_DOWN
 @onready var socket_base: Panel = $ModalControl/Panel/VBox/WorkArea/SocketBase
 @onready var socket_grid_pattern: Panel = $ModalControl/Panel/VBox/WorkArea/SocketBase/PinsMatrix
 @onready var cpu_chip: Button = $ModalControl/Panel/VBox/WorkArea/SocketBase/CPUChip
-@onready var cpu_label: Label = $ModalControl/Panel/VBox/WorkArea/SocketBase/CPUChip/CPULabel
 @onready var notch_indicator: Label = $ModalControl/Panel/VBox/WorkArea/SocketBase/CPUChip/NotchIndicator
 @onready var load_plate: Panel = $ModalControl/Panel/VBox/WorkArea/SocketBase/LoadPlate
 
 # Palanca
-@onready var lever_track: Panel = $ModalControl/Panel/VBox/WorkArea/SocketBase/LeverArea/LeverTrack
 @onready var lever_handle: Button = $ModalControl/Panel/VBox/WorkArea/SocketBase/LeverArea/LeverHandle
 @onready var lever_arrow: Label = $ModalControl/Panel/VBox/WorkArea/SocketBase/LeverArea/LeverArrow
 @onready var lever_status_text: Label = $ModalControl/Panel/VBox/WorkArea/SocketBase/LeverArea/LeverStatusText

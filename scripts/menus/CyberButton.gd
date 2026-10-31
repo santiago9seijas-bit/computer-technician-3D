@@ -12,8 +12,6 @@ extends Button
 
 var is_hovered: bool = false
 var hover_t: float = 0.0
-var base_x: float = 0.0
-var initialized_base: bool = false
 var font: Font = null
 
 func _ready() -> void:
@@ -35,15 +33,9 @@ func _ready() -> void:
 	focus_exited.connect(_on_mouse_exited)
 
 func _process(delta: float) -> void:
-	if not initialized_base and position.x != 0:
-		base_x = position.x
-		initialized_base = true
-
 	var target_t = 1.0 if (is_hovered or has_focus()) else 0.0
 	if abs(hover_t - target_t) > 0.001:
 		hover_t = lerp(hover_t, target_t, delta * 15.0)
-		if initialized_base:
-			position.x = base_x + hover_t * 6.0 # Desplazamiento fluido al hover
 		queue_redraw()
 
 func _on_mouse_entered() -> void:

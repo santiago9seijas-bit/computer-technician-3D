@@ -44,8 +44,9 @@ var default_psu_x: float = 0.0
 var is_dragging_psu: bool = false
 var drag_start_x: float = 0.0
 
-var tex_screw_cruz = preload("res://pixel art/tornillo de cruz.png")
-var tex_screw_pala = preload("res://pixel art/tornillo de pala.png")
+var tex_screw_cruz = preload("res://pixel art minijuegos/tornillo de cruz.png")
+var tex_screw_pala = preload("res://pixel art minijuegos/tornillo de pala.png")
+var voltimeter_minigame_scene = preload("res://scenes/minigames/VoltimeterMinigame.tscn")
 
 # Nodos
 @onready var modal_control: Control = $ModalControl
@@ -54,7 +55,6 @@ var tex_screw_pala = preload("res://pixel art/tornillo de pala.png")
 @onready var btn_tool_2: Button = $ModalControl/Panel/VBox/Header/ToolBar/BtnTool2
 @onready var btn_cancel: Button = $ModalControl/Panel/VBox/Footer/BtnCancel
 
-@onready var work_area: Control = $ModalControl/Panel/VBox/WorkArea
 @onready var psu_body: Panel = $ModalControl/Panel/VBox/WorkArea/PSUBody
 @onready var cable_atx24: Panel = $ModalControl/Panel/VBox/WorkArea/CableATX24
 @onready var btn_atx24: Button = $ModalControl/Panel/VBox/WorkArea/CableATX24/BtnATX24
@@ -312,13 +312,28 @@ func _setup_ui() -> void:
 	warning_label.text = ""
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventKey and event.is_pressed():
+	if event is InputEventKey and event.is_pressed() and not event.echo:
 		if event.keycode == KEY_1:
 			GameManager.select_tool(1)
 		elif event.keycode == KEY_2:
 			GameManager.select_tool(2)
+		elif event.keycode == KEY_4 or event.keycode == KEY_KP_4:
+			GameManager.select_tool(4)
+			_open_voltimeter()
 		elif event.keycode == KEY_ESCAPE:
 			minigame_finished.emit(false)
+
+func _open_voltimeter() -> void:
+	modal_control.visible = false
+	var minigame = voltimeter_minigame_scene.instantiate()
+	if minigame.has_method("setup_component"):
+		minigame.setup_component("Fuente")
+	get_tree().root.add_child(minigame)
+	minigame.connect("minigame_finished", func(_success: bool):
+		minigame.queue_free()
+		modal_control.visible = true
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	)
 
 func _on_tool_selected(_tool_id: int) -> void:
 	_update_tool_buttons()

@@ -1,24 +1,28 @@
-[gd_scene format=3 load_steps=16]
+[gd_scene format=3 load_steps=19]
 
 [ext_resource type="Script" path="res://scripts/menus/MainMenu.gd" id="1_main"]
 [ext_resource type="Script" path="res://scripts/menus/SynthwaveBackground.gd" id="2_bg"]
 [ext_resource type="Script" path="res://scripts/menus/MenuTextureButton.gd" id="4_tex_btn"]
 [ext_resource type="Theme" path="res://styles/cyberpunk_theme.tres" id="5_theme"]
-[ext_resource type="Texture2D" uid="uid://ckfbwiy7c4wxs" path="res://pixel art/fondo de boton.png" id="6_btn_normal"]
-[ext_resource type="Texture2D" uid="uid://dhkb21cw434cy" path="res://pixel art/fondo de boton mouse encima.png" id="7_btn_hover"]
+[ext_resource type="Texture2D" uid="uid://ckfbwiy7c4wxs" path="res://pixel art escenario/fondo de boton.png" id="6_btn_normal"]
+[ext_resource type="Texture2D" uid="uid://dhkb21cw434cy" path="res://pixel art escenario/fondo de boton mouse encima.png" id="7_btn_hover"]
 [ext_resource type="Material" uid="uid://bvyg7oipb3y1a" path="res://styles/cyber_button_hologram.tres" id="8_holo_mat"]
 [ext_resource type="FontFile" uid="uid://dbcug8887dro7" path="res://assets/fonts/Bungee-Regular.ttf" id="9_title_font"]
 [ext_resource type="Material" uid="uid://cxvd852m89a0b" path="res://styles/cyber_decoration_hologram.tres" id="10_deco_mat"]
-[ext_resource type="Texture2D" uid="uid://b8in2ksfawwet" path="res://pixel art/decoracion.png" id="11_deco_tex"]
+[ext_resource type="Texture2D" uid="uid://b8in2ksfawwet" path="res://pixel art escenario/decoracion.png" id="11_deco_tex"]
 [ext_resource type="Material" uid="uid://btr8q93p7mk41" path="res://styles/cyber_title_glow.tres" id="12_title_mat"]
 [ext_resource type="PackedScene" path="res://scenes/ui/CyberBackgroundFrame.tscn" id="13_bg_frame"]
 [ext_resource type="Script" path="res://scripts/menus/CyberButton.gd" id="14_cbtn"]
+[ext_resource type="Texture2D" uid="uid://dmrt507recfdq" path="res://pixel art escenario/boton de volver.png" id="15_volver_tex"]
+[ext_resource type="Material" uid="uid://5ra4e5h4fgni" path="res://styles/cyber_glitch_sprite.tres" id="16_glitch_mat"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_panel"]
 content_margin_left = 28.0
 content_margin_top = 22.0
 content_margin_right = 28.0
 content_margin_bottom = 22.0
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_volver"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hint"]
 bg_color = Color(0.08, 0.02, 0.16, 0.6)
@@ -273,7 +277,7 @@ text = "HARDWARE WORKSHOP // REPAIR OS v2.0"
 layout_mode = 2
 theme_override_colors/font_color = Color(0.65, 0.4, 0.7, 0.7)
 theme_override_font_sizes/font_size = 12
-text = "Version 0.0.4 Alpha"
+text = "Version 0.0.5 Alpha"
 horizontal_alignment = 2
 
 [node name="DarkenOverlay" type="ColorRect" parent="."]
@@ -557,12 +561,22 @@ layout_mode = 2
 alignment = 1
 
 [node name="BtnVolverControles" type="Button" parent="ControlsPanel/Margin/VBox/Footer"]
-custom_minimum_size = Vector2(180, 36)
+material = ExtResource("16_glitch_mat")
+texture_filter = 1
+custom_minimum_size = Vector2(60, 38)
 layout_mode = 2
-text = "◄ VOLVER"
+mouse_default_cursor_shape = 2
+theme_override_styles/normal = SubResource("StyleBoxEmpty_volver")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_volver")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_volver")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_volver")
+theme_override_colors/icon_hover_color = Color(0.2, 0.95, 1, 1)
+theme_override_colors/icon_pressed_color = Color(1, 0.2, 0.5, 1)
+icon = ExtResource("15_volver_tex")
 flat = true
-script = ExtResource("14_cbtn")
-slant = 14.0
+expand_icon = true
+icon_alignment = 1
+vertical_icon_alignment = 1
 
 [node name="ConfigPanel" type="PanelContainer" parent="."]
 visible = false
@@ -752,9 +766,19 @@ layout_mode = 2
 alignment = 1
 
 [node name="BtnVolverConfig" type="Button" parent="ConfigPanel/Margin/VBox/Footer"]
-custom_minimum_size = Vector2(240, 44)
+material = ExtResource("16_glitch_mat")
+texture_filter = 1
+custom_minimum_size = Vector2(60, 38)
 layout_mode = 2
-text = "◄ VOLVER AL MENÚ"
+mouse_default_cursor_shape = 2
+theme_override_styles/normal = SubResource("StyleBoxEmpty_volver")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_volver")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_volver")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_volver")
+theme_override_colors/icon_hover_color = Color(0.2, 0.95, 1, 1)
+theme_override_colors/icon_pressed_color = Color(1, 0.2, 0.5, 1)
+icon = ExtResource("15_volver_tex")
 flat = true
-script = ExtResource("14_cbtn")
-slant = 16.0
+expand_icon = true
+icon_alignment = 1
+vertical_icon_alignment = 1

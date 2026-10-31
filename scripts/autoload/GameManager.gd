@@ -12,13 +12,11 @@ signal spares_repopulated()
 signal pause_state_changed(is_paused: bool)
 
 # Variables de juego
-var current_level_id: int = 1
 var time_left: float = 120.0
 var timer_active: bool = false
 var score: int = 0
 var errors: int = 0
 var computers_fixed: int = 0
-var total_computers: int = 3
 
 # Mochila / Inventario
 const MAX_BACKPACK_SLOTS: int = 3
@@ -74,11 +72,11 @@ func select_tool(tool_id: int) -> void:
 	equipped_tool = tool_id
 	tool_selected.emit(equipped_tool)
 
-func is_tool_equipped(tool_id: int) -> bool:
-	return equipped_tool == tool_id
-
 func is_soldering_tool_equipped() -> bool:
 	return equipped_tool == 3
+
+func is_voltimeter_equipped() -> bool:
+	return equipped_tool == 4
 
 func is_cleaning_tool_equipped() -> bool:
 	return equipped_tool == 5

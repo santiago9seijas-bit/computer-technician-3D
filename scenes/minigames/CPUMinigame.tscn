@@ -389,7 +389,7 @@ alignment = 1
 [node name="BtnCancel" type="Button" parent="ModalControl/Panel/VBox/Footer"]
 custom_minimum_size = Vector2(260, 36)
 layout_mode = 2
-text = "◄ CANCELAR / VOLVER"
+text = "CANCELAR / CERRAR"
 flat = true
 script = ExtResource("2_cbtn")
 slant = 12.0

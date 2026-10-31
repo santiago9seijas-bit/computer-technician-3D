@@ -1,4 +1,4 @@
-[gd_scene format=3 load_steps=8]
+[gd_scene format=3 load_steps=10]
 
 [ext_resource type="Script" path="res://scripts/menus/TutorialHub.gd" id="1_tut"]
 [ext_resource type="Script" path="res://scripts/menus/CyberButton.gd" id="2_cbtn"]
@@ -6,12 +6,15 @@
 [ext_resource type="FontFile" uid="uid://dbcug8887dro7" path="res://assets/fonts/Bungee-Regular.ttf" id="4_title_font"]
 [ext_resource type="Material" uid="uid://cglitchmat8211" path="res://styles/cyber_glitch_sprite.tres" id="5_glitch_mat"]
 [ext_resource type="PackedScene" path="res://scenes/ui/CyberBackgroundFrame.tscn" id="6_bg_frame"]
+[ext_resource type="Texture2D" uid="uid://dmrt507recfdq" path="res://pixel art escenario/boton de volver.png" id="7_volver_tex"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_deployed"]
 content_margin_left = 22.0
 content_margin_top = 18.0
 content_margin_right = 22.0
 content_margin_bottom = 18.0
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_volver"]
 
 [node name="TutorialHub" type="Control"]
 layout_mode = 3
@@ -45,12 +48,22 @@ theme_override_constants/separation = 20
 alignment = 0
 
 [node name="BtnVolver" type="Button" parent="TopBar"]
-custom_minimum_size = Vector2(140, 40)
+material = ExtResource("5_glitch_mat")
+texture_filter = 1
+custom_minimum_size = Vector2(60, 38)
 layout_mode = 2
-text = "◄ VOLVER"
+mouse_default_cursor_shape = 2
+theme_override_styles/normal = SubResource("StyleBoxEmpty_volver")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_volver")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_volver")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_volver")
+theme_override_colors/icon_hover_color = Color(0.2, 0.95, 1, 1)
+theme_override_colors/icon_pressed_color = Color(1, 0.2, 0.5, 1)
+icon = ExtResource("7_volver_tex")
 flat = true
-script = ExtResource("2_cbtn")
-slant = 16.0
+expand_icon = true
+icon_alignment = 1
+vertical_icon_alignment = 1
 
 [node name="TitleVBox" type="VBoxContainer" parent="TopBar"]
 layout_mode = 2

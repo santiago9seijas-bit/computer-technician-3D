@@ -1,8 +1,6 @@
 class_name MenuTextureButton
 extends TextureButton
 
-@export var normal_text_color: Color = Color(1.0, 1.0, 1.0, 1.0)
-@export var hover_text_color: Color = Color(0.08, 0.02, 0.15, 1.0)
 @export var hover_shift_x: float = 8.0
 
 var label: Label = null

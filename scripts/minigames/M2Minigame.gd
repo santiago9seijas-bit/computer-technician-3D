@@ -26,7 +26,7 @@ var is_standoff_screw_removed: bool = false
 var is_sprung_up: bool = false
 var is_extracted: bool = false
 
-var tex_screw_cruz = preload("res://pixel art/tornillo de cruz.png")
+var tex_screw_cruz = preload("res://pixel art minijuegos/tornillo de cruz.png")
 
 # Nodos
 @onready var modal_control: Control = $ModalControl
@@ -36,8 +36,6 @@ var tex_screw_cruz = preload("res://pixel art/tornillo de cruz.png")
 @onready var btn_cancel: Button = $ModalControl/Panel/VBox/Footer/BtnCancel
 
 @onready var work_area: Control = $ModalControl/Panel/VBox/WorkArea
-@onready var mobo_base: Panel = $ModalControl/Panel/VBox/WorkArea/MoboBase
-@onready var m2_slot: Panel = $ModalControl/Panel/VBox/WorkArea/MoboBase/M2Slot
 @onready var m2_drive: Panel = $ModalControl/Panel/VBox/WorkArea/MoboBase/M2Drive
 @onready var heatsink_panel: Panel = $ModalControl/Panel/VBox/WorkArea/MoboBase/HeatsinkPanel
 

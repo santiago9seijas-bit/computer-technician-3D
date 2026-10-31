@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://beij2lbvjanfu"
-path="res://.godot/imported/hdd.png-2535aadb1db16cc4c74f1508114c21ed.ctex"
+uid="uid://cwe2swnb5af8m"
+path="res://.godot/imported/fondo para puntos.png-79c41341a8f3788cc6ea9633074a3e07.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://pixel art/hdd.png"
-dest_files=["res://.godot/imported/hdd.png-2535aadb1db16cc4c74f1508114c21ed.ctex"]
+source_file="res://pixel art escenario/fondo para puntos.png"
+dest_files=["res://.godot/imported/fondo para puntos.png-79c41341a8f3788cc6ea9633074a3e07.ctex"]
 
 [params]
 

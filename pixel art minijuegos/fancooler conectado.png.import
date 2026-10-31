@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c0i1b315i6w1t"
-path="res://.godot/imported/ram.png-90b505f8768a746c780365f85a9902fc.ctex"
+uid="uid://cpe00gux4jj2y"
+path="res://.godot/imported/fancooler conectado.png-1925f130770272eaee65aa0ec75213bc.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://pixel art/ram.png"
-dest_files=["res://.godot/imported/ram.png-90b505f8768a746c780365f85a9902fc.ctex"]
+source_file="res://pixel art minijuegos/fancooler conectado.png"
+dest_files=["res://.godot/imported/fancooler conectado.png-1925f130770272eaee65aa0ec75213bc.ctex"]
 
 [params]
 

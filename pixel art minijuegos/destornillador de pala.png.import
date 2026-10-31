@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://coqgtxksk611h"
-path="res://.godot/imported/decoracion_original.png-e64108d11da891238066702983745db5.ctex"
+uid="uid://1dadqo60msj3"
+path="res://.godot/imported/destornillador de pala.png-12e40143ddcd1eb76735c68f1a6cf5f2.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://pixel art/decoracion_original.png"
-dest_files=["res://.godot/imported/decoracion_original.png-e64108d11da891238066702983745db5.ctex"]
+source_file="res://pixel art minijuegos/destornillador de pala.png"
+dest_files=["res://.godot/imported/destornillador de pala.png-12e40143ddcd1eb76735c68f1a6cf5f2.ctex"]
 
 [params]
 

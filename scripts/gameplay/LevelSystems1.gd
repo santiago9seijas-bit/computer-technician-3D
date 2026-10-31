@@ -4,7 +4,6 @@ const INTRO_SCENE: PackedScene = preload("res://scenes/ui/LevelSystemsIntroModal
 
 @onready var player: CharacterBody3D = $Player
 @onready var hud: Control = $CanvasLayerHUD/HUD
-@onready var pause_menu: Control = $CanvasLayerPause/PauseMenu
 
 func _ready() -> void:
 	if player and hud:

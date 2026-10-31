@@ -53,5 +53,5 @@ void fragment() {
 	vec3 cyber_tint = mix(vec3(0.95, 0.05, 0.3), vec3(0.65, 0.1, 0.95), pulse);
 	final_col.rgb = mix(final_col.rgb, final_col.rgb + cyber_tint * 0.22, glitch_intensity * 0.6);
 	
-	COLOR = final_col;
+	COLOR = final_col * COLOR;
 }

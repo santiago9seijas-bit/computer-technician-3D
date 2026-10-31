@@ -12,7 +12,6 @@ extends CanvasLayer
 signal minigame_finished(success: bool)
 
 # Nodos principales
-@onready var modal_control: Control = $ModalControl
 @onready var status_label: Label = $ModalControl/Panel/VBox/Header/StatusLabel
 @onready var btn_cancel: Button = $ModalControl/Panel/VBox/Footer/BtnCancel
 @onready var desktop_area: Control = $ModalControl/Panel/VBox/DesktopArea

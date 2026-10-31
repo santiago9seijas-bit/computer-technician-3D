@@ -33,7 +33,6 @@ var current_phase: Phase = Phase.CLEAN_OLD_PASTE
 @onready var warning_label: Label = $ModalControl/Panel/VBox/WarningLabel
 
 # Barras de Progreso
-@onready var clean_progress_container: Control = $ModalControl/Panel/VBox/WorkArea/ProgressBars/CleanProgress
 @onready var clean_progress_bar: ProgressBar = $ModalControl/Panel/VBox/WorkArea/ProgressBars/CleanProgress/ProgressBar
 @onready var apply_progress_container: Control = $ModalControl/Panel/VBox/WorkArea/ProgressBars/ApplyProgress
 @onready var apply_progress_bar: ProgressBar = $ModalControl/Panel/VBox/WorkArea/ProgressBars/ApplyProgress/ProgressBar

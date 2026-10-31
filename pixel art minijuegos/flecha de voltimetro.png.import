@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://owt4xc81mqcx"
-path="res://.godot/imported/tornillo de pala.png-aa912bccec78d04f054a85130e0e92c6.ctex"
+uid="uid://blx77k0jo4rwp"
+path="res://.godot/imported/flecha de voltimetro.png-b57d8898e8b45cc5458c5f8297fc7c1f.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://pixel art/tornillo de pala.png"
-dest_files=["res://.godot/imported/tornillo de pala.png-aa912bccec78d04f054a85130e0e92c6.ctex"]
+source_file="res://pixel art minijuegos/flecha de voltimetro.png"
+dest_files=["res://.godot/imported/flecha de voltimetro.png-b57d8898e8b45cc5458c5f8297fc7c1f.ctex"]
 
 [params]
 

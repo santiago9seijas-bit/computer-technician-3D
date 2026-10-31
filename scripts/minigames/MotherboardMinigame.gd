@@ -94,8 +94,8 @@ var is_dragging_mobo: bool = false
 var drag_start_y: float = 0.0
 
 # Texturas
-var tex_screw_cruz = preload("res://pixel art/tornillo de cruz.png")
-var tex_screw_pala = preload("res://pixel art/tornillo de pala.png")
+var tex_screw_cruz = preload("res://pixel art minijuegos/tornillo de cruz.png")
+var tex_screw_pala = preload("res://pixel art minijuegos/tornillo de pala.png")
 
 # Nodos UI
 @onready var modal_control: Control = $ModalControl
@@ -106,9 +106,7 @@ var tex_screw_pala = preload("res://pixel art/tornillo de pala.png")
 @onready var btn_cancel: Button = $ModalControl/Panel/VBox/Footer/BtnCancel
 
 @onready var work_area: Control = $ModalControl/Panel/VBox/WorkArea
-@onready var chassis_tray: Panel = $ModalControl/Panel/VBox/WorkArea/ChassisTray
 @onready var mobo_board: Panel = $ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard
-@onready var io_shield: Panel = $ModalControl/Panel/VBox/WorkArea/ChassisTray/IOShield
 
 # 1. Cables
 @onready var cable_atx_btn: Button = $ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/CableATX
@@ -131,7 +129,6 @@ var tex_screw_pala = preload("res://pixel art/tornillo de pala.png")
 # 4. M.2
 @onready var m2_container: Panel = $ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/M2Container
 @onready var btn_m2_armor: Button = $ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/M2Container/BtnArmorScrew
-@onready var icon_m2_armor: TextureRect = $ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/M2Container/BtnArmorScrew/Icon
 @onready var btn_m2_screw: Button = $ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/M2Container/BtnM2Screw
 @onready var icon_m2_screw: TextureRect = $ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/M2Container/BtnM2Screw/Icon
 @onready var m2_pcb_panel: Panel = $ModalControl/Panel/VBox/WorkArea/ChassisTray/MoboBoard/M2Container/M2PCB
@@ -980,9 +977,6 @@ func _on_cable_eps_pressed() -> void:
 	_show_warning("✓ Conector auxiliar EPS CPU 8P desconectado.", Color(0.2, 1.0, 0.4))
 	_check_phase_cables()
 
-func _check_mains_connected() -> void:
-	_check_reinstall_completed()
-
 func _check_phase_cables() -> void:
 	if _are_cables_done():
 		_show_warning("✓ Cables de poder (ATX 24P y EPS 8P) retirados.", Color(0.2, 1.0, 0.4))
@@ -1124,9 +1118,6 @@ func _on_extract_cooler_pressed() -> void:
 # =============================================================================
 # 4. ALMACENAMIENTO SSD M.2 (NVME)
 # =============================================================================
-func _on_m2_armor_pressed() -> void:
-	pass
-
 func _on_m2_screw_pressed() -> void:
 	if current_phase == Phase.REINSTALL_COMPONENTS:
 		_on_reinstall_m2_screw_pressed()

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://crdjqosfka4nb"
-path="res://.godot/imported/tornillo de cruz.png-0f85b582ea1988a41ff953a4dd2ab2d5.ctex"
+uid="uid://f8yc56ptxowj"
+path="res://.godot/imported/pelusa pequeña.png-cfcdfb9e875904856e5db4c498131b2d.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://pixel art/tornillo de cruz.png"
-dest_files=["res://.godot/imported/tornillo de cruz.png-0f85b582ea1988a41ff953a4dd2ab2d5.ctex"]
+source_file="res://pixel art minijuegos/pelusa pequeña.png"
+dest_files=["res://.godot/imported/pelusa pequeña.png-cfcdfb9e875904856e5db4c498131b2d.ctex"]
 
 [params]
 

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dhkb21cw434cy"
-path="res://.godot/imported/fondo de boton mouse encima.png-6b6de260da2df136e50ca96d97485680.ctex"
+uid="uid://ckfbwiy7c4wxs"
+path="res://.godot/imported/fondo de boton.png-b7ee45f9f66db3a6a2a304056150ea86.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://pixel art/fondo de boton mouse encima.png"
-dest_files=["res://.godot/imported/fondo de boton mouse encima.png-6b6de260da2df136e50ca96d97485680.ctex"]
+source_file="res://pixel art escenario/fondo de boton.png"
+dest_files=["res://.godot/imported/fondo de boton.png-b7ee45f9f66db3a6a2a304056150ea86.ctex"]
 
 [params]
 

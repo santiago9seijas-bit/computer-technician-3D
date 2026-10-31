@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://scripts/minigames/RAMMinigame.gd" id="1_ram"]
 [ext_resource type="Script" path="res://scripts/menus/CyberButton.gd" id="2_cbtn"]
 [ext_resource type="Theme" path="res://styles/cyberpunk_theme.tres" id="3_theme"]
-[ext_resource type="Texture2D" uid="uid://c0i1b315i6w1t" path="res://pixel art/ram.png" id="4_ram_tex"]
+[ext_resource type="Texture2D" uid="uid://b241x3knq7u01" path="res://pixel art minijuegos/ram.png" id="4_ram_tex"]
 [ext_resource type="FontFile" uid="uid://dbcug8887dro7" path="res://assets/fonts/Bungee-Regular.ttf" id="5_title_font"]
 [ext_resource type="PackedScene" path="res://scenes/ui/CyberBackgroundFrame.tscn" id="6_bg_frame"]
 

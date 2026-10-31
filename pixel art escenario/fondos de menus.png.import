@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ywvx6yoncdx1"
-path="res://.godot/imported/fancooler.png-e30ead9cc85779c539c965a4d2ad8357.ctex"
+uid="uid://1yynh63w76pw"
+path="res://.godot/imported/fondos de menus.png-0f07e6e0d92a01e37b1711fdeb2deb9e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://pixel art/fancooler.png"
-dest_files=["res://.godot/imported/fancooler.png-e30ead9cc85779c539c965a4d2ad8357.ctex"]
+source_file="res://pixel art escenario/fondos de menus.png"
+dest_files=["res://.godot/imported/fondos de menus.png-0f07e6e0d92a01e37b1711fdeb2deb9e.ctex"]
 
 [params]
 

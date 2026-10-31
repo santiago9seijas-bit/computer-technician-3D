@@ -27,14 +27,14 @@ var screws_fastened: Array[bool] = [false, false, false, false]
 # Tornillos: 0: Top-Left, 1: Top-Right, 2: Bottom-Left, 3: Bottom-Right
 var screw_types: Array[String] = ["cruz", "cruz", "pala", "cruz"]
 var screws_removed: Array[bool] = [false, false, false, false]
-var total_screws: int = 4
 
 # Referencias a texturas
-var tex_cooler_connected = preload("res://pixel art/fancooler conectado.png")
-var tex_cooler_disconnected = preload("res://pixel art/fancooler.png")
-var tex_screw_cruz = preload("res://pixel art/tornillo de cruz.png")
-var tex_screw_pala = preload("res://pixel art/tornillo de pala.png")
-var tex_cooler_frame = preload("res://pixel art/cuadro de fancoolerpng.png")
+var tex_cooler_connected = preload("res://pixel art minijuegos/fancooler conectado.png")
+var tex_cooler_disconnected = preload("res://pixel art minijuegos/fancooler.png")
+var tex_screw_cruz = preload("res://pixel art minijuegos/tornillo de cruz.png")
+var tex_screw_pala = preload("res://pixel art minijuegos/tornillo de pala.png")
+var tex_cooler_frame = preload("res://pixel art minijuegos/cuadro de fancoolerpng.png")
+var voltimeter_minigame_scene = preload("res://scenes/minigames/VoltimeterMinigame.tscn")
 
 # Nodos de la escena
 @onready var modal_control: Control = $ModalControl
@@ -53,7 +53,6 @@ var tex_cooler_frame = preload("res://pixel art/cuadro de fancoolerpng.png")
 @onready var btn_tab_quitar: Button = $ModalControl/Panel/VBox/ContentHBox/SideInfo/Margin/VBox/TabsBox/BtnTabQuitar
 @onready var btn_tab_poner: Button = $ModalControl/Panel/VBox/ContentHBox/SideInfo/Margin/VBox/TabsBox/BtnTabPoner
 @onready var instructions_text: Label = $ModalControl/Panel/VBox/ContentHBox/SideInfo/Margin/VBox/Text
-@onready var backpack_box: VBoxContainer = $ModalControl/Panel/VBox/ContentHBox/SideInfo/Margin/VBox/BackpackBox
 @onready var backpack_items_box: VBoxContainer = $ModalControl/Panel/VBox/ContentHBox/SideInfo/Margin/VBox/BackpackBox/ItemsContainer
 @onready var backpack_hint: Label = $ModalControl/Panel/VBox/ContentHBox/SideInfo/Margin/VBox/BackpackBox/BackpackHint
 
@@ -302,13 +301,28 @@ func _setup_ui() -> void:
 			screw_buttons.append(btn)
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventKey and event.is_pressed():
+	if event is InputEventKey and event.is_pressed() and not event.echo:
 		if event.keycode == KEY_1:
 			GameManager.select_tool(1)
 		elif event.keycode == KEY_2:
 			GameManager.select_tool(2)
+		elif event.keycode == KEY_4 or event.keycode == KEY_KP_4:
+			GameManager.select_tool(4)
+			_open_voltimeter()
 		elif event.keycode == KEY_ESCAPE:
 			minigame_finished.emit(false)
+
+func _open_voltimeter() -> void:
+	modal_control.visible = false
+	var minigame = voltimeter_minigame_scene.instantiate()
+	if minigame.has_method("setup_component"):
+		minigame.setup_component("Fan Cooler")
+	get_tree().root.add_child(minigame)
+	minigame.connect("minigame_finished", func(_success: bool):
+		minigame.queue_free()
+		modal_control.visible = true
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	)
 
 func _on_tool_selected(tool_id: int) -> void:
 	_update_tool_buttons()

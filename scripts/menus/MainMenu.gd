@@ -56,7 +56,7 @@ func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	modulate = Color.WHITE
 	if version_label:
-		version_label.text = "Version 0.0.4 Alpha"
+		version_label.text = "Version 0.0.5 Alpha"
 	header_orig_x = header_container.position.x
 	buttons_orig_x = vbox_container.position.x
 	deco_orig_x = decoracion.position.x

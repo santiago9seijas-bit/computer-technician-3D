@@ -19,7 +19,36 @@ signal minigame_finished(success: bool)
 @onready var victory_banner: PanelContainer = $ModalControl/Panel/VBox/VictoryBanner
 @onready var btn_cancel: Button = $ModalControl/Panel/VBox/Footer/BtnCancel
 
-# Datos de los cúmulos de pelusa (Posición relativa en %, tamaño y densidad)
+const TEX_RAM: Texture2D = preload("res://pixel art minijuegos/ram.png")
+
+# =============================================================================
+# SPRITES DE PELUSA EN PIXEL ART
+# =============================================================================
+const DUST_SPRITES: Array[Dictionary] = [
+	{
+		"texture": preload("res://pixel art minijuegos/pelusa grande.png"),
+		"base_size": Vector2(98, 82),
+		"type": "grande"
+	},
+	{
+		"texture": preload("res://pixel art minijuegos/pelusa mediana.png"),
+		"base_size": Vector2(80, 50),
+		"type": "mediana"
+	},
+	{
+		"texture": preload("res://pixel art minijuegos/pelusa pequeña.png"),
+		"base_size": Vector2(60, 44),
+		"type": "pequeña"
+	}
+]
+
+# Control de aleatoriedad y cantidad de pelusa
+@export var randomize_dust: bool = true
+@export var clumps_count_ram: int = 10
+@export var clumps_count_heatsink: int = 18
+@export var target_component: String = "RAM"
+
+# Datos de respaldo (modo estático)
 var dust_data: Array[Dictionary] = [
 	{"pos": Vector2(0.18, 0.22), "size": Vector2(64, 52), "rot": -12.0},
 	{"pos": Vector2(0.38, 0.18), "size": Vector2(72, 48), "rot": 8.0},
@@ -43,31 +72,36 @@ var cleaned_clumps: int = 0
 var is_game_completed: bool = false
 var is_brush_pressed: bool = false
 var clump_nodes: Array[Control] = []
-var target_component: String = "Disipador"
+var ram_sprite_node: TextureRect = null
 
 func setup_component(comp_name: String) -> void:
 	target_component = comp_name
 	if is_inside_tree() and modal_control:
+		_build_component_background()
+		_spawn_dust_clumps()
 		_update_component_texts()
+		_update_ui()
 
 func _update_component_texts() -> void:
 	var title_lbl = modal_control.get_node_or_null("Panel/VBox/Header/TitleLabel") as Label
 	if title_lbl:
-		title_lbl.text = "MANTENIMIENTO: LIMPIEZA DE PELUSA Y POLVO (%s)" % target_component.to_upper()
+		var comp_display = "MEMORIA RAM" if ("ram" in target_component.to_lower()) else target_component.to_upper()
+		title_lbl.text = "MANTENIMIENTO: LIMPIEZA DE PELUSA Y POLVO (%s)" % comp_display
 
 func _ready() -> void:
 	layer = 12
-	GameManager.select_tool(5)
+	var gm = get_node_or_null("/root/GameManager")
+	if gm and gm.has_method("select_tool"):
+		gm.select_tool(5)
 	
 	btn_cancel.pressed.connect(_on_cancel_pressed)
 	victory_banner.visible = false
 	warning_label.text = ""
 	
-	total_clumps = dust_data.size()
 	cleaned_clumps = 0
 	is_game_completed = false
 	
-	_build_heatsink_fins()
+	_build_component_background()
 	_spawn_dust_clumps()
 	_update_component_texts()
 	_update_ui()
@@ -87,6 +121,75 @@ func _input(event: InputEvent) -> void:
 			_check_brush_at_position(event.global_position)
 	elif event is InputEventMouseMotion and is_brush_pressed:
 		_check_brush_at_position(event.global_position)
+
+func _build_component_background() -> void:
+	for child in heatsink_area.get_children():
+		child.queue_free()
+	clump_nodes.clear()
+	ram_sprite_node = null
+	
+	var is_ram: bool = "ram" in target_component.to_lower()
+	if is_ram:
+		_build_ram_background()
+	else:
+		_build_heatsink_fins()
+
+func _build_ram_background() -> void:
+	var area_size: Vector2 = heatsink_area.size
+	if area_size.x <= 50.0 or area_size.y <= 50.0:
+		area_size = Vector2(748.0, 338.0)
+		
+	# 1. Tapete de trabajo antiestático (ESD mat)
+	var workbench = Panel.new()
+	workbench.name = "Workbench"
+	workbench.set_anchors_preset(Control.PRESET_FULL_RECT)
+	workbench.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var sb = StyleBoxFlat.new()
+	sb.bg_color = Color(0.06, 0.08, 0.12, 0.95)
+	sb.border_width_left = 2
+	sb.border_width_top = 2
+	sb.border_width_right = 2
+	sb.border_width_bottom = 2
+	sb.border_color = Color(0.18, 0.32, 0.48, 0.5)
+	sb.set_corner_radius_all(6)
+	workbench.add_theme_stylebox_override("panel", sb)
+	heatsink_area.add_child(workbench)
+	
+	# 2. Marco / Zócalo guía detrás del módulo de memoria
+	var ram_w: float = minf(area_size.x - 60.0, 580.0)
+	var ram_h: float = ram_w * (147.0 / 331.0) # Proporción exacta de ram.png (331x147)
+	var ram_size = Vector2(ram_w, ram_h)
+	var ram_pos = (area_size - ram_size) * 0.5
+	
+	var slot_guide = Panel.new()
+	slot_guide.name = "SlotGuide"
+	slot_guide.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	slot_guide.position = ram_pos - Vector2(14, 12)
+	slot_guide.size = ram_size + Vector2(28, 24)
+	var guide_sb = StyleBoxFlat.new()
+	guide_sb.bg_color = Color(0.03, 0.04, 0.07, 0.85)
+	guide_sb.border_width_left = 2
+	guide_sb.border_width_top = 2
+	guide_sb.border_width_right = 2
+	guide_sb.border_width_bottom = 2
+	guide_sb.border_color = Color(0.0, 0.85, 0.9, 0.25)
+	guide_sb.set_corner_radius_all(8)
+	slot_guide.add_theme_stylebox_override("panel", guide_sb)
+	heatsink_area.add_child(slot_guide)
+	
+	# 3. Sprite de la Memoria RAM (pixel art oficial, colocado como fondo debajo de la pelusa)
+	var ram_sprite = TextureRect.new()
+	ram_sprite.name = "RAMSprite"
+	ram_sprite.texture = TEX_RAM
+	ram_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	ram_sprite.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	ram_sprite.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	ram_sprite.custom_minimum_size = ram_size
+	ram_sprite.size = ram_size
+	ram_sprite.position = ram_pos
+	ram_sprite.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	heatsink_area.add_child(ram_sprite)
+	ram_sprite_node = ram_sprite
 
 func _build_heatsink_fins() -> void:
 	# Dibujar aletas de disipador metálicas horizontales en el fondo
@@ -133,63 +236,98 @@ func _build_heatsink_fins() -> void:
 		fin.add_child(fin_edge)
 
 func _spawn_dust_clumps() -> void:
+	if randomize_dust:
+		randomize()
+		
 	var area_size = heatsink_area.size
 	if area_size.x <= 50.0 or area_size.y <= 50.0:
-		area_size = Vector2(740.0, 320.0)
+		area_size = Vector2(748.0, 338.0)
 		
-	for i in range(dust_data.size()):
-		var data = dust_data[i]
-		var clump = Panel.new()
-		clump.name = "Clump_%d" % i
-		clump.custom_minimum_size = data["size"]
-		clump.size = data["size"]
-		clump.pivot_offset = data["size"] * 0.5
-		clump.position = Vector2(
-			data["pos"].x * area_size.x - data["size"].x * 0.5,
-			data["pos"].y * area_size.y - data["size"].y * 0.5
-		)
-		clump.rotation_degrees = data["rot"]
-		clump.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	var is_ram: bool = "ram" in target_component.to_lower()
+	var bounds: Rect2
+	if is_ram and is_instance_valid(ram_sprite_node):
+		bounds = Rect2(ram_sprite_node.position, ram_sprite_node.size)
+	else:
+		bounds = Rect2(Vector2.ZERO, area_size)
 		
-		# Estilo esponjoso de pelusa / polvo
-		var sb = StyleBoxFlat.new()
-		sb.bg_color = Color(0.55, 0.52, 0.48, 0.92)
-		sb.set_corner_radius_all(int(min(data["size"].x, data["size"].y) * 0.45))
-		sb.border_width_left = 3
-		sb.border_width_top = 3
-		sb.border_width_right = 3
-		sb.border_width_bottom = 3
-		sb.border_color = Color(0.42, 0.38, 0.35, 0.9)
-		sb.shadow_size = 4
-		sb.shadow_color = Color(0, 0, 0, 0.4)
-		clump.add_theme_stylebox_override("panel", sb)
-		
-		# Capa interior de fibra de pelusa
-		var inner = Panel.new()
-		inner.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		inner.set_anchors_preset(Control.PRESET_FULL_RECT)
-		var inner_sb = StyleBoxFlat.new()
-		inner_sb.bg_color = Color(0.45, 0.42, 0.38, 0.85)
-		inner_sb.set_corner_radius_all(int(min(data["size"].x, data["size"].y) * 0.38))
-		inner.add_theme_stylebox_override("panel", inner_sb)
-		clump.add_child(inner)
-		
-		# Icono sutil de pelusa
-		var lbl = Label.new()
-		lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		lbl.set_anchors_preset(Control.PRESET_FULL_RECT)
-		lbl.text = "☁️"
-		lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		lbl.modulate = Color(0.7, 0.65, 0.6, 0.6)
-		clump.add_child(lbl)
-		
-		clump.gui_input.connect(func(event): _on_clump_gui_input(clump, event))
-		clump.set_meta("cleaned", false)
-		clump.set_meta("data_idx", i)
-		
-		heatsink_area.add_child(clump)
-		clump_nodes.append(clump)
+	var padding: float = 12.0 if is_ram else 18.0
+	var count: int = (clumps_count_ram if is_ram else clumps_count_heatsink) if randomize_dust else dust_data.size()
+	total_clumps = count
+	
+	if randomize_dust:
+		# Distribución orgánica y dispareja (con cúmulos superpuestos / focos de acumulación)
+		# 1. Definir focos aleatorios donde la pelusa se apelmaza una sobre otra
+		var num_foci: int = randi_range(3, 5) if is_ram else randi_range(4, 7)
+		var foci: Array[Vector2] = []
+		for f in range(num_foci):
+			var fx = randf_range(bounds.position.x + padding + 25.0, maxf(bounds.position.x + padding + 25.0, bounds.end.x - padding - 65.0))
+			var fy = randf_range(bounds.position.y + padding + 15.0, maxf(bounds.position.y + padding + 15.0, bounds.end.y - padding - 45.0))
+			foci.append(Vector2(fx, fy))
+			
+		for i in range(count):
+			# Selección aleatoria de sprite (grande, mediana o pequeña)
+			var sprite_info: Dictionary = DUST_SPRITES.pick_random()
+			var scale_factor: float = randf_range(0.85, 1.22)
+			var clump_size: Vector2 = sprite_info["base_size"] * scale_factor
+			
+			var min_x = bounds.position.x + padding
+			var max_x = maxf(min_x, bounds.end.x - clump_size.x - padding)
+			var min_y = bounds.position.y + padding
+			var max_y = maxf(min_y, bounds.end.y - clump_size.y - padding)
+			
+			var x: float = 0.0
+			var y: float = 0.0
+			
+			# ~65% de probabilidad de montarse en o cerca de un foco (pelusas una sobre otra)
+			# ~35% de probabilidad de caer dispareja en cualquier punto libre
+			if randf() < 0.65 and foci.size() > 0:
+				var chosen_focus: Vector2 = foci.pick_random()
+				x = chosen_focus.x + randf_range(-36.0, 36.0)
+				y = chosen_focus.y + randf_range(-25.0, 25.0)
+			else:
+				x = randf_range(min_x, max_x)
+				y = randf_range(min_y, max_y)
+			
+			# Respetar con precisión los límites del marco o sprite
+			var pos = Vector2(
+				clampf(x, min_x, max_x),
+				clampf(y, min_y, max_y)
+			)
+			var rot: float = randf_range(-35.0, 35.0)
+			
+			_create_dust_clump_node(i, sprite_info["texture"], clump_size, pos, rot)
+	else:
+		# Modo respaldo con posiciones fijas
+		for i in range(dust_data.size()):
+			var data: Dictionary = dust_data[i]
+			var sprite_info: Dictionary = DUST_SPRITES[i % DUST_SPRITES.size()]
+			var clump_size: Vector2 = data["size"]
+			var pos = Vector2(
+				clampf(bounds.position.x + data["pos"].x * bounds.size.x - clump_size.x * 0.5, bounds.position.x + padding, bounds.end.x - clump_size.x - padding),
+				clampf(bounds.position.y + data["pos"].y * bounds.size.y - clump_size.y * 0.5, bounds.position.y + padding, bounds.end.y - clump_size.y - padding)
+			)
+			_create_dust_clump_node(i, sprite_info["texture"], clump_size, pos, data["rot"])
+
+func _create_dust_clump_node(idx: int, tex: Texture2D, clump_size: Vector2, pos: Vector2, rot: float) -> void:
+	var clump = TextureRect.new()
+	clump.name = "Pelusa_%d" % idx
+	clump.texture = tex
+	clump.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	clump.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	clump.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	clump.custom_minimum_size = clump_size
+	clump.size = clump_size
+	clump.position = pos
+	clump.pivot_offset = clump_size * 0.5
+	clump.rotation_degrees = rot
+	clump.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	clump.mouse_filter = Control.MOUSE_FILTER_PASS
+	
+	clump.gui_input.connect(func(event): _on_clump_gui_input(clump, event))
+	clump.set_meta("cleaned", false)
+	
+	heatsink_area.add_child(clump)
+	clump_nodes.append(clump)
 
 func _check_brush_at_position(global_pos: Vector2) -> void:
 	for clump in clump_nodes:
@@ -249,21 +387,25 @@ func _update_ui() -> void:
 	progress_bar.value = cleaned_clumps
 	progress_label.text = "PELUSA RETIRADA: %d / %d (%d%%)" % [cleaned_clumps, total_clumps, percent]
 	
+	var is_ram: bool = "ram" in target_component.to_lower()
+	var comp_name: String = "Memoria RAM" if is_ram else "Disipador"
 	if cleaned_clumps < total_clumps:
-		status_label.text = "Pasa la brocha o haz clic sobre cada cúmulo de pelusa para liberar las aletas de aluminio."
+		status_label.text = "Pasa la brocha o haz clic sobre cada cúmulo de pelusa para limpiar la %s." % comp_name
 	else:
-		status_label.text = "✓ ¡DISIPADOR COMPLETAMENTE DESOBSTRUIDO! Flujo térmico restaurado al 100%."
+		status_label.text = "✓ ¡%s COMPLETAMENTE DESOBSTRUIDA! Limpieza al 100%%." % comp_name.to_upper()
 
 func _trigger_victory() -> void:
 	is_game_completed = true
 	victory_banner.visible = true
-	warning_label.text = "✓ ¡Mantenimiento completado! Flujo de aire térmico al 100%."
+	var is_ram: bool = "ram" in target_component.to_lower()
+	var comp_name: String = "Memoria RAM" if is_ram else "Disipador"
+	warning_label.text = "✓ ¡Mantenimiento completado! %s al 100%% limpia y libre de obstrucciones." % comp_name
 	warning_label.modulate = Color(0.2, 1.0, 0.5)
 	
 	btn_cancel.text = "✓ FINALIZAR MANTENIMIENTO"
 	btn_cancel.modulate = Color(0.2, 1.0, 0.5)
 	
-	# Destello de éxito en el disipador
+	# Destello de éxito en el área de trabajo
 	var tw = create_tween().set_parallel(true)
 	tw.tween_property(heatsink_area, "modulate", Color(1.3, 1.4, 1.2), 0.25)
 	tw.chain().tween_property(heatsink_area, "modulate", Color.WHITE, 0.4)

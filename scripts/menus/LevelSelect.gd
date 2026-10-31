@@ -12,13 +12,10 @@ static var initial_tab: String = "niveles"
 @onready var btn_volver: Button = $TopBar/BtnVolver
 @onready var btn_niveles: Button = $TopBar/Tabs/BtnNiveles
 @onready var btn_tutoriales: Button = $TopBar/Tabs/BtnTutoriales
-@onready var top_bar: HBoxContainer = $TopBar
-@onready var mode_selector: HBoxContainer = $ModeSelector
 @onready var btn_reparacion: Button = $ModeSelector/BtnReparacion
 @onready var btn_fondo: Button = $ModeSelector/BtnFondo
 @onready var btn_sistema: Button = $ModeSelector/BtnSistema
 @onready var btn_servidor: Button = $ModeSelector/BtnServidor
-@onready var section_banner: PanelContainer = $SectionBanner
 @onready var banner_label: Label = $SectionBanner/BannerLabel
 @onready var column_headers: HBoxContainer = $ColumnHeaders
 @onready var col1_label: Label = $ColumnHeaders/Col1
@@ -58,10 +55,11 @@ var glitch_material = preload("res://styles/cyber_glitch_sprite.tres")
 var title_font = preload("res://assets/fonts/Bungee-Regular.ttf")
 
 var PRELOADED_TEXTURES = {
-	"res://pixel art/fancooler conectado.png": preload("res://pixel art/fancooler conectado.png"),
-	"res://pixel art/ram.png": preload("res://pixel art/ram.png"),
-	"res://pixel art/hdd.png": preload("res://pixel art/hdd.png"),
-	"res://pixel art/fondos de menus.png": preload("res://pixel art/fondos de menus.png")
+	"res://pixel art minijuegos/fancooler conectado.png": preload("res://pixel art minijuegos/fancooler conectado.png"),
+	"res://pixel art minijuegos/ram.png": preload("res://pixel art minijuegos/ram.png"),
+	"res://pixel art minijuegos/hdd.png": preload("res://pixel art minijuegos/hdd.png"),
+	"res://pixel art minijuegos/pelusa grande.png": preload("res://pixel art minijuegos/pelusa grande.png"),
+	"res://pixel art escenario/fondos de menus.png": preload("res://pixel art escenario/fondos de menus.png")
 }
 
 # Carga bajo demanda de escenas de minijuegos para garantizar 0 ms al alternar pestañas
@@ -84,6 +82,7 @@ var _usb_pendrive_scene = null
 var _cpu_paste_scene = null
 var _cpu_pins_scene = null
 var _dust_cleaner_scene = null
+var _voltimeter_scene = null
 
 # --- Variables de Estado ---
 var current_tab: String = "niveles"
@@ -479,7 +478,7 @@ var ALL_TUTORIAL_CARDS: Array[Dictionary] = [
 		"title": "FAN COOLER",
 		"subtitle": "DISIPADOR TÉRMICO ACTIVO PWM",
 		"category": "REFRIGERACIÓN",
-		"texture_path": "res://pixel art/fancooler conectado.png",
+		"texture_path": "res://pixel art minijuegos/fancooler conectado.png",
 		"color_accent": Color(1.0, 0.15, 0.35, 1.0),
 		"que_es": "Disipador de aleación metálica (aluminio/cobre) acoplado mecánicamente sobre el microprocesador con ventilador de velocidad regulada.",
 		"importancia": "CRÍTICA: Sin disipador activo, la CPU supera los 95°C en segundos, provocando apagados forzados de emergencia o degradación irreversible del silicio.",
@@ -494,7 +493,7 @@ var ALL_TUTORIAL_CARDS: Array[Dictionary] = [
 		"title": "MEMORIA RAM",
 		"subtitle": "MÓDULOS DE MEMORIA DDR",
 		"category": "MEMORIA",
-		"texture_path": "res://pixel art/ram.png",
+		"texture_path": "res://pixel art minijuegos/ram.png",
 		"color_accent": Color(0.85, 0.1, 0.95, 1.0),
 		"que_es": "Memoria de acceso aleatorio de ultra alta velocidad y almacenamiento volátil, con conexión directa al controlador de memoria de la CPU.",
 		"importancia": "FUNDAMENTAL: Celdas defectuosas o pistas con falso contacto causan cuelgues repentinos, pantallas azules (BSOD) o ausencia de video al encender.",
@@ -509,7 +508,7 @@ var ALL_TUTORIAL_CARDS: Array[Dictionary] = [
 		"title": "DISCO DURO",
 		"subtitle": "UNIDAD DE ALMACENAMIENTO SATA",
 		"category": "ALMACENAMIENTO",
-		"texture_path": "res://pixel art/hdd.png",
+		"texture_path": "res://pixel art minijuegos/hdd.png",
 		"color_accent": Color(1.0, 0.2, 0.45, 1.0),
 		"que_es": "Unidad de almacenamiento masivo y persistente del sistema (discos magnéticos o celdas flash de estado sólido SATA/NVMe).",
 		"importancia": "VITAL: En él reside el Sistema Operativo, sectores de booteo y archivos del usuario. Errores mecánicos o SMART impiden que la máquina bootee.",
@@ -627,6 +626,21 @@ var ALL_TUTORIAL_CARDS: Array[Dictionary] = [
 	},
 	{
 		"division": "reparacion_fondo",
+		"id": "voltimeter",
+		"title": "DIAGNÓSTICO CON MULTÍMETRO // VOLTÍMETRO",
+		"subtitle": "MEDICIÓN DE RIELES Y CONTINUIDAD",
+		"category": "ELECTRÓNICA & DIAGNÓSTICO",
+		"texture_path": "",
+		"color_accent": Color(1.0, 0.85, 0.15, 1.0),
+		"que_es": "Multímetro digital de banco para verificación de rieles de alimentación ATX (12V, 5VSB, 3.3V, VCore) y detección de cortocircuitos en condensadores cerámicos y MOSFETs.",
+		"importancia": "MÁXIMA: Un componente en cortocircuito en el riel de 12V o VCore tumba la fuente de poder por protección OCP/SCP, dejando la placa madre completamente inerte.",
+		"que_hace": "Mide en tiempo real la tensión en los Puntos de Prueba (Test Points). Permite aislar componentes dañados, sustituirlos y comprobar el retorno de la señal POWER_GOOD.",
+		"pasos": "1. Conecta la sonda COM a tierra (GND) del chasis.\n2. Haz clic en cada Punto de Prueba (TP) de la placa madre para medir su voltaje con la sonda roja.\n3. Identifica el riel con cortocircuito (0.00V / Alarma acústica continua).\n4. Presiona 'REEMPLAZAR CONDENSADOR SMD C124' para soldar un nuevo componente.\n5. Vuelve a medir para comprobar la estabilización de los rieles y la activación de PWR_GOOD (3.3V).",
+		"is_ready": true,
+		"handler": "launch_voltimeter"
+	},
+	{
+		"division": "reparacion_fondo",
 		"id": "cpu_pins",
 		"title": "ALINEACIÓN DE PINES (CPU)",
 		"subtitle": "MICROSCOPIA & CALIBRACIÓN A 90°",
@@ -646,7 +660,7 @@ var ALL_TUTORIAL_CARDS: Array[Dictionary] = [
 		"title": "DESOBSTRUCCIÓN DE PELUSA",
 		"subtitle": "LIMPIEZA DE DISIPADORES & ALETAS",
 		"category": "MANTENIMIENTO TÉRMICO",
-		"texture_path": "res://pixel art/fancooler conectado.png",
+		"texture_path": "res://pixel art minijuegos/pelusa grande.png",
 		"color_accent": Color(0.2, 0.95, 0.7, 1.0),
 		"que_es": "Limpieza profunda de cúmulos de pelusa, polvo apelmazado y fibras alojadas entre las aletas de disipación y aspas.",
 		"importancia": "MÁXIMA: Las aletas de aluminio tupidas por pelusa estrangulan el flujo de aire, provocando sobrecalentamiento crítico de más de 95°C y thermal throttling.",
@@ -654,6 +668,21 @@ var ALL_TUTORIAL_CARDS: Array[Dictionary] = [
 		"pasos": "1. Selecciona la herramienta Limpiador [5].\n2. Cepilla o haz clic sobre cada cúmulo de pelusa alojado en el disipador.\n3. Desobstruye todas las áreas hasta restaurar el 100% del flujo de aire.",
 		"is_ready": true,
 		"handler": "launch_dust_cleaner"
+	},
+	{
+		"division": "reparacion_fondo",
+		"id": "ram_cleaner",
+		"title": "LIMPIEZA DE RAM",
+		"subtitle": "DESOBSTRUCCIÓN DE PELUSA Y PINES DDR",
+		"category": "MANTENIMIENTO DE MEMORIA",
+		"texture_path": "res://pixel art minijuegos/pelusa grande.png",
+		"color_accent": Color(0.2, 0.95, 0.7, 1.0),
+		"que_es": "Limpieza profunda de cúmulos de pelusa, polvo apelmazado y fibras alojadas sobre los chips y contactos dorados de la memoria RAM.",
+		"importancia": "MÁXIMA: La pelusa acumulada retiene humedad y estática, provocando falsos contactos en las líneas de datos DDR, errores de paridad, pantallas azules (BSOD) o reinicios inesperados.",
+		"que_hace": "Remueve mecánicamente cada cúmulo de pelusa y polvo con el Limpiador [5] pasando la brocha sobre el módulo hasta restaurar el 100% de limpieza de la RAM.",
+		"pasos": "1. Selecciona la herramienta Limpiador [5] (Brocha antiestática).\n2. Pasa la brocha o haz clic sobre cada cúmulo de pelusa alojado en la memoria RAM.\n3. Desobstruye todos los cúmulos hasta dejar la superficie y pines al 100% limpios.",
+		"is_ready": true,
+		"handler": "launch_ram_cleaner"
 	},
 
 	# --- DIVISIÓN SISTEMA (SOFTWARE & CIBERSEGURIDAD) ---
@@ -1202,9 +1231,6 @@ func _play_level_1() -> void:
 	else:
 		get_tree().change_scene_to_file("res://scenes/gameplay/Level1.tscn")
 
-func _close_level_card() -> void:
-	_unzoom_camera()
-
 # =============================================================================
 # CONSTRUCCIÓN Y FILTRADO INSTANTÁNEO DE TARJETAS (REUTILIZACIÓN DE SLOTS, 0 MS)
 # =============================================================================
@@ -1244,7 +1270,7 @@ func _create_card_slot() -> Button:
 	bg_frame.name = "CyberBg"
 	bg_frame.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	bg_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	bg_frame.texture = PRELOADED_TEXTURES.get("res://pixel art/fondos de menus.png")
+	bg_frame.texture = PRELOADED_TEXTURES.get("res://pixel art escenario/fondos de menus.png")
 	bg_frame.material = preload("res://styles/cyber_panel_hologram.tres")
 	bg_frame.patch_margin_left = 32
 	bg_frame.patch_margin_top = 32
@@ -1357,17 +1383,25 @@ func _create_card_slot() -> Button:
 	btn.set_meta("title_lbl", title_lbl)
 	btn.set_meta("hint_lbl", hint_lbl)
 	
-	btn.pivot_offset = Vector2(170, 115)
+	btn.scale = Vector2.ONE
 	btn.mouse_entered.connect(func():
+		var old_tw = btn.get_meta("hover_tw", null)
+		if old_tw and old_tw.is_valid():
+			old_tw.kill()
 		var tw = create_tween().set_parallel(true)
-		tw.tween_property(btn, "scale", Vector2(1.04, 1.04), 0.15).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		btn.set_meta("hover_tw", tw)
+		tw.tween_property(panel, "modulate", Color(1.2, 1.25, 1.35, 1.0), 0.12)
 		sb.border_width_right = 6
 		sb.border_width_bottom = 6
 		sb.border_color = Color(1.0, 1.0, 1.0, 1.0)
 	)
 	btn.mouse_exited.connect(func():
+		var old_tw = btn.get_meta("hover_tw", null)
+		if old_tw and old_tw.is_valid():
+			old_tw.kill()
 		var tw = create_tween().set_parallel(true)
-		tw.tween_property(btn, "scale", Vector2(1.0, 1.0), 0.15).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		btn.set_meta("hover_tw", tw)
+		tw.tween_property(panel, "modulate", Color.WHITE, 0.15)
 		sb.border_width_right = 4
 		sb.border_width_bottom = 4
 		if btn.has_meta("card_data"):
@@ -1383,6 +1417,10 @@ func _create_card_slot() -> Button:
 	return btn
 
 func _populate_mini_card(btn: Button, data: Dictionary) -> void:
+	btn.scale = Vector2.ONE
+	var panel = btn.get_node_or_null("CardPanel")
+	if panel:
+		panel.modulate = Color.WHITE
 	btn.set_meta("card_data", data)
 	btn.set_meta("division", data["division"])
 	
@@ -1505,14 +1543,18 @@ func _on_deployed_play_pressed() -> void:
 			if not _cpu_paste_scene:
 				_cpu_paste_scene = load("res://scenes/minigames/CPUPasteMinigame.tscn")
 			_launch_minigame(_cpu_paste_scene)
+		"launch_voltimeter":
+			if not _voltimeter_scene:
+				_voltimeter_scene = load("res://scenes/minigames/VoltimeterMinigame.tscn")
+			_launch_minigame(_voltimeter_scene)
 		"launch_cpu_pins":
 			if not _cpu_pins_scene:
 				_cpu_pins_scene = load("res://scenes/minigames/CPUPinsMinigame.tscn")
 			_launch_minigame(_cpu_pins_scene)
+		"launch_ram_cleaner":
+			_launch_dust_cleaner_component("RAM")
 		"launch_dust_cleaner":
-			if not _dust_cleaner_scene:
-				_dust_cleaner_scene = load("res://scenes/minigames/DustCleanerMinigame.tscn")
-			_launch_minigame(_dust_cleaner_scene)
+			_launch_dust_cleaner_component("Disipador")
 		"launch_m2":
 			if not _m2_scene:
 				_m2_scene = load("res://scenes/minigames/M2Minigame.tscn")
@@ -1565,6 +1607,20 @@ func _launch_minigame(scene: PackedScene) -> void:
 		current_minigame_instance.queue_free()
 		
 	var inst = scene.instantiate()
+	current_minigame_instance = inst
+	minigame_container.add_child(inst)
+	
+	if inst.has_signal("minigame_finished"):
+		inst.minigame_finished.connect(_on_minigame_finished)
+
+func _launch_dust_cleaner_component(comp: String) -> void:
+	if not _dust_cleaner_scene:
+		_dust_cleaner_scene = load("res://scenes/minigames/DustCleanerMinigame.tscn")
+	if is_instance_valid(current_minigame_instance):
+		current_minigame_instance.queue_free()
+		
+	var inst = _dust_cleaner_scene.instantiate()
+	inst.setup_component(comp)
 	current_minigame_instance = inst
 	minigame_container.add_child(inst)
 	

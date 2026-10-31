@@ -36,10 +36,11 @@ var default_seated_y: float = 82.0
 const COLOR_RED = Color(1.0, 0.15, 0.25, 1.0)
 const COLOR_GREEN = Color(0.2, 1.0, 0.45, 1.0)
 
+var voltimeter_minigame_scene: PackedScene = preload("res://scenes/minigames/VoltimeterMinigame.tscn")
+
 # Nodos de la escena
 @onready var modal_control: Control = $ModalControl
 @onready var status_label: Label = $ModalControl/Panel/VBox/Header/StatusLabel
-@onready var socket_area: Control = $ModalControl/Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea
 @onready var socket_base: Panel = $ModalControl/Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea/SocketBase
 @onready var empty_slot_label: Label = $ModalControl/Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea/SocketBase/EmptySlotLabel
 @onready var ram_stick: TextureRect = $ModalControl/Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea/RAMStick
@@ -107,6 +108,24 @@ func _ready() -> void:
 		
 	_update_ui_state()
 	_refresh_backpack_ui()
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo:
+		if event.keycode == KEY_4 or event.keycode == KEY_KP_4:
+			GameManager.select_tool(4)
+			_open_voltimeter()
+
+func _open_voltimeter() -> void:
+	modal_control.visible = false
+	var minigame = voltimeter_minigame_scene.instantiate()
+	if minigame.has_method("setup_component"):
+		minigame.setup_component("RAM")
+	get_tree().root.add_child(minigame)
+	minigame.connect("minigame_finished", func(_success: bool):
+		minigame.queue_free()
+		modal_control.visible = true
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	)
 
 func _select_guide_tab(idx: int) -> void:
 	if is_instance_valid(btn_tab_quitar) and is_instance_valid(btn_tab_poner):

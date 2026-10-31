@@ -6,7 +6,6 @@ extends CharacterBody3D
 
 @onready var camera: Camera3D = $Camera3D
 @onready var interaction_ray: RayCast3D = $Camera3D/RayCast3D
-@onready var model_root: Node3D = $ModelRoot
 @onready var character_model: Node3D = $ModelRoot/CharacterModel
 @onready var animation_player: AnimationPlayer = $ModelRoot/AnimationPlayer
 @onready var intro_camera_pivot: Node3D = $IntroCameraPivot

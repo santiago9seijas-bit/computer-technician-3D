@@ -9,13 +9,8 @@ extends Control
 signal mode_transition_started()
 signal mode_transition_completed()
 
-@export var line_color: Color = Color(0.55, 0.05, 0.70, 0.35)
-@export var laser_active_color: Color = Color(1.0, 0.08, 0.25, 0.95)
-@export var trajectory_line_color: Color = Color(0.5, 0.05, 0.65, 0.25)
-
 var anim_offset: float = 0.0
 var hovered_node_index: int = -1
-var boot_progress: float = 1.0
 var current_mode: String = "reparacion"
 var previous_mode: String = "reparacion"
 
@@ -206,9 +201,6 @@ var nodes: Array[Vector2] = []
 func _ready() -> void:
 	_update_nodes_for_mode()
 	_init_cyber_fx()
-
-func set_mode(new_mode: String) -> void:
-	transition_to_mode(new_mode)
 
 func transition_to_mode(new_mode: String) -> void:
 	if not MODE_NODES.has(new_mode):
@@ -642,7 +634,7 @@ func _draw() -> void:
 			var ripple_t = fmod(anim_offset * 1.5, 1.0)
 			var ripple_r = lerp(26.0, 48.0, ripple_t) * zoom_scale
 			var ripple_a = (1.0 - ripple_t) * 0.4
-			draw_arc(np, ripple_r, 0, TAU, 32, b_col, 1.5)
+			draw_arc(np, ripple_r, 0, TAU, 32, Color(b_col.r, b_col.g, b_col.b, ripple_a), 1.5)
 
 func _draw_circuit_line(p1: Vector2, p2: Vector2, alpha: float, seed_val: int) -> void:
 	# Glow exterior amplio en púrpura neón

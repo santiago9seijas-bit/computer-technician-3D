@@ -44,8 +44,8 @@ var is_dragging_gpu: bool = false
 var drag_start_y: float = 0.0
 
 # Texturas
-var tex_screw_cruz = preload("res://pixel art/tornillo de cruz.png")
-var tex_screw_pala = preload("res://pixel art/tornillo de pala.png")
+var tex_screw_cruz = preload("res://pixel art minijuegos/tornillo de cruz.png")
+var tex_screw_pala = preload("res://pixel art minijuegos/tornillo de pala.png")
 
 # Nodos
 @onready var modal_control: Control = $ModalControl
@@ -56,7 +56,6 @@ var tex_screw_pala = preload("res://pixel art/tornillo de pala.png")
 
 @onready var work_area: Control = $ModalControl/Panel/VBox/WorkArea
 @onready var gpu_container: Control = $ModalControl/Panel/VBox/WorkArea/GPUContainer
-@onready var pcie_slot: Panel = $ModalControl/Panel/VBox/WorkArea/PCIeSlot
 @onready var pcie_latch_btn: Button = $ModalControl/Panel/VBox/WorkArea/PCIeSlot/BtnLatch
 @onready var latch_status_label: Label = $ModalControl/Panel/VBox/WorkArea/PCIeSlot/LatchStatus
 
@@ -64,7 +63,6 @@ var tex_screw_pala = preload("res://pixel art/tornillo de pala.png")
 @onready var btn_cable_clip: Button = $ModalControl/Panel/VBox/WorkArea/CableContainer/BtnCableClip
 @onready var cable_hint: Label = $ModalControl/Panel/VBox/WorkArea/CableContainer/CableHint
 
-@onready var bracket_area: Control = $ModalControl/Panel/VBox/WorkArea/GPUContainer/BracketArea
 @onready var btn_screw_1: Button = $ModalControl/Panel/VBox/WorkArea/GPUContainer/BracketArea/Screw1
 @onready var btn_screw_2: Button = $ModalControl/Panel/VBox/WorkArea/GPUContainer/BracketArea/Screw2
 @onready var icon_screw_1: TextureRect = $ModalControl/Panel/VBox/WorkArea/GPUContainer/BracketArea/Screw1/Icon

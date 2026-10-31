@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ckfbwiy7c4wxs"
-path="res://.godot/imported/fondo de boton.png-c5f5cd1c1729a82c2dc6d2274b96d951.ctex"
+uid="uid://dph11i2ekulpm"
+path="res://.godot/imported/marca voltimetro.png-aeecdb4b8821165428f2e4935dbf3bdd.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://pixel art/fondo de boton.png"
-dest_files=["res://.godot/imported/fondo de boton.png-c5f5cd1c1729a82c2dc6d2274b96d951.ctex"]
+source_file="res://pixel art minijuegos/marca voltimetro.png"
+dest_files=["res://.godot/imported/marca voltimetro.png-aeecdb4b8821165428f2e4935dbf3bdd.ctex"]
 
 [params]
 

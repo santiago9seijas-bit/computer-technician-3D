@@ -25,7 +25,6 @@ var drag_start_y: float = 0.0
 var is_dragging_backpack_hdd: bool = false
 var backpack_drag_start_x: float = 0.0
 
-@onready var modal_control: Control = $ModalControl
 @onready var status_label: Label = $ModalControl/Panel/VBox/Header/StatusLabel
 
 # Barra de herramientas interna del minijuego

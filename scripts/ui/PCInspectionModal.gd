@@ -13,6 +13,7 @@ var cpu_minigame_scene: PackedScene = preload("res://scenes/minigames/CPUMinigam
 var cpupaste_minigame_scene: PackedScene = preload("res://scenes/minigames/CPUPasteMinigame.tscn")
 var cpupins_minigame_scene: PackedScene = preload("res://scenes/minigames/CPUPinsMinigame.tscn")
 var dustcleaner_minigame_scene: PackedScene = preload("res://scenes/minigames/DustCleanerMinigame.tscn")
+var voltimeter_minigame_scene: PackedScene = preload("res://scenes/minigames/VoltimeterMinigame.tscn")
 
 @onready var modal_control: Control = $ModalControl
 @onready var title_label: Label = $ModalControl/Panel/VBox/Header/TitleLabel
@@ -69,6 +70,7 @@ var comp_cards: Dictionary = {}
 var comp_sacar_btns: Dictionary = {}
 var comp_limpiar_btns: Dictionary = {}
 var comp_pines_btns: Dictionary = {}
+var comp_voltimeter_btns: Dictionary = {}
 var comp_status_labels: Dictionary = {}
 var card_styleboxes: Dictionary = {}
 
@@ -198,6 +200,45 @@ func _ready() -> void:
 		parent_vbox.add_child(btn_pines)
 		comp_pines_btns[comp_name] = btn_pines
 	
+	# Botones de Multímetro [4] para las áreas de RAM, Fuente de Poder y Fan Cooler
+	var comp_volti_labels = {
+		"RAM": "⚡ MEDIR VOLTAJE RAM [4]",
+		"Fuente": "⚡ MEDIR RIELES PSU [4]",
+		"Fan Cooler": "⚡ MEDIR VOLTAJE PWM [4]"
+	}
+	var style_volti_normal = StyleBoxFlat.new()
+	style_volti_normal.bg_color = Color(0.08, 0.12, 0.18, 0.95)
+	style_volti_normal.border_width_left = 2
+	style_volti_normal.border_width_top = 2
+	style_volti_normal.border_width_right = 2
+	style_volti_normal.border_width_bottom = 2
+	style_volti_normal.border_color = Color(1.0, 0.85, 0.15, 0.9)
+	style_volti_normal.corner_radius_top_left = 4
+	style_volti_normal.corner_radius_top_right = 4
+	style_volti_normal.corner_radius_bottom_right = 4
+	style_volti_normal.corner_radius_bottom_left = 4
+
+	var style_volti_hover = style_volti_normal.duplicate()
+	style_volti_hover.bg_color = Color(0.12, 0.22, 0.32, 1.0)
+	style_volti_hover.border_color = Color(0.2, 0.95, 1.0, 1.0)
+
+	for comp_name in ["RAM", "Fuente", "Fan Cooler"]:
+		var btn_sacar = comp_sacar_btns[comp_name]
+		var parent_vbox = btn_sacar.get_parent()
+		var btn_volti = Button.new()
+		btn_volti.custom_minimum_size = Vector2(0, 30)
+		btn_volti.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		btn_volti.add_theme_font_size_override("font_size", 11)
+		btn_volti.add_theme_stylebox_override("normal", style_volti_normal)
+		btn_volti.add_theme_stylebox_override("hover", style_volti_hover)
+		btn_volti.add_theme_color_override("font_color", Color(1.0, 0.9, 0.3))
+		btn_volti.add_theme_color_override("font_hover_color", Color(0.2, 1.0, 0.9))
+		btn_volti.text = comp_volti_labels[comp_name]
+		btn_volti.visible = false
+		btn_volti.pressed.connect(func(): _on_voltimeter_pressed(comp_name))
+		parent_vbox.add_child(btn_volti)
+		comp_voltimeter_btns[comp_name] = btn_volti
+	
 	# Botones de selección rápida de herramientas
 	btn_tool_1.pressed.connect(func(): GameManager.select_tool(1))
 	btn_tool_2.pressed.connect(func(): GameManager.select_tool(2))
@@ -219,6 +260,22 @@ func setup_pc(pc_node) -> void:
 	current_pc = pc_node
 	title_label.text = "DIAGNÓSTICO TÉCNICO: COMPUTADORA #%d" % current_pc.pc_id
 	_refresh_ui()
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo:
+		match event.keycode:
+			KEY_1, KEY_KP_1:
+				GameManager.select_tool(1)
+			KEY_2, KEY_KP_2:
+				GameManager.select_tool(2)
+			KEY_3, KEY_KP_3:
+				GameManager.select_tool(3)
+			KEY_4, KEY_KP_4:
+				GameManager.select_tool(4)
+			KEY_5, KEY_KP_5:
+				GameManager.select_tool(5)
+			KEY_ESCAPE:
+				_on_volver_pressed()
 
 # =============================================================================
 # INTERACCIÓN CON TARJETAS Y ARRASTRE
@@ -498,6 +555,41 @@ func _check_cpu_repaired_status(msg: String) -> void:
 	else:
 		_show_feedback(msg, true)
 
+func _on_voltimeter_pressed(comp_name: String) -> void:
+	if not GameManager.is_voltimeter_equipped():
+		_show_feedback("⚠️ Necesitas seleccionar el Multímetro [4] para medir.", false)
+		return
+	if current_pc == null:
+		return
+	var status = current_pc.components.get(comp_name, "ok")
+	if status == "empty":
+		_show_feedback("🎒 El slot de [%s] está vacío. No hay circuitos para medir." % comp_name, false)
+		return
+	_open_voltimeter(comp_name)
+
+func _open_voltimeter(comp_name: String) -> void:
+	if not GameManager.is_voltimeter_equipped():
+		_show_feedback("⚠️ Necesitas seleccionar el Multímetro [4] para medir.", false)
+		return
+	modal_control.visible = false
+	var minigame = voltimeter_minigame_scene.instantiate()
+	if minigame.has_method("setup_component"):
+		minigame.setup_component(comp_name)
+	get_tree().root.add_child(minigame)
+	
+	minigame.connect("minigame_finished", func(success: bool):
+		minigame.queue_free()
+		modal_control.visible = true
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+		if success:
+			GameManager.register_repair(90, 6.0)
+			if current_pc and current_pc.components.get(comp_name, "") == "broken":
+				current_pc.components[comp_name] = "fixed"
+				current_pc.update_3d_state()
+			_show_feedback("✓ ¡Diagnóstico con Multímetro [4] en [%s] completado al 100%%! Rieles y voltajes calibrados." % comp_name, true)
+		_refresh_ui()
+	)
+
 # =============================================================================
 # ACTUALIZACIÓN DE INTERFAZ Y ESTILOS
 # =============================================================================
@@ -577,8 +669,9 @@ func _refresh_ui() -> void:
 					btn_sacar_cpu.modulate = Color(1.0, 0.4, 0.4, 1.0)
 
 	# REGLA OBLIGATORIA PARA TODAS LAS PIEZAS:
-	# Los botones de Cautín [3] y Limpiador [5] solo son visibles con su herramienta activa
+	# Los botones de Cautín [3], Multímetro [4] y Limpiador [5] solo son visibles con su herramienta activa
 	var is_cautin_equipped: bool = GameManager.is_soldering_tool_equipped()
+	var is_voltimeter_equipped: bool = GameManager.is_voltimeter_equipped()
 	var is_cleaner_equipped: bool = GameManager.is_cleaning_tool_equipped()
 
 	for comp_name in comp_cards.keys():
@@ -602,6 +695,15 @@ func _refresh_ui() -> void:
 				btn_p.modulate = Color(0.6, 0.6, 0.6, 0.5)
 			else:
 				btn_p.modulate = Color(1.0, 1.0, 1.0, 1.0)
+
+		if comp_voltimeter_btns.has(comp_name):
+			var btn_v: Button = comp_voltimeter_btns[comp_name]
+			btn_v.visible = is_voltimeter_equipped
+			btn_v.disabled = is_empty
+			if is_empty:
+				btn_v.modulate = Color(0.6, 0.6, 0.6, 0.5)
+			else:
+				btn_v.modulate = Color(1.0, 1.0, 1.0, 1.0)
 	
 	# Actualizar slots de mochila
 	for i in range(slot_buttons.size()):

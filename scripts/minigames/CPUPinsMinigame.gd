@@ -10,7 +10,6 @@ extends CanvasLayer
 
 signal minigame_finished(success: bool)
 
-@onready var modal_control: Control = $ModalControl
 @onready var status_label: Label = $ModalControl/Panel/VBox/Header/StatusLabel
 @onready var progress_label: Label = $ModalControl/Panel/VBox/Header/ProgressLabel
 @onready var progress_bar: ProgressBar = $ModalControl/Panel/VBox/Header/ProgressBar

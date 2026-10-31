@@ -5,7 +5,6 @@ extends Control
 @onready var lbl_puntaje: Label = $BottomLeft/LblPuntaje
 @onready var backpack_container: VBoxContainer = $TopRight/BackpackContainer
 @onready var prompt_label: Label = $Center/PromptLabel
-@onready var crosshair: Control = $Center/Crosshair
 @onready var tools_bar: HBoxContainer = $BottomCenter/ToolsBar
 @onready var floating_feedback_container: Control = $FloatingFeedback
 @onready var game_over_panel: PanelContainer = $GameOverPanel
@@ -23,13 +22,15 @@ func _ready() -> void:
 	win_panel.visible = false
 	prompt_label.text = ""
 	
-	GameManager.score_updated.connect(_on_score_updated)
-	GameManager.time_updated.connect(_on_time_updated)
-	GameManager.error_occurred.connect(_on_error_occurred)
-	GameManager.backpack_updated.connect(_on_backpack_updated)
-	GameManager.tool_selected.connect(_on_tool_selected)
-	GameManager.game_over_triggered.connect(_on_game_over)
-	GameManager.level_completed.connect(_on_level_won)
+	var gm = get_node_or_null("/root/GameManager")
+	if gm:
+		gm.score_updated.connect(_on_score_updated)
+		gm.time_updated.connect(_on_time_updated)
+		gm.error_occurred.connect(_on_error_occurred)
+		gm.backpack_updated.connect(_on_backpack_updated)
+		gm.tool_selected.connect(_on_tool_selected)
+		gm.game_over_triggered.connect(_on_game_over)
+		gm.level_completed.connect(_on_level_won)
 	
 	_update_backpack_ui([])
 	_update_tools_ui(0)
@@ -40,7 +41,11 @@ func _ready() -> void:
 		var btn = tools_bar.get_child(i) as Button
 		if btn:
 			var t_id = i + 1
-			btn.pressed.connect(func(): GameManager.select_tool(t_id))
+			btn.pressed.connect(func():
+				var g = get_node_or_null("/root/GameManager")
+				if g and g.has_method("select_tool"):
+					g.select_tool(t_id)
+			)
 
 func _create_cinematic_overlay() -> void:
 	if cinematic_overlay:
@@ -215,7 +220,11 @@ func _update_backpack_ui(items: Array) -> void:
 				btn.modulate = Color(1, 0.4, 0.4, 1)
 			else:
 				btn.modulate = Color(0.4, 1, 0.6, 1)
-			btn.pressed.connect(func(): GameManager.selected_backpack_index = i)
+			btn.pressed.connect(func():
+				var g = get_node_or_null("/root/GameManager")
+				if g:
+					g.selected_backpack_index = i
+			)
 			backpack_container.add_child(btn)
 
 func _on_tool_selected(tool_id: int) -> void:

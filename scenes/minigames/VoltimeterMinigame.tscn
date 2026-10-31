@@ -1,0 +1,458 @@
+[gd_scene format=3 load_steps=16]
+
+[ext_resource type="Script" path="res://scripts/minigames/VoltimeterMinigame.gd" id="1_volti"]
+[ext_resource type="Theme" path="res://styles/cyberpunk_theme.tres" id="2_theme"]
+[ext_resource type="FontFile" uid="uid://dbcug8887dro7" path="res://assets/fonts/Bungee-Regular.ttf" id="3_title_font"]
+[ext_resource type="PackedScene" path="res://scenes/ui/CyberBackgroundFrame.tscn" id="4_bg_frame"]
+[ext_resource type="Script" path="res://scripts/menus/CyberButton.gd" id="5_cbtn"]
+[ext_resource type="Texture2D" uid="uid://to8xf8wiw4io" path="res://pixel art minijuegos/circulo de voltimetro.png" id="6_circulo_tex"]
+[ext_resource type="Texture2D" uid="uid://dph11i2ekulpm" path="res://pixel art minijuegos/marca voltimetro.png" id="7_marca_tex"]
+[ext_resource type="Texture2D" uid="uid://blx77k0jo4rwp" path="res://pixel art minijuegos/flecha de voltimetro.png" id="8_flecha_tex"]
+[ext_resource type="Material" uid="uid://5ra4e5h4fgni" path="res://styles/cyber_glitch_sprite.tres" id="9_glitch_mat"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_frame"]
+content_margin_left = 22.0
+content_margin_top = 18.0
+content_margin_right = 22.0
+content_margin_bottom = 18.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_multimeter_casing"]
+bg_color = Color(0.1, 0.11, 0.15, 0.98)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(1, 0.82, 0.1, 0.85)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_size = 10
+shadow_color = Color(0, 0, 0, 0.6)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hub"]
+bg_color = Color(0.1, 0.15, 0.22, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0, 0.9, 1, 0.9)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lcd"]
+bg_color = Color(0.02, 0.09, 0.12, 0.96)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0, 0.9, 0.95, 0.7)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_board_casing"]
+bg_color = Color(0.04, 0.08, 0.11, 0.98)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.15, 0.85, 0.65, 0.8)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_size = 10
+shadow_color = Color(0, 0, 0, 0.6)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_repair"]
+bg_color = Color(0.25, 0.08, 0.08, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.25, 0.35, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_victory"]
+bg_color = Color(0.04, 0.2, 0.12, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.2, 1, 0.5, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[node name="VoltimeterMinigame" type="CanvasLayer"]
+layer = 12
+script = ExtResource("1_volti")
+
+[node name="ModalControl" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_theme")
+
+[node name="DimOverlay" type="ColorRect" parent="ModalControl"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.02, 0.03, 0.06, 0.94)
+
+[node name="Panel" type="PanelContainer" parent="ModalControl"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -520.0
+offset_top = -335.0
+offset_right = 520.0
+offset_bottom = 335.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_frame")
+
+[node name="CyberBackgroundFrame" parent="ModalControl/Panel" instance=ExtResource("4_bg_frame")]
+layout_mode = 2
+
+[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Header" type="VBoxContainer" parent="ModalControl/Panel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="TitleLabel" type="Label" parent="ModalControl/Panel/VBox/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.15, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 8
+theme_override_colors/font_shadow_color = Color(0.85, 0.5, 0.05, 0.8)
+theme_override_constants/shadow_outline_size = 8
+theme_override_fonts/font = ExtResource("3_title_font")
+theme_override_font_sizes/font_size = 17
+text = "DIAGNÓSTICO CON MULTÍMETRO DIGITAL // MEDICIÓN Y CALIBRACIÓN DE RIELES"
+horizontal_alignment = 1
+
+[node name="StatusLabel" type="Label" parent="ModalControl/Panel/VBox/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 12
+text = "Gira el dial a DC, AC u OHM según el riel, y pulsa [ESPACIO] justo en la marca para calibrar."
+horizontal_alignment = 1
+
+[node name="ProgressLabel" type="Label" parent="ModalControl/Panel/VBox/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 1, 0.5, 1)
+theme_override_font_sizes/font_size = 12
+text = "PUNTOS VERIFICADOS: 0 / 6"
+horizontal_alignment = 1
+
+[node name="ProgressBar" type="ProgressBar" parent="ModalControl/Panel/VBox/Header"]
+custom_minimum_size = Vector2(260, 10)
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="WorkArea" type="Control" parent="ModalControl/Panel/VBox"]
+custom_minimum_size = Vector2(980, 470)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="HBox" type="HBoxContainer" parent="ModalControl/Panel/VBox/WorkArea"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 14
+
+[node name="MultimeterFrame" type="PanelContainer" parent="ModalControl/Panel/VBox/WorkArea/HBox"]
+custom_minimum_size = Vector2(430, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_multimeter_casing")
+
+[node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/WorkArea/HBox/MultimeterFrame"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 10
+
+[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/WorkArea/HBox/MultimeterFrame/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="BrandLabel" type="Label" parent="ModalControl/Panel/VBox/WorkArea/HBox/MultimeterFrame/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_fonts/font = ExtResource("3_title_font")
+theme_override_font_sizes/font_size = 12
+text = "FLUKE-CYBER 87V // MULTÍMETRO DIGITAL"
+horizontal_alignment = 1
+
+[node name="LcdScreen" type="PanelContainer" parent="ModalControl/Panel/VBox/WorkArea/HBox/MultimeterFrame/Margin/VBox"]
+custom_minimum_size = Vector2(0, 130)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_lcd")
+
+[node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/WorkArea/HBox/MultimeterFrame/Margin/VBox/LcdScreen"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 6
+
+[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/WorkArea/HBox/MultimeterFrame/Margin/VBox/LcdScreen/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 4
+alignment = 1
+
+[node name="HBoxBadges" type="HBoxContainer" parent="ModalControl/Panel/VBox/WorkArea/HBox/MultimeterFrame/Margin/VBox/LcdScreen/Margin/VBox"]
+layout_mode = 2
+
+[node name="LblModeBadge" type="Label" parent="ModalControl/Panel/VBox/WorkArea/HBox/MultimeterFrame/Margin/VBox/LcdScreen/Margin/VBox/HBoxBadges"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.9, 1, 0.85)
+theme_override_font_sizes/font_size = 10
+text = "[ DC V⎓ ] [ AUTO 20V ]"
+
+[node name="Spacer" type="Control" parent="ModalControl/Panel/VBox/WorkArea/HBox/MultimeterFrame/Margin/VBox/LcdScreen/Margin/VBox/HBoxBadges"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HoldBadge" type="Label" parent="ModalControl/Panel/VBox/WorkArea/HBox/MultimeterFrame/Margin/VBox/LcdScreen/Margin/VBox/HBoxBadges"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 1, 0.5, 0.8)
+theme_override_font_sizes/font_size = 10
+text = "[ LIVE ]"
+
+[node name="LblVoltage" type="Label" parent="ModalControl/Panel/VBox/WorkArea/HBox/MultimeterFrame/Margin/VBox/LcdScreen/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.1, 0.95, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0.85, 1, 0.5)
+theme_override_constants/shadow_outline_size = 8
+theme_override_fonts/font = ExtResource("3_title_font")
+theme_override_font_sizes/font_size = 28
+text = "0.00 V"
+horizontal_alignment = 1
+
+[node name="LcdBargraph" type="ProgressBar" parent="ModalControl/Panel/VBox/WorkArea/HBox/MultimeterFrame/Margin/VBox/LcdScreen/Margin/VBox"]
+custom_minimum_size = Vector2(0, 6)
+layout_mode = 2
+max_value = 15.0
+show_percentage = false
+
+[node name="LblReadoutStatus" type="Label" parent="ModalControl/Panel/VBox/WorkArea/HBox/MultimeterFrame/Margin/VBox/LcdScreen/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 10
+text = "SELECCIONA UN TEST POINT (TP) PARA COMENZAR"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="DialBox" type="HBoxContainer" parent="ModalControl/Panel/VBox/WorkArea/HBox/MultimeterFrame/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="BtnModeDC" type="Button" parent="ModalControl/Panel/VBox/WorkArea/HBox/MultimeterFrame/Margin/VBox/DialBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 11
+text = "V⎓ DC"
+
+[node name="BtnModeAC" type="Button" parent="ModalControl/Panel/VBox/WorkArea/HBox/MultimeterFrame/Margin/VBox/DialBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 11
+text = "V~ AC"
+
+[node name="BtnModeOhm" type="Button" parent="ModalControl/Panel/VBox/WorkArea/HBox/MultimeterFrame/Margin/VBox/DialBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 11
+text = "Ω OHM"
+
+[node name="TPScroll" type="ScrollContainer" parent="ModalControl/Panel/VBox/WorkArea/HBox/MultimeterFrame/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="TPList" type="VBoxContainer" parent="ModalControl/Panel/VBox/WorkArea/HBox/MultimeterFrame/Margin/VBox/TPScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="CalibrationFrame" type="PanelContainer" parent="ModalControl/Panel/VBox/WorkArea/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_board_casing")
+
+[node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/WorkArea/HBox/CalibrationFrame"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/WorkArea/HBox/CalibrationFrame/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="CalTitle" type="Label" parent="ModalControl/Panel/VBox/WorkArea/HBox/CalibrationFrame/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.95, 0.75, 1)
+theme_override_font_sizes/font_size = 12
+text = "CALIBRADOR DE VOLTAJE // CÍRCULO ANALÓGICO"
+horizontal_alignment = 1
+
+[node name="CircleArea" type="Control" parent="ModalControl/Panel/VBox/WorkArea/HBox/CalibrationFrame/Margin/VBox"]
+custom_minimum_size = Vector2(340, 340)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="CircleFace" type="TextureRect" parent="ModalControl/Panel/VBox/WorkArea/HBox/CalibrationFrame/Margin/VBox/CircleArea"]
+material = ExtResource("9_glitch_mat")
+texture_filter = 1
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -170.0
+offset_top = -170.0
+offset_right = 170.0
+offset_bottom = 170.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("6_circulo_tex")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TargetMark" type="TextureRect" parent="ModalControl/Panel/VBox/WorkArea/HBox/CalibrationFrame/Margin/VBox/CircleArea"]
+texture_filter = 1
+layout_mode = 0
+offset_left = 152.0
+offset_top = 152.0
+offset_right = 188.0
+offset_bottom = 188.0
+pivot_offset = Vector2(18, 18)
+texture = ExtResource("7_marca_tex")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Needle" type="TextureRect" parent="ModalControl/Panel/VBox/WorkArea/HBox/CalibrationFrame/Margin/VBox/CircleArea"]
+texture_filter = 1
+layout_mode = 0
+offset_left = 158.0
+offset_top = 158.0
+offset_right = 298.0
+offset_bottom = 182.0
+pivot_offset = Vector2(12, 12)
+texture = ExtResource("8_flecha_tex")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="CenterHub" type="Panel" parent="ModalControl/Panel/VBox/WorkArea/HBox/CalibrationFrame/Margin/VBox/CircleArea"]
+layout_mode = 0
+offset_left = 158.0
+offset_top = 158.0
+offset_right = 182.0
+offset_bottom = 182.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_hub")
+
+[node name="LblCalibrationHint" type="Label" parent="ModalControl/Panel/VBox/WorkArea/HBox/CalibrationFrame/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 11
+text = "⚡ Presiona [ESPACIO] cuando la aguja se alinee con la marca."
+horizontal_alignment = 1
+
+[node name="BtnCalibrate" type="Button" parent="ModalControl/Panel/VBox/WorkArea/HBox/CalibrationFrame/Margin/VBox"]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "🎯 AJUSTAR Y FIJAR VOLTAJE [ESPACIO]"
+
+[node name="RepairBox" type="PanelContainer" parent="ModalControl/Panel/VBox/WorkArea/HBox/CalibrationFrame/Margin/VBox"]
+visible = false
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_repair")
+
+[node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/WorkArea/HBox/CalibrationFrame/Margin/VBox/RepairBox"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 4
+
+[node name="HBox" type="HBoxContainer" parent="ModalControl/Panel/VBox/WorkArea/HBox/CalibrationFrame/Margin/VBox/RepairBox/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="LblAlert" type="Label" parent="ModalControl/Panel/VBox/WorkArea/HBox/CalibrationFrame/Margin/VBox/RepairBox/Margin/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 0.3, 0.3, 1)
+theme_override_font_sizes/font_size = 10
+text = "🚨 CORTO CONFIRMADO EN OHMIOS (0.1 Ω EN C124)"
+autowrap_mode = 2
+
+[node name="BtnRepair" type="Button" parent="ModalControl/Panel/VBox/WorkArea/HBox/CalibrationFrame/Margin/VBox/RepairBox/Margin/HBox"]
+custom_minimum_size = Vector2(230, 32)
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "🔧 REEMPLAZAR C124"
+
+[node name="VictoryBanner" type="PanelContainer" parent="ModalControl/Panel/VBox"]
+visible = false
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_victory")
+
+[node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/VictoryBanner"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 6
+
+[node name="VictoryLabel" type="Label" parent="ModalControl/Panel/VBox/VictoryBanner/Margin"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 1, 0.5, 1)
+theme_override_font_sizes/font_size = 13
+text = "★ ¡DIAGNÓSTICO EXITOSO! RIELES DC, RIPPLE AC Y RESISTENCIA MEDIDOS Y CALIBRADOS (+200 PTS) ★"
+horizontal_alignment = 1
+
+[node name="Footer" type="HBoxContainer" parent="ModalControl/Panel/VBox"]
+layout_mode = 2
+alignment = 1
+
+[node name="BtnCancel" type="Button" parent="ModalControl/Panel/VBox/Footer"]
+custom_minimum_size = Vector2(220, 36)
+layout_mode = 2
+text = "CANCELAR / CERRAR"
+flat = true
+script = ExtResource("5_cbtn")
+slant = 12.0

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b8in2ksfawwet"
-path="res://.godot/imported/decoracion.png-0f5007b42c90ae2b78481888eb0d686d.ctex"
+uid="uid://ykldffcgdt4m"
+path="res://.godot/imported/fondo pa contador de errores.png-05f2b6c6c59c17b478e71f58927844a4.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://pixel art/decoracion.png"
-dest_files=["res://.godot/imported/decoracion.png-0f5007b42c90ae2b78481888eb0d686d.ctex"]
+source_file="res://pixel art escenario/fondo pa contador de errores.png"
+dest_files=["res://.godot/imported/fondo pa contador de errores.png-05f2b6c6c59c17b478e71f58927844a4.ctex"]
 
 [params]
 

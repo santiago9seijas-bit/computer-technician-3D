@@ -57,13 +57,11 @@ var is_pump_running: bool = false
 @onready var warning_label: Label = $ModalControl/Panel/VBox/WorkArea/WarningLabel
 
 # Componentes calientes en el chasis
-@onready var radiator_panel: Panel = $ModalControl/Panel/VBox/WorkArea/ChassisFrame/Radiator
 @onready var cpu_temp_lbl: Label = $ModalControl/Panel/VBox/WorkArea/ChassisFrame/CPUBlock/Temp
 @onready var ram_temp_lbl: Label = $ModalControl/Panel/VBox/WorkArea/ChassisFrame/RAMBlock/Temp
 @onready var gpu_temp_lbl: Label = $ModalControl/Panel/VBox/WorkArea/ChassisFrame/GPUBlock/Temp
 
 # Depósito y Bomba
-@onready var reservoir_panel: Panel = $ModalControl/Panel/VBox/WorkArea/ChassisFrame/Reservoir
 @onready var reservoir_liquid: ColorRect = $ModalControl/Panel/VBox/WorkArea/ChassisFrame/Reservoir/Cylinder/LiquidLevel
 @onready var reservoir_level_label: Label = $ModalControl/Panel/VBox/WorkArea/ChassisFrame/Reservoir/LevelLabel
 @onready var fill_port_area: Control = $ModalControl/Panel/VBox/WorkArea/ChassisFrame/Reservoir/FillPortArea
@@ -90,7 +88,6 @@ var tube_names: Array[String] = [
 	"5. Radiador ➔ Depósito"
 ]
 
-var tube_color_empty = Color(0.2, 0.45, 0.65, 0.4)
 var tube_color_flowing = Color(0.05, 0.95, 0.95, 0.95)
 
 func _ready() -> void:

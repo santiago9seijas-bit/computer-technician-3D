@@ -2,8 +2,6 @@ extends StaticBody3D
 
 @export var pc_id: int = 1
 
-var target_fault_component: String = "RAM"
-
 var components: Dictionary = {
 	"Fan Cooler": "broken",
 	"RAM": "broken",
