@@ -18,7 +18,8 @@ var voltimeter_minigame_scene: PackedScene = preload("res://scenes/minigames/Vol
 @onready var modal_control: Control = $ModalControl
 @onready var title_label: Label = $ModalControl/Panel/VBox/Header/TitleLabel
 @onready var status_summary: Label = $ModalControl/Panel/VBox/Header/StatusSummary
-@onready var pc_state_badge: Label = $ModalControl/Panel/VBox/Header/BadgeLabel
+@onready var pc_state_badge: Label = $ModalControl/Panel/VBox/BadgeLabel
+@onready var question_text: Label = $ModalControl/Panel/VBox/Header/QuestionPanel/Margin/VBox/QuestionText
 
 # Cards (cuadros de componentes)
 @onready var card_ram: PanelContainer = $ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardRAM
@@ -47,6 +48,15 @@ var voltimeter_minigame_scene: PackedScene = preload("res://scenes/minigames/Vol
 @onready var btn_sacar_cooler: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCooler/Margin/VBox/BtnSacar
 @onready var btn_sacar_cpu: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCPU/Margin/VBox/CPUButtons/BtnSacar
 
+# Botones de examinar pieza
+@onready var btn_examinar_ram: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardRAM/Margin/VBox/BtnExaminar
+@onready var btn_examinar_hdd: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardHDD/Margin/VBox/BtnExaminar
+@onready var btn_examinar_gpu: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardGPU/Margin/VBox/BtnExaminar
+@onready var btn_examinar_psu: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardPSU/Margin/VBox/BtnExaminar
+@onready var btn_examinar_mobo: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardMOBO/Margin/VBox/BtnExaminar
+@onready var btn_examinar_cooler: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCooler/Margin/VBox/BtnExaminar
+@onready var btn_examinar_cpu: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCPU/Margin/VBox/CPUButtons/BtnExaminar
+
 # Botones extra del CPU
 @onready var btn_cpu_limpiar: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCPU/Margin/VBox/CPUButtons/BtnLimpiar
 @onready var btn_cpu_pines: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCPU/Margin/VBox/CPUButtons/BtnPines
@@ -68,11 +78,35 @@ var voltimeter_minigame_scene: PackedScene = preload("res://scenes/minigames/Vol
 var slot_buttons: Array[Button] = []
 var comp_cards: Dictionary = {}
 var comp_sacar_btns: Dictionary = {}
+var comp_examinar_btns: Dictionary = {}
 var comp_limpiar_btns: Dictionary = {}
 var comp_pines_btns: Dictionary = {}
 var comp_voltimeter_btns: Dictionary = {}
 var comp_status_labels: Dictionary = {}
 var card_styleboxes: Dictionary = {}
+
+# Estado de diagnóstico y examen
+var is_examining: bool = false
+
+func get_examined_status(comp_name: String) -> String:
+	if current_pc and current_pc.has_meta("examined_components"):
+		var examined_dict: Dictionary = current_pc.get_meta("examined_components")
+		return examined_dict.get(comp_name, "")
+	return ""
+
+func _set_examined_status(comp_name: String, status_val: String) -> void:
+	if current_pc:
+		var examined_dict: Dictionary = {}
+		if current_pc.has_meta("examined_components"):
+			examined_dict = current_pc.get_meta("examined_components")
+		examined_dict[comp_name] = status_val
+		current_pc.set_meta("examined_components", examined_dict)
+
+func _clear_examined_status(comp_name: String) -> void:
+	if current_pc and current_pc.has_meta("examined_components"):
+		var examined_dict: Dictionary = current_pc.get_meta("examined_components")
+		examined_dict.erase(comp_name)
+		current_pc.set_meta("examined_components", examined_dict)
 
 # Estado de arrastre y selección de repuestos
 var selected_backpack_idx: int = -1
@@ -104,6 +138,16 @@ func _ready() -> void:
 		"CPU": btn_sacar_cpu
 	}
 	
+	comp_examinar_btns = {
+		"RAM": btn_examinar_ram,
+		"Disco Duro": btn_examinar_hdd,
+		"Grafica": btn_examinar_gpu,
+		"Fuente": btn_examinar_psu,
+		"Placa Madre": btn_examinar_mobo,
+		"Fan Cooler": btn_examinar_cooler,
+		"CPU": btn_examinar_cpu
+	}
+	
 	comp_status_labels = {
 		"RAM": lbl_status_ram,
 		"Disco Duro": lbl_status_hdd,
@@ -114,13 +158,13 @@ func _ready() -> void:
 		"CPU": lbl_status_cpu
 	}
 	
-	# Inicializar StyleBoxes únicos para cada cuadro
+	# Inicializar StyleBoxes únicos para cada cuadro (todos en azul cyberpunk)
 	for comp_name in comp_cards.keys():
 		var card: PanelContainer = comp_cards[comp_name]
 		var sb: StyleBoxFlat = StyleBoxFlat.new()
-		sb.bg_color = Color(0.08, 0.03, 0.16, 0.92)
+		sb.bg_color = Color(0.04, 0.08, 0.18, 0.94)
 		sb.set_border_width_all(2)
-		sb.border_color = Color(0.15, 0.85, 1.0, 0.85)
+		sb.border_color = Color(0.15, 0.85, 1.0, 0.9)
 		sb.set_corner_radius_all(6)
 		sb.shadow_size = 6
 		sb.shadow_color = Color(0, 0, 0, 0.35)
@@ -130,6 +174,10 @@ func _ready() -> void:
 		# Conectar clic en botón SACAR de cada componente
 		var btn_sacar: Button = comp_sacar_btns[comp_name]
 		btn_sacar.pressed.connect(func(): _on_sacar_pressed(comp_name))
+		
+		# Conectar clic en botón EXAMINAR de cada componente
+		var btn_examinar: Button = comp_examinar_btns[comp_name]
+		btn_examinar.pressed.connect(func(): _on_examinar_pressed(comp_name))
 		
 		# Permitir también hacer clic en el cuadro para interactuar/instalar
 		card.gui_input.connect(func(event): _on_card_gui_input(comp_name, event))
@@ -258,7 +306,23 @@ func _ready() -> void:
 
 func setup_pc(pc_node) -> void:
 	current_pc = pc_node
-	title_label.text = "DIAGNÓSTICO TÉCNICO: COMPUTADORA #%d" % current_pc.pc_id
+	var pc_id_val = current_pc.get("pc_id") if current_pc.get("pc_id") != null else 1
+	title_label.text = "DIAGNÓSTICO TÉCNICO: COMPUTADORA #%d" % pc_id_val
+	
+	# Mostrar la pregunta de diagnóstico según el reporte del cliente
+	var q_text = current_pc.get("diagnostic_question") if current_pc.get("diagnostic_question") != null else ""
+	if q_text == "" and current_pc.has_method("setup_diagnostic_case"):
+		current_pc.setup_diagnostic_case()
+		q_text = current_pc.get("diagnostic_question")
+		
+	if question_text:
+		if q_text != "":
+			question_text.text = q_text
+		else:
+			question_text.text = "Identifica qué componente está averiado según el reporte del cliente. Examina cada pieza para localizar la falla."
+
+	if not current_pc.has_meta("examined_components"):
+		current_pc.set_meta("examined_components", {})
 	_refresh_ui()
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -368,7 +432,7 @@ func _highlight_component_under_cursor(mouse_pos: Vector2) -> void:
 			sb.border_color = Color(1.5, 1.4, 0.2, 1.0)
 		else:
 			var st = current_pc.components.get(comp_name, "ok") if current_pc else "ok"
-			_apply_card_border_color(sb, st)
+			_apply_card_border_color(sb, st, comp_name)
 
 func _finish_drag(drop_pos: Vector2) -> void:
 	var dropped_comp_name = ""
@@ -429,7 +493,7 @@ func _try_install_spare(backpack_idx: int, target_comp: String) -> void:
 	_open_minigame_by_name(target_comp, true)
 
 # =============================================================================
-# ACCIÓN DEL BOTÓN SACAR (DESMONTAJE)
+# ACCIÓN DEL BOTÓN SACAR (DESMONTAJE) Y EXAMINAR
 # =============================================================================
 func _on_sacar_pressed(comp_name: String) -> void:
 	if current_pc == null:
@@ -444,6 +508,48 @@ func _on_sacar_pressed(comp_name: String) -> void:
 		_open_cpu_minigame(false)
 	else:
 		_open_minigame_by_name(comp_name, false)
+
+func _on_examinar_pressed(comp_name: String) -> void:
+	if is_examining or current_pc == null:
+		return
+	var comps_dict = current_pc.get("components") if current_pc.get("components") != null else {}
+	var status = comps_dict.get(comp_name, "ok")
+	if status == "empty":
+		_show_feedback("🔍 El slot de [%s] está vacío. No hay componente para examinar." % comp_name, false)
+		return
+
+	is_examining = true
+	var btn_ex: Button = comp_examinar_btns.get(comp_name)
+	if btn_ex:
+		btn_ex.text = "⏳ ANALIZANDO..."
+		btn_ex.disabled = true
+	
+	_show_feedback("🔍 Analizando circuitos e integridad de [%s]... (Diagnóstico en curso)" % comp_name, true)
+	
+	# Indicador visual temporal en la tarjeta (parpadeo amarillo durante análisis)
+	var sb: StyleBoxFlat = card_styleboxes.get(comp_name)
+	if sb:
+		sb.border_color = Color(1.0, 0.9, 0.2, 1.0)
+	
+	# Demora breve de 1.2 segundos (instantáneo pero con feedback claro)
+	await get_tree().create_timer(1.2).timeout
+	
+	if not is_instance_valid(self) or current_pc == null:
+		return
+		
+	# Comprobar si está mala o buena
+	comps_dict = current_pc.get("components") if current_pc.get("components") != null else {}
+	status = comps_dict.get(comp_name, "ok")
+	
+	if status == "broken":
+		_set_examined_status(comp_name, "broken")
+		_show_feedback("❌ ¡DIAGNÓSTICO: [%s] ESTÁ DEFECTUOSO! Presenta fallas críticas. Retíralo con [SACAR]." % comp_name, false)
+	else:
+		_set_examined_status(comp_name, "ok")
+		_show_feedback("✓ ¡DIAGNÓSTICO: [%s] ESTÁ EN BUEN ESTADO! Módulo operativo al 100%%." % comp_name, true)
+		
+	is_examining = false
+	_refresh_ui()
 
 # =============================================================================
 # ACCIONES DE HERRAMIENTAS ESPECIALES: LIMPIADOR [5] Y CAUTÍN [3] EN TODAS LAS PIEZAS
@@ -548,6 +654,7 @@ func _check_cpu_repaired_status(msg: String) -> void:
 	if current_pc and current_pc.components.get("CPU", "") != "empty":
 		if cpu_paste_done and cpu_pins_done:
 			current_pc.components["CPU"] = "fixed"
+			_set_examined_status("CPU", "ok")
 			current_pc.update_3d_state()
 			_show_feedback("✓ ¡CPU REPARADO AL 100%! Pasta térmica nueva y pines enderezados.", true)
 		else:
@@ -585,6 +692,7 @@ func _open_voltimeter(comp_name: String) -> void:
 			GameManager.register_repair(90, 6.0)
 			if current_pc and current_pc.components.get(comp_name, "") == "broken":
 				current_pc.components[comp_name] = "fixed"
+				_set_examined_status(comp_name, "ok")
 				current_pc.update_3d_state()
 			_show_feedback("✓ ¡Diagnóstico con Multímetro [4] en [%s] completado al 100%%! Rieles y voltajes calibrados." % comp_name, true)
 		_refresh_ui()
@@ -593,19 +701,31 @@ func _open_voltimeter(comp_name: String) -> void:
 # =============================================================================
 # ACTUALIZACIÓN DE INTERFAZ Y ESTILOS
 # =============================================================================
-func _apply_card_border_color(sb: StyleBoxFlat, status: String) -> void:
-	match status:
-		"empty":
-			sb.border_color = Color(1.0, 0.8, 0.1, 0.9)
-		"fixed":
-			sb.border_color = Color(0.0, 1.0, 0.55, 0.9)
-		"broken":
-			sb.border_color = Color(1.0, 0.25, 0.25, 0.9)
-		_:
-			sb.border_color = Color(0.15, 0.85, 1.0, 0.85)
+func _apply_card_border_color(sb: StyleBoxFlat, status: String, comp_name: String = "") -> void:
+	if status == "empty":
+		sb.border_color = Color(1.0, 0.8, 0.1, 0.9)
+		sb.bg_color = Color(0.04, 0.08, 0.18, 0.94)
+		return
+		
+	var examined_st = get_examined_status(comp_name) if comp_name != "" else ""
+	if examined_st == "broken":
+		# Si la pieza está mala el cuadro se pone rojo
+		sb.border_color = Color(1.0, 0.2, 0.25, 0.95)
+		sb.bg_color = Color(0.18, 0.04, 0.06, 0.95)
+	elif examined_st == "ok" or status == "fixed":
+		# Si la pieza está buena se queda en verde
+		sb.border_color = Color(0.0, 1.0, 0.55, 0.95)
+		sb.bg_color = Color(0.02, 0.14, 0.08, 0.95)
+	else:
+		# Antes de examinar todos los cuadros se muestran en azul
+		sb.border_color = Color(0.15, 0.85, 1.0, 0.9)
+		sb.bg_color = Color(0.04, 0.08, 0.18, 0.94)
 
 func _refresh_ui() -> void:
-	if current_pc == null or not ("components" in current_pc):
+	if current_pc == null:
+		return
+	var comps_dict: Dictionary = current_pc.get("components") if current_pc.get("components") != null else {}
+	if comps_dict.is_empty():
 		return
 		
 	var comp_subtitles = {
@@ -619,13 +739,14 @@ func _refresh_ui() -> void:
 	}
 	
 	for comp_name in comp_cards.keys():
-		var status = current_pc.components.get(comp_name, "ok")
+		var status = comps_dict.get(comp_name, "ok")
 		var sb: StyleBoxFlat = card_styleboxes[comp_name]
-		_apply_card_border_color(sb, status)
+		_apply_card_border_color(sb, status, comp_name)
 		
 		var lbl: Label = comp_status_labels[comp_name]
 		var sub = comp_subtitles.get(comp_name, "")
 		var btn_sacar: Button = comp_sacar_btns[comp_name]
+		var examined_st = get_examined_status(comp_name)
 		
 		match status:
 			"empty":
@@ -640,18 +761,25 @@ func _refresh_ui() -> void:
 				btn_sacar.text = "⬇ SACAR"
 				btn_sacar.disabled = false
 				btn_sacar.modulate = Color(1.0, 1.0, 1.0, 1.0)
-			"broken":
-				lbl.text = "%s\n[ AVERIADO ⚠️ ]" % sub
-				lbl.modulate = Color(1.0, 0.35, 0.35, 1.0)
-				btn_sacar.text = "⬇ SACAR"
-				btn_sacar.disabled = false
-				btn_sacar.modulate = Color(1.0, 0.35, 0.35, 1.0)
 			_:
-				lbl.text = "%s\n[ INSTALADO ]" % sub
-				lbl.modulate = Color(0.15, 0.85, 1.0, 1.0)
-				btn_sacar.text = "⬇ SACAR"
-				btn_sacar.disabled = false
-				btn_sacar.modulate = Color(1.0, 1.0, 1.0, 1.0)
+				if examined_st == "broken":
+					lbl.text = "%s\n[ ⚠️ DEFECTUOSO ]" % sub
+					lbl.modulate = Color(1.0, 0.3, 0.3, 1.0)
+					btn_sacar.text = "⬇ SACAR"
+					btn_sacar.disabled = false
+					btn_sacar.modulate = Color(1.0, 0.35, 0.35, 1.0)
+				elif examined_st == "ok":
+					lbl.text = "%s\n[ OPERATIVO ✓ ]" % sub
+					lbl.modulate = Color(0.0, 1.0, 0.55, 1.0)
+					btn_sacar.text = "⬇ SACAR"
+					btn_sacar.disabled = false
+					btn_sacar.modulate = Color(1.0, 1.0, 1.0, 1.0)
+				else:
+					lbl.text = "%s\n[ INSTALADO ]" % sub
+					lbl.modulate = Color(0.15, 0.85, 1.0, 1.0)
+					btn_sacar.text = "⬇ SACAR"
+					btn_sacar.disabled = false
+					btn_sacar.modulate = Color(1.0, 1.0, 1.0, 1.0)
 				
 		if comp_name == "CPU":
 			match status:
@@ -666,7 +794,29 @@ func _refresh_ui() -> void:
 				_:
 					btn_sacar_cpu.disabled = false
 					btn_sacar_cpu.text = "⬇ SACAR"
-					btn_sacar_cpu.modulate = Color(1.0, 0.4, 0.4, 1.0)
+					if examined_st == "broken":
+						btn_sacar_cpu.modulate = Color(1.0, 0.35, 0.35, 1.0)
+					else:
+						btn_sacar_cpu.modulate = Color(1.0, 1.0, 1.0, 1.0)
+
+		# Estado de botón EXAMINAR en cada cuadro
+		if comp_examinar_btns.has(comp_name):
+			var btn_ex: Button = comp_examinar_btns[comp_name]
+			if status == "empty":
+				btn_ex.disabled = true
+				btn_ex.text = "🔍 EXAMINAR"
+				btn_ex.modulate = Color(0.6, 0.6, 0.6, 0.5)
+			else:
+				btn_ex.disabled = is_examining
+				if examined_st == "broken":
+					btn_ex.text = "⚠️ DEFECTUOSO"
+					btn_ex.modulate = Color(1.0, 0.4, 0.4, 1.0)
+				elif examined_st == "ok" or status == "fixed":
+					btn_ex.text = "✓ OPERATIVO"
+					btn_ex.modulate = Color(0.3, 1.0, 0.6, 1.0)
+				else:
+					btn_ex.text = "🔍 EXAMINAR"
+					btn_ex.modulate = Color(1.0, 1.0, 1.0, 1.0)
 
 	# REGLA OBLIGATORIA PARA TODAS LAS PIEZAS:
 	# Los botones de Cautín [3], Multímetro [4] y Limpiador [5] solo son visibles con su herramienta activa
@@ -675,7 +825,7 @@ func _refresh_ui() -> void:
 	var is_cleaner_equipped: bool = GameManager.is_cleaning_tool_equipped()
 
 	for comp_name in comp_cards.keys():
-		var status = current_pc.components.get(comp_name, "ok")
+		var status = comps_dict.get(comp_name, "ok")
 		var is_empty = (status == "empty")
 		
 		if comp_limpiar_btns.has(comp_name):
@@ -738,22 +888,43 @@ func _refresh_ui() -> void:
 			t_btn.modulate = Color(0.7, 0.7, 0.7, 0.75)
 	
 	var fixed_count = 0
-	for comp in current_pc.components.keys():
-		if current_pc.components[comp] == "fixed":
+	for comp in comps_dict.keys():
+		if comps_dict.get(comp) == "fixed":
 			fixed_count += 1
 
-	var total_comps = current_pc.components.size()
-	if current_pc.is_fully_repaired():
-		pc_state_badge.text = "PC COMPLETAMENTE REPARADA · " + str(total_comps) + "/" + str(total_comps) + " PIEZAS TESTEADAS ✓"
-		pc_state_badge.modulate = Color(0, 1, 0.5, 1)
+	var total_comps = comps_dict.size()
+	var badge_sb = pc_state_badge.get_theme_stylebox("normal")
+	if current_pc.has_method("is_fully_repaired") and current_pc.is_fully_repaired():
+		pc_state_badge.text = "🎉 ¡FALLA SOLUCIONADA! · EQUIPO REPARADO AL 100% ✓"
+		pc_state_badge.modulate = Color(0.0, 1.0, 0.45, 1.0)
+		if badge_sb is StyleBoxFlat:
+			badge_sb.border_color = Color(0.0, 1.0, 0.5, 0.95)
+			badge_sb.bg_color = Color(0.01, 0.14, 0.08, 0.95)
 		status_summary.text = "¡Diagnóstico y reparación exitosos! La máquina bootea al 100%."
-		status_summary.modulate = Color(0, 1, 0.5, 1)
+		status_summary.modulate = Color(0.0, 1.0, 0.45, 1.0)
 	else:
-		pc_state_badge.text = "BANCO DE REPARACIÓN ACTIVO · [" + str(fixed_count) + "/" + str(total_comps) + " REPARADOS]"
-		pc_state_badge.modulate = Color(1, 0.8, 0.1, 1)
-		if selected_backpack_idx < 0:
-			status_summary.text = "Presiona 'SACAR' para desmontar piezas averiadas, o arrastra repuestos de tu mochila para montarlos."
-			status_summary.modulate = Color(0.2, 0.9, 1.0, 1)
+		var broken_count = 0
+		var empty_count = 0
+		for comp in comps_dict.keys():
+			if comps_dict.get(comp) == "broken":
+				broken_count += 1
+			elif comps_dict.get(comp) == "empty":
+				empty_count += 1
+		if empty_count > 0:
+			pc_state_badge.text = "MONTAJE PENDIENTE · INSTALA EL REPUESTO NUEVO DESDE TU MOCHILA"
+			pc_state_badge.modulate = Color(1.0, 0.85, 0.2, 1.0)
+			if badge_sb is StyleBoxFlat:
+				badge_sb.border_color = Color(1.0, 0.85, 0.2, 0.9)
+				badge_sb.bg_color = Color(0.12, 0.08, 0.02, 0.95)
+		else:
+			pc_state_badge.text = "DIAGNÓSTICO EN CURSO · RESPONDE LA PREGUNTA Y LOCALIZA LA AVERÍA"
+			pc_state_badge.modulate = Color(0.2, 0.9, 1.0, 1.0)
+			if badge_sb is StyleBoxFlat:
+				badge_sb.border_color = Color(0.0, 0.9, 1.0, 0.8)
+				badge_sb.bg_color = Color(0.02, 0.08, 0.16, 0.95)
+		if selected_backpack_idx < 0 and not is_examining:
+			status_summary.text = "Lee la pregunta arriba, presiona 'EXAMINAR' para corroborar la pieza y 'SACAR' para reemplazarla."
+			status_summary.modulate = Color(0.2, 0.9, 1.0, 1.0)
 
 # =============================================================================
 # LANZAMIENTO DE MINIJUEGOS (DESMONTAJE O MONTAJE)
@@ -784,6 +955,7 @@ func _open_cooler_minigame(is_empty: bool) -> void:
 	
 	minigame.connect("old_part_extracted", func():
 		current_pc.components["Fan Cooler"] = "empty"
+		_clear_examined_status("Fan Cooler")
 		current_pc.update_3d_state()
 	)
 	minigame.connect("minigame_finished", func(success: bool):
@@ -792,6 +964,7 @@ func _open_cooler_minigame(is_empty: bool) -> void:
 		if success:
 			if is_empty:
 				current_pc.components["Fan Cooler"] = "fixed"
+				_set_examined_status("Fan Cooler", "ok")
 				current_pc.update_3d_state()
 				GameManager.register_repair(100, 10.0)
 				_show_feedback("✓ ¡Fan Cooler nuevo instalado y testeado!", true)
@@ -809,6 +982,7 @@ func _open_ram_minigame(is_empty: bool) -> void:
 	
 	minigame.connect("old_part_extracted", func():
 		current_pc.components["RAM"] = "empty"
+		_clear_examined_status("RAM")
 		current_pc.update_3d_state()
 	)
 	minigame.connect("minigame_finished", func(success: bool):
@@ -817,6 +991,7 @@ func _open_ram_minigame(is_empty: bool) -> void:
 		if success:
 			if is_empty:
 				current_pc.components["RAM"] = "fixed"
+				_set_examined_status("RAM", "ok")
 				current_pc.update_3d_state()
 				GameManager.register_repair(100, 10.0)
 				_show_feedback("✓ ¡Módulo RAM nuevo instalado y testeado!", true)
@@ -836,6 +1011,7 @@ func _open_hdd_minigame(is_empty: bool) -> void:
 	
 	minigame.connect("old_part_extracted", func():
 		current_pc.components["Disco Duro"] = "empty"
+		_clear_examined_status("Disco Duro")
 		current_pc.saved_screw_type = minigame.screw_type
 		current_pc.update_3d_state()
 	)
@@ -845,6 +1021,7 @@ func _open_hdd_minigame(is_empty: bool) -> void:
 		if success:
 			if is_empty:
 				current_pc.components["Disco Duro"] = "fixed"
+				_set_examined_status("Disco Duro", "ok")
 				current_pc.update_3d_state()
 				GameManager.register_repair(100, 10.0)
 				_show_feedback("✓ ¡Disco Duro nuevo instalado y testeado!", true)
@@ -862,6 +1039,7 @@ func _open_gpu_minigame(is_empty: bool) -> void:
 	
 	minigame.connect("old_part_extracted", func():
 		current_pc.components["Grafica"] = "empty"
+		_clear_examined_status("Grafica")
 		current_pc.update_3d_state()
 	)
 	minigame.connect("minigame_finished", func(success: bool):
@@ -870,6 +1048,7 @@ func _open_gpu_minigame(is_empty: bool) -> void:
 		if success:
 			if is_empty:
 				current_pc.components["Grafica"] = "fixed"
+				_set_examined_status("Grafica", "ok")
 				current_pc.update_3d_state()
 				GameManager.register_repair(100, 10.0)
 				_show_feedback("✓ ¡Tarjeta Gráfica nueva instalada y testeada!", true)
@@ -887,6 +1066,7 @@ func _open_psu_minigame(is_empty: bool) -> void:
 	
 	minigame.connect("old_part_extracted", func():
 		current_pc.components["Fuente"] = "empty"
+		_clear_examined_status("Fuente")
 		current_pc.update_3d_state()
 	)
 	minigame.connect("minigame_finished", func(success: bool):
@@ -895,6 +1075,7 @@ func _open_psu_minigame(is_empty: bool) -> void:
 		if success:
 			if is_empty:
 				current_pc.components["Fuente"] = "fixed"
+				_set_examined_status("Fuente", "ok")
 				current_pc.update_3d_state()
 				GameManager.register_repair(100, 10.0)
 				_show_feedback("✓ ¡Fuente de alimentación nueva instalada y testeada!", true)
@@ -912,6 +1093,7 @@ func _open_mobo_minigame(is_empty: bool) -> void:
 	
 	minigame.connect("old_part_extracted", func():
 		current_pc.components["Placa Madre"] = "empty"
+		_clear_examined_status("Placa Madre")
 		current_pc.update_3d_state()
 	)
 	minigame.connect("minigame_finished", func(success: bool):
@@ -920,6 +1102,7 @@ func _open_mobo_minigame(is_empty: bool) -> void:
 		if success:
 			if is_empty:
 				current_pc.components["Placa Madre"] = "fixed"
+				_set_examined_status("Placa Madre", "ok")
 				current_pc.update_3d_state()
 				GameManager.register_repair(150, 15.0)
 				_show_feedback("✓ ¡Placa Madre nueva instalada y testeada!", true)
@@ -937,6 +1120,7 @@ func _open_cpu_minigame(is_empty: bool) -> void:
 	
 	minigame.connect("old_part_extracted", func():
 		current_pc.components["CPU"] = "empty"
+		_clear_examined_status("CPU")
 		current_pc.update_3d_state()
 	)
 	minigame.connect("minigame_finished", func(success: bool):
@@ -946,6 +1130,7 @@ func _open_cpu_minigame(is_empty: bool) -> void:
 		if success:
 			if is_empty:
 				current_pc.components["CPU"] = "fixed"
+				_set_examined_status("CPU", "ok")
 				current_pc.update_3d_state()
 				GameManager.register_repair(120, 12.0)
 				_show_feedback("✓ ¡Procesador nuevo montado y asegurado!", true)

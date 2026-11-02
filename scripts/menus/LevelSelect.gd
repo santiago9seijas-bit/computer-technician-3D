@@ -94,6 +94,7 @@ var _card_slots: Array[Button] = []
 var is_level_zoomed: bool = false
 var active_zoomed_index: int = -1
 var camera_zoom_tween: Tween = null
+var is_launching_level: bool = false
 
 # =============================================================================
 # BASE DE DATOS DE LOS 12 NIVELES POR MODO (TODOS BLOQUEADOS CON INSPECCIÓN ACTIVA)
@@ -1223,13 +1224,29 @@ func _update_btn_play_level1_visibility() -> void:
 	btn_play_level1.visible = (is_level_zoomed and active_zoomed_index == 0 and (current_mode == "reparacion" or current_mode == "sistema") and current_tab == "niveles")
 
 func _play_level_1() -> void:
+	if is_launching_level:
+		return
+	is_launching_level = true
+	
+	if btn_play_level1:
+		btn_play_level1.pivot_offset = btn_play_level1.size * 0.5
+		var punch_tw = create_tween()
+		punch_tw.tween_property(btn_play_level1, "scale", Vector2(1.12, 1.12), 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		punch_tw.parallel().tween_property(btn_play_level1, "modulate", Color(1.8, 1.8, 2.5, 1.0), 0.12)
+		
 	var gm = get_node_or_null("/root/GameManager")
 	if gm and gm.has_method("start_level"):
 		gm.start_level(900.0)
-	if current_mode == "sistema":
-		get_tree().change_scene_to_file("res://scenes/gameplay/LevelSystems1.tscn")
-	else:
-		get_tree().change_scene_to_file("res://scenes/gameplay/Level1.tscn")
+		
+	var target_scene = "res://scenes/gameplay/LevelSystems1.tscn" if current_mode == "sistema" else "res://scenes/gameplay/Level1.tscn"
+	var mode_title = "ESTACIÓN DE SISTEMAS" if current_mode == "sistema" else "TALLER DE HARDWARE 3D"
+	
+	CyberPlayTransition.play(
+		get_tree(),
+		target_scene,
+		"ENTRANDO AL TALLER 3D",
+		"// ACCEDIENDO A COMPUTADORA #1 · %s //" % mode_title
+	)
 
 # =============================================================================
 # CONSTRUCCIÓN Y FILTRADO INSTANTÁNEO DE TARJETAS (REUTILIZACIÓN DE SLOTS, 0 MS)

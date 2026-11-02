@@ -56,7 +56,7 @@ func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	modulate = Color.WHITE
 	if version_label:
-		version_label.text = "Version 0.0.5 Alpha"
+		version_label.text = "Version 0.0.6 Alpha"
 	header_orig_x = header_container.position.x
 	buttons_orig_x = vbox_container.position.x
 	deco_orig_x = decoracion.position.x
@@ -163,8 +163,36 @@ func _unhandled_input(event: InputEvent) -> void:
 func _on_jugar_pressed() -> void:
 	if is_transitioning or active_panel != null: return
 	is_transitioning = true
+	
+	# Efecto visual y de escala en el botón
+	if btn_jugar:
+		btn_jugar.pivot_offset = btn_jugar.size * 0.5
+		var punch_tw = create_tween()
+		punch_tw.tween_property(btn_jugar, "scale", Vector2(1.08, 1.08), 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		punch_tw.parallel().tween_property(btn_jugar, "modulate", Color(1.8, 1.8, 2.2, 1.0), 0.12)
+		
+	# Desvanecer botones adyacentes y cabecera hacia la izquierda
+	var fade_tw = create_tween()
+	fade_tw.set_parallel(true)
+	for child in vbox_container.get_children():
+		if child != btn_jugar and child is Control:
+			fade_tw.tween_property(child, "position:x", child.position.x - 35.0, 0.22).set_trans(Tween.TRANS_QUAD)
+			fade_tw.tween_property(child, "modulate:a", 0.0, 0.22)
+	if header_container:
+		fade_tw.tween_property(header_container, "position:x", header_container.position.x - 45.0, 0.25).set_trans(Tween.TRANS_QUAD)
+		fade_tw.tween_property(header_container, "modulate:a", 0.0, 0.25)
+	if decoracion:
+		fade_tw.tween_property(decoracion, "modulate:a", 0.0, 0.22)
+	if bottom_right_info:
+		fade_tw.tween_property(bottom_right_info, "modulate:a", 0.0, 0.22)
+		
 	LevelSelectScript.initial_tab = "niveles"
-	get_tree().change_scene_to_file("res://scenes/menus/LevelSelect.tscn")
+	CyberPlayTransition.play(
+		get_tree(),
+		"res://scenes/menus/LevelSelect.tscn",
+		"INICIALIZANDO SIMULACIÓN",
+		"// ENLACE NEURONAL CON MATRIZ DE NIVELES //"
+	)
 
 func _on_tutoriales_pressed() -> void:
 	if is_transitioning or active_panel != null: return

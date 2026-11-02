@@ -20,6 +20,8 @@ signal minigame_finished(success: bool)
 @onready var btn_cancel: Button = $ModalControl/Panel/VBox/Footer/BtnCancel
 
 const TEX_RAM: Texture2D = preload("res://pixel art minijuegos/ram.png")
+const TEX_FUENTE_CERRADA: Texture2D = preload("res://pixel art minijuegos/fuente cerrada.png")
+const TEX_FUENTE_ABIERTA: Texture2D = preload("res://pixel art minijuegos/fuente abierta.png")
 
 # =============================================================================
 # SPRITES DE PELUSA EN PIXEL ART
@@ -46,7 +48,18 @@ const DUST_SPRITES: Array[Dictionary] = [
 @export var randomize_dust: bool = true
 @export var clumps_count_ram: int = 10
 @export var clumps_count_heatsink: int = 18
+@export var clumps_count_psu: int = 14
 @export var target_component: String = "RAM"
+
+# Control de Fuente de Poder (PSU) con Tapa Deslizable
+var is_psu_mode: bool = false
+var is_psu_lid_removed: bool = false
+var is_dragging_lid: bool = false
+var lid_drag_start_x: float = 0.0
+var lid_initial_pos_x: float = 0.0
+var psu_lid_node: TextureRect = null
+var psu_open_node: TextureRect = null
+var psu_guide_arrow: Label = null
 
 # Datos de respaldo (modo estático)
 var dust_data: Array[Dictionary] = [
@@ -76,16 +89,19 @@ var ram_sprite_node: TextureRect = null
 
 func setup_component(comp_name: String) -> void:
 	target_component = comp_name
+	is_psu_mode = ("fuente" in target_component.to_lower() or "psu" in target_component.to_lower())
+	is_psu_lid_removed = false
 	if is_inside_tree() and modal_control:
 		_build_component_background()
-		_spawn_dust_clumps()
+		if not is_psu_mode:
+			_spawn_dust_clumps()
 		_update_component_texts()
 		_update_ui()
 
 func _update_component_texts() -> void:
 	var title_lbl = modal_control.get_node_or_null("Panel/VBox/Header/TitleLabel") as Label
 	if title_lbl:
-		var comp_display = "MEMORIA RAM" if ("ram" in target_component.to_lower()) else target_component.to_upper()
+		var comp_display = "MEMORIA RAM" if ("ram" in target_component.to_lower()) else ("FUENTE DE ALIMENTACIÓN (PSU)" if is_psu_mode else target_component.to_upper())
 		title_lbl.text = "MANTENIMIENTO: LIMPIEZA DE PELUSA Y POLVO (%s)" % comp_display
 
 func _ready() -> void:
@@ -100,9 +116,12 @@ func _ready() -> void:
 	
 	cleaned_clumps = 0
 	is_game_completed = false
+	is_psu_mode = ("fuente" in target_component.to_lower() or "psu" in target_component.to_lower())
+	is_psu_lid_removed = false
 	
 	_build_component_background()
-	_spawn_dust_clumps()
+	if not is_psu_mode:
+		_spawn_dust_clumps()
 	_update_component_texts()
 	_update_ui()
 
@@ -115,6 +134,34 @@ func _input(event: InputEvent) -> void:
 	if is_game_completed:
 		return
 		
+	# Si estamos en modo Fuente y la tapa aún no se ha deslizado completamente, procesar arrastre de la tapa
+	if is_psu_mode and not is_psu_lid_removed:
+		if is_instance_valid(psu_lid_node):
+			if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+				if event.pressed and psu_lid_node.get_global_rect().has_point(event.global_position):
+					is_dragging_lid = true
+					lid_drag_start_x = event.global_position.x
+					lid_initial_pos_x = psu_lid_node.position.x
+				elif not event.pressed and is_dragging_lid:
+					is_dragging_lid = false
+					var delta_x = psu_lid_node.position.x - lid_initial_pos_x
+					if delta_x > 110.0:
+						_remove_psu_lid_complete()
+					else:
+						# Regresar con rebote suave
+						var snap_tw = create_tween().set_parallel(true)
+						snap_tw.tween_property(psu_lid_node, "position:x", lid_initial_pos_x, 0.22).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+						snap_tw.tween_property(psu_lid_node, "modulate:a", 1.0, 0.22)
+			elif event is InputEventMouseMotion and is_dragging_lid:
+				var current_delta = event.global_position.x - lid_drag_start_x
+				if current_delta > 0.0:
+					psu_lid_node.position.x = lid_initial_pos_x + current_delta
+					psu_lid_node.modulate.a = clampf(1.0 - (current_delta / 280.0) * 0.45, 0.5, 1.0)
+					if current_delta >= 160.0:
+						is_dragging_lid = false
+						_remove_psu_lid_complete()
+		return
+
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		is_brush_pressed = event.pressed
 		if is_brush_pressed:
@@ -127,12 +174,108 @@ func _build_component_background() -> void:
 		child.queue_free()
 	clump_nodes.clear()
 	ram_sprite_node = null
+	psu_lid_node = null
+	psu_open_node = null
+	psu_guide_arrow = null
 	
 	var is_ram: bool = "ram" in target_component.to_lower()
-	if is_ram:
+	if is_psu_mode:
+		_build_psu_background()
+	elif is_ram:
 		_build_ram_background()
 	else:
 		_build_heatsink_fins()
+
+func _build_psu_background() -> void:
+	var area_size: Vector2 = heatsink_area.size
+	if area_size.x <= 50.0 or area_size.y <= 50.0:
+		area_size = Vector2(748.0, 338.0)
+		
+	# 1. Tapete de trabajo antiestático
+	var workbench = Panel.new()
+	workbench.name = "Workbench"
+	workbench.set_anchors_preset(Control.PRESET_FULL_RECT)
+	workbench.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var sb = StyleBoxFlat.new()
+	sb.bg_color = Color(0.04, 0.07, 0.12, 0.96)
+	sb.border_width_left = 2
+	sb.border_width_top = 2
+	sb.border_width_right = 2
+	sb.border_width_bottom = 2
+	sb.border_color = Color(0.0, 0.85, 1.0, 0.4)
+	sb.set_corner_radius_all(6)
+	workbench.add_theme_stylebox_override("panel", sb)
+	heatsink_area.add_child(workbench)
+	
+	# Tamaño escalado de los sprites (243 x 145 -> escala 2.1x: 510 x 304)
+	var psu_size = Vector2(510.0, 304.0)
+	var psu_pos = (area_size - psu_size) * 0.5
+	
+	# 2. Marco guía de chasis
+	var slot_guide = Panel.new()
+	slot_guide.name = "PSUGuide"
+	slot_guide.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	slot_guide.position = psu_pos - Vector2(16, 12)
+	slot_guide.size = psu_size + Vector2(32, 24)
+	var guide_sb = StyleBoxFlat.new()
+	guide_sb.bg_color = Color(0.02, 0.04, 0.08, 0.9)
+	guide_sb.border_width_left = 2
+	guide_sb.border_width_top = 2
+	guide_sb.border_width_right = 2
+	guide_sb.border_width_bottom = 2
+	guide_sb.border_color = Color(1.0, 0.1, 0.35, 0.45)
+	guide_sb.set_corner_radius_all(8)
+	slot_guide.add_theme_stylebox_override("panel", guide_sb)
+	heatsink_area.add_child(slot_guide)
+	
+	# 3. Sprite de la Fuente Abierta (Interior con componentes y ventilador)
+	var psu_open = TextureRect.new()
+	psu_open.name = "PSUOpenSprite"
+	psu_open.texture = TEX_FUENTE_ABIERTA
+	psu_open.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	psu_open.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	psu_open.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	psu_open.custom_minimum_size = psu_size
+	psu_open.size = psu_size
+	psu_open.position = psu_pos
+	psu_open.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	heatsink_area.add_child(psu_open)
+	psu_open_node = psu_open
+	
+	# 4. Sprite de la Fuente Cerrada (Tapa metálica deslizable encima)
+	var psu_lid = TextureRect.new()
+	psu_lid.name = "PSULidSprite"
+	psu_lid.texture = TEX_FUENTE_CERRADA
+	psu_lid.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	psu_lid.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	psu_lid.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	psu_lid.custom_minimum_size = psu_size
+	psu_lid.size = psu_size
+	psu_lid.position = psu_pos
+	psu_lid.mouse_filter = Control.MOUSE_FILTER_STOP
+	psu_lid.mouse_default_cursor_shape = Control.CURSOR_HSIZE
+	heatsink_area.add_child(psu_lid)
+	psu_lid_node = psu_lid
+	
+	# 5. Indicador interactivo animado de deslizar la tapa
+	var guide_lbl = Label.new()
+	guide_lbl.name = "PSUSlideIndicator"
+	guide_lbl.text = "↔ HAZ CLIC Y DESLIZA LA TAPA HACIA LA DERECHA ➔"
+	guide_lbl.add_theme_color_override("font_color", Color(1.0, 0.85, 0.2, 1.0))
+	guide_lbl.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
+	guide_lbl.add_theme_constant_override("outline_size", 6)
+	guide_lbl.add_theme_font_size_override("font_size", 12)
+	guide_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	guide_lbl.position = Vector2(psu_pos.x, psu_pos.y - 24.0)
+	guide_lbl.size = Vector2(psu_size.x, 22.0)
+	guide_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	heatsink_area.add_child(guide_lbl)
+	psu_guide_arrow = guide_lbl
+	
+	# Parpadeo suave del indicador (atado al ciclo de vida del nodo)
+	var tw = guide_lbl.create_tween().set_loops()
+	tw.tween_property(guide_lbl, "modulate:a", 0.45, 0.6).set_trans(Tween.TRANS_SINE)
+	tw.tween_property(guide_lbl, "modulate:a", 1.0, 0.6).set_trans(Tween.TRANS_SINE)
 
 func _build_ram_background() -> void:
 	var area_size: Vector2 = heatsink_area.size
@@ -235,6 +378,63 @@ func _build_heatsink_fins() -> void:
 		fin_edge.offset_bottom = 2.0
 		fin.add_child(fin_edge)
 
+func _remove_psu_lid_complete() -> void:
+	if is_psu_lid_removed:
+		return
+	is_psu_lid_removed = true
+	
+	if is_instance_valid(psu_guide_arrow):
+		psu_guide_arrow.queue_free()
+		
+	# Sonido de deslizamiento metálico sintetizado
+	_play_metal_slide_sfx()
+	
+	# Animación de salida de la tapa hacia la derecha
+	if is_instance_valid(psu_lid_node):
+		var tw = create_tween().set_parallel(true)
+		tw.tween_property(psu_lid_node, "position:x", heatsink_area.size.x + 120.0, 0.35).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		tw.tween_property(psu_lid_node, "modulate:a", 0.0, 0.35)
+	
+	# Destello en la fuente abierta para revelar el interior
+	if is_instance_valid(psu_open_node):
+		var flash_tw = create_tween()
+		flash_tw.tween_property(psu_open_node, "modulate", Color(1.5, 1.4, 1.2), 0.15)
+		flash_tw.tween_property(psu_open_node, "modulate", Color.WHITE, 0.25)
+	
+	var call_tw = create_tween()
+	call_tw.tween_interval(0.36)
+	call_tw.tween_callback(func():
+		if is_instance_valid(psu_lid_node):
+			psu_lid_node.queue_free()
+		_spawn_dust_clumps()
+		_update_ui()
+	)
+
+func _play_metal_slide_sfx() -> void:
+	var player = AudioStreamPlayer.new()
+	player.bus = "Master"
+	var sample_hz = 22050
+	var duration = 0.22
+	var num_samples = int(sample_hz * duration)
+	var wav = AudioStreamWAV.new()
+	wav.format = AudioStreamWAV.FORMAT_8_BITS
+	wav.mix_rate = sample_hz
+	wav.stereo = false
+	var bytes = PackedByteArray()
+	bytes.resize(num_samples)
+	for i in range(num_samples):
+		var t = float(i) / float(sample_hz)
+		var freq = lerp(420.0, 680.0, t / duration)
+		var env = sin(t / duration * PI)
+		var noise = sin(t * 3141.5) * 40.0
+		var tone = sin(t * freq * TAU) * 60.0
+		bytes[i] = int(clamp((noise + tone) * env + 128.0, 0, 255))
+	wav.data = bytes
+	player.stream = wav
+	add_child(player)
+	player.play()
+	player.finished.connect(player.queue_free)
+
 func _spawn_dust_clumps() -> void:
 	if randomize_dust:
 		randomize()
@@ -245,13 +445,18 @@ func _spawn_dust_clumps() -> void:
 		
 	var is_ram: bool = "ram" in target_component.to_lower()
 	var bounds: Rect2
-	if is_ram and is_instance_valid(ram_sprite_node):
+	if is_psu_mode and is_instance_valid(psu_open_node):
+		# Área interior de la fuente abierta donde están los circuitos y rejilla
+		bounds = Rect2(psu_open_node.position + Vector2(25.0, 20.0), psu_open_node.size - Vector2(50.0, 40.0))
+	elif is_ram and is_instance_valid(ram_sprite_node):
 		bounds = Rect2(ram_sprite_node.position, ram_sprite_node.size)
 	else:
 		bounds = Rect2(Vector2.ZERO, area_size)
 		
-	var padding: float = 12.0 if is_ram else 18.0
-	var count: int = (clumps_count_ram if is_ram else clumps_count_heatsink) if randomize_dust else dust_data.size()
+	var padding: float = 12.0 if is_ram else 16.0
+	var count: int = clumps_count_psu if is_psu_mode else (clumps_count_ram if is_ram else clumps_count_heatsink)
+	if not randomize_dust:
+		count = dust_data.size()
 	total_clumps = count
 	
 	if randomize_dust:
@@ -382,13 +587,20 @@ func _spawn_dust_particles(center_pos: Vector2) -> void:
 		p_tw.chain().tween_callback(puff.queue_free)
 
 func _update_ui() -> void:
+	if is_psu_mode and not is_psu_lid_removed:
+		progress_bar.max_value = 10
+		progress_bar.value = 0
+		progress_label.text = "PASO 1: DESLIZA LA TAPA PARA ABRIR LA FUENTE"
+		status_label.text = "Haz clic y arrastra la tapa metálica hacia la derecha para abrir la fuente de poder."
+		return
+
 	var percent = int((float(cleaned_clumps) / float(max(total_clumps, 1))) * 100.0)
 	progress_bar.max_value = total_clumps
 	progress_bar.value = cleaned_clumps
 	progress_label.text = "PELUSA RETIRADA: %d / %d (%d%%)" % [cleaned_clumps, total_clumps, percent]
 	
 	var is_ram: bool = "ram" in target_component.to_lower()
-	var comp_name: String = "Memoria RAM" if is_ram else "Disipador"
+	var comp_name: String = "Memoria RAM" if is_ram else ("Fuente de Poder" if is_psu_mode else "Disipador")
 	if cleaned_clumps < total_clumps:
 		status_label.text = "Pasa la brocha o haz clic sobre cada cúmulo de pelusa para limpiar la %s." % comp_name
 	else:
@@ -398,7 +610,7 @@ func _trigger_victory() -> void:
 	is_game_completed = true
 	victory_banner.visible = true
 	var is_ram: bool = "ram" in target_component.to_lower()
-	var comp_name: String = "Memoria RAM" if is_ram else "Disipador"
+	var comp_name: String = "Memoria RAM" if is_ram else ("Fuente de Poder" if is_psu_mode else "Disipador")
 	warning_label.text = "✓ ¡Mantenimiento completado! %s al 100%% limpia y libre de obstrucciones." % comp_name
 	warning_label.modulate = Color(0.2, 1.0, 0.5)
 	

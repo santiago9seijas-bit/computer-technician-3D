@@ -1,4 +1,4 @@
-[gd_scene format=3 load_steps=14]
+[gd_scene format=3 load_steps=18]
 
 [ext_resource type="Script" path="res://scripts/ui/PCInspectionModal.gd" id="1_modal"]
 [ext_resource type="Script" path="res://scripts/menus/CyberButton.gd" id="2_cbtn"]
@@ -12,8 +12,36 @@ content_margin_top = 16.0
 content_margin_right = 20.0
 content_margin_bottom = 16.0
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_question_panel"]
+bg_color = Color(0.03, 0.07, 0.16, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0, 0.92, 1, 0.85)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_badge_panel"]
+bg_color = Color(0.02, 0.08, 0.16, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0, 0.95, 1, 0.8)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+content_margin_left = 14.0
+content_margin_top = 4.0
+content_margin_right = 14.0
+content_margin_bottom = 4.0
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_card"]
-bg_color = Color(0.08, 0.03, 0.16, 0.92)
+bg_color = Color(0.04, 0.08, 0.18, 0.94)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
@@ -27,7 +55,7 @@ shadow_color = Color(0, 0, 0, 0.35)
 shadow_size = 6
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_sacar_normal"]
-bg_color = Color(0.14, 0.04, 0.24, 0.95)
+bg_color = Color(0.05, 0.12, 0.25, 0.95)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
@@ -39,12 +67,36 @@ corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_sacar_hover"]
-bg_color = Color(0.24, 0.08, 0.42, 1)
+bg_color = Color(0.1, 0.25, 0.5, 1)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
 border_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_examinar_normal"]
+bg_color = Color(0.03, 0.14, 0.3, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.2, 0.8, 1, 0.9)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_examinar_hover"]
+bg_color = Color(0.08, 0.3, 0.6, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.6, 1, 1, 1)
 corner_radius_top_left = 4
 corner_radius_top_right = 4
 corner_radius_bottom_right = 4
@@ -158,6 +210,36 @@ theme_override_font_sizes/font_size = 20
 text = "DIAGNÓSTICO TÉCNICO: COMPUTADORA #1"
 horizontal_alignment = 1
 
+[node name="QuestionPanel" type="PanelContainer" parent="ModalControl/Panel/VBox/Header"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_question_panel")
+
+[node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/Header/QuestionPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 4
+
+[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/Header/QuestionPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="QuestionHeader" type="Label" parent="ModalControl/Panel/VBox/Header/QuestionPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 11
+text = "❓ REPORTE DE FALLA DEL CLIENTE / PREGUNTA:"
+horizontal_alignment = 1
+
+[node name="QuestionText" type="Label" parent="ModalControl/Panel/VBox/Header/QuestionPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.96, 1, 1)
+theme_override_font_sizes/font_size = 12
+text = "¿El equipo enciende los ventiladores pero no da video y la placa emite 3 pitidos largos continuos de alerta de memoria? ¿Qué pieza está fallando?"
+horizontal_alignment = 1
+autowrap_mode = 2
+
 [node name="StatusSummary" type="Label" parent="ModalControl/Panel/VBox/Header"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
@@ -165,14 +247,6 @@ theme_override_font_sizes/font_size = 13
 text = "Selecciona 'SACAR' para desmontar piezas o arrastra repuestos de tu mochila."
 horizontal_alignment = 1
 autowrap_mode = 2
-
-[node name="BadgeLabel" type="Label" parent="ModalControl/Panel/VBox/Header"]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.8, 0.1, 1)
-theme_override_font_sizes/font_size = 12
-text = "FALLA ACTIVA · DEDUCE EL COMPONENTE"
-horizontal_alignment = 1
-vertical_alignment = 1
 
 [node name="HSeparator" type="HSeparator" parent="ModalControl/Panel/VBox"]
 layout_mode = 2
@@ -223,13 +297,22 @@ layout_mode = 2
 size_flags_vertical = 3
 
 [node name="BtnSacar" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardRAM/Margin/VBox"]
-custom_minimum_size = Vector2(0, 30)
+custom_minimum_size = Vector2(0, 26)
 layout_mode = 2
 mouse_default_cursor_shape = 2
 theme_override_font_sizes/font_size = 11
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_sacar_normal")
 theme_override_styles/hover = SubResource("StyleBoxFlat_btn_sacar_hover")
 text = "⬇ SACAR"
+
+[node name="BtnExaminar" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardRAM/Margin/VBox"]
+custom_minimum_size = Vector2(0, 26)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_override_font_sizes/font_size = 11
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_examinar_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_examinar_hover")
+text = "🔍 EXAMINAR"
 
 [node name="CardHDD" type="PanelContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop"]
 layout_mode = 2
@@ -267,13 +350,22 @@ layout_mode = 2
 size_flags_vertical = 3
 
 [node name="BtnSacar" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardHDD/Margin/VBox"]
-custom_minimum_size = Vector2(0, 30)
+custom_minimum_size = Vector2(0, 26)
 layout_mode = 2
 mouse_default_cursor_shape = 2
 theme_override_font_sizes/font_size = 11
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_sacar_normal")
 theme_override_styles/hover = SubResource("StyleBoxFlat_btn_sacar_hover")
 text = "⬇ SACAR"
+
+[node name="BtnExaminar" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardHDD/Margin/VBox"]
+custom_minimum_size = Vector2(0, 26)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_override_font_sizes/font_size = 11
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_examinar_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_examinar_hover")
+text = "🔍 EXAMINAR"
 
 [node name="CardGPU" type="PanelContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop"]
 layout_mode = 2
@@ -311,13 +403,22 @@ layout_mode = 2
 size_flags_vertical = 3
 
 [node name="BtnSacar" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardGPU/Margin/VBox"]
-custom_minimum_size = Vector2(0, 30)
+custom_minimum_size = Vector2(0, 26)
 layout_mode = 2
 mouse_default_cursor_shape = 2
 theme_override_font_sizes/font_size = 11
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_sacar_normal")
 theme_override_styles/hover = SubResource("StyleBoxFlat_btn_sacar_hover")
 text = "⬇ SACAR"
+
+[node name="BtnExaminar" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardGPU/Margin/VBox"]
+custom_minimum_size = Vector2(0, 26)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_override_font_sizes/font_size = 11
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_examinar_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_examinar_hover")
+text = "🔍 EXAMINAR"
 
 [node name="CardPSU" type="PanelContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop"]
 layout_mode = 2
@@ -355,13 +456,22 @@ layout_mode = 2
 size_flags_vertical = 3
 
 [node name="BtnSacar" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardPSU/Margin/VBox"]
-custom_minimum_size = Vector2(0, 30)
+custom_minimum_size = Vector2(0, 26)
 layout_mode = 2
 mouse_default_cursor_shape = 2
 theme_override_font_sizes/font_size = 11
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_sacar_normal")
 theme_override_styles/hover = SubResource("StyleBoxFlat_btn_sacar_hover")
 text = "⬇ SACAR"
+
+[node name="BtnExaminar" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardPSU/Margin/VBox"]
+custom_minimum_size = Vector2(0, 26)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_override_font_sizes/font_size = 11
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_examinar_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_examinar_hover")
+text = "🔍 EXAMINAR"
 
 [node name="RowBottom" type="HBoxContainer" parent="ModalControl/Panel/VBox/ComponentsContainer"]
 layout_mode = 2
@@ -404,13 +514,22 @@ layout_mode = 2
 size_flags_vertical = 3
 
 [node name="BtnSacar" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardMOBO/Margin/VBox"]
-custom_minimum_size = Vector2(0, 30)
+custom_minimum_size = Vector2(0, 26)
 layout_mode = 2
 mouse_default_cursor_shape = 2
 theme_override_font_sizes/font_size = 11
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_sacar_normal")
 theme_override_styles/hover = SubResource("StyleBoxFlat_btn_sacar_hover")
 text = "⬇ SACAR"
+
+[node name="BtnExaminar" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardMOBO/Margin/VBox"]
+custom_minimum_size = Vector2(0, 26)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_override_font_sizes/font_size = 11
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_examinar_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_examinar_hover")
+text = "🔍 EXAMINAR"
 
 [node name="CardCooler" type="PanelContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom"]
 layout_mode = 2
@@ -448,13 +567,22 @@ layout_mode = 2
 size_flags_vertical = 3
 
 [node name="BtnSacar" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCooler/Margin/VBox"]
-custom_minimum_size = Vector2(0, 30)
+custom_minimum_size = Vector2(0, 26)
 layout_mode = 2
 mouse_default_cursor_shape = 2
 theme_override_font_sizes/font_size = 11
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_sacar_normal")
 theme_override_styles/hover = SubResource("StyleBoxFlat_btn_sacar_hover")
 text = "⬇ SACAR"
+
+[node name="BtnExaminar" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCooler/Margin/VBox"]
+custom_minimum_size = Vector2(0, 26)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_override_font_sizes/font_size = 11
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_examinar_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_examinar_hover")
+text = "🔍 EXAMINAR"
 
 [node name="CardCPU" type="PanelContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom"]
 layout_mode = 2
@@ -475,7 +603,7 @@ theme_override_constants/separation = 3
 
 [node name="Title" type="Label" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCPU/Margin/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.1, 0.45, 1)
+theme_override_colors/font_color = Color(0, 0.95, 1, 1)
 theme_override_font_sizes/font_size = 12
 text = "PROCESADOR (CPU)"
 horizontal_alignment = 1
@@ -487,18 +615,31 @@ text = "LGA 1700 OCTA-CORE
 [ INSTALADO ]"
 horizontal_alignment = 1
 
+[node name="Spacer" type="Control" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCPU/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
 [node name="CPUButtons" type="VBoxContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCPU/Margin/VBox"]
 layout_mode = 2
-theme_override_constants/separation = 5
+theme_override_constants/separation = 4
 
 [node name="BtnSacar" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCPU/Margin/VBox/CPUButtons"]
-custom_minimum_size = Vector2(0, 30)
+custom_minimum_size = Vector2(0, 26)
 layout_mode = 2
 mouse_default_cursor_shape = 2
 theme_override_font_sizes/font_size = 11
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_sacar_normal")
 theme_override_styles/hover = SubResource("StyleBoxFlat_btn_sacar_hover")
 text = "⬇ SACAR"
+
+[node name="BtnExaminar" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCPU/Margin/VBox/CPUButtons"]
+custom_minimum_size = Vector2(0, 26)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_override_font_sizes/font_size = 11
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_examinar_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_examinar_hover")
+text = "🔍 EXAMINAR"
 
 [node name="BtnLimpiar" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCPU/Margin/VBox/CPUButtons"]
 visible = false
@@ -522,6 +663,19 @@ text = "📍 ALINEAR PINES (CAUTÍN [3])"
 
 [node name="HSeparator2" type="HSeparator" parent="ModalControl/Panel/VBox"]
 layout_mode = 2
+
+[node name="BadgeLabel" type="Label" parent="ModalControl/Panel/VBox"]
+custom_minimum_size = Vector2(0, 28)
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 1, 0.5, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_fonts/font = ExtResource("4_title_font")
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_badge_panel")
+text = "DIAGNÓSTICO EN CURSO · RESPONDE LA PREGUNTA Y LOCALIZA LA AVERÍA"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="BackpackSection" type="VBoxContainer" parent="ModalControl/Panel/VBox"]
 layout_mode = 2

@@ -4,6 +4,7 @@ extends Control
 @onready var lbl_tiempo: Label = $TopCenter/LblTiempo
 @onready var lbl_puntaje: Label = $BottomLeft/LblPuntaje
 @onready var backpack_container: VBoxContainer = $TopRight/BackpackContainer
+@onready var falla_solucionada_hud: Label = $FallaSolucionadaHUD
 @onready var prompt_label: Label = $Center/PromptLabel
 @onready var tools_bar: HBoxContainer = $BottomCenter/ToolsBar
 @onready var floating_feedback_container: Control = $FloatingFeedback
@@ -272,6 +273,8 @@ func _on_game_over(reason: String) -> void:
 		reason_lbl.text = reason
 
 func _on_level_won(stars: int, final_score: int) -> void:
+	if falla_solucionada_hud:
+		falla_solucionada_hud.visible = true
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	win_panel.visible = true
 	var stars_lbl = win_panel.get_node_or_null("VBox/StarsLabel") as Label
