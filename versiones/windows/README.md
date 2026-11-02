@@ -4,23 +4,35 @@ En este directorio se mantiene el registro y métodos de descarga de todas las v
 
 ---
 
-## 📌 Versión 0.0.5 Alpha (Lanzamiento Actual)
+## 📌 Versión 0.0.6 Alpha (Lanzamiento Actual)
 
-- **Nombre de la versión:** `Version 0.0.5 Alpha`
+- **Nombre de la versión:** `Version 0.0.6 Alpha`
 - **Estado:** Alpha
-- **Archivo:** `ComputerTechnician3D-Windows-v0.0.5-alpha.zip`
+- **Archivo:** `ComputerTechnician3D-Windows-v0.0.6-alpha.zip`
 - **Enlace de descarga directa:**  
-  👉 **[Descargar ComputerTechnician3D-Windows-v0.0.5-alpha.zip](https://github.com/santiago9seijas-bit/computer-technician-3D/releases/download/v0.0.5-alpha/ComputerTechnician3D-Windows-v0.0.5-alpha.zip)**
+  👉 **[Descargar ComputerTechnician3D-Windows-v0.0.6-alpha.zip](https://github.com/santiago9seijas-bit/computer-technician-3D/releases/download/v0.0.6-alpha/ComputerTechnician3D-Windows-v0.0.6-alpha.zip)**
 
 ### 💻 Método de Descarga e Instalación
 
 1. **Descarga:**
-   - Haz clic en el enlace de descarga directa anterior, o entra a la página de [GitHub Releases](https://github.com/santiago9seijas-bit/computer-technician-3D/releases/tag/v0.0.5-alpha) y descarga `ComputerTechnician3D-Windows-v0.0.5-alpha.zip`.
+   - Haz clic en el enlace de descarga directa anterior, o entra a la página de [GitHub Releases](https://github.com/santiago9seijas-bit/computer-technician-3D/releases/tag/v0.0.6-alpha) y descarga `ComputerTechnician3D-Windows-v0.0.6-alpha.zip`.
 2. **Extracción:**
    - Haz clic derecho sobre el archivo `.zip` descargado.
    - Selecciona **"Extraer todo..."** y elige una carpeta de tu preferencia.
 3. **Ejecución:**
    - Entra en la carpeta extraída y ejecuta `ComputerTechnician3D.exe`.
+
+---
+
+## 🗄️ Historial de Versiones Anteriores
+
+### 📦 Versión 0.0.5 Alpha
+- **Nombre de la versión:** `Version 0.0.5 Alpha`
+- **Estado:** Alpha
+- **Archivo:** `ComputerTechnician3D-Windows-v0.0.5-alpha.zip`
+- **Enlace de descarga directa:**  
+  👉 **[Descargar ComputerTechnician3D-Windows-v0.0.5-alpha.zip](https://github.com/santiago9seijas-bit/computer-technician-3D/releases/download/v0.0.5-alpha/ComputerTechnician3D-Windows-v0.0.5-alpha.zip)**
+- **Descripción:** Mapeado de diagnóstico inteligente, preguntas según falla y multímetro digital.
 
 ---
 
