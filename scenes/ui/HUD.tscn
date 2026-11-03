@@ -1,4 +1,4 @@
-[gd_scene format=3 load_steps=13]
+[gd_scene format=3 load_steps=14]
 
 [ext_resource type="Script" path="res://scripts/ui/HUD.gd" id="1_hud"]
 [ext_resource type="Script" path="res://scripts/menus/CyberButton.gd" id="2_cbtn"]
@@ -9,6 +9,7 @@
 [ext_resource type="Texture2D" uid="uid://cwe2swnb5af8m" path="res://pixel art escenario/fondo para puntos.png" id="7_puntos_bg"]
 [ext_resource type="FontFile" uid="uid://dbcug8887dro7" path="res://assets/fonts/Bungee-Regular.ttf" id="8_arcade_font"]
 [ext_resource type="Material" uid="uid://5ra4e5h4fgni" path="res://styles/cyber_glitch_sprite.tres" id="9_glitch_mat"]
+[ext_resource type="Script" path="res://scripts/ui/CurvedStaminaBar.gd" id="10_stamina"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_mochila"]
 content_margin_left = 16.0
@@ -283,6 +284,18 @@ anchor_bottom = 0.5
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+
+[node name="CurvedStaminaBar" type="Control" parent="Center"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("10_stamina")
 
 [node name="Crosshair" type="ColorRect" parent="Center"]
 layout_mode = 1

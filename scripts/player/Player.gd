@@ -6,6 +6,16 @@ extends CharacterBody3D
 @export var mouse_sensitivity: float = 0.002
 @export var gravity: float = 12.0
 
+@export_group("Stamina")
+@export var max_stamina: float = 100.0
+@export var stamina_drain_rate: float = 25.0
+@export var stamina_regen_rate: float = 30.0
+@export var stamina_regen_delay: float = 0.5
+
+var current_stamina: float = 100.0
+var is_stamina_exhausted: bool = false
+var _stamina_regen_timer: float = 0.0
+
 @onready var camera: Camera3D = $Camera3D
 @onready var interaction_ray: RayCast3D = $Camera3D/RayCast3D
 @onready var character_model: Node3D = $ModelRoot/CharacterModel
@@ -225,14 +235,13 @@ func _physics_process(delta: float) -> void:
 		if is_on_ceiling() and velocity.y > 0.0:
 			velocity.y = 0.0
 
-		# Mecánica de Correr / Sprint / Spring
-		var is_sprinting: bool = (
+		# Mecánica de Correr / Sprint / Spring con consumo de estamina
+		var wants_sprint: bool = (
 			Input.is_action_pressed("sprint")
 			or Input.is_action_pressed("spring")
 			or Input.is_physical_key_pressed(KEY_SHIFT)
 			or Input.is_key_pressed(KEY_SHIFT)
 		)
-		var current_speed: float = sprint_speed if is_sprinting else move_speed
 
 		var input_dir = Vector2.ZERO
 		if Input.is_action_pressed("move_forward") or Input.is_physical_key_pressed(KEY_W):
@@ -245,6 +254,24 @@ func _physics_process(delta: float) -> void:
 			input_dir.x += 1
 		input_dir = input_dir.normalized()
 		
+		var is_moving: bool = input_dir != Vector2.ZERO
+		var is_sprinting: bool = wants_sprint and is_moving and not is_stamina_exhausted and current_stamina > 0.0
+
+		if is_sprinting:
+			current_stamina = maxf(0.0, current_stamina - stamina_drain_rate * delta)
+			_stamina_regen_timer = stamina_regen_delay
+			if current_stamina <= 0.0:
+				is_stamina_exhausted = true
+		else:
+			if _stamina_regen_timer > 0.0:
+				_stamina_regen_timer -= delta
+			else:
+				current_stamina = minf(max_stamina, current_stamina + stamina_regen_rate * delta)
+				if is_stamina_exhausted and current_stamina >= max_stamina * 0.25:
+					is_stamina_exhausted = false
+
+		var current_speed: float = sprint_speed if is_sprinting else move_speed
+
 		var direction = (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
 		if direction != Vector3.ZERO:
 			velocity.x = direction.x * current_speed
@@ -263,9 +290,25 @@ func _physics_process(delta: float) -> void:
 	else:
 		velocity.x = 0
 		velocity.z = 0
+		if current_stamina < max_stamina:
+			if _stamina_regen_timer > 0.0:
+				_stamina_regen_timer -= delta
+			else:
+				current_stamina = minf(max_stamina, current_stamina + stamina_regen_rate * delta)
+				if is_stamina_exhausted and current_stamina >= max_stamina * 0.25:
+					is_stamina_exhausted = false
 		
 	move_and_slide()
+	_update_stamina_hud()
 	_handle_interaction()
+
+func _update_stamina_hud() -> void:
+	if not hud_node:
+		var hud_cand = get_tree().root.find_child("HUD", true, false)
+		if hud_cand is Control:
+			hud_node = hud_cand
+	if hud_node and hud_node.has_method("update_stamina"):
+		hud_node.update_stamina(current_stamina, max_stamina, is_stamina_exhausted)
 
 func _is_space_just_pressed() -> bool:
 	var pressed: bool = Input.is_physical_key_pressed(KEY_SPACE) or Input.is_key_pressed(KEY_SPACE)

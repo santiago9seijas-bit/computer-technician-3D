@@ -6,6 +6,7 @@ extends Control
 @onready var backpack_container: VBoxContainer = $TopRight/BackpackContainer
 @onready var falla_solucionada_hud: Label = $FallaSolucionadaHUD
 @onready var prompt_label: Label = $Center/PromptLabel
+@onready var stamina_bar: Control = $Center/CurvedStaminaBar
 @onready var tools_bar: HBoxContainer = $BottomCenter/ToolsBar
 @onready var floating_feedback_container: Control = $FloatingFeedback
 @onready var game_over_panel: PanelContainer = $GameOverPanel
@@ -298,3 +299,9 @@ func _on_level_won(stars: int, final_score: int) -> void:
 		stars_lbl.text = stars_str
 	if score_lbl:
 		score_lbl.text = "Puntaje Final: %d" % final_score
+
+func update_stamina(current: float, max_val: float, is_exhausted: bool) -> void:
+	if not stamina_bar:
+		stamina_bar = get_node_or_null("Center/CurvedStaminaBar")
+	if stamina_bar and stamina_bar.has_method("set_stamina"):
+		stamina_bar.set_stamina(current, max_val, is_exhausted)

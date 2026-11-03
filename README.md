@@ -27,7 +27,7 @@
   - 🌊 **Refrigeración Líquida (Custom Loop Completo):** Mapeado interactivo de componentes calientes (GPU, CPU, RAM + Radiador 360mm y Bomba D5), montaje de tubos rígidos PETG arrastrando tubo a tubo desde el rack, llenado manual con bidón de refrigerante cian al 100% y encendido de la bomba con purgado de aire y caída térmica en tiempo real.
   - 📟 **Multímetro Digital Cyberpunk:** Medición de voltaje DC/AC y resistencia (Ohmios) en RAM, Fuente de Poder y Fan Cooler con minijuego interactivo de aguja y zona de calibración rotativa.
   - ⚡ **Animación de Inicio Cyberpunk & Tapa Deslizable PSU (v0.0.6):** Transición cinemática con hologramas rojos y glitch al iniciar partida, y mecánica de deslizamiento de tapa superior para el minijuego de limpieza de Fuente de Poder.
-  - 🚀 **Mecánica de Salto & Sprint Optimizados (Nuevo v0.0.7):** Salto vertical con `Espacio`, aceleración dinámica de desplazamiento con `Shift` (con FOV reactivo), y optimizaciones profundas de frame pacing a 60 FPS estables sin tirones de rendimiento.
+  - 🚀 **Mecánica de Salto, Sprint & Estamina Curva (Nuevo v0.0.7):** Salto vertical con `Espacio`, aceleración dinámica de sprint con `Shift` regulada por medidor curvo de estamina alrededor del cursor (con FOV reactivo), y optimizaciones profundas de frame pacing a 60 FPS estables sin tirones de rendimiento.
 - **Interfaz Futurista con Shaders:** Menús holográficos interactivos (`cyber_panel_hologram`), transiciones cinemáticas fluidas, selección de niveles y módulos de tutorial interactivos.
 - **Configuración y Accesibilidad:** Panel de configuración personalizable, controles compactos y claros en pantalla.
 
@@ -40,7 +40,7 @@
 | **Moverse** | `W`, `A`, `S`, `D` | Movimiento en 8 direcciones |
 | **Mirar / Cámara** | Ratón | Rotación de cámara en 3D |
 | **Saltar** | `Espacio` | Impulso de salto vertical con física 3D |
-| **Correr / Sprint** | `Shift Izq` | Acelerar velocidad de desplazamiento |
+| **Correr / Sprint** | `Shift Izq` | Acelerar velocidad de desplazamiento (consume barra de estamina curva) |
 | **Interactuar** | `E` | Inspeccionar componentes y acceder a terminales |
 | **Herramientas Rápidas**| `1`, `2`, `3`, `4`, `5` | Seleccionar herramientas de diagnóstico (4 = Multímetro) |
 | **Pausa / Volver** | `ESC` | Abrir menú de pausa o cerrar paneles |
