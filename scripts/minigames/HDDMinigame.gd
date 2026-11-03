@@ -15,6 +15,8 @@ enum State {
 var current_state: State = State.UNSCREW
 var start_as_empty_slot: bool = false
 var is_tutorial_mode: bool = false
+@export var target_hdd_count: int = 1
+var current_hdd_index: int = 0
 
 var screw_type: String = "cruz"
 var required_tool_id: int = 1
@@ -51,6 +53,11 @@ func _ready() -> void:
 	btn_cancel.pressed.connect(func(): minigame_finished.emit(false))
 	btn_screw.pressed.connect(_on_screw_pressed)
 	empty_bay_label.visible = false
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel") or (event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE):
+		get_viewport().set_input_as_handled()
+		minigame_finished.emit(false)
 	
 	btn_tool_1.pressed.connect(func(): GameManager.select_tool(1))
 	btn_tool_2.pressed.connect(func(): GameManager.select_tool(2))
@@ -219,27 +226,32 @@ func _update_ui_state() -> void:
 			disk_drag_label.modulate = Color(0, 1, 0.6, 1)
 			screw_container.visible = false
 		State.EMPTY_BAY:
-			status_label.text = "Bahía vacía. Arrastra el Disco Duro nuevo desde tu mochila hacia la bahía."
+			if target_hdd_count > 1:
+				status_label.text = "BAHÍA SAS CADDY #%d DE %d · Arrastra el Disco Duro nuevo desde tu mochila hacia la bahía." % [current_hdd_index + 1, target_hdd_count]
+			else:
+				status_label.text = "Bahía vacía. Arrastra el Disco Duro nuevo desde tu mochila hacia la bahía."
 			status_label.modulate = Color(1.0, 0.85, 0.2, 1)
 			_refresh_backpack_ui()
 		State.INSERT_DRAG_DOWN:
-			status_label.text = "Paso 3 (A la inversa): Arrastra el Disco Duro hacia ABAJO para encajarlo."
+			var prefix = ("BAHÍA SAS #%d: " % [current_hdd_index + 1]) if target_hdd_count > 1 else "Paso 3 (A la inversa): "
+			status_label.text = prefix + "Arrastra el Disco Duro hacia ABAJO para encajarlo."
 			status_label.modulate = Color(0.0, 0.9, 1.0, 1)
 			disk_drag_label.text = "▼ ARRASTRA HACIA ABAJO\nPARA CALZAR EN BAHÍA ▼"
 			disk_drag_label.modulate = Color(0, 0.95, 1, 1)
 			screw_container.visible = false
 		State.SCREW_BACK:
 			var tool_name = "Tecla 1 (Cruz ★)" if screw_type == "cruz" else "Tecla 2 (Pala ▬)"
-			status_label.text = "Paso 4: Con %s, haz clic en el tornillo para ajustar el seguro." % tool_name
+			var prefix = ("BAHÍA SAS #%d: " % [current_hdd_index + 1]) if target_hdd_count > 1 else "Paso 4: "
+			status_label.text = prefix + "Con %s, haz clic en el tornillo para ajustar el seguro." % tool_name
 			status_label.modulate = Color(1.0, 0.85, 0.2, 1)
-			disk_drag_label.text = "SATA SSD 1TB [CALZADO]\n(Ajusta el tornillo de seguridad)"
+			disk_drag_label.text = "SATA/SAS SSD [CALZADO]\n(Ajusta el tornillo de seguridad)"
 			disk_drag_label.modulate = Color(0, 1, 0.6, 1)
 			screw_container.visible = true
 			btn_screw.visible = true
 			btn_screw.disabled = false
 			btn_screw.modulate = Color(1, 1, 1, 1)
 		State.COMPLETED:
-			status_label.text = "¡Disco Duro reemplazado y asegurado con éxito!"
+			status_label.text = ("¡LOS %d DISCOS SAS CADDIES MONTADOS Y ASEGURADOS CON ÉXITO!" % target_hdd_count) if target_hdd_count > 1 else "¡Disco Duro reemplazado y asegurado con éxito!"
 			status_label.modulate = Color(0.0, 1.0, 0.4, 1)
 
 func _on_screw_pressed() -> void:
@@ -269,13 +281,41 @@ func _on_screw_pressed() -> void:
 	elif current_state == State.SCREW_BACK:
 		btn_screw.modulate = Color(0, 1, 0.5, 1)
 		btn_screw.disabled = true
-		current_state = State.COMPLETED
-		_update_ui_state()
-		var tween = create_tween()
-		tween.tween_interval(0.25)
-		tween.tween_callback(func():
-			minigame_finished.emit(true)
-		)
+		current_hdd_index += 1
+		
+		if current_hdd_index < target_hdd_count:
+			status_label.text = "✓ ¡DISCO SAS CADDY #%d ATORNILLADO Y FIJADO! Preparando Bahía #%d..." % [current_hdd_index, current_hdd_index + 1]
+			status_label.modulate = Color(0.2, 1.0, 0.4)
+			var tw = create_tween()
+			tw.tween_interval(0.8)
+			tw.tween_callback(func():
+				var has_hdd = false
+				for it in GameManager.backpack:
+					if it.get("name") == "Disco Duro" and not it.get("broken", true):
+						has_hdd = true
+						break
+				if not has_hdd:
+					GameManager.add_item_to_backpack({"name": "Disco Duro", "broken": false})
+				
+				disk_panel.visible = false
+				empty_bay_label.visible = true
+				screw_container.visible = false
+				btn_screw.visible = false
+				btn_screw.disabled = false
+				btn_screw.rotation_degrees = 0.0
+				btn_screw.modulate = Color(1, 1, 1, 1)
+				current_state = State.EMPTY_BAY
+				_update_ui_state()
+				_refresh_backpack_ui()
+			)
+		else:
+			current_state = State.COMPLETED
+			_update_ui_state()
+			var tween = create_tween()
+			tween.tween_interval(0.5)
+			tween.tween_callback(func():
+				minigame_finished.emit(true)
+			)
 
 func _on_disk_gui_input(event: InputEvent) -> void:
 	if current_state == State.EXTRACT_DRAG_UP:

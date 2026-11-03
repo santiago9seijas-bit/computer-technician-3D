@@ -53,6 +53,10 @@ func _ready() -> void:
 	btn_comp_usb.pressed.connect(func(): _launch_minigame("Pendrive USB", usb_minigame_scene))
 	btn_comp_arcade.pressed.connect(func(): _launch_minigame("Arcade Ciberdefensa", arcade_minigame_scene))
 	
+	for btn in comp_buttons.keys():
+		if btn:
+			btn.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	
 	if current_pc != null:
 		_refresh_ui()
 
@@ -117,7 +121,7 @@ func _update_btn_style(btn: Button, title: String, subtitle: String, status: Str
 		btn.text = "✓ " + title + "\n" + subtitle + "\n[ RESTAURADO / OK ]"
 		btn.modulate = Color(0.3, 1.0, 0.5, 1.0)
 	else:
-		btn.text = "⚡ " + title + "\n" + subtitle + "\n[ PENDIENTE // CLIC PARA INICIAR ]"
+		btn.text = "⚡ " + title + "\n" + subtitle + "\n[ CLIC PARA INICIAR ]"
 		btn.modulate = Color(1.0, 0.4, 0.5, 1.0)
 
 func _launch_minigame(task_name: String, scene_packed: PackedScene) -> void:
@@ -152,5 +156,9 @@ func _show_feedback(msg: String, is_success: bool) -> void:
 	tw.tween_property(feedback_label, "modulate:a", 0.0, 0.4)
 
 func _on_volver_pressed() -> void:
+	if current_pc and current_pc.has_method("is_fully_repaired") and current_pc.is_fully_repaired():
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	else:
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	inspection_closed.emit()
 	queue_free()

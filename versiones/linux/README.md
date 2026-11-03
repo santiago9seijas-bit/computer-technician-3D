@@ -4,23 +4,23 @@ En este directorio se mantiene el registro y métodos de descarga de todas las v
 
 ---
 
-## 📌 Versión 0.0.6 Alpha (Lanzamiento Actual)
+## 📌 Versión 0.0.7 Alpha (Lanzamiento Actual)
 
-- **Nombre de la versión:** `Version 0.0.6 Alpha`
+- **Nombre de la versión:** `Version 0.0.7 Alpha`
 - **Estado:** Alpha
-- **Archivo:** `ComputerTechnician3D-Linux-v0.0.6-alpha.zip`
+- **Archivo:** `ComputerTechnician3D-Linux-v0.0.7-alpha.zip`
 - **Enlace de descarga directa:**  
-  👉 **[Descargar ComputerTechnician3D-Linux-v0.0.6-alpha.zip](https://github.com/santiago9seijas-bit/computer-technician-3D/releases/download/v0.0.6-alpha/ComputerTechnician3D-Linux-v0.0.6-alpha.zip)**
+  👉 **[Descargar ComputerTechnician3D-Linux-v0.0.7-alpha.zip](https://github.com/santiago9seijas-bit/computer-technician-3D/releases/download/v0.0.7-alpha/ComputerTechnician3D-Linux-v0.0.7-alpha.zip)**
 
 ### 💻 Método de Descarga e Instalación
 
 #### Opción A: Vía Terminal (Recomendado)
 ```bash
 # 1. Descargar el archivo comprimido
-wget https://github.com/santiago9seijas-bit/computer-technician-3D/releases/download/v0.0.6-alpha/ComputerTechnician3D-Linux-v0.0.6-alpha.zip
+wget https://github.com/santiago9seijas-bit/computer-technician-3D/releases/download/v0.0.7-alpha/ComputerTechnician3D-Linux-v0.0.7-alpha.zip
 
 # 2. Descomprimir en una carpeta
-unzip ComputerTechnician3D-Linux-v0.0.6-alpha.zip -d ComputerTechnician3D-Linux
+unzip ComputerTechnician3D-Linux-v0.0.7-alpha.zip -d ComputerTechnician3D-Linux
 cd ComputerTechnician3D-Linux
 
 # 3. Otorgar permisos de ejecución al binario
@@ -31,13 +31,18 @@ chmod +x ComputerTechnician3D.x86_64
 ```
 
 #### Opción B: Vía Interfaz Gráfica
-1. Descarga el archivo desde el enlace directo o desde [GitHub Releases](https://github.com/santiago9seijas-bit/computer-technician-3D/releases/tag/v0.0.6-alpha).
+1. Descarga el archivo desde el enlace directo o desde [GitHub Releases](https://github.com/santiago9seijas-bit/computer-technician-3D/releases/tag/v0.0.7-alpha).
 2. Extrae el archivo y otorga permisos de ejecución a `ComputerTechnician3D.x86_64`.
 3. Haz doble clic para jugar.
 
 ---
 
 ## 🗄️ Historial de Versiones Anteriores
+
+### 📦 Versión 0.0.6 Alpha
+- **Nombre de la versión:** `Version 0.0.6 Alpha`
+- **Archivo:** `ComputerTechnician3D-Linux-v0.0.6-alpha.zip`
+- 👉 **[Descargar ComputerTechnician3D-Linux-v0.0.6-alpha.zip](https://github.com/santiago9seijas-bit/computer-technician-3D/releases/download/v0.0.6-alpha/ComputerTechnician3D-Linux-v0.0.6-alpha.zip)**
 
 ### 📦 Versión 0.0.5 Alpha
 - **Nombre de la versión:** `Version 0.0.5 Alpha`

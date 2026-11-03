@@ -98,6 +98,11 @@ func _ready() -> void:
 	notification_toast.visible = false
 	
 	_spawn_all_popups()
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel") or (event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE):
+		get_viewport().set_input_as_handled()
+		_on_cancel_pressed()
 	_update_metrics()
 	_update_status("Cierra las ventanas emergentes falsas con [X]. ¡Cuidado con los botones trampa!")
 

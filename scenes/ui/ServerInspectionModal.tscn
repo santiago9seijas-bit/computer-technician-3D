@@ -1,0 +1,262 @@
+[gd_scene format=3 load_steps=7]
+
+[ext_resource type="Script" path="res://scripts/ui/ServerInspectionModal.gd" id="1_server_modal"]
+[ext_resource type="Script" path="res://scripts/menus/CyberButton.gd" id="2_cbtn"]
+[ext_resource type="Theme" path="res://styles/cyberpunk_theme.tres" id="3_theme"]
+[ext_resource type="FontFile" uid="uid://dbcug8887dro7" path="res://assets/fonts/Bungee-Regular.ttf" id="4_title_font"]
+[ext_resource type="PackedScene" path="res://scenes/ui/CyberBackgroundFrame.tscn" id="5_bg_frame"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_frame"]
+content_margin_left = 24.0
+content_margin_top = 20.0
+content_margin_right = 24.0
+content_margin_bottom = 20.0
+
+[node name="ServerInspectionModal" type="CanvasLayer"]
+layer = 10
+script = ExtResource("1_server_modal")
+
+[node name="ModalControl" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("3_theme")
+
+[node name="DimOverlay" type="ColorRect" parent="ModalControl"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.01, 0.03, 0.07, 0.94)
+
+[node name="Panel" type="PanelContainer" parent="ModalControl"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -550.0
+offset_top = -340.0
+offset_right = 550.0
+offset_bottom = 340.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_frame")
+
+[node name="CyberBackgroundFrame" parent="ModalControl/Panel" instance=ExtResource("5_bg_frame")]
+layout_mode = 2
+
+[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Header" type="VBoxContainer" parent="ModalControl/Panel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="TitleLabel" type="Label" parent="ModalControl/Panel/VBox/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.15, 0.4, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 8
+theme_override_colors/font_shadow_color = Color(0.85, 0.05, 0.25, 0.85)
+theme_override_constants/shadow_outline_size = 8
+theme_override_fonts/font = ExtResource("4_title_font")
+theme_override_font_sizes/font_size = 18
+text = "TORRE DE SERVIDOR // RACK EMPRESARIAL #1 (ÁREA DE SERVIDORES)"
+horizontal_alignment = 1
+
+[node name="StatusSummary" type="Label" parent="ModalControl/Panel/VBox/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 12
+text = "MONTAJE DE SUBSISTEMAS: Solo colocación e inserción de componentes nuevos (3 Discos SAS y 3 Bancos RAM)."
+horizontal_alignment = 1
+
+[node name="BadgeLabel" type="Label" parent="ModalControl/Panel/VBox/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 1, 0.5, 1)
+theme_override_font_sizes/font_size = 12
+text = "ESTADO: EN MONTAJE TÉCNICO (0/9 COMPLETADAS)"
+horizontal_alignment = 1
+
+[node name="Divider" type="ColorRect" parent="ModalControl/Panel/VBox"]
+custom_minimum_size = Vector2(0, 2)
+layout_mode = 2
+color = Color(1, 0.15, 0.4, 0.45)
+
+[node name="GridContainer" type="GridContainer" parent="ModalControl/Panel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 8
+columns = 3
+
+[node name="BtnLvl1" type="Button" parent="ModalControl/Panel/VBox/GridContainer"]
+custom_minimum_size = Vector2(320, 80)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 11
+text = "⚡ BASTIDORES & RIELES 2U
+[MONTAJE CHASIS 19\" EN RACK]"
+script = ExtResource("2_cbtn")
+slant = 10.0
+
+[node name="BtnLvl2" type="Button" parent="ModalControl/Panel/VBox/GridContainer"]
+custom_minimum_size = Vector2(320, 80)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 11
+text = "⚡ FUENTES 1+1 HOT-SWAP
+[INSTALAR FUENTE 1200W PLATINUM]"
+script = ExtResource("2_cbtn")
+slant = 10.0
+
+[node name="BtnLvl3" type="Button" parent="ModalControl/Panel/VBox/GridContainer"]
+custom_minimum_size = Vector2(320, 80)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 11
+text = "⚡ CADDIES SAS & RAID (3 DISCOS)
+[MONTAR 3 DISCOS SAS EN CALIENTE]"
+script = ExtResource("2_cbtn")
+slant = 10.0
+
+[node name="BtnLvl4" type="Button" parent="ModalControl/Panel/VBox/GridContainer"]
+custom_minimum_size = Vector2(320, 80)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 11
+text = "⚡ FAN WALL DE TURBINAS
+[INSTALAR MÓDULO EN TÚNEL DE AIRE]"
+script = ExtResource("2_cbtn")
+slant = 10.0
+
+[node name="BtnLvl5" type="Button" parent="ModalControl/Panel/VBox/GridContainer"]
+custom_minimum_size = Vector2(320, 80)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 11
+text = "⚡ LOOP LÍQUIDO RACK
+[INSTALAR TUBOS & REFRIGERANTE]"
+script = ExtResource("2_cbtn")
+slant = 10.0
+
+[node name="BtnLvl6" type="Button" parent="ModalControl/Panel/VBox/GridContainer"]
+custom_minimum_size = Vector2(320, 80)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 11
+text = "⚡ BANCOS RAM ECC (3 MÓDULOS)
+[COLOCAR 3 BANCOS RAM DDR5]"
+script = ExtResource("2_cbtn")
+slant = 10.0
+
+[node name="BtnLvl7" type="Button" parent="ModalControl/Panel/VBox/GridContainer"]
+custom_minimum_size = Vector2(320, 80)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 11
+text = "⚡ DUAL CPU ENTERPRISE
+[COLOCAR CPU EN SOCKET INDUSTRIAL]"
+script = ExtResource("2_cbtn")
+slant = 10.0
+
+[node name="BtnLvl8" type="Button" parent="ModalControl/Panel/VBox/GridContainer"]
+custom_minimum_size = Vector2(320, 80)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 11
+text = "⚡ RISER PCIE / SMARTNIC
+[INSTALAR TARJETA DE RED 100GBE]"
+script = ExtResource("2_cbtn")
+slant = 10.0
+
+[node name="BtnLvl9" type="Button" parent="ModalControl/Panel/VBox/GridContainer"]
+custom_minimum_size = Vector2(320, 80)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 11
+text = "⚡ TERMINAL & SCRIPTING
+[DEPURAR SCRIPTS DE RED Y FIREWALL]"
+script = ExtResource("2_cbtn")
+slant = 10.0
+
+[node name="FeedbackLabel" type="Label" parent="ModalControl/Panel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 1, 0.4, 1)
+theme_override_font_sizes/font_size = 12
+horizontal_alignment = 1
+
+[node name="BackpackSection" type="VBoxContainer" parent="ModalControl/Panel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="BackpackTitle" type="Label" parent="ModalControl/Panel/VBox/BackpackSection"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 11
+text = "🎒 MOCHILA TÉCNICA · Arrastra el Kit de Refrigeración Líquida sobre el cuadro vacío para montar:"
+horizontal_alignment = 1
+
+[node name="BackpackSlots" type="HBoxContainer" parent="ModalControl/Panel/VBox/BackpackSection"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="Slot0" type="Button" parent="ModalControl/Panel/VBox/BackpackSection/BackpackSlots"]
+custom_minimum_size = Vector2(240, 40)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "[ VACÍO ]"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 8.0
+
+[node name="Slot1" type="Button" parent="ModalControl/Panel/VBox/BackpackSection/BackpackSlots"]
+custom_minimum_size = Vector2(240, 40)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "[ VACÍO ]"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 8.0
+
+[node name="Slot2" type="Button" parent="ModalControl/Panel/VBox/BackpackSection/BackpackSlots"]
+custom_minimum_size = Vector2(240, 40)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "[ VACÍO ]"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 8.0
+
+[node name="Footer" type="HBoxContainer" parent="ModalControl/Panel/VBox"]
+layout_mode = 2
+alignment = 1
+
+[node name="BtnVolver" type="Button" parent="ModalControl/Panel/VBox/Footer"]
+custom_minimum_size = Vector2(280, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 12
+text = "◀ VOLVER AL DATACENTER"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 12.0

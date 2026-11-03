@@ -19,8 +19,37 @@ func _ready() -> void:
 	btn_configuracion.pressed.connect(func(): pass)
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("pause") and not event.is_echo():
+	if (event.is_action_pressed("pause") or (event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE)) and not event.is_echo():
+		if not visible and _is_any_modal_or_minigame_active():
+			return
+		get_viewport().set_input_as_handled()
 		GameManager.toggle_pause()
+
+func _is_any_modal_or_minigame_active() -> bool:
+	var root_node = get_tree().root
+	
+	# Verificar si hay HUD con pantalla de victoria o fin de juego abierta
+	var hud = root_node.find_child("HUD", true, false)
+	if is_instance_valid(hud):
+		var win_panel = hud.get_node_or_null("WinPanel")
+		if is_instance_valid(win_panel) and win_panel.visible:
+			return true
+		var game_over_panel = hud.get_node_or_null("GameOverPanel")
+		if is_instance_valid(game_over_panel) and game_over_panel.visible:
+			return true
+
+	# Verificar si hay modales interactivos de inspección o introducción abiertos
+	for modal_name in ["PCInspectionModal", "ServerInspectionModal", "PCSystemsModal", "LevelIntroModal", "LevelSystemsIntroModal", "LevelServerIntroModal"]:
+		var found = root_node.find_child(modal_name, true, false)
+		if is_instance_valid(found) and (not ("visible" in found) or found.visible):
+			return true
+
+	# Verificar si hay minijuegos abiertos en la raíz
+	for child in root_node.get_children():
+		if child != self and (child.name.ends_with("Minigame") or child.is_in_group("minigames")):
+			return true
+
+	return false
 
 func _on_pause_changed(is_paused: bool) -> void:
 	visible = is_paused
@@ -31,15 +60,7 @@ func _on_pause_changed(is_paused: bool) -> void:
 		_restore_mouse_mode()
 
 func _restore_mouse_mode() -> void:
-	# Si hay algún modal interactivo abierto en la escena, mantener el cursor visible
-	var root_node = get_tree().root
-	var modal_open = false
-	for modal_name in ["PCInspectionModal", "LevelIntroModal", "LevelSystemsIntroModal", "PCSystemsModal"]:
-		var found = root_node.find_child(modal_name, true, false)
-		if is_instance_valid(found) and found.visible:
-			modal_open = true
-			break
-	if modal_open:
+	if _is_any_modal_or_minigame_active():
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	else:
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED

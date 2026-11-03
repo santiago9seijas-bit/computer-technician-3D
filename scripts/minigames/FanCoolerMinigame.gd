@@ -301,6 +301,10 @@ func _setup_ui() -> void:
 			screw_buttons.append(btn)
 
 func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel") or (event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE):
+		get_viewport().set_input_as_handled()
+		minigame_finished.emit(false)
+		return
 	if event is InputEventKey and event.is_pressed() and not event.echo:
 		if event.keycode == KEY_1:
 			GameManager.select_tool(1)
@@ -309,8 +313,6 @@ func _unhandled_input(event: InputEvent) -> void:
 		elif event.keycode == KEY_4 or event.keycode == KEY_KP_4:
 			GameManager.select_tool(4)
 			_open_voltimeter()
-		elif event.keycode == KEY_ESCAPE:
-			minigame_finished.emit(false)
 
 func _open_voltimeter() -> void:
 	modal_control.visible = false

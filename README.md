@@ -1,8 +1,8 @@
-# 🛠️ Computer Technician 3D (Version 0.0.6 Alpha)
+# 🛠️ Computer Technician 3D (Version 0.0.7 Alpha)
 
 [![Godot Engine](https://img.shields.io/badge/Godot-4.x-blue.svg?logo=godotengine)](https://godotengine.org)
 [![Platform](https://img.shields.io/badge/Platforms-Linux%20%7C%20Windows-green.svg)](#descargas--instalaci%C3%B3n)
-[![Release](https://img.shields.io/badge/Release-Version%200.0.6%20Alpha-magenta.svg)](https://github.com/santiago9seijas-bit/computer-technician-3D/releases)
+[![Release](https://img.shields.io/badge/Release-Version%200.0.7%20Alpha-magenta.svg)](https://github.com/santiago9seijas-bit/computer-technician-3D/releases)
 [![Versiones](https://img.shields.io/badge/Carpeta-Versiones-orange.svg)](versiones/README.md)
 
 **Computer Technician 3D** es un simulador inmersivo en primera persona desarrollado en Godot 4 con estética cyberpunk/sci-fi. Asume el papel de un técnico informático del futuro en un taller especializado, diagnostica componentes dañados, realiza pruebas de hardware e interactúa con minijuegos dinámicos para reparar PCs y módulos cibernéticos.
@@ -26,7 +26,8 @@
   - 🖥️ **Placa Madre (Desmontaje Maestro Libre):** Retiro de piezas en cualquier orden (cables ATX/EPS, GPU, Cooler, SSD M.2 y RAM), desatornillado de los 6 tornillos standoff del chasis, desacople del I/O Shield y elevación limpia.
   - 🌊 **Refrigeración Líquida (Custom Loop Completo):** Mapeado interactivo de componentes calientes (GPU, CPU, RAM + Radiador 360mm y Bomba D5), montaje de tubos rígidos PETG arrastrando tubo a tubo desde el rack, llenado manual con bidón de refrigerante cian al 100% y encendido de la bomba con purgado de aire y caída térmica en tiempo real.
   - 📟 **Multímetro Digital Cyberpunk:** Medición de voltaje DC/AC y resistencia (Ohmios) en RAM, Fuente de Poder y Fan Cooler con minijuego interactivo de aguja y zona de calibración rotativa.
-  - ⚡ **Animación de Inicio Cyberpunk & Tapa Deslizable PSU (Nuevo v0.0.6):** Transición cinemática con hologramas rojos y glitch al iniciar partida, y mecánica de deslizamiento de tapa superior para el minijuego de limpieza de Fuente de Poder.
+  - ⚡ **Animación de Inicio Cyberpunk & Tapa Deslizable PSU (v0.0.6):** Transición cinemática con hologramas rojos y glitch al iniciar partida, y mecánica de deslizamiento de tapa superior para el minijuego de limpieza de Fuente de Poder.
+  - 🚀 **Mecánica de Salto & Sprint Optimizados (Nuevo v0.0.7):** Salto vertical con `Espacio`, aceleración dinámica de desplazamiento con `Shift` (con FOV reactivo), y optimizaciones profundas de frame pacing a 60 FPS estables sin tirones de rendimiento.
 - **Interfaz Futurista con Shaders:** Menús holográficos interactivos (`cyber_panel_hologram`), transiciones cinemáticas fluidas, selección de niveles y módulos de tutorial interactivos.
 - **Configuración y Accesibilidad:** Panel de configuración personalizable, controles compactos y claros en pantalla.
 
@@ -38,8 +39,9 @@
 | :--- | :--- | :--- |
 | **Moverse** | `W`, `A`, `S`, `D` | Movimiento en 8 direcciones |
 | **Mirar / Cámara** | Ratón | Rotación de cámara en 3D |
-| **Interactuar** | `E` | Inspeccionar componentes y acceder a terminales |
+| **Saltar** | `Espacio` | Impulso de salto vertical con física 3D |
 | **Correr / Sprint** | `Shift Izq` | Acelerar velocidad de desplazamiento |
+| **Interactuar** | `E` | Inspeccionar componentes y acceder a terminales |
 | **Herramientas Rápidas**| `1`, `2`, `3`, `4`, `5` | Seleccionar herramientas de diagnóstico (4 = Multímetro) |
 | **Pausa / Volver** | `ESC` | Abrir menú de pausa o cerrar paneles |
 
@@ -51,10 +53,10 @@ Puedes descargar los binarios compilados directamente desde la pestaña de **[Re
 
 ### 🐧 Linux (x86_64)
 
-1. Descarga el archivo `ComputerTechnician3D-Linux-v0.0.6-alpha.zip`.
+1. Descarga el archivo `ComputerTechnician3D-Linux-v0.0.7-alpha.zip`.
 2. Descomprime el archivo en la carpeta que desees:
    ```bash
-   unzip ComputerTechnician3D-Linux-v0.0.6-alpha.zip -d ComputerTechnician3D-Linux
+   unzip ComputerTechnician3D-Linux-v0.0.7-alpha.zip -d ComputerTechnician3D-Linux
    cd ComputerTechnician3D-Linux
    ```
 3. Otorga permisos de ejecución al ejecutable:
@@ -72,7 +74,7 @@ Puedes descargar los binarios compilados directamente desde la pestaña de **[Re
 
 ### 🪟 Windows (x86_64)
 
-1. Descarga el archivo `ComputerTechnician3D-Windows-v0.0.6-alpha.zip`.
+1. Descarga el archivo `ComputerTechnician3D-Windows-v0.0.7-alpha.zip`.
 2. Haz clic derecho y selecciona **Extraer todo...**.
 3. Abre la carpeta resultante y ejecuta `ComputerTechnician3D.exe`.
 *(Nota: Asegúrate de mantener el archivo `.pck` en la misma carpeta que el ejecutable).*

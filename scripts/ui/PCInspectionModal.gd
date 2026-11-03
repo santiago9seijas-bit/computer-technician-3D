@@ -14,6 +14,7 @@ var cpupaste_minigame_scene: PackedScene = preload("res://scenes/minigames/CPUPa
 var cpupins_minigame_scene: PackedScene = preload("res://scenes/minigames/CPUPinsMinigame.tscn")
 var dustcleaner_minigame_scene: PackedScene = preload("res://scenes/minigames/DustCleanerMinigame.tscn")
 var voltimeter_minigame_scene: PackedScene = preload("res://scenes/minigames/VoltimeterMinigame.tscn")
+var liquid_cooling_scene: PackedScene = preload("res://scenes/minigames/LiquidCoolingMinigame.tscn")
 
 @onready var modal_control: Control = $ModalControl
 @onready var title_label: Label = $ModalControl/Panel/VBox/Header/TitleLabel
@@ -326,6 +327,10 @@ func setup_pc(pc_node) -> void:
 	_refresh_ui()
 
 func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel") or (event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE):
+		get_viewport().set_input_as_handled()
+		_on_volver_pressed()
+		return
 	if event is InputEventKey and event.pressed and not event.echo:
 		match event.keycode:
 			KEY_1, KEY_KP_1:
@@ -338,8 +343,6 @@ func _unhandled_input(event: InputEvent) -> void:
 				GameManager.select_tool(4)
 			KEY_5, KEY_KP_5:
 				GameManager.select_tool(5)
-			KEY_ESCAPE:
-				_on_volver_pressed()
 
 # =============================================================================
 # INTERACCIÓN CON TARJETAS Y ARRASTRE
@@ -485,6 +488,11 @@ func _try_install_spare(backpack_idx: int, target_comp: String) -> void:
 		return
 		
 	if item_name != target_comp:
+		if (item_name == "Refrigeracion Liquida" or item_name == "Kit Refrigeracion") and target_comp == "Fan Cooler":
+			selected_backpack_idx = -1
+			_show_feedback("✓ ¡Kit de Refrigeración Líquida verificado desde el taller! Iniciando montaje...", true)
+			_open_liquid_cooling_minigame()
+			return
 		_show_feedback("❌ Este repuesto es de [%s], pero intentas colocarlo en [%s]." % [item_name, target_comp], false)
 		return
 		
@@ -738,6 +746,14 @@ func _refresh_ui() -> void:
 		"CPU": "LGA 1700 OCTA-CORE"
 	}
 	
+	# Comprobar si el jugador tiene el kit de refrigeración líquida en la mochila
+	var has_liquid_kit = false
+	for it in GameManager.backpack:
+		var n = it.get("name", "")
+		if (n == "Refrigeracion Liquida" or n == "Kit Refrigeracion") and not it.get("broken", true):
+			has_liquid_kit = true
+			break
+
 	for comp_name in comp_cards.keys():
 		var status = comps_dict.get(comp_name, "ok")
 		var sb: StyleBoxFlat = card_styleboxes[comp_name]
@@ -748,11 +764,23 @@ func _refresh_ui() -> void:
 		var btn_sacar: Button = comp_sacar_btns[comp_name]
 		var examined_st = get_examined_status(comp_name)
 		
+		# Si es el cuadro de refrigeración líquida y está vacío para instalar el kit, solo aparece si el jugador tiene el kit
+		if comp_name == "Fan Cooler":
+			if status == "empty":
+				card_cooler.visible = has_liquid_kit
+			else:
+				card_cooler.visible = true
+
 		match status:
 			"empty":
-				lbl.text = "%s\n[ SLOT VACÍO ]" % sub
-				lbl.modulate = Color(1.0, 0.8, 0.1, 1.0)
-				btn_sacar.text = "ARRASTRA REPUESTO"
+				if comp_name == "Fan Cooler":
+					lbl.text = "%s\n[ CUADRO VACÍO: ARRASTRA EL KIT AQUÍ ]" % sub
+					lbl.modulate = Color(0.2, 1.0, 0.6, 1.0)
+					btn_sacar.text = "ARRASTRA KIT AQUÍ"
+				else:
+					lbl.text = "%s\n[ SLOT VACÍO ]" % sub
+					lbl.modulate = Color(1.0, 0.8, 0.1, 1.0)
+					btn_sacar.text = "ARRASTRA REPUESTO"
 				btn_sacar.disabled = true
 				btn_sacar.modulate = Color(0.6, 0.6, 0.6, 0.5)
 			"fixed":
@@ -923,8 +951,15 @@ func _refresh_ui() -> void:
 				badge_sb.border_color = Color(0.0, 0.9, 1.0, 0.8)
 				badge_sb.bg_color = Color(0.02, 0.08, 0.16, 0.95)
 		if selected_backpack_idx < 0 and not is_examining:
-			status_summary.text = "Lee la pregunta arriba, presiona 'EXAMINAR' para corroborar la pieza y 'SACAR' para reemplazarla."
-			status_summary.modulate = Color(0.2, 0.9, 1.0, 1.0)
+			if comps_dict.get("Fan Cooler") == "empty" and not has_liquid_kit:
+				status_summary.text = "⚠️ EL CUADRO DE REFRIGERACIÓN ESTÁ OCULTO: Ve a la sala y recoge el Kit de Refrigeración con [E] para habilitar el cuadro vacío."
+				status_summary.modulate = Color(1.0, 0.85, 0.2, 1.0)
+			elif comps_dict.get("Fan Cooler") == "empty" and has_liquid_kit:
+				status_summary.text = "✓ ¡Kit de Refrigeración disponible! Arrastra el kit sobre el cuadro vacío para montar el loop."
+				status_summary.modulate = Color(0.2, 1.0, 0.5, 1.0)
+			else:
+				status_summary.text = "Lee la pregunta arriba, presiona 'EXAMINAR' para corroborar la pieza y 'SACAR' para reemplazarla."
+				status_summary.modulate = Color(0.2, 0.9, 1.0, 1.0)
 
 # =============================================================================
 # LANZAMIENTO DE MINIJUEGOS (DESMONTAJE O MONTAJE)
@@ -1139,10 +1174,38 @@ func _open_cpu_minigame(is_empty: bool) -> void:
 		_refresh_ui()
 	)
 
+func _open_liquid_cooling_minigame() -> void:
+	modal_control.visible = false
+	var minigame = liquid_cooling_scene.instantiate()
+	get_tree().root.add_child(minigame)
+	
+	minigame.connect("minigame_finished", func(success: bool):
+		minigame.queue_free()
+		modal_control.visible = true
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+		if success:
+			for i in range(GameManager.backpack.size()):
+				var bname = GameManager.backpack[i].get("name", "")
+				if bname == "Refrigeracion Liquida" or bname == "Kit Refrigeracion":
+					GameManager.remove_item_from_backpack(i)
+					break
+			if current_pc:
+				current_pc.components["Fan Cooler"] = "fixed"
+				_set_examined_status("Fan Cooler", "ok")
+				current_pc.update_3d_state()
+			GameManager.register_repair(150, 15.0)
+			_show_feedback("✓ ¡Sistema de Refrigeración Líquida montado y purgado con éxito!", true)
+		_refresh_ui()
+	)
+
 func _show_feedback(msg: String, is_positive: bool) -> void:
 	status_summary.text = msg
 	status_summary.modulate = Color(0, 1, 0.5, 1) if is_positive else Color(1, 0.2, 0.3, 1)
 
 func _on_volver_pressed() -> void:
+	if current_pc and current_pc.has_method("is_fully_repaired") and current_pc.is_fully_repaired():
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	else:
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	inspection_closed.emit()
 	queue_free()

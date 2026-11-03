@@ -77,13 +77,15 @@ func _setup_ui() -> void:
 	warning_label.text = ""
 
 func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel") or (event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE):
+		get_viewport().set_input_as_handled()
+		minigame_finished.emit(false)
+		return
 	if event is InputEventKey and event.is_pressed():
 		if event.keycode == KEY_1:
 			GameManager.select_tool(1)
 		elif event.keycode == KEY_2:
 			GameManager.select_tool(2)
-		elif event.keycode == KEY_ESCAPE:
-			minigame_finished.emit(false)
 
 func _on_tool_selected(_tool_id: int) -> void:
 	_update_tool_buttons()

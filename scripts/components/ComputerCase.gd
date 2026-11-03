@@ -49,6 +49,8 @@ var components: Dictionary = {
 
 var saved_screw_type: String = ""
 var is_completed: bool = false
+var has_player_inspected: bool = false
+var current_glow_color: Color = Color(0.0, 0.65, 1.0)
 
 @onready var label_3d: Label3D = $Label3D
 @onready var arrow_mesh: MeshInstance3D = $ArrowMesh
@@ -56,10 +58,16 @@ var is_completed: bool = false
 
 var inspection_modal_scene: PackedScene = preload("res://scenes/ui/PCInspectionModal.tscn")
 var original_arrow_y: float = 0.0
+var arrow_mat: StandardMaterial3D = null
 
 func _ready() -> void:
 	if arrow_mesh:
 		original_arrow_y = arrow_mesh.position.y
+		arrow_mat = StandardMaterial3D.new()
+		arrow_mat.emission_enabled = true
+		arrow_mat.emission_energy_multiplier = 3.0
+		arrow_mesh.material_override = arrow_mat
+		arrow_mesh.visible = true
 	if diagnostic_question == "":
 		setup_diagnostic_case()
 	update_3d_state()
@@ -88,7 +96,7 @@ func setup_diagnostic_case(case_idx: int = -1) -> void:
 		components[part] = "broken"
 
 func _process(delta: float) -> void:
-	if arrow_mesh and not is_completed:
+	if arrow_mesh:
 		var t = Time.get_ticks_msec() / 1000.0
 		arrow_mesh.position.y = original_arrow_y + sin(t * 3.0) * 0.08
 
@@ -111,6 +119,7 @@ func update_3d_state() -> void:
 			broken_count += 1
 			
 	if is_fully_repaired():
+		current_glow_color = Color(0.1, 1.0, 0.35) # Verde: 100% reparado
 		if not is_completed:
 			is_completed = true
 			GameManager.computers_fixed += 1
@@ -118,30 +127,40 @@ func update_3d_state() -> void:
 			GameManager.win_level()
 			
 		label_3d.text = "PC #%d [FALLA SOLUCIONADA ✓ EQUIPO 100%% OPERATIVO]" % pc_id
-		label_3d.modulate = Color(0.0, 1.0, 0.4, 1.0)
-		if arrow_mesh:
-			arrow_mesh.visible = false
-		if status_light:
-			status_light.light_color = Color(0.0, 1.0, 0.5, 1.0)
-	else:
+		label_3d.modulate = current_glow_color
+	elif has_player_inspected or empty_count > 0:
+		current_glow_color = Color(1.0, 0.85, 0.05) # Amarillo: ya entró a ver o esperando repuesto
 		if empty_count > 0:
 			label_3d.text = "PC #%d [ESPERANDO MONTAJE DE REPUESTO NUEVO]" % pc_id
-			label_3d.modulate = Color(1.0, 0.75, 0.1, 1.0)
 		else:
-			label_3d.text = "PC #%d [DIAGNÓSTICO PENDIENTE · REVISA LA PREGUNTA]" % pc_id
-			label_3d.modulate = Color(0.2, 0.8, 1.0, 1.0)
+			label_3d.text = "PC #%d [DIAGNÓSTICO EN CURSO · REVISA LA PREGUNTA]" % pc_id
+		label_3d.modulate = current_glow_color
+	else:
+		current_glow_color = Color(0.0, 0.65, 1.0) # Azul: pendiente de revisión
+		label_3d.text = "PC #%d [PENDIENTE DE REVISIÓN]" % pc_id
+		label_3d.modulate = current_glow_color
+		
+	# La flecha SIEMPRE permanece visible en todas las etapas
+	if arrow_mesh:
+		arrow_mesh.visible = true
+		if arrow_mat:
+			arrow_mat.albedo_color = current_glow_color
+			arrow_mat.emission = current_glow_color
 			
-		if arrow_mesh:
-			arrow_mesh.visible = true
-		if status_light:
-			status_light.light_color = Color(0.2, 0.8, 1.0, 1.0)
+	if status_light:
+		status_light.light_color = current_glow_color
 
 func get_interaction_prompt() -> String:
 	if is_completed:
 		return "PC #%d: Equipo 100%% reparado y testeado" % pc_id
+	elif has_player_inspected:
+		return "[E] PC #%d: Continuar diagnóstico y reparación" % pc_id
 	return "[E] PC #%d: Diagnosticar falla del cliente" % pc_id
 
 func interact(player) -> void:
+	has_player_inspected = true
+	update_3d_state()
+	
 	player.set_movement_enabled(false)
 	if player.hud_node:
 		player.hud_node.visible = false
@@ -150,16 +169,15 @@ func interact(player) -> void:
 	modal.setup_pc(self)
 	
 	modal.connect("inspection_closed", func():
+		update_3d_state()
 		if is_fully_repaired():
 			player.set_movement_enabled(false)
 			if player.hud_node:
 				player.hud_node.visible = true
 			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-			update_3d_state()
 		else:
 			player.set_movement_enabled(true)
 			if player.hud_node:
 				player.hud_node.visible = true
 			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
-			update_3d_state()
 	)

@@ -103,6 +103,11 @@ func _ready() -> void:
 	layer = 12
 	btn_cancel.pressed.connect(func(): minigame_finished.emit(false))
 	btn_start_transfer.pressed.connect(_on_start_transfer_pressed)
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel") or (event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE):
+		get_viewport().set_input_as_handled()
+		minigame_finished.emit(false)
 	
 	btn_start_transfer.disabled = true
 	transfer_progress_bar.visible = false

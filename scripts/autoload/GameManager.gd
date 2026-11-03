@@ -34,7 +34,8 @@ var spares_stock: Dictionary = {
 	"Fuente": 2,
 	"Grafica": 2,
 	"Placa Madre": 2,
-	"CPU": 2
+	"CPU": 2,
+	"Refrigeracion Liquida": 3
 }
 
 # Estado de pausa
@@ -98,7 +99,8 @@ func start_level(initial_time: float = 120.0) -> void:
 		"Fuente": 2,
 		"Grafica": 2,
 		"Placa Madre": 2,
-		"CPU": 2
+		"CPU": 2,
+		"Refrigeracion Liquida": 3
 	}
 	
 	score_updated.emit(score, 0)
@@ -162,7 +164,8 @@ func request_spares_refill() -> void:
 		"Fuente": 2,
 		"Grafica": 2,
 		"Placa Madre": 2,
-		"CPU": 2
+		"CPU": 2,
+		"Refrigeracion Liquida": 3
 	}
 	spares_repopulated.emit()
 

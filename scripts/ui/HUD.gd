@@ -175,7 +175,13 @@ func skip_cinematic() -> void:
 		if p:
 			p.modulate.a = 1.0
 
+var _last_prompt: String = ""
+var _last_displayed_second: int = -1
+
 func set_interaction_prompt(text: String) -> void:
+	if text == _last_prompt:
+		return
+	_last_prompt = text
 	prompt_label.text = text
 
 func _on_score_updated(new_score: int, delta: int) -> void:
@@ -184,8 +190,12 @@ func _on_score_updated(new_score: int, delta: int) -> void:
 		_spawn_floating_text("+%d PTS  +10s" % delta, true)
 
 func _on_time_updated(t: float, _delta: float) -> void:
-	var mins = int(t) / 60
-	var secs = int(t) % 60
+	var total_sec := int(t)
+	if total_sec == _last_displayed_second:
+		return
+	_last_displayed_second = total_sec
+	var mins = total_sec / 60
+	var secs = total_sec % 60
 	lbl_tiempo.text = "Tiempo: %02d:%02d" % [mins, secs]
 	if t < 20.0:
 		lbl_tiempo.modulate = Color(1, 0.2, 0.2, 1) # Parpadeo rojo en últimos segundos

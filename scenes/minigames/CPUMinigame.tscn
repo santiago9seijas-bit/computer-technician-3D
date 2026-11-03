@@ -1,4 +1,4 @@
-[gd_scene format=3 load_steps=12]
+[gd_scene format=3 load_steps=15]
 
 [ext_resource type="Script" path="res://scripts/minigames/CPUMinigame.gd" id="1_cpu"]
 [ext_resource type="Script" path="res://scripts/menus/CyberButton.gd" id="2_cbtn"]
@@ -76,6 +76,46 @@ corner_radius_bottom_left = 6
 shadow_color = Color(0, 0.95, 1, 0.4)
 shadow_size = 4
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_screw"]
+bg_color = Color(0.12, 0.14, 0.2, 0.95)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0, 0.9, 1, 0.9)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+corner_radius_bottom_right = 22
+corner_radius_bottom_left = 22
+shadow_color = Color(0, 0.9, 1, 0.35)
+shadow_size = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_screw_hover"]
+bg_color = Color(0.22, 0.26, 0.38, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(1, 0.85, 0.2, 1)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+corner_radius_bottom_right = 22
+corner_radius_bottom_left = 22
+shadow_color = Color(1, 0.85, 0.2, 0.6)
+shadow_size = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_screw_pressed"]
+bg_color = Color(0.3, 0.35, 0.5, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.2, 1, 0.5, 1)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+corner_radius_bottom_right = 22
+corner_radius_bottom_left = 22
+
 [node name="CPUMinigame" type="CanvasLayer"]
 layer = 12
 script = ExtResource("1_cpu")
@@ -148,6 +188,14 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0, 0.95, 1, 1)
 theme_override_font_sizes/font_size = 12
 text = "ACCION: ARRASTRA LA PALANCA HACIA ABAJO ↓"
+horizontal_alignment = 1
+
+[node name="OrderBadge" type="Label" parent="ModalControl/Panel/VBox/Header"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 13
+text = "ORDEN DE TORNILLOS:  [ 3 ]  ➔  [ 1 ]  ➔  [ 2 ]"
 horizontal_alignment = 1
 
 [node name="HSeparator" type="HSeparator" parent="ModalControl/Panel/VBox"]
@@ -300,6 +348,87 @@ theme_override_colors/font_color = Color(0.7, 0.75, 0.85, 0.9)
 theme_override_font_sizes/font_size = 10
 text = "[ PROTECCIÓN METÁLICA ]"
 horizontal_alignment = 1
+
+[node name="Screw1" type="Button" parent="ModalControl/Panel/VBox/WorkArea/SocketBase"]
+visible = false
+custom_minimum_size = Vector2(44, 44)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -116.0
+offset_top = -116.0
+offset_right = -72.0
+offset_bottom = -72.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(22, 22)
+mouse_filter = 1
+mouse_default_cursor_shape = 2
+theme_override_colors/font_color = Color(0, 0.95, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 0.85, 0.2, 1)
+theme_override_fonts/font = ExtResource("4_title_font")
+theme_override_font_sizes/font_size = 15
+theme_override_styles/normal = SubResource("StyleBoxFlat_screw")
+theme_override_styles/hover = SubResource("StyleBoxFlat_screw_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_screw_pressed")
+text = "1"
+
+[node name="Screw2" type="Button" parent="ModalControl/Panel/VBox/WorkArea/SocketBase"]
+visible = false
+custom_minimum_size = Vector2(44, 44)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 46.0
+offset_top = -116.0
+offset_right = 90.0
+offset_bottom = -72.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(22, 22)
+mouse_filter = 1
+mouse_default_cursor_shape = 2
+theme_override_colors/font_color = Color(0, 0.95, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 0.85, 0.2, 1)
+theme_override_fonts/font = ExtResource("4_title_font")
+theme_override_font_sizes/font_size = 15
+theme_override_styles/normal = SubResource("StyleBoxFlat_screw")
+theme_override_styles/hover = SubResource("StyleBoxFlat_screw_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_screw_pressed")
+text = "2"
+
+[node name="Screw3" type="Button" parent="ModalControl/Panel/VBox/WorkArea/SocketBase"]
+visible = false
+custom_minimum_size = Vector2(44, 44)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -35.0
+offset_top = 46.0
+offset_right = 9.0
+offset_bottom = 90.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(22, 22)
+mouse_filter = 1
+mouse_default_cursor_shape = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_colors/font_hover_color = Color(0.2, 1, 0.5, 1)
+theme_override_fonts/font = ExtResource("4_title_font")
+theme_override_font_sizes/font_size = 15
+theme_override_styles/normal = SubResource("StyleBoxFlat_screw")
+theme_override_styles/hover = SubResource("StyleBoxFlat_screw_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_screw_pressed")
+text = "3"
 
 [node name="LeverArea" type="Control" parent="ModalControl/Panel/VBox/WorkArea/SocketBase"]
 layout_mode = 1

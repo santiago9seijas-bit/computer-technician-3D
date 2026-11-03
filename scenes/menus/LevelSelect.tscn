@@ -79,7 +79,7 @@ offset_right = 560.0
 offset_bottom = 295.0
 grow_horizontal = 2
 grow_vertical = 2
-horizontal_scroll_mode = 3
+horizontal_scroll_mode = 0
 vertical_scroll_mode = 1
 
 [node name="CardsGrid" type="GridContainer" parent="TutorialArea/CardsScroll"]
@@ -377,12 +377,14 @@ theme_override_constants/outline_size = 8
 theme_override_fonts/font = ExtResource("6_title_font")
 theme_override_font_sizes/font_size = 20
 text = "FAN COOLER"
+autowrap_mode = 3
 
 [node name="Subtitle" type="Label" parent="DeployedModal/DeployedCard/Margin/VBox/Header/TitleVBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.85, 0.85, 0.9, 0.85)
 theme_override_font_sizes/font_size = 12
 text = "DISIPADOR TÉRMICO ACTIVO PWM"
+autowrap_mode = 3
 
 [node name="BtnCloseDeployed" type="Button" parent="DeployedModal/DeployedCard/Margin/VBox/Header"]
 custom_minimum_size = Vector2(160, 40)
@@ -435,6 +437,7 @@ slant = 16.0
 [node name="RightCol" type="PanelContainer" parent="DeployedModal/DeployedCard/Margin/VBox/ContentHBox"]
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 3
 
 [node name="Margin" type="MarginContainer" parent="DeployedModal/DeployedCard/Margin/VBox/ContentHBox/RightCol"]
 layout_mode = 2
@@ -445,20 +448,20 @@ theme_override_constants/margin_bottom = 10
 
 [node name="Scroll" type="ScrollContainer" parent="DeployedModal/DeployedCard/Margin/VBox/ContentHBox/RightCol/Margin"]
 layout_mode = 2
-horizontal_scroll_mode = 3
+horizontal_scroll_mode = 0
 vertical_scroll_mode = 1
 
 [node name="TextVBox" type="VBoxContainer" parent="DeployedModal/DeployedCard/Margin/VBox/ContentHBox/RightCol/Margin/Scroll"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 12
+theme_override_constants/separation = 14
 
 [node name="LblQueEs" type="Label" parent="DeployedModal/DeployedCard/Margin/VBox/ContentHBox/RightCol/Margin/Scroll/TextVBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.95, 0.9, 1, 1)
 theme_override_font_sizes/font_size = 12
 text = "⚡ ¿QUÉ ES?: ..."
-autowrap_mode = 2
+autowrap_mode = 3
 
 [node name="Sep1" type="HSeparator" parent="DeployedModal/DeployedCard/Margin/VBox/ContentHBox/RightCol/Margin/Scroll/TextVBox"]
 layout_mode = 2
@@ -468,7 +471,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.3, 0.45, 1)
 theme_override_font_sizes/font_size = 12
 text = "🔥 IMPORTANCIA: ..."
-autowrap_mode = 2
+autowrap_mode = 3
 
 [node name="Sep2" type="HSeparator" parent="DeployedModal/DeployedCard/Margin/VBox/ContentHBox/RightCol/Margin/Scroll/TextVBox"]
 layout_mode = 2
@@ -478,7 +481,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.8, 0.35, 1, 1)
 theme_override_font_sizes/font_size = 12
 text = "⚙️ ¿QUÉ HACE?: ..."
-autowrap_mode = 2
+autowrap_mode = 3
 
 [node name="Sep3" type="HSeparator" parent="DeployedModal/DeployedCard/Margin/VBox/ContentHBox/RightCol/Margin/Scroll/TextVBox"]
 layout_mode = 2
@@ -488,7 +491,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.85, 0.85, 0.9, 0.9)
 theme_override_font_sizes/font_size = 12
 text = "🛠️ MECÁNICA DE SERVICIO / PROCEDIMIENTO:\n..."
-autowrap_mode = 2
+autowrap_mode = 3
 
 [node name="MinigameContainer" type="Control" parent="."]
 layout_mode = 1

@@ -351,9 +351,9 @@ var LEVELS_DATA: Dictionary = {
 			"stage": "ETAPA I: INFRAESTRUCTURA RACK",
 			"mode_name": "SERVIDOR",
 			"color_accent": Color(1.0, 0.1, 0.35),
-			"description": "Instalación de chasis de servidor de doble unidad (2U) en gabinete estándar de 19 pulgadas con rieles telescópicos.",
-			"requirements": "TUERCAS ENJAULADAS M6 · LÍMITE: 120s · RECOMPENSA: 100 PTS",
-			"can_play": false
+			"description": "Torre de servidor 3D en el Datacenter con 9 subsistemas de montaje exclusivos (Bastidores 2U, Fuentes 1+1, 3 Discos SAS, Fan Wall, Loop Líquido, 3 Bancos RAM ECC, Dual CPU, SmartNIC y Scripting de red). Solo colocación de piezas.",
+			"requirements": "CONSOLA DE TORRE RACK · LÍMITE: 900s · RECOMPENSA: 100 PTS",
+			"can_play": true
 		},
 		{
 			"number": 2,
@@ -802,87 +802,132 @@ var ALL_TUTORIAL_CARDS: Array[Dictionary] = [
 		"category": "INFRAESTRUCTURA",
 		"texture_path": "",
 		"color_accent": Color(1.0, 0.12, 0.3, 1.0),
-		"que_es": "Instalación física estandarizada de servidores de alta densidad en cabinas tipo rack mediante rieles telescópicos.",
-		"importancia": "ALTA: Maximiza la utilización del espacio físico en el datacenter y garantiza una estructura sismorresistente con flujo de aire canalizado.",
+		"que_es": "Instalación física estandarizada de servidores de alta densidad en cabinas tipo rack mediante rieles telescópicos y cerrojos Quick-Release.",
+		"importancia": "ALTA: Maximiza la densidad física en el datacenter y garantiza una estructura sismorresistente con flujo de aire canalizado.",
 		"que_hace": "Permite deslizar el chasis del servidor hacia afuera para realizar mantenimiento y cambio de partes sin desconectar el resto del rack.",
-		"pasos": "1. Identifica las unidades de rack (U) asignadas en el bastidor.\n2. Fija las guías telescópicas con tuercas enjauladas M6.\n3. Desliza el chasis hasta escuchar el bloqueo mecánico de seguridad.",
-		"is_ready": false,
-		"handler": ""
+		"pasos": "1. Identifica las unidades de rack (U) asignadas en el bastidor.\n2. Desacopla las trabas de seguridad de los rieles telescópicos.\n3. Desliza el chasis hasta la posición de servicio para inspección de placa.",
+		"is_ready": true,
+		"handler": "launch_mobo"
 	},
 	{
 		"division": "servidor",
 		"id": "raid_array",
-		"title": "CONFIGURACIÓN RAID",
-		"subtitle": "RED DE DISCOS REDUNDANTES (0/1/5/10)",
+		"title": "BAHÍAS SAS CADDIES & RAID",
+		"subtitle": "DISCOS HOT-SWAP SAS 15K / U.3 NVME",
 		"category": "ALMACENAMIENTO EMPRESARIAL",
 		"texture_path": "",
 		"color_accent": Color(0.95, 0.18, 0.45, 1.0),
-		"que_es": "Agrupación lógica de múltiples discos SAS/SATA para proporcionar tolerancia a fallos y alto rendimiento de lectura/escritura.",
-		"importancia": "CRÍTICA: En un servidor empresarial, la caída de un disco duro no debe interrumpir el servicio ni provocar pérdida de bases de datos.",
-		"que_hace": "Calcula bloques de paridad matemática y los distribuye entre los discos para reconstruir la información si uno falla.",
-		"pasos": "1. Ingresa a la controladora RAID (MegaRAID / Smart Array).\n2. Selecciona el nivel de redundancia deseado (RAID 1 para SO, RAID 5/10 para BD).\n3. Inicializa el arreglo y asigna discos Hot Spare.",
-		"is_ready": false,
-		"handler": ""
+		"que_es": "Bandejas extraíbles frontales con traba mecánica para sustitución de discos en caliente sin apagar el servidor.",
+		"importancia": "CRÍTICA: En un entorno de producción 24/7, un disco defectuoso debe sustituirse de inmediato sin interrumpir bases de datos.",
+		"que_hace": "Conecta unidades de alta velocidad al backplane SAS a 12 Gb/s con sincronización automática de paridad RAID.",
+		"pasos": "1. Presiona el botón de expulsión de la bandeja frontal (Caddy).\n2. Tira de la palanca basculante y extrae la unidad defectuosa.\n3. Inserta el disco SAS funcional y cierra la palanca hasta escuchar el 'clic'.",
+		"is_ready": true,
+		"handler": "launch_hdd"
 	},
 	{
 		"division": "servidor",
-		"id": "patch_panel",
-		"title": "PATCH PANEL & CABLEADO",
-		"subtitle": "ESTRUCTURADO CATEGORÍA 6A / FIBRA",
-		"category": "CABLEADO ESTRUCTURADO",
+		"id": "server_psu",
+		"title": "FUENTES 1+1 HOT-SWAP",
+		"subtitle": "REDUNDANCIA DE POTENCIA 1200W PLATINUM",
+		"category": "ENERGÍA CRÍTICA",
 		"texture_path": "",
-		"color_accent": Color(0.7, 0.1, 0.95, 1.0),
-		"que_es": "Panel de terminación de red donde convergen todos los enlaces de red de cobre o fibra óptica del datacenter.",
-		"importancia": "ALTA: Mantiene la organización del cableado, previene interferencias cruzadas (crosstalk) y agiliza cambios de parcheo.",
-		"que_hace": "Interconecta los servidores y estaciones de trabajo con los switches centrales mediante latiguillos organizados.",
-		"pasos": "Próximamente disponible en el módulo de Servidores.",
-		"is_ready": false,
-		"handler": ""
+		"color_accent": Color(1.0, 0.65, 0.2, 1.0),
+		"que_es": "Módulos de potencia redundantes en caliente N+1 que distribuyen corriente continua al busbar del chasis.",
+		"importancia": "MÁXIMA: Si una fuente falla por sobretensión, la segunda unidad absorbe instantáneamente la carga sin apagar el sistema.",
+		"que_hace": "Suministra energía ininterrumpida y permite extraer el módulo dañado tirando de la manija ergonómica.",
+		"pasos": "1. Presiona la palanca de liberación rápida en el frontal del módulo de poder.\n2. Tira de la manija para deslizar la fuente averiada fuera del túnel.\n3. Desliza la nueva fuente Platinum hasta el enganche mecánico del conector ciego.",
+		"is_ready": true,
+		"handler": "launch_psu"
+	},
+	{
+		"division": "servidor",
+		"id": "server_fan",
+		"title": "FAN WALL DE TURBINAS",
+		"subtitle": "MÓDULOS DE PRESIÓN ESTÁTICA TOOL-LESS",
+		"category": "REFRIGERACIÓN RACK",
+		"texture_path": "",
+		"color_accent": Color(0.2, 0.95, 0.7, 1.0),
+		"que_es": "Matriz intermedia de ventiladores contrarrotativos de alta presión con extracción vertical sin herramientas.",
+		"importancia": "CRÍTICA: Las toberas deben superar la resistencia del radiador y los bancos de memoria para evitar estrangulamiento térmico.",
+		"que_hace": "Fuerza un caudal de aire continuo desde el pasillo frío hacia el pasillo caliente manteniendo los CPUs a menos de 65°C.",
+		"pasos": "1. Levanta el seguro del módulo de ventilación correspondiente.\n2. Extrae la turbina defectuosa verticalmente del zócalo ciego.\n3. Inserta la turbina de repuesto asegurando el contacto en la bahía de alimentación.",
+		"is_ready": true,
+		"handler": "launch_cooler"
+	},
+	{
+		"division": "servidor",
+		"id": "server_ram",
+		"title": "BANCOS RAM ECC REGISTRADA",
+		"subtitle": "OCTA-CHANNEL DDR5 CON PROTECCIÓN DE BIT",
+		"category": "MEMORIA EMPRESARIAL",
+		"texture_path": "",
+		"color_accent": Color(0.85, 0.1, 0.95, 1.0),
+		"que_es": "Módulos de memoria con registro de búfer (RDIMM) y circuito integrado para corrección de errores de un solo bit (ECC).",
+		"importancia": "VITAL: Previene la corrupción de memoria causada por rayos cósmicos o fluctuaciones de voltaje en servidores de alta densidad.",
+		"que_hace": "Mantiene la integridad de datos corporativos procesando accesos paralelos en arquitectura de 8 canales por socket.",
+		"pasos": "1. Abre los dos pestillos reforzados de seguridad en los extremos del slot.\n2. Extrae el módulo defectuoso en línea recta hacia arriba.\n3. Alinea la muesca polarizada de la RAM ECC y presiona firmemente hasta trabar los seguros.",
+		"is_ready": true,
+		"handler": "launch_ram"
+	},
+	{
+		"division": "servidor",
+		"id": "server_cpu",
+		"title": "DUAL CPU ENTERPRISE",
+		"subtitle": "SOCKETS INDUSTRIALES LGA 4189 / SP5",
+		"category": "PROCESAMIENTO RACK",
+		"texture_path": "",
+		"color_accent": Color(0.9, 0.15, 0.9, 1.0),
+		"que_es": "Configuración de doble procesador Xeon/EPYC montados sobre matrices de miles de pines con marco portador (Carrier Frame).",
+		"importancia": "MÁXIMA: La torsión asimétrica puede destruir los pines microscópicos del zócalo o causar desconexión en buses PCIe.",
+		"que_hace": "Coordina cientos de hilos de procesamiento y controladores de memoria dedicados a escala de centros de datos.",
+		"pasos": "1. Libera las palancas de tensión mecánica del socket industrial.\n2. Retira la cubierta de carga con cuidado uniforme.\n3. Posiciona el procesador guiándote por el triángulo indicador y bloquea la sujeción.",
+		"is_ready": true,
+		"handler": "launch_cpu"
+	},
+	{
+		"division": "servidor",
+		"id": "server_smartnic",
+		"title": "RISER PCIE & SMARTNIC 100G",
+		"subtitle": "EXPANSIÓN MODULAR DE RED",
+		"category": "CONECTIVIDAD RACK",
+		"texture_path": "",
+		"color_accent": Color(0.9, 0.15, 0.45, 1.0),
+		"que_es": "Tarjeta de red aceleradora SmartNIC de 100 GbE montada sobre ranura Riser de perfil bajo.",
+		"importancia": "ALTA: Conecta el chasis al switch Top-of-Rack sin generar cuellos de botella en el tráfico este-oeste.",
+		"que_hace": "Descarga procesamiento de red del CPU y encamina paquetes a velocidad de cable.",
+		"pasos": "1. Asienta la tarjeta SmartNIC en la ranura Riser PCIe.\n2. Traba el pestillo de seguridad del slot.\n3. Asegura el tornillo del bracket metálico y conecta el enlace.",
+		"is_ready": true,
+		"handler": "launch_gpu"
 	},
 	{
 		"division": "servidor",
 		"id": "vlan_switch",
-		"title": "SWITCHES & VLANS",
-		"subtitle": "SEGMENTACIÓN DE RED CAPA 2/3",
-		"category": "REDES DATACENTER",
+		"title": "TERMINAL & SCRIPTING DE RED",
+		"subtitle": "PROGRAMACIÓN Y DEPURACIÓN DE SERVIDOR",
+		"category": "AUTOMATIZACIÓN & SISTEMAS",
 		"texture_path": "",
-		"color_accent": Color(0.85, 0.1, 0.9, 1.0),
-		"que_es": "Conmutadores de paquetes de alta velocidad con enlaces 10G/40G/100G y soporte de redes virtuales (VLAN).",
-		"importancia": "CRÍTICA: Aísla el tráfico de servidores de base de datos, servidores web y gestión administrativa para evitar ataques laterales.",
-		"que_hace": "Encamina tramas con etiquetas 802.1Q a velocidad de cable y aplica listas de control de acceso (ACL).",
-		"pasos": "Próximamente disponible en el módulo de Servidores.",
-		"is_ready": false,
-		"handler": ""
+		"color_accent": Color(0.2, 0.9, 0.6, 1.0),
+		"que_es": "Terminal de consola para depuración y compilación de scripts de automatización, enrutamiento y cortafuegos del servidor.",
+		"importancia": "CRÍTICA: Errores de sintaxis o bucles infinitos en scripts de administración congelan los servicios y tumban la red.",
+		"que_hace": "Permite auditar el código fuente en tiempo real, corregir variables y verificar pruebas unitarias de conectividad.",
+		"pasos": "1. Abre la terminal de depuración en la estación del servidor.\n2. Corrige los errores de sintaxis y tipografía en el código de auditoría.\n3. Asegura el incremento de bucles de control y compila pasando todos los tests unitarios.",
+		"is_ready": true,
+		"handler": "launch_code_debugger"
 	},
 	{
 		"division": "servidor",
 		"id": "cold_aisle",
-		"title": "PASILLO FRÍO / CALOR",
-		"subtitle": "GESTIÓN TÉRMICA DE DATACENTER",
-		"category": "CLIMATIZACIÓN",
+		"title": "LOOP LÍQUIDO & GESTIÓN TÉRMICA",
+		"subtitle": "DIRECT-TO-CHIP CON RACORES QDC",
+		"category": "REFRIGERACIÓN INDUSTRIAL",
 		"texture_path": "",
-		"color_accent": Color(1.0, 0.1, 0.35, 1.0),
-		"que_es": "Confinamiento físico del flujo de aire acondicionado para servidores de alta densidad.",
-		"importancia": "VITAL: Evita la recirculación de aire caliente que causa sobrecalentamiento masivo y reduce drásticamente el consumo eléctrico.",
-		"que_hace": "Inyecta aire frío a 20°C por la parte frontal de los gabinetes y extrae el aire caliente por el pasillo posterior sellado.",
-		"pasos": "Próximamente disponible en el módulo de Servidores.",
-		"is_ready": false,
-		"handler": ""
-	},
-	{
-		"division": "servidor",
-		"id": "hypervisor_cluster",
-		"title": "CLUSTER DE VIRTUALIZACIÓN",
-		"subtitle": "HYPERVISOR KVM / ESXI DE ALTA DISPONIBILIDAD",
-		"category": "VIRTUALIZACIÓN",
-		"texture_path": "",
-		"color_accent": Color(0.8, 0.05, 0.85, 1.0),
-		"que_es": "Grupo de servidores físicos interconectados que ejecutan máquinas virtuales y contenedores con migración en caliente.",
-		"importancia": "ALTA: Si un nodo físico colapsa, las máquinas virtuales se reinician en segundos en los nodos sobrevivientes.",
-		"que_hace": "Virtualiza CPU, memoria y almacenamiento distribuyéndolo equitativamente entre las instancias del centro de datos.",
-		"pasos": "Próximamente disponible en el módulo de Servidores.",
-		"is_ready": false,
-		"handler": ""
+		"color_accent": Color(0.1, 0.9, 1.0, 1.0),
+		"que_es": "Circuito de refrigeración líquida industrial con acoples rápidos antigoteo (Quick Disconnect Couplings) y purga de rack.",
+		"importancia": "VITAL: Un fallo en la circulación de refrigerante en racks de 30kW provoca daños irreversibles por calor en minutos.",
+		"que_hace": "Remueve el calor directamente de los dies de CPUs y aceleradores enviándolo al intercambiador de calor del datacenter.",
+		"pasos": "1. Conecta los tubos y racores QDC cerrando el circuito de refrigeración.\n2. Llena el depósito de fluido refrigerante al 100% de capacidad.\n3. Activa la bomba para purgar el aire y estabilizar la presión y temperatura.",
+		"is_ready": true,
+		"handler": "launch_liquid_cooling"
 	}
 ]
 
@@ -911,7 +956,7 @@ func _ready() -> void:
 		card_dim_overlay.gui_input.connect(func(event: InputEvent):
 			if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 				# Si hace clic en el círculo ampliado del nivel 1 (radio 85px desde Vector2(260, 390)), iniciar el nivel
-				if is_level_zoomed and active_zoomed_index == 0 and (current_mode == "reparacion" or current_mode == "sistema"):
+				if is_level_zoomed and active_zoomed_index == 0 and (current_mode == "reparacion" or current_mode == "sistema" or current_mode == "servidor"):
 					var dist = event.position.distance_to(Vector2(260, 390))
 					if dist <= 85.0:
 						_play_level_1()
@@ -1143,7 +1188,7 @@ func _on_node_clicked(index: int) -> void:
 	var data = list[index]
 	
 	# Si ya está en zoom sobre el nivel 1 y hacen clic sobre el nodo 1, lanzar el nivel inmediatamente
-	if is_level_zoomed and active_zoomed_index == 0 and index == 0 and (current_mode == "reparacion" or current_mode == "sistema"):
+	if is_level_zoomed and active_zoomed_index == 0 and index == 0 and (current_mode == "reparacion" or current_mode == "sistema" or current_mode == "servidor"):
 		_play_level_1()
 		return
 		
@@ -1175,7 +1220,7 @@ func _on_node_clicked(index: int) -> void:
 		
 	# Mostrar el botón "DALE CLIC PARA INICIAR" bajo el círculo ampliado SOLO cuando se da clic al nivel 1
 	if btn_play_level1:
-		if index == 0 and (current_mode == "reparacion" or current_mode == "sistema"):
+		if index == 0 and (current_mode == "reparacion" or current_mode == "sistema" or current_mode == "servidor"):
 			btn_play_level1.visible = true
 			btn_play_level1.text = "▶ DALE CLIC PARA INICIAR"
 			btn_play_level1.modulate.a = 0.0
@@ -1221,7 +1266,7 @@ func _unzoom_camera() -> void:
 func _update_btn_play_level1_visibility() -> void:
 	if not btn_play_level1:
 		return
-	btn_play_level1.visible = (is_level_zoomed and active_zoomed_index == 0 and (current_mode == "reparacion" or current_mode == "sistema") and current_tab == "niveles")
+	btn_play_level1.visible = (is_level_zoomed and active_zoomed_index == 0 and (current_mode == "reparacion" or current_mode == "sistema" or current_mode == "servidor") and current_tab == "niveles")
 
 func _play_level_1() -> void:
 	if is_launching_level:
@@ -1238,14 +1283,20 @@ func _play_level_1() -> void:
 	if gm and gm.has_method("start_level"):
 		gm.start_level(900.0)
 		
-	var target_scene = "res://scenes/gameplay/LevelSystems1.tscn" if current_mode == "sistema" else "res://scenes/gameplay/Level1.tscn"
-	var mode_title = "ESTACIÓN DE SISTEMAS" if current_mode == "sistema" else "TALLER DE HARDWARE 3D"
+	var target_scene = "res://scenes/gameplay/Level1.tscn"
+	var mode_title = "TALLER DE HARDWARE 3D"
+	if current_mode == "sistema":
+		target_scene = "res://scenes/gameplay/LevelSystems1.tscn"
+		mode_title = "ESTACIÓN DE SISTEMAS"
+	elif current_mode == "servidor":
+		target_scene = "res://scenes/gameplay/LevelServer1.tscn"
+		mode_title = "DATACENTER CORPORATIVO"
 	
 	CyberPlayTransition.play(
 		get_tree(),
 		target_scene,
-		"ENTRANDO AL TALLER 3D",
-		"// ACCEDIENDO A COMPUTADORA #1 · %s //" % mode_title
+		"ENTRANDO AL DATACENTER 3D" if current_mode == "servidor" else "ENTRANDO AL TALLER 3D",
+		"// ACCEDIENDO A EQUIPO #1 · %s //" % mode_title
 	)
 
 # =============================================================================
@@ -1273,7 +1324,7 @@ func _filter_tutorial_cards() -> void:
 
 func _create_card_slot() -> Button:
 	var btn = Button.new()
-	btn.custom_minimum_size = Vector2(340, 230)
+	btn.custom_minimum_size = Vector2(340, 245)
 	btn.flat = true
 	btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	
@@ -1383,11 +1434,13 @@ func _create_card_slot() -> Button:
 	title_lbl.add_theme_color_override("font_outline_color", Color(0, 0, 0))
 	title_lbl.add_theme_constant_override("outline_size", 6)
 	title_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	vbox.add_child(title_lbl)
 	
 	var hint_lbl = Label.new()
 	hint_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	hint_lbl.add_theme_font_size_override("font_size", 10)
+	hint_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	vbox.add_child(hint_lbl)
 	
 	# Guardar referencias de subnodos para actualización en 0.03 ms
@@ -1685,3 +1738,16 @@ func _show_toast(msg: String) -> void:
 
 func _on_volver_pressed() -> void:
 	get_tree().change_scene_to_file("res://scenes/menus/MainMenu.tscn")
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel") or (event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE):
+		if deployed_modal and deployed_modal.visible:
+			get_viewport().set_input_as_handled()
+			_close_deployed_card()
+			return
+		if is_level_zoomed:
+			get_viewport().set_input_as_handled()
+			_unzoom_camera()
+			return
+		get_viewport().set_input_as_handled()
+		_on_volver_pressed()

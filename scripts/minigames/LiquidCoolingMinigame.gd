@@ -153,9 +153,9 @@ func _setup_ui() -> void:
 	warning_label.text = ""
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventKey and event.is_pressed():
-		if event.keycode == KEY_ESCAPE:
-			minigame_finished.emit(false)
+	if event.is_action_pressed("ui_cancel") or (event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE):
+		get_viewport().set_input_as_handled()
+		minigame_finished.emit(false)
 
 # =============================================================================
 # FASE 1: ARRASTRE Y ACOPLE DE TUBOS (DRAG & DROP TUBO A TUBO)

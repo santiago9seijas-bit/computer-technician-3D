@@ -41,10 +41,10 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -520.0
-offset_top = -320.0
-offset_right = 520.0
-offset_bottom = 320.0
+offset_left = -540.0
+offset_top = -330.0
+offset_right = 540.0
+offset_bottom = 330.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxEmpty_frame")
@@ -94,12 +94,12 @@ color = Color(0, 0.85, 1, 0.35)
 [node name="GridContainer" type="GridContainer" parent="ModalControl/Panel/VBox"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/h_separation = 14
-theme_override_constants/v_separation = 10
+theme_override_constants/h_separation = 16
+theme_override_constants/v_separation = 14
 columns = 4
 
 [node name="BtnOS" type="Button" parent="ModalControl/Panel/VBox/GridContainer"]
-custom_minimum_size = Vector2(230, 95)
+custom_minimum_size = Vector2(235, 105)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -111,7 +111,7 @@ script = ExtResource("2_cbtn")
 slant = 10.0
 
 [node name="BtnDrivers" type="Button" parent="ModalControl/Panel/VBox/GridContainer"]
-custom_minimum_size = Vector2(230, 95)
+custom_minimum_size = Vector2(235, 105)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -123,7 +123,7 @@ script = ExtResource("2_cbtn")
 slant = 10.0
 
 [node name="BtnMalware" type="Button" parent="ModalControl/Panel/VBox/GridContainer"]
-custom_minimum_size = Vector2(230, 95)
+custom_minimum_size = Vector2(235, 105)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -135,7 +135,7 @@ script = ExtResource("2_cbtn")
 slant = 10.0
 
 [node name="BtnAdware" type="Button" parent="ModalControl/Panel/VBox/GridContainer"]
-custom_minimum_size = Vector2(230, 95)
+custom_minimum_size = Vector2(235, 105)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -147,7 +147,7 @@ script = ExtResource("2_cbtn")
 slant = 10.0
 
 [node name="BtnDebugger" type="Button" parent="ModalControl/Panel/VBox/GridContainer"]
-custom_minimum_size = Vector2(230, 95)
+custom_minimum_size = Vector2(235, 105)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -159,7 +159,7 @@ script = ExtResource("2_cbtn")
 slant = 10.0
 
 [node name="BtnUSB" type="Button" parent="ModalControl/Panel/VBox/GridContainer"]
-custom_minimum_size = Vector2(230, 95)
+custom_minimum_size = Vector2(235, 105)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -171,7 +171,7 @@ script = ExtResource("2_cbtn")
 slant = 10.0
 
 [node name="BtnArcade" type="Button" parent="ModalControl/Panel/VBox/GridContainer"]
-custom_minimum_size = Vector2(230, 95)
+custom_minimum_size = Vector2(235, 105)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3

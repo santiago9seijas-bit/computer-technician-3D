@@ -13,6 +13,8 @@ enum State {
 var current_state: State = State.EXTRACT_SIDES
 var start_as_empty_slot: bool = false
 var is_tutorial_mode: bool = false
+@export var target_ram_count: int = 1
+var current_ram_index: int = 0
 
 # Estados de extracción de la RAM vieja (hacia arriba)
 var left_unseated: bool = false
@@ -110,6 +112,10 @@ func _ready() -> void:
 	_refresh_backpack_ui()
 
 func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel") or (event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE):
+		get_viewport().set_input_as_handled()
+		minigame_finished.emit(false)
+		return
 	if event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode == KEY_4 or event.keycode == KEY_KP_4:
 			GameManager.select_tool(4)
@@ -388,17 +394,21 @@ func _update_install_status() -> void:
 	lbl_top_right.modulate = COLOR_GREEN if top_right_done else COLOR_RED
 	lbl_top_center.modulate = COLOR_GREEN if top_center_done else COLOR_RED
 	
+	var prefix = ""
+	if target_ram_count > 1:
+		prefix = "BANCO RAM #%d DE %d · " % [current_ram_index + 1, target_ram_count]
+	
 	if not top_left_done and not top_right_done:
-		status_label.text = "Fase Montaje: Arrastra hacia ABAJO las flechas superiores (IZQUIERDA y DERECHA, cualquier orden)."
+		status_label.text = prefix + "Arrastra hacia ABAJO las flechas superiores (IZQUIERDA y DERECHA, cualquier orden)."
 		status_label.modulate = Color(1.0, 0.85, 0.2, 1)
 	elif top_left_done and not top_right_done:
-		status_label.text = "¡Izquierda lista! Ahora arrastra hacia ABAJO la flecha superior DERECHA."
+		status_label.text = prefix + "¡Izquierda lista! Ahora arrastra hacia ABAJO la flecha superior DERECHA."
 		status_label.modulate = Color(0.0, 0.9, 1.0, 1)
 	elif top_right_done and not top_left_done:
-		status_label.text = "¡Derecha lista! Ahora arrastra hacia ABAJO la flecha superior IZQUIERDA."
+		status_label.text = prefix + "¡Derecha lista! Ahora arrastra hacia ABAJO la flecha superior IZQUIERDA."
 		status_label.modulate = Color(0.0, 0.9, 1.0, 1)
 	elif top_left_done and top_right_done and not top_center_done:
-		status_label.text = "¡Ambos lados listos! Arrastra el CENTRO hacia ABAJO para enganchar la RAM en el zócalo."
+		status_label.text = prefix + "¡Ambos lados listos! Arrastra el CENTRO hacia ABAJO para enganchar la RAM en el zócalo."
 		status_label.modulate = Color(0.2, 1.0, 0.5, 1)
 
 func _handle_top_zone_input(part: String, event: InputEvent) -> void:
@@ -475,8 +485,6 @@ func _process_top_drag_release(part: String, delta_y: float) -> void:
 					tw.tween_property(lbl_top_center, "position:y", 0.0, 0.15)
 
 func _latch_ram_into_socket() -> void:
-	current_state = State.COMPLETED
-	
 	# Retirar el repuesto de la mochila
 	for i in range(GameManager.backpack.size()):
 		var it = GameManager.backpack[i]
@@ -516,12 +524,57 @@ func _latch_ram_into_socket() -> void:
 	lbl_right.text = "●"
 	lbl_right.modulate = COLOR_GREEN
 	
-	_show_floating_feedback("✓ ¡CLICK! RAM ENGANCHADA AL ZÓCALO CON ÉXITO", COLOR_GREEN)
-	status_label.text = "¡RAM NUEVA INSTALADA Y ENGANCHADA CON TOTAL ÉXITO!"
-	status_label.modulate = COLOR_GREEN
+	current_ram_index += 1
 	
-	await get_tree().create_timer(1.3).timeout
-	minigame_finished.emit(true)
+	if current_ram_index < target_ram_count:
+		_show_floating_feedback("✓ ¡MÓDULO RAM #%d/%d ENGANCHADO! Preparando siguiente banco..." % [current_ram_index, target_ram_count], COLOR_GREEN)
+		status_label.text = "✓ MÓDULO RAM #%d ASEGURADO · PREPARANDO BANCO RAM #%d..." % [current_ram_index, current_ram_index + 1]
+		status_label.modulate = Color(0.0, 0.95, 1.0)
+		
+		await get_tree().create_timer(0.75).timeout
+		
+		# Asegurar existencia de repuesto en mochila
+		var has_ram = false
+		for it in GameManager.backpack:
+			if it.get("name") == "RAM" and not it.get("broken", true):
+				has_ram = true
+				break
+		if not has_ram:
+			GameManager.add_item_to_backpack({"name": "RAM", "broken": false})
+			
+		# Reiniciar el slot limpiamente para el siguiente banco (como el disco duro)
+		ram_stick.visible = false
+		empty_slot_label.visible = true
+		empty_slot_label.text = "[ ZÓCALO DDR5 VACÍO · BANCO RAM #%d ]" % (current_ram_index + 1)
+		install_top_area.visible = true
+		install_top_area.modulate.a = 1.0
+		
+		top_left_done = false
+		top_right_done = false
+		top_center_done = false
+		lbl_top_left.position.y = 0.0
+		lbl_top_right.position.y = 0.0
+		lbl_top_center.position.y = 0.0
+		lbl_left.text = "▲"
+		lbl_left.modulate = Color(1, 0.2, 0.25, 1)
+		lbl_right.text = "▲"
+		lbl_right.modulate = Color(1, 0.2, 0.25, 1)
+		lbl_center.text = "▲"
+		lbl_center.modulate = Color(1, 0.2, 0.25, 1)
+		
+		current_state = State.INSTALL_DRAG
+		status_label.text = "BANCO RAM #%d DE %d · Arrastra las flechas rojas hacia ABAJO para montar la nueva RAM" % [current_ram_index + 1, target_ram_count]
+		status_label.modulate = Color(1.0, 0.85, 0.2, 1)
+		_refresh_backpack_ui()
+	else:
+		current_state = State.COMPLETED
+		var victory_msg = "¡RAM NUEVA INSTALADA Y ENGANCHADA CON TOTAL ÉXITO!" if target_ram_count <= 1 else ("¡LOS %d MÓDULOS RAM ECC ENGANCHADOS CON ÉXITO!" % target_ram_count)
+		_show_floating_feedback("✓ ¡CLICK! " + victory_msg, COLOR_GREEN)
+		status_label.text = victory_msg
+		status_label.modulate = COLOR_GREEN
+		
+		await get_tree().create_timer(1.3).timeout
+		minigame_finished.emit(true)
 
 func _shake_node(n: CanvasItem) -> void:
 	if not n: return
