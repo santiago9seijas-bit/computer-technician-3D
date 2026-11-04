@@ -1288,6 +1288,11 @@ func _on_extract_mobo_pressed() -> void:
 	_update_status()
 
 func _show_warning(msg: String, col: Color) -> void:
+	if col.r > 0.7 and col.g < 0.5:
+		GameManager.register_error(2.0)
+	elif col.g > 0.6 and not ("FASE" in msg or "Busca" in msg):
+		GameManager.register_repair(25, 2.0)
+		
 	warning_label.text = msg
 	warning_label.modulate = col
 	var tw = create_tween()

@@ -910,7 +910,11 @@ func _refresh_ui() -> void:
 	var tool_btns = [btn_tool_1, btn_tool_2, btn_tool_3, btn_tool_4, btn_tool_5]
 	for idx in range(tool_btns.size()):
 		var t_btn = tool_btns[idx]
-		if (idx + 1) == active_t:
+		if not t_btn:
+			continue
+		if t_btn.has_method("set_active_tool"):
+			t_btn.set_active_tool((idx + 1) == active_t)
+		elif (idx + 1) == active_t:
 			t_btn.modulate = Color(1.3, 1.3, 0.35, 1.0) # Seleccionado / brillante
 		else:
 			t_btn.modulate = Color(0.7, 0.7, 0.7, 0.75)

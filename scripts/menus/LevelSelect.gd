@@ -102,6 +102,17 @@ var is_launching_level: bool = false
 var LEVELS_DATA: Dictionary = {
 	"reparacion": [
 		{
+			"number": 0,
+			"is_tutorial": true,
+			"title": "NÚCLEO TUTORIAL · INDUCCIÓN AL HARDWARE",
+			"stage": "CENTRO NEURONAL // TUTORIAL",
+			"mode_name": "REPARACIÓN",
+			"color_accent": Color(0.0, 0.88, 1.0),
+			"description": "Simulación interactiva holográfica de inducción.\nAprende el protocolo de seguridad, tipos de tornillos (Cruz / Pala), desacople seguro de conectores PWM y disipación térmica antes de iniciar en el taller.",
+			"requirements": "HERRAMIENTAS: Acceso Total · MODO GUIADO · ACCESO LIBRE",
+			"can_play": true
+		},
+		{
 			"number": 1,
 			"title": "NIVEL 1 · MONTAJE FAN COOLER",
 			"stage": "ETAPA I: TALLER BÁSICO",
@@ -224,6 +235,17 @@ var LEVELS_DATA: Dictionary = {
 	],
 	"sistema": [
 		{
+			"number": 0,
+			"is_tutorial": true,
+			"title": "NÚCLEO TUTORIAL · PROTOCOLO DE BOOT & BIOS",
+			"stage": "CENTRO NEURONAL // TUTORIAL",
+			"mode_name": "SISTEMA",
+			"color_accent": Color(0.0, 0.88, 1.0),
+			"description": "Inducción al diagnóstico y rescate de sistemas operativos.\nAprende los ciclos POST de firmware, configuración UEFI y aislamiento seguro de amenazas informáticas en entorno sandbox.",
+			"requirements": "HERRAMIENTAS: Consola / BIOS · MODO GUIADO · ACCESO LIBRE",
+			"can_play": true
+		},
+		{
 			"number": 1,
 			"title": "NIVEL 1 · TERMINAL DE SISTEMAS Y SOFTWARE",
 			"stage": "ETAPA I: SISTEMAS & CIBERSEGURIDAD",
@@ -345,6 +367,17 @@ var LEVELS_DATA: Dictionary = {
 		}
 	],
 	"servidor": [
+		{
+			"number": 0,
+			"is_tutorial": true,
+			"title": "NÚCLEO TUTORIAL · ARQUITECTURA DE RACK Y FIBRA",
+			"stage": "CENTRO NEURONAL // TUTORIAL",
+			"mode_name": "SERVIDOR",
+			"color_accent": Color(0.0, 0.88, 1.0),
+			"description": "Inducción a la infraestructura empresarial en Datacenter.\nAprende la instalación en bastidores 1U/2U, conmutación redundante de fuentes y cableado de alta velocidad para cabinas SAS.",
+			"requirements": "HERRAMIENTAS: Tester / Crimpadora · MODO GUIADO · ACCESO LIBRE",
+			"can_play": true
+		},
 		{
 			"number": 1,
 			"title": "NIVEL 1 · BASTIDORES & RIELES 2U",
@@ -955,12 +988,16 @@ func _ready() -> void:
 		card_dim_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
 		card_dim_overlay.gui_input.connect(func(event: InputEvent):
 			if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-				# Si hace clic en el círculo ampliado del nivel 1 (radio 85px desde Vector2(260, 390)), iniciar el nivel
-				if is_level_zoomed and active_zoomed_index == 0 and (current_mode == "reparacion" or current_mode == "sistema" or current_mode == "servidor"):
+				# Si hace clic en el círculo ampliado (radio 85px desde Vector2(260, 390)), accionar
+				if is_level_zoomed:
 					var dist = event.position.distance_to(Vector2(260, 390))
 					if dist <= 85.0:
-						_play_level_1()
-						return
+						if active_zoomed_index == 0:
+							_play_tutorial_level()
+							return
+						elif active_zoomed_index == 1 and (current_mode == "reparacion" or current_mode == "sistema" or current_mode == "servidor"):
+							_play_level_1()
+							return
 				_unzoom_camera()
 		)
 	if deployed_modal:
@@ -975,7 +1012,7 @@ func _ready() -> void:
 	btn_close_deployed.pressed.connect(_close_deployed_card)
 	deployed_btn_play.pressed.connect(_on_deployed_play_pressed)
 	if btn_play_level1:
-		btn_play_level1.pressed.connect(_play_level_1)
+		btn_play_level1.pressed.connect(_on_btn_play_level_pressed)
 	
 	if graph_lines and graph_lines.has_signal("mode_transition_completed"):
 		graph_lines.mode_transition_completed.connect(_update_node_hitboxes_positions)
@@ -1127,8 +1164,8 @@ func _update_mode_buttons() -> void:
 func _update_headers_for_mode() -> void:
 	match current_mode:
 		"reparacion":
-			banner_label.text = "SECCIÓN DE REPARACIÓN // MAPA DE HARDWARE"
-			col1_label.text = "ETAPA 1: TALLER BÁSICO [1-4]"
+			banner_label.text = "SECCIÓN DE REPARACIÓN // TELARAÑA DE HARDWARE"
+			col1_label.text = "NÚCLEO TUTORIAL & ETAPA 1 [1-4]"
 			col2_label.text = "ETAPA 2: HARDWARE AVANZADO [5-8]"
 			col3_label.text = "ETAPA 3: MAESTRÍA DE DIAGNÓSTICO [9-12]"
 		"reparacion_fondo":
@@ -1137,25 +1174,26 @@ func _update_headers_for_mode() -> void:
 			col2_label.text = "ALINEACIÓN DE PINES"
 			col3_label.text = "CALIBRACIÓN"
 		"sistema":
-			banner_label.text = "SECCIÓN DE SISTEMA // SOFTWARE, BIOS & SO"
-			col1_label.text = "ETAPA 1: BIOS & BOOT [1-4]"
+			banner_label.text = "SECCIÓN DE SISTEMA // TELARAÑA DE RED LÓGICA"
+			col1_label.text = "NÚCLEO TUTORIAL & ETAPA 1 [1-4]"
 			col2_label.text = "ETAPA 2: KERNEL & DRIVERS [5-8]"
 			col3_label.text = "ETAPA 3: CIBERSEGURIDAD & RESCATE [9-12]"
 		"servidor":
-			banner_label.text = "SECCIÓN DE SERVIDOR // INFRAESTRUCTURA & RACKS"
-			col1_label.text = "ETAPA 1: BASTIDORES RACK [1-4]"
+			banner_label.text = "SECCIÓN DE SERVIDOR // TELARAÑA DE DATACENTER"
+			col1_label.text = "NÚCLEO TUTORIAL & ETAPA 1 [1-4]"
 			col2_label.text = "ETAPA 2: ALMACENAMIENTO RAID [5-8]"
 			col3_label.text = "ETAPA 3: DATACENTER & CLOUD [9-12]"
 
 # =============================================================================
-# HITBOXES DE NODOS (MODO NIVELES)
+# HITBOXES DE NODOS (MODO NIVELES - 13 NODOS DE TELARAÑA)
 # =============================================================================
 func _create_node_hitboxes() -> void:
 	for b in node_buttons:
 		b.queue_free()
 	node_buttons.clear()
 	
-	for i in range(12):
+	var count = graph_lines.nodes.size() if (graph_lines and not graph_lines.nodes.is_empty()) else 13
+	for i in range(count):
 		var btn = Button.new()
 		btn.custom_minimum_size = Vector2(60, 60)
 		btn.flat = true
@@ -1187,10 +1225,14 @@ func _on_node_clicked(index: int) -> void:
 		
 	var data = list[index]
 	
-	# Si ya está en zoom sobre el nivel 1 y hacen clic sobre el nodo 1, lanzar el nivel inmediatamente
-	if is_level_zoomed and active_zoomed_index == 0 and index == 0 and (current_mode == "reparacion" or current_mode == "sistema" or current_mode == "servidor"):
-		_play_level_1()
-		return
+	# Si ya está en zoom sobre el nodo y vuelven a presionar:
+	if is_level_zoomed and active_zoomed_index == index:
+		if index == 0:
+			_play_tutorial_level()
+			return
+		elif index == 1 and (current_mode == "reparacion" or current_mode == "sistema" or current_mode == "servidor"):
+			_play_level_1()
+			return
 		
 	is_level_zoomed = true
 	active_zoomed_index = index
@@ -1199,8 +1241,7 @@ func _on_node_clicked(index: int) -> void:
 		graph_lines.trigger_node_click_zoom(index)
 		
 	# ZOOM DE CÁMARA AL CÍRCULO CLICKEADO:
-	# El mapa hace zoom y encuadra el círculo ampliado en el lado izquierdo (X=260, Y=390)
-	var node_pos = graph_lines.nodes[index] if (graph_lines and index < graph_lines.nodes.size()) else Vector2(120, 440)
+	var node_pos = graph_lines.nodes[index] if (graph_lines and index < graph_lines.nodes.size()) else Vector2(640, 410)
 	var zoom_factor: float = 2.1
 	var target_screen_pos = Vector2(260, 390)
 	var target_area_pos = target_screen_pos - node_pos * zoom_factor
@@ -1218,12 +1259,27 @@ func _on_node_clicked(index: int) -> void:
 		camera_zoom_tween.tween_property(constellation_area, "scale", Vector2(zoom_factor, zoom_factor), 0.42)\
 			.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 		
-	# Mostrar el botón "DALE CLIC PARA INICIAR" bajo el círculo ampliado SOLO cuando se da clic al nivel 1
+	# Botón de acción contextual bajo el círculo ampliado
 	if btn_play_level1:
-		if index == 0 and (current_mode == "reparacion" or current_mode == "sistema" or current_mode == "servidor"):
+		if index == 0:
+			# NÚCLEO TUTORIAL (AZUL ELÉCTRICO NEÓN)
+			btn_play_level1.visible = true
+			btn_play_level1.text = "▶ INICIAR TUTORIAL"
+			btn_play_level1.modulate.a = 0.0
+			if "border_color" in btn_play_level1:
+				btn_play_level1.border_color = Color(0.0, 0.88, 1.0)
+			btn_play_level1.position = Vector2(140, 460)
+			btn_play_level1.size = Vector2(240, 40)
+			camera_zoom_tween.tween_property(btn_play_level1, "position:y", 475.0, 0.42)\
+				.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+			camera_zoom_tween.tween_property(btn_play_level1, "modulate:a", 1.0, 0.32)
+		elif index == 1 and (current_mode == "reparacion" or current_mode == "sistema" or current_mode == "servidor"):
+			# NIVEL 1 JUGABLE (ROJO CARMESÍ NEÓN)
 			btn_play_level1.visible = true
 			btn_play_level1.text = "▶ DALE CLIC PARA INICIAR"
 			btn_play_level1.modulate.a = 0.0
+			if "border_color" in btn_play_level1:
+				btn_play_level1.border_color = Color(1.0, 0.15, 0.35)
 			btn_play_level1.position = Vector2(140, 460)
 			btn_play_level1.size = Vector2(240, 40)
 			camera_zoom_tween.tween_property(btn_play_level1, "position:y", 475.0, 0.42)\
@@ -1266,7 +1322,46 @@ func _unzoom_camera() -> void:
 func _update_btn_play_level1_visibility() -> void:
 	if not btn_play_level1:
 		return
-	btn_play_level1.visible = (is_level_zoomed and active_zoomed_index == 0 and (current_mode == "reparacion" or current_mode == "sistema" or current_mode == "servidor") and current_tab == "niveles")
+	btn_play_level1.visible = (is_level_zoomed and (active_zoomed_index == 0 or active_zoomed_index == 1) and (current_mode == "reparacion" or current_mode == "sistema" or current_mode == "servidor") and current_tab == "niveles")
+
+func _on_btn_play_level_pressed() -> void:
+	if active_zoomed_index == 0:
+		_play_tutorial_level()
+	elif active_zoomed_index == 1:
+		_play_level_1()
+
+func _play_tutorial_level() -> void:
+	if is_launching_level:
+		return
+	is_launching_level = true
+	
+	if btn_play_level1:
+		btn_play_level1.pivot_offset = btn_play_level1.size * 0.5
+		var punch_tw = create_tween()
+		punch_tw.tween_property(btn_play_level1, "scale", Vector2(1.12, 1.12), 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		punch_tw.parallel().tween_property(btn_play_level1, "modulate", Color(1.8, 2.2, 2.8, 1.0), 0.12)
+		
+	var gm = get_node_or_null("/root/GameManager")
+	if gm and gm.has_method("start_level"):
+		gm.start_level(999.0)
+		
+	CyberPlayTransition.play(
+		get_tree(),
+		"res://scenes/gameplay/LevelTutorial.tscn",
+		"ENTRANDO AL TUTORIAL 3D",
+		"// SALA DE ENTRENAMIENTO · INDUCCIÓN TÉCNICA //"
+	)
+
+func _open_tutorial_from_hub() -> void:
+	var mode_tutorials: Array[Dictionary] = []
+	for c in ALL_TUTORIAL_CARDS:
+		if c.get("division", "") == current_mode:
+			mode_tutorials.append(c)
+	_unzoom_camera()
+	if not mode_tutorials.is_empty():
+		_open_deployed_card(mode_tutorials[0])
+	else:
+		_switch_main_tab("tutoriales")
 
 func _play_level_1() -> void:
 	if is_launching_level:

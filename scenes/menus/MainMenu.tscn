@@ -94,7 +94,7 @@ theme_override_constants/shadow_offset_y = 3
 theme_override_constants/shadow_outline_size = 8
 theme_override_fonts/font = ExtResource("9_title_font")
 theme_override_font_sizes/font_size = 44
-text = "TÉCNICO DE COMPUTADORAS"
+text = "COMPUTER TECHNICIAN"
 vertical_alignment = 1
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
@@ -277,7 +277,7 @@ text = "HARDWARE WORKSHOP // REPAIR OS v2.0"
 layout_mode = 2
 theme_override_colors/font_color = Color(0.65, 0.4, 0.7, 0.7)
 theme_override_font_sizes/font_size = 12
-text = "Version 0.0.7 Alpha"
+text = "Version 0.0.8 Alpha"
 horizontal_alignment = 2
 
 [node name="DarkenOverlay" type="ColorRect" parent="."]

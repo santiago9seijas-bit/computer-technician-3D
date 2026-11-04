@@ -676,6 +676,11 @@ func _refresh_tp_buttons_styling() -> void:
 					sb.border_width_left = 6 if i == active_tp_index else 3
 
 func _show_feedback(success: bool, msg: String) -> void:
+	if success:
+		GameManager.register_repair(50, 3.0)
+	else:
+		GameManager.register_error(2.0)
+		
 	lbl_calibration_hint.text = msg
 	if success:
 		lbl_calibration_hint.modulate = Color(0.2, 1.0, 0.5)

@@ -432,6 +432,11 @@ func _animate_temp_drop(label: Label, start_val: float, end_val: float, _comp_na
 	, start_val, end_val, 1.2)
 
 func _show_warning(msg: String, col: Color) -> void:
+	if col.r > 0.7 and col.g < 0.5:
+		GameManager.register_error(2.0)
+	elif col.g > 0.6:
+		GameManager.register_repair(25, 2.0)
+		
 	warning_label.text = msg
 	warning_label.modulate = col
 	var tw = create_tween()

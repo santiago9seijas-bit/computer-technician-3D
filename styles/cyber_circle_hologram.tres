@@ -1,0 +1,18 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://c8circlmat9128"]
+
+[ext_resource type="Shader" path="res://styles/cyber_circle_hologram.gdshader" id="1_shdr"]
+
+[resource]
+shader = ExtResource("1_shdr")
+shader_parameter/primary_color = Color(1, 0.08, 0.22, 1)
+shader_parameter/secondary_color = Color(0.7, 0.03, 0.85, 1)
+shader_parameter/core_dark_tint = Color(0.07, 0.01, 0.12, 0.82)
+shader_parameter/active_glow_color = Color(1, 0.28, 0.42, 1)
+shader_parameter/is_active = 0.0
+shader_parameter/is_hover = 0.0
+shader_parameter/scanline_density = 52.0
+shader_parameter/scanline_speed = 2.4
+shader_parameter/sweep_speed = 2.8
+shader_parameter/pulse_speed = 3.2
+shader_parameter/chromatic_shift = 1.5
+shader_parameter/base_alpha = 0.9

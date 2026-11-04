@@ -1,10 +1,15 @@
-[gd_scene format=3 load_steps=18]
+[gd_scene format=3 load_steps=23]
 
 [ext_resource type="Script" path="res://scripts/ui/PCInspectionModal.gd" id="1_modal"]
 [ext_resource type="Script" path="res://scripts/menus/CyberButton.gd" id="2_cbtn"]
 [ext_resource type="Theme" path="res://styles/cyberpunk_theme.tres" id="3_theme"]
 [ext_resource type="FontFile" uid="uid://dbcug8887dro7" path="res://assets/fonts/Bungee-Regular.ttf" id="4_title_font"]
 [ext_resource type="PackedScene" path="res://scenes/ui/CyberBackgroundFrame.tscn" id="5_bg_frame"]
+[ext_resource type="Script" path="res://scripts/menus/CyberCircleToolButton.gd" id="6_circle_btn"]
+[ext_resource type="Texture2D" uid="uid://fhmvb4vcarjv" path="res://pixel art escenario/circulo de objeto .png" id="7_circulo_obj"]
+[ext_resource type="Texture2D" uid="uid://d22ex8vx2lte6" path="res://pixel art escenario/decoracion/reparacion emoticono.png" id="8_ico_reparacion"]
+[ext_resource type="Texture2D" uid="uid://cv6ghw3qgaue3" path="res://pixel art escenario/decoracion/emoticono de rayo.png" id="9_ico_rayo"]
+[ext_resource type="Texture2D" uid="uid://c4cxur3v6xicp" path="res://pixel art escenario/decoracion/emoticono de limpiezakra.png" id="10_ico_limpieza"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_frame"]
 content_margin_left = 20.0
@@ -725,61 +730,77 @@ slant = 8.0
 custom_font_size = 12
 
 [node name="ToolsSection" type="HBoxContainer" parent="ModalControl/Panel/VBox"]
-custom_minimum_size = Vector2(0, 36)
+custom_minimum_size = Vector2(0, 118)
 layout_mode = 2
-theme_override_constants/separation = 10
+theme_override_constants/separation = 12
 alignment = 1
 
 [node name="ToolsLabel" type="Label" parent="ModalControl/Panel/VBox/ToolsSection"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0.95, 1, 1)
 theme_override_font_sizes/font_size = 11
-text = "🛠️ HERRAMIENTA [1-5]:"
+text = "🛠️ HERRAMIENTAS [1-5]:"
 
 [node name="BtnTool1" type="Button" parent="ModalControl/Panel/VBox/ToolsSection"]
-custom_minimum_size = Vector2(130, 34)
+custom_minimum_size = Vector2(104, 118)
 layout_mode = 2
-text = "1. Estrella ★"
 flat = true
-script = ExtResource("2_cbtn")
-slant = 10.0
-custom_font_size = 11
+script = ExtResource("6_circle_btn")
+tool_id = 1
+tool_name = "Cruz ★"
+key_shortcut = "[ 1 ]"
+icon_texture = ExtResource("8_ico_reparacion")
+icon_modulate = Color(1, 0.35, 0.45, 1)
+circle_texture = ExtResource("7_circulo_obj")
 
 [node name="BtnTool2" type="Button" parent="ModalControl/Panel/VBox/ToolsSection"]
-custom_minimum_size = Vector2(130, 34)
+custom_minimum_size = Vector2(104, 118)
 layout_mode = 2
-text = "2. Pala ▬"
 flat = true
-script = ExtResource("2_cbtn")
-slant = 10.0
-custom_font_size = 11
+script = ExtResource("6_circle_btn")
+tool_id = 2
+tool_name = "Pala ▬"
+key_shortcut = "[ 2 ]"
+icon_texture = ExtResource("8_ico_reparacion")
+icon_modulate = Color(0.2, 0.9, 1, 1)
+icon_flip_h = true
+circle_texture = ExtResource("7_circulo_obj")
 
 [node name="BtnTool3" type="Button" parent="ModalControl/Panel/VBox/ToolsSection"]
-custom_minimum_size = Vector2(130, 34)
+custom_minimum_size = Vector2(104, 118)
 layout_mode = 2
-text = "3. Cautín 🔥"
 flat = true
-script = ExtResource("2_cbtn")
-slant = 10.0
-custom_font_size = 11
+script = ExtResource("6_circle_btn")
+tool_id = 3
+tool_name = "Cautín"
+key_shortcut = "[ 3 ]"
+icon_texture = ExtResource("9_ico_rayo")
+icon_modulate = Color(1, 0.5, 0.2, 1)
+circle_texture = ExtResource("7_circulo_obj")
 
 [node name="BtnTool4" type="Button" parent="ModalControl/Panel/VBox/ToolsSection"]
-custom_minimum_size = Vector2(130, 34)
+custom_minimum_size = Vector2(104, 118)
 layout_mode = 2
-text = "4. Multímetro ⚡"
 flat = true
-script = ExtResource("2_cbtn")
-slant = 10.0
-custom_font_size = 11
+script = ExtResource("6_circle_btn")
+tool_id = 4
+tool_name = "Multímetro"
+key_shortcut = "[ 4 ]"
+icon_texture = ExtResource("9_ico_rayo")
+icon_modulate = Color(0.2, 1, 0.7, 1)
+circle_texture = ExtResource("7_circulo_obj")
 
 [node name="BtnTool5" type="Button" parent="ModalControl/Panel/VBox/ToolsSection"]
-custom_minimum_size = Vector2(130, 34)
+custom_minimum_size = Vector2(104, 118)
 layout_mode = 2
-text = "5. Limpiador 🧹"
 flat = true
-script = ExtResource("2_cbtn")
-slant = 10.0
-custom_font_size = 11
+script = ExtResource("6_circle_btn")
+tool_id = 5
+tool_name = "Limpiador"
+key_shortcut = "[ 5 ]"
+icon_texture = ExtResource("10_ico_limpieza")
+icon_modulate = Color(0.3, 0.85, 1, 1)
+circle_texture = ExtResource("7_circulo_obj")
 
 [node name="Footer" type="HBoxContainer" parent="ModalControl/Panel/VBox"]
 layout_mode = 2

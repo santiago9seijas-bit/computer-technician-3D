@@ -279,7 +279,7 @@ func _start_sequence(
 	
 	# Etiqueta de Protocolo / Header Rojo
 	var lbl_protocol = Label.new()
-	lbl_protocol.text = "🔴 // PROTOCOLO DE ENLACE // MATRIZ HOLOGRAMA ROJO v0.0.7 //"
+	lbl_protocol.text = "🔴 // PROTOCOLO DE ENLACE // MATRIZ HOLOGRAMA ROJO v0.0.8 //"
 	lbl_protocol.add_theme_color_override("font_color", Color(1.0, 0.2, 0.35, 1.0))
 	lbl_protocol.add_theme_color_override("font_shadow_color", Color(0.8, 0.0, 0.1, 0.9))
 	lbl_protocol.add_theme_constant_override("shadow_outline_size", 4)

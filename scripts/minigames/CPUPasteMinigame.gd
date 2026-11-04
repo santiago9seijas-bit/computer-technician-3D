@@ -268,6 +268,11 @@ func _complete_apply_phase() -> void:
 	minigame_finished.emit(true)
 
 func _show_warning(msg: String, col: Color) -> void:
+	if col.r > 0.7 and col.g < 0.5:
+		GameManager.register_error(2.0)
+	elif col.g > 0.6:
+		GameManager.register_repair(25, 2.0)
+		
 	warning_label.text = msg
 	warning_label.modulate = col
 	var tw = create_tween()

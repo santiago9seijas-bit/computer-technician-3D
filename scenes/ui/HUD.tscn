@@ -1,4 +1,4 @@
-[gd_scene format=3 load_steps=14]
+[gd_scene format=3 load_steps=19]
 
 [ext_resource type="Script" path="res://scripts/ui/HUD.gd" id="1_hud"]
 [ext_resource type="Script" path="res://scripts/menus/CyberButton.gd" id="2_cbtn"]
@@ -10,6 +10,11 @@
 [ext_resource type="FontFile" uid="uid://dbcug8887dro7" path="res://assets/fonts/Bungee-Regular.ttf" id="8_arcade_font"]
 [ext_resource type="Material" uid="uid://5ra4e5h4fgni" path="res://styles/cyber_glitch_sprite.tres" id="9_glitch_mat"]
 [ext_resource type="Script" path="res://scripts/ui/CurvedStaminaBar.gd" id="10_stamina"]
+[ext_resource type="Script" path="res://scripts/menus/CyberCircleToolButton.gd" id="11_circle_btn"]
+[ext_resource type="Texture2D" uid="uid://fhmvb4vcarjv" path="res://pixel art escenario/circulo de objeto .png" id="12_circulo_obj"]
+[ext_resource type="Texture2D" uid="uid://d22ex8vx2lte6" path="res://pixel art escenario/decoracion/reparacion emoticono.png" id="13_ico_reparacion"]
+[ext_resource type="Texture2D" uid="uid://cv6ghw3qgaue3" path="res://pixel art escenario/decoracion/emoticono de rayo.png" id="14_ico_rayo"]
+[ext_resource type="Texture2D" uid="uid://c4cxur3v6xicp" path="res://pixel art escenario/decoracion/emoticono de limpiezakra.png" id="15_ico_limpieza"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_mochila"]
 content_margin_left = 16.0
@@ -222,57 +227,79 @@ anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -340.0
-offset_top = -70.0
-offset_right = 340.0
-offset_bottom = -20.0
+offset_left = -290.0
+offset_top = -128.0
+offset_right = 290.0
+offset_bottom = -10.0
 grow_horizontal = 2
 grow_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_hud_panel")
 
 [node name="ToolsBar" type="HBoxContainer" parent="BottomCenter"]
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 12
 alignment = 1
 
 [node name="Tool1" type="Button" parent="BottomCenter/ToolsBar"]
-custom_minimum_size = Vector2(125, 36)
+custom_minimum_size = Vector2(104, 118)
 layout_mode = 2
-text = "1. Estrella ★"
 flat = true
-script = ExtResource("2_cbtn")
-slant = 12.0
+script = ExtResource("11_circle_btn")
+tool_id = 1
+tool_name = "Cruz ★"
+key_shortcut = "[ 1 ]"
+icon_texture = ExtResource("13_ico_reparacion")
+icon_modulate = Color(1, 0.35, 0.45, 1)
+circle_texture = ExtResource("12_circulo_obj")
 
 [node name="Tool2" type="Button" parent="BottomCenter/ToolsBar"]
-custom_minimum_size = Vector2(125, 36)
+custom_minimum_size = Vector2(104, 118)
 layout_mode = 2
-text = "2. Pala ▬"
 flat = true
-script = ExtResource("2_cbtn")
-slant = 12.0
+script = ExtResource("11_circle_btn")
+tool_id = 2
+tool_name = "Pala ▬"
+key_shortcut = "[ 2 ]"
+icon_texture = ExtResource("13_ico_reparacion")
+icon_modulate = Color(0.2, 0.9, 1, 1)
+icon_flip_h = true
+circle_texture = ExtResource("12_circulo_obj")
 
 [node name="Tool3" type="Button" parent="BottomCenter/ToolsBar"]
-custom_minimum_size = Vector2(125, 36)
+custom_minimum_size = Vector2(104, 118)
 layout_mode = 2
-text = "3. Cautín"
 flat = true
-script = ExtResource("2_cbtn")
-slant = 12.0
+script = ExtResource("11_circle_btn")
+tool_id = 3
+tool_name = "Cautín"
+key_shortcut = "[ 3 ]"
+icon_texture = ExtResource("14_ico_rayo")
+icon_modulate = Color(1, 0.5, 0.2, 1)
+circle_texture = ExtResource("12_circulo_obj")
 
 [node name="Tool4" type="Button" parent="BottomCenter/ToolsBar"]
-custom_minimum_size = Vector2(125, 36)
+custom_minimum_size = Vector2(104, 118)
 layout_mode = 2
-text = "4. Multímetro"
 flat = true
-script = ExtResource("2_cbtn")
-slant = 12.0
+script = ExtResource("11_circle_btn")
+tool_id = 4
+tool_name = "Multímetro"
+key_shortcut = "[ 4 ]"
+icon_texture = ExtResource("14_ico_rayo")
+icon_modulate = Color(0.2, 1, 0.7, 1)
+circle_texture = ExtResource("12_circulo_obj")
 
 [node name="Tool5" type="Button" parent="BottomCenter/ToolsBar"]
-custom_minimum_size = Vector2(125, 36)
+custom_minimum_size = Vector2(104, 118)
 layout_mode = 2
-text = "5. Limpiador"
 flat = true
-script = ExtResource("2_cbtn")
-slant = 12.0
+script = ExtResource("11_circle_btn")
+tool_id = 5
+tool_name = "Limpiador"
+key_shortcut = "[ 5 ]"
+icon_texture = ExtResource("15_ico_limpieza")
+icon_modulate = Color(0.3, 0.85, 1, 1)
+circle_texture = ExtResource("12_circulo_obj")
 
 [node name="Center" type="Control" parent="."]
 layout_mode = 1

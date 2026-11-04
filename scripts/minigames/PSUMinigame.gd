@@ -438,6 +438,7 @@ func _on_screw_pressed(idx: int) -> void:
 		var tool_name = "Cruz (+)" if req == 1 else "Pala (-)"
 		
 		if GameManager.equipped_tool != req:
+			GameManager.register_error(2.0)
 			_show_warning("Herramienta incorrecta: Este tornillo requiere Destornillador " + tool_name + " [Tecla " + str(req) + "]", Color(1.0, 0.3, 0.3))
 			return
 			
@@ -451,11 +452,13 @@ func _on_screw_pressed(idx: int) -> void:
 		tw.tween_property(btn, "modulate:a", 1.0, 0.35)
 		btn.disabled = true
 		
+		GameManager.register_repair(25, 2.0)
 		_show_warning("✓ Tornillo de chasis ajustado.", Color(0.4, 1.0, 0.4))
 		_check_psu_install_completed()
 		return
 
 	if not (is_atx24_disconnected and is_eps8_disconnected):
+		GameManager.register_error(2.0)
 		_show_warning("¡ALERTA! Desconecta todos los cables antes de desatornillar el chasis.", Color(1.0, 0.3, 0.3))
 		return
 	
@@ -466,6 +469,7 @@ func _on_screw_pressed(idx: int) -> void:
 	var tool_name = "Cruz (+)" if req == 1 else "Pala (-)"
 	
 	if GameManager.equipped_tool != req:
+		GameManager.register_error(2.0)
 		_show_warning("Herramienta incorrecta: Este tornillo hexagonal requiere Destornillador " + tool_name + " [Tecla " + str(req) + "]", Color(1.0, 0.3, 0.3))
 		return
 	
@@ -478,6 +482,8 @@ func _on_screw_pressed(idx: int) -> void:
 	tw.tween_property(icon, "scale", Vector2(0.1, 0.1), 0.35)
 	tw.tween_property(btn, "modulate:a", 0.0, 0.35)
 	btn.disabled = true
+	
+	GameManager.register_repair(25, 2.0)
 	
 	var remaining = 0
 	for r in screws_removed:
@@ -563,6 +569,11 @@ func _on_slide_psu_pressed() -> void:
 	_update_status()
 
 func _show_warning(msg: String, col: Color) -> void:
+	if col.r > 0.7 and col.g < 0.5:
+		GameManager.register_error(2.0)
+	elif col.g > 0.6 and not ("FASE" in msg or "Busca" in msg):
+		GameManager.register_repair(25, 2.0)
+		
 	warning_label.text = msg
 	warning_label.modulate = col
 	var tw = create_tween()

@@ -185,10 +185,8 @@ func set_interaction_prompt(text: String) -> void:
 	_last_prompt = text
 	prompt_label.text = text
 
-func _on_score_updated(new_score: int, delta: int) -> void:
+func _on_score_updated(new_score: int, _delta: int) -> void:
 	lbl_puntaje.text = "Puntaje: %d" % new_score
-	if delta > 0:
-		_spawn_floating_text("+%d PTS  +10s" % delta, true)
 
 func _on_time_updated(t: float, _delta: float) -> void:
 	var total_sec := int(t)
@@ -203,10 +201,8 @@ func _on_time_updated(t: float, _delta: float) -> void:
 	else:
 		lbl_tiempo.modulate = Color(1, 1, 1, 1)
 
-func _on_error_occurred(new_errors: int, delta: int) -> void:
+func _on_error_occurred(new_errors: int, _delta: int) -> void:
 	lbl_errores.text = "Errores: %d / 20" % new_errors
-	if delta > 0:
-		_spawn_floating_text("-5s  +1 ERROR", false)
 
 func _on_backpack_updated(items: Array) -> void:
 	_update_backpack_ui(items)
@@ -247,34 +243,17 @@ func _update_tools_ui(active_tool: int) -> void:
 		var btn = tools_bar.get_child(i) as Button
 		if btn:
 			var id = i + 1
-			if id == active_tool:
+			if btn.has_method("set_active_tool"):
+				btn.set_active_tool(id == active_tool)
+			elif id == active_tool:
 				btn.modulate = Color(0, 1, 0.8, 1) # Seleccionada
 			else:
 				btn.modulate = Color(0.7, 0.7, 0.7, 0.7)
 
-func _spawn_floating_text(text: String, is_positive: bool) -> void:
-	var label = Label.new()
-	label.text = text
-	label.top_level = true
-	var center = get_viewport_rect().size * 0.5
-	
-	if is_positive:
-		# Flotando a la derecha
-		label.position = center + Vector2(40, -20)
-		label.modulate = Color(0, 1, 0.8, 1)
-	else:
-		# Flotando a la izquierda en rojo
-		label.position = center + Vector2(-160, -20)
-		label.modulate = Color(1, 0.1, 0.2, 1)
-	
-	label.theme = theme
-	floating_feedback_container.add_child(label)
-	
-	var tween = create_tween()
-	var target_pos = label.position + Vector2(0, -50)
-	tween.tween_property(label, "position", target_pos, 0.9).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	tween.parallel().tween_property(label, "modulate:a", 0.0, 0.9)
-	tween.tween_callback(label.queue_free)
+func _spawn_floating_text(text: String, is_positive: bool, custom_origin: Vector2 = Vector2.ZERO) -> void:
+	var gm = get_node_or_null("/root/GameManager")
+	if gm and gm.has_method("spawn_floating_text"):
+		gm.spawn_floating_text(text, is_positive, custom_origin)
 
 func _on_game_over(reason: String) -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE

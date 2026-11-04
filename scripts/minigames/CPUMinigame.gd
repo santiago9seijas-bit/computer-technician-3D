@@ -542,6 +542,11 @@ func _update_ui_state() -> void:
 			instruction_badge.modulate = Color(0.0, 1.0, 0.5, 1.0)
 
 func _show_feedback(msg: String, col: Color) -> void:
+	if col.r > 0.7 and col.g < 0.5:
+		GameManager.register_error(2.0)
+	elif col.g > 0.6:
+		GameManager.register_repair(25, 2.0)
+		
 	feedback_label.text = msg
 	feedback_label.modulate = col
 	var tw = create_tween()

@@ -394,6 +394,7 @@ func _on_screw_pressed(idx: int) -> void:
 		var tool_name = "Cruz (+)" if req_tool == 1 else "Pala (-)"
 		
 		if GameManager.equipped_tool != req_tool:
+			GameManager.register_error(2.0)
 			_show_warning("Herramienta incorrecta: Este tornillo requiere Destornillador " + tool_name + " [Tecla " + str(req_tool) + "]", Color(1.0, 0.3, 0.3))
 			return
 		
@@ -407,6 +408,7 @@ func _on_screw_pressed(idx: int) -> void:
 		tw.tween_property(btn, "modulate:a", 1.0, 0.4)
 		btn.disabled = true
 		
+		GameManager.register_repair(25, 2.0)
 		_show_warning("✓ Tornillo de chasis " + str(idx + 1) + "/2 colocado y ajustado.", Color(0.4, 1.0, 0.4))
 		_check_gpu_install_completed()
 		return
@@ -418,6 +420,7 @@ func _on_screw_pressed(idx: int) -> void:
 	var tool_name = "Cruz (+)" if req_tool == 1 else "Pala (-)"
 	
 	if GameManager.equipped_tool != req_tool:
+		GameManager.register_error(2.0)
 		_show_warning("Herramienta incorrecta: Este tornillo requiere Destornillador " + tool_name + " [Tecla " + str(req_tool) + "]", Color(1.0, 0.3, 0.3))
 		return
 	
@@ -431,6 +434,7 @@ func _on_screw_pressed(idx: int) -> void:
 	tw.tween_property(btn, "modulate:a", 0.0, 0.4)
 	
 	btn.disabled = true
+	GameManager.register_repair(25, 2.0)
 	_show_warning("✓ Tornillo de chasis " + str(idx + 1) + "/2 retirado.", Color(0.4, 1.0, 0.4))
 	_advance_state_check()
 
@@ -486,14 +490,17 @@ func _on_extract_pressed() -> void:
 		return
 	
 	if not is_pcie_latch_unlocked:
+		GameManager.register_error(2.0)
 		_show_warning("¡ALERTA CRÍTICA! Debes desbloquear el pestillo PCIe antes de extraer la tarjeta.", Color(1.0, 0.1, 0.1))
 		return
 	
 	if not is_power_disconnected:
+		GameManager.register_error(2.0)
 		_show_warning("¡PELIGRO! El cable de corriente PCIe aún está conectado.", Color(1.0, 0.1, 0.1))
 		return
 	
 	if not (screws_removed[0] and screws_removed[1]):
+		GameManager.register_error(2.0)
 		_show_warning("¡ALERTA! Retira los tornillos del bracket metálico primero.", Color(1.0, 0.1, 0.1))
 		return
 	

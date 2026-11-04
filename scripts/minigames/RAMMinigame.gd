@@ -586,6 +586,11 @@ func _shake_node(n: CanvasItem) -> void:
 	tw.tween_property(n, "position:x", orig_x, 0.04)
 
 func _show_floating_feedback(msg: String, color: Color) -> void:
+	if color.r > 0.7 and color.g < 0.5:
+		GameManager.register_error(2.0)
+	elif color.g > 0.6:
+		GameManager.register_repair(25, 2.0)
+		
 	var lbl = Label.new()
 	lbl.text = msg
 	lbl.add_theme_color_override("font_color", color)

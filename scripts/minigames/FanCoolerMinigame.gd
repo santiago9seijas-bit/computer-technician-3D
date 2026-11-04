@@ -370,6 +370,7 @@ func _on_screw_clicked(index: int) -> void:
 		var req = 1 if screw_types[index] == "cruz" else 2
 		var req_name = "Destornillador Cruz" if req == 1 else "Destornillador Pala"
 		if GameManager.equipped_tool != req:
+			GameManager.register_error(2.0)
 			_show_floating_feedback("HERRAMIENTA INCORRECTA: USA " + req_name.to_upper(), Color(1.0, 0.85, 0.1))
 			_shake_node(screw_buttons[index])
 			return
@@ -380,6 +381,7 @@ func _on_screw_clicked(index: int) -> void:
 		tw.tween_property(icon, "rotation", deg_to_rad(-360.0), 0.35)
 		tw.tween_property(icon, "modulate", Color(0.2, 1.0, 0.5, 1.0), 0.3)
 		
+		GameManager.register_repair(25, 2.0)
 		_show_floating_feedback("✓ TORNILLO AJUSTADO Y APRETADO", Color(0.2, 1.0, 0.5))
 		_check_install_completed()
 		return
@@ -391,6 +393,7 @@ func _on_screw_clicked(index: int) -> void:
 	var required_name = "Destornillador Cruz" if required_tool == 1 else "Destornillador Pala"
 	
 	if GameManager.equipped_tool != required_tool:
+		GameManager.register_error(2.0)
 		_show_floating_feedback("HERRAMIENTA INCORRECTA: USA " + required_name.to_upper(), Color(1.0, 0.85, 0.1))
 		_shake_node(screw_buttons[index])
 		return
@@ -409,6 +412,7 @@ func _on_screw_clicked(index: int) -> void:
 		_check_readiness()
 	)
 	
+	GameManager.register_repair(25, 2.0)
 	_show_floating_feedback("✓ TORNILLO RETIRADO", Color(0.2, 1.0, 0.5))
 
 func _check_install_completed() -> void:
@@ -548,6 +552,11 @@ func _shake_node(n: CanvasItem) -> void:
 	tw.tween_property(n, "position:x", orig_x, 0.04)
 
 func _show_floating_feedback(msg: String, color: Color) -> void:
+	if color.r > 0.7 and color.g < 0.5:
+		GameManager.register_error(2.0)
+	elif color.g > 0.6:
+		GameManager.register_repair(25, 2.0)
+		
 	var lbl = Label.new()
 	lbl.text = msg
 	lbl.add_theme_color_override("font_color", color)
