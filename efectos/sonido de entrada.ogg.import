@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://crwfbwgd41uyd"
+path="res://.godot/imported/sonido de entrada.ogg-f5f60c3eb32beef09fdb89ce5001a45e.oggvorbisstr"
+
+[deps]
+
+source_file="res://efectos/sonido de entrada.ogg"
+dest_files=["res://.godot/imported/sonido de entrada.ogg-f5f60c3eb32beef09fdb89ce5001a45e.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

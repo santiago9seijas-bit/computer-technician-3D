@@ -33,30 +33,14 @@ static func play(
 func _ready() -> void:
 	_start_sequence(_tree if _tree else get_tree(), _target_scene, _title_text, _subtitle_text, _on_finished)
 
-# Sonido de pulso cibernético sintetizado procedimentalmente
-func _play_synth_sfx() -> void:
+# Sonido de entrada de nivel (OGG real)
+func _play_entry_sfx() -> void:
+	if not ResourceLoader.exists("res://efectos/sonido de entrada.ogg"):
+		return
 	var player = AudioStreamPlayer.new()
+	player.stream = load("res://efectos/sonido de entrada.ogg")
+	player.volume_db = 0.0
 	player.bus = "Master"
-	var sample_hz = 22050
-	var duration = 0.28
-	var num_samples = int(sample_hz * duration)
-	var wav = AudioStreamWAV.new()
-	wav.format = AudioStreamWAV.FORMAT_8_BITS
-	wav.mix_rate = sample_hz
-	wav.stereo = false
-	var bytes = PackedByteArray()
-	bytes.resize(num_samples)
-	for i in range(num_samples):
-		var t = float(i) / float(sample_hz)
-		var freq = lerp(960.0, 360.0, pow(t / duration, 0.6))
-		var envelope = sin((1.0 - (t / duration)) * PI * 0.5)
-		var sample_val = sin(t * freq * TAU) * envelope * 115.0
-		# Agregar armónico retro de onda cuadrada ligera
-		if fmod(t * freq * 2.0, 1.0) > 0.5:
-			sample_val += envelope * 20.0
-		bytes[i] = int(clamp(sample_val + 128.0, 0, 255))
-	wav.data = bytes
-	player.stream = wav
 	add_child(player)
 	player.play()
 	player.finished.connect(player.queue_free)
@@ -74,7 +58,7 @@ func _start_sequence(
 	root_ctrl.mouse_filter = Control.MOUSE_FILTER_STOP
 	add_child(root_ctrl)
 	
-	_play_synth_sfx()
+	_play_entry_sfx()
 	
 	var screen_w = root_ctrl.size.x if root_ctrl.size.x > 0 else 1280.0
 	var screen_h = root_ctrl.size.y if root_ctrl.size.y > 0 else 720.0

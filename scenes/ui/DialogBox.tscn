@@ -1,0 +1,86 @@
+[gd_scene format=3 load_steps=6]
+
+[ext_resource type="Script" path="res://scripts/ui/DialogBox.gd" id="1_dlg"]
+[ext_resource type="Theme" path="res://styles/cyberpunk_theme.tres" id="2_theme"]
+[ext_resource type="PackedScene" path="res://scenes/ui/CyberBackgroundFrame.tscn" id="3_bg_frame"]
+[ext_resource type="FontFile" uid="uid://dbcug8887dro7" path="res://assets/fonts/Bungee-Regular.ttf" id="4_font"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_box"]
+
+[node name="DialogBox" type="Control"]
+process_mode = 3
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme = ExtResource("2_theme")
+script = ExtResource("1_dlg")
+
+[node name="BoxMargin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 60.0
+offset_top = -180.0
+offset_right = -60.0
+offset_bottom = -28.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+
+[node name="Panel" type="PanelContainer" parent="BoxMargin"]
+layout_mode = 2
+pivot_offset = Vector2(580, 76)
+theme_override_styles/panel = SubResource("StyleBoxEmpty_box")
+
+[node name="CyberBackgroundFrame" parent="BoxMargin/Panel" instance=ExtResource("3_bg_frame")]
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="BoxMargin/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 14
+
+[node name="VBox" type="VBoxContainer" parent="BoxMargin/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="SpeakerLabel" type="Label" parent="BoxMargin/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.95, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 15
+text = "[SISTEMA // TUTORIAL]"
+
+[node name="MessageLabel" type="Label" parent="BoxMargin/Panel/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.96, 0.98, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.8)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 18
+text = "hola lidel :)"
+autowrap_mode = 2
+
+[node name="PromptHBox" type="HBoxContainer" parent="BoxMargin/Panel/Margin/VBox"]
+layout_mode = 2
+alignment = 2
+
+[node name="PromptLabel" type="Label" parent="BoxMargin/Panel/Margin/VBox/PromptHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.25, 0.65, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 13
+text = "[E] CONTINUAR ▶"

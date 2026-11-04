@@ -95,6 +95,7 @@ var is_level_zoomed: bool = false
 var active_zoomed_index: int = -1
 var camera_zoom_tween: Tween = null
 var is_launching_level: bool = false
+var _music_player: AudioStreamPlayer = null
 
 # =============================================================================
 # BASE DE DATOS DE LOS 12 NIVELES POR MODO (TODOS BLOQUEADOS CON INSPECCIÓN ACTIVA)
@@ -982,6 +983,17 @@ func _ready() -> void:
 	btn_sistema.pressed.connect(func(): _switch_mode("sistema"))
 	btn_servidor.pressed.connect(func(): _switch_mode("servidor"))
 	
+	# --- Música de selección de nivel ---
+	_music_player = AudioStreamPlayer.new()
+	if ResourceLoader.exists("res://efectos/seleccion de nivel.ogg"):
+		_music_player.stream = load("res://efectos/seleccion de nivel.ogg")
+	_music_player.volume_db = -8.0
+	_music_player.bus = "Master"
+	_music_player.autoplay = false
+	add_child(_music_player)
+	_music_player.finished.connect(_music_player.play)
+	_play_level_select_music()
+	
 	# Modales
 	if card_dim_overlay:
 		card_dim_overlay.visible = false
@@ -1095,6 +1107,16 @@ func _update_tab_buttons_visuals() -> void:
 # =============================================================================
 # CONMUTACIÓN DE MODO / DIVISIÓN (REPARACIÓN, SISTEMA, SERVIDOR)
 # =============================================================================
+func _play_level_select_music() -> void:
+	if not _music_player or not _music_player.stream:
+		return
+	_music_player.stop()
+	_music_player.play()
+
+func _stop_level_select_music() -> void:
+	if _music_player and _music_player.playing:
+		_music_player.stop()
+
 func _switch_mode(mode_name: String) -> void:
 	if is_level_zoomed:
 		_unzoom_camera()
@@ -1116,6 +1138,7 @@ func _switch_mode(mode_name: String) -> void:
 		cards_grid.modulate.a = 0.5
 		var tw = create_tween()
 		tw.tween_property(cards_grid, "modulate:a", 1.0, 0.1)
+	_play_level_select_music()
 
 func _update_mode_buttons() -> void:
 	var tabs = [
@@ -1345,6 +1368,7 @@ func _play_tutorial_level() -> void:
 	if gm and gm.has_method("start_level"):
 		gm.start_level(999.0)
 		
+	_stop_level_select_music()
 	CyberPlayTransition.play(
 		get_tree(),
 		"res://scenes/gameplay/LevelTutorial.tscn",
@@ -1387,6 +1411,7 @@ func _play_level_1() -> void:
 		target_scene = "res://scenes/gameplay/LevelServer1.tscn"
 		mode_title = "DATACENTER CORPORATIVO"
 	
+	_stop_level_select_music()
 	CyberPlayTransition.play(
 		get_tree(),
 		target_scene,
@@ -1832,6 +1857,7 @@ func _show_toast(msg: String) -> void:
 	tw.chain().tween_callback(lbl.queue_free)
 
 func _on_volver_pressed() -> void:
+	_stop_level_select_music()
 	get_tree().change_scene_to_file("res://scenes/menus/MainMenu.tscn")
 
 func _unhandled_input(event: InputEvent) -> void:

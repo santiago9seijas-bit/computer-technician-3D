@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://cidts6etijohr"
-path="res://.godot/imported/piso.glb-93bed85e4e85d58595330fac91c0f97b.scn"
+uid="uid://b22icmba8dehh"
+path="res://.godot/imported/parte de tutorial.glb-00d3d7cca6770fa8a5286f1de11a9f3b.scn"
 
 [deps]
 
-source_file="res://modelos_3d/escenario_3d/piso.glb"
-dest_files=["res://.godot/imported/piso.glb-93bed85e4e85d58595330fac91c0f97b.scn"]
+source_file="res://modelos_3d/escenario_3d/parte de tutorial.glb"
+dest_files=["res://.godot/imported/parte de tutorial.glb-00d3d7cca6770fa8a5286f1de11a9f3b.scn"]
 
 [params]
 

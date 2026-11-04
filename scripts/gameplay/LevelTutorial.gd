@@ -1,15 +1,18 @@
 extends Node3D
 
 # =============================================================================
-# NIVEL TUTORIAL 3D - SALA DE ENTRENAMIENTO COMPLETA CON EL MODELO "TUTORIAL"
-# PISO, TECHO Y 4 PAREDES CONSTRUIDAS CON TUTORIAL.GLB
-# MESA DE TRABAJO CON PC INTERACTIVA IGUAL QUE EL NIVEL 1
+# NIVEL TUTORIAL 3D - SALA DE ENTRENAMIENTO ESPACIOSA CON "PARTE DE TUTORIAL.GLB"
+# PISO, PAREDES Y TECHO CONSTRUIDOS ÍNTEGRAMENTE CON EL MODELO MODULAR
+# COLISIONES AMPLIAS PARA MÁXIMA MOVILIDAD Y SISTEMA DE DIÁLOGO AL INICIO
 # =============================================================================
 
 const INTRO_SCENE: PackedScene = preload("res://scenes/ui/LevelIntroModal.tscn")
+const DIALOG_SCENE: PackedScene = preload("res://scenes/ui/DialogBox.tscn")
 
 @onready var player: CharacterBody3D = $Player
 @onready var hud: Control = $CanvasLayerHUD/HUD
+
+var dialog_box: Control = null
 
 func _ready() -> void:
 	if player and hud:
@@ -27,9 +30,27 @@ func _ready() -> void:
 	GameManager.start_level(999.0)
 	GameManager.timer_active = false
 
-	# Iniciar cinemática de entrada o briefing tutorial
+	# Crear el diálogo inicial de inducción
+	dialog_box = DIALOG_SCENE.instantiate()
+	$CanvasLayerHUD.add_child(dialog_box)
+
+	# Iniciar cinemática y mostrar el diálogo "hola lidel :)"
 	if player and player.has_method("play_intro_cinematic"):
 		player.play_intro_cinematic(func():
+			_show_initial_dialog()
+		)
+	else:
+		_show_initial_dialog()
+
+func _show_initial_dialog() -> void:
+	GameManager.timer_active = false
+	if player and player.has_method("set_movement_enabled"):
+		player.set_movement_enabled(false)
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+
+	if dialog_box and dialog_box.has_method("show_message"):
+		dialog_box.show_message("[SISTEMA // TUTORIAL]", "hola lidel :)", func():
+			# Al presionar [E] se cierra el diálogo y se despliega la inducción técnica
 			_show_tutorial_briefing()
 		)
 	else:
@@ -44,7 +65,7 @@ func _show_tutorial_briefing() -> void:
 	var modal = INTRO_SCENE.instantiate()
 	add_child(modal)
 	
-	# Personalizar títulos del modal para indicar que es la inducción 3D
+	# Personalizar títulos del modal para la sala de entrenamiento
 	var title_lbl = modal.get_node_or_null("Margin/Panel/VBox/TitleVBox/Title") as Label
 	if title_lbl:
 		title_lbl.text = "SALA DE ENTRENAMIENTO 3D"
