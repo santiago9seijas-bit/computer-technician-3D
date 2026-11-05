@@ -56,7 +56,8 @@ func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	modulate = Color.WHITE
 	if version_label:
-		version_label.text = "Version 0.0.8 Alpha"
+		var cfg_ver = ProjectSettings.get_setting("application/config/version", "0.0.9")
+		version_label.text = "Version %s Alpha" % cfg_ver
 	header_orig_x = header_container.position.x
 	buttons_orig_x = vbox_container.position.x
 	deco_orig_x = decoracion.position.x
