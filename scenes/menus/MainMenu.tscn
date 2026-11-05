@@ -1,18 +1,18 @@
-[gd_scene format=3 load_steps=19]
+[gd_scene format=3 uid="uid://bk5kj1nuk5cc4"]
 
-[ext_resource type="Script" path="res://scripts/menus/MainMenu.gd" id="1_main"]
-[ext_resource type="Script" path="res://scripts/menus/SynthwaveBackground.gd" id="2_bg"]
-[ext_resource type="Script" path="res://scripts/menus/MenuTextureButton.gd" id="4_tex_btn"]
+[ext_resource type="Script" uid="uid://dol1urugva5f4" path="res://scripts/menus/MainMenu.gd" id="1_main"]
+[ext_resource type="Script" uid="uid://cmewdfi3mll7f" path="res://scripts/menus/SynthwaveBackground.gd" id="2_bg"]
+[ext_resource type="Script" uid="uid://b6m8mfwedfgj8" path="res://scripts/menus/MenuTextureButton.gd" id="4_tex_btn"]
 [ext_resource type="Theme" path="res://styles/cyberpunk_theme.tres" id="5_theme"]
 [ext_resource type="Texture2D" uid="uid://ckfbwiy7c4wxs" path="res://pixel art escenario/fondo de boton.png" id="6_btn_normal"]
 [ext_resource type="Texture2D" uid="uid://dhkb21cw434cy" path="res://pixel art escenario/fondo de boton mouse encima.png" id="7_btn_hover"]
 [ext_resource type="Material" uid="uid://bvyg7oipb3y1a" path="res://styles/cyber_button_hologram.tres" id="8_holo_mat"]
 [ext_resource type="FontFile" uid="uid://dbcug8887dro7" path="res://assets/fonts/Bungee-Regular.ttf" id="9_title_font"]
-[ext_resource type="Material" uid="uid://cxvd852m89a0b" path="res://styles/cyber_decoration_hologram.tres" id="10_deco_mat"]
+[ext_resource type="Material" uid="uid://cxvd852naaa0b" path="res://styles/cyber_decoration_hologram.tres" id="10_deco_mat"]
 [ext_resource type="Texture2D" uid="uid://b8in2ksfawwet" path="res://pixel art escenario/decoracion.png" id="11_deco_tex"]
-[ext_resource type="Material" uid="uid://btr8q93p7mk41" path="res://styles/cyber_title_glow.tres" id="12_title_mat"]
+[ext_resource type="Material" uid="uid://btr8ra3p7mk41" path="res://styles/cyber_title_glow.tres" id="12_title_mat"]
 [ext_resource type="PackedScene" path="res://scenes/ui/CyberBackgroundFrame.tscn" id="13_bg_frame"]
-[ext_resource type="Script" path="res://scripts/menus/CyberButton.gd" id="14_cbtn"]
+[ext_resource type="Script" uid="uid://d4gb3yskr5yf1" path="res://scripts/menus/CyberButton.gd" id="14_cbtn"]
 [ext_resource type="Texture2D" uid="uid://dmrt507recfdq" path="res://pixel art escenario/boton de volver.png" id="15_volver_tex"]
 [ext_resource type="Material" uid="uid://5ra4e5h4fgni" path="res://styles/cyber_glitch_sprite.tres" id="16_glitch_mat"]
 
@@ -22,8 +22,6 @@ content_margin_top = 22.0
 content_margin_right = 28.0
 content_margin_bottom = 22.0
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_volver"]
-
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hint"]
 bg_color = Color(0.08, 0.02, 0.16, 0.6)
 border_width_left = 2
@@ -31,7 +29,9 @@ border_color = Color(0.85, 0.1, 0.95, 0.8)
 corner_radius_top_left = 2
 corner_radius_bottom_left = 2
 
-[node name="MainMenu" type="Control"]
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_volver"]
+
+[node name="MainMenu" type="Control" unique_id=1799927486]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -41,7 +41,7 @@ grow_vertical = 2
 theme = ExtResource("5_theme")
 script = ExtResource("1_main")
 
-[node name="Background" type="Control" parent="."]
+[node name="Background" type="Control" parent="." unique_id=1346241175]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -50,7 +50,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("2_bg")
 
-[node name="Decoracion" type="TextureRect" parent="."]
+[node name="Decoracion" type="TextureRect" parent="." unique_id=388484248]
 texture_filter = 1
 material = ExtResource("10_deco_mat")
 layout_mode = 1
@@ -63,16 +63,15 @@ mouse_filter = 2
 texture = ExtResource("11_deco_tex")
 expand_mode = 1
 
-[node name="HeaderContainer" type="HBoxContainer" parent="."]
+[node name="HeaderContainer" type="HBoxContainer" parent="." unique_id=1250545856]
 layout_mode = 0
 offset_left = 60.0
 offset_top = 40.0
 offset_right = 1100.0
 offset_bottom = 120.0
 theme_override_constants/separation = 16
-alignment = 0
 
-[node name="ArrowIcon" type="Label" parent="HeaderContainer"]
+[node name="ArrowIcon" type="Label" parent="HeaderContainer" unique_id=1538766000]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.08, 0.25, 1)
 theme_override_colors/font_shadow_color = Color(0.6, 0.02, 0.85, 0.85)
@@ -82,22 +81,22 @@ theme_override_font_sizes/font_size = 46
 text = "▷"
 vertical_alignment = 1
 
-[node name="TitleLabel" type="Label" parent="HeaderContainer"]
+[node name="TitleLabel" type="Label" parent="HeaderContainer" unique_id=577055442]
 material = ExtResource("12_title_mat")
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 12
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.95)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/shadow_offset_x = 3
 theme_override_constants/shadow_offset_y = 3
+theme_override_constants/outline_size = 12
 theme_override_constants/shadow_outline_size = 8
 theme_override_fonts/font = ExtResource("9_title_font")
 theme_override_font_sizes/font_size = 44
 text = "COMPUTER TECHNICIAN"
 vertical_alignment = 1
 
-[node name="VBoxContainer" type="VBoxContainer" parent="."]
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=604519643]
 layout_mode = 0
 offset_left = 60.0
 offset_top = 160.0
@@ -105,142 +104,137 @@ offset_right = 530.0
 offset_bottom = 570.0
 theme_override_constants/separation = 12
 
-[node name="BtnJugar" type="TextureButton" parent="VBoxContainer"]
+[node name="BtnJugar" type="TextureButton" parent="VBoxContainer" unique_id=888546050]
 texture_filter = 1
 material = ExtResource("8_holo_mat")
 custom_minimum_size = Vector2(380, 92)
 layout_mode = 2
 size_flags_horizontal = 0
 texture_normal = ExtResource("6_btn_normal")
-texture_hover = ExtResource("7_btn_hover")
 texture_pressed = ExtResource("7_btn_hover")
+texture_hover = ExtResource("7_btn_hover")
 texture_focused = ExtResource("7_btn_hover")
 ignore_texture_size = true
 stretch_mode = 5
 script = ExtResource("4_tex_btn")
 
-[node name="Label" type="Label" parent="VBoxContainer/BtnJugar"]
+[node name="Label" type="Label" parent="VBoxContainer/BtnJugar" unique_id=1634277005]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
 theme_override_font_sizes/font_size = 22
 text = "JUGAR"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="BtnConfiguracion" type="TextureButton" parent="VBoxContainer"]
+[node name="BtnConfiguracion" type="TextureButton" parent="VBoxContainer" unique_id=1213029780]
 texture_filter = 1
 material = ExtResource("8_holo_mat")
 custom_minimum_size = Vector2(335, 81)
 layout_mode = 2
 size_flags_horizontal = 0
 texture_normal = ExtResource("6_btn_normal")
-texture_hover = ExtResource("7_btn_hover")
 texture_pressed = ExtResource("7_btn_hover")
+texture_hover = ExtResource("7_btn_hover")
 texture_focused = ExtResource("7_btn_hover")
 ignore_texture_size = true
 stretch_mode = 5
 script = ExtResource("4_tex_btn")
 
-[node name="Label" type="Label" parent="VBoxContainer/BtnConfiguracion"]
+[node name="Label" type="Label" parent="VBoxContainer/BtnConfiguracion" unique_id=1089652122]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
 theme_override_font_sizes/font_size = 19
 text = "CONFIGURACION"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="BtnControles" type="TextureButton" parent="VBoxContainer"]
+[node name="BtnControles" type="TextureButton" parent="VBoxContainer" unique_id=768118900]
 texture_filter = 1
 material = ExtResource("8_holo_mat")
 custom_minimum_size = Vector2(290, 70)
 layout_mode = 2
 size_flags_horizontal = 0
 texture_normal = ExtResource("6_btn_normal")
-texture_hover = ExtResource("7_btn_hover")
 texture_pressed = ExtResource("7_btn_hover")
+texture_hover = ExtResource("7_btn_hover")
 texture_focused = ExtResource("7_btn_hover")
 ignore_texture_size = true
 stretch_mode = 5
 script = ExtResource("4_tex_btn")
 
-[node name="Label" type="Label" parent="VBoxContainer/BtnControles"]
+[node name="Label" type="Label" parent="VBoxContainer/BtnControles" unique_id=991557932]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
 theme_override_font_sizes/font_size = 18
 text = "CONTROLES"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="BtnTutoriales" type="TextureButton" parent="VBoxContainer"]
+[node name="BtnTutoriales" type="TextureButton" parent="VBoxContainer" unique_id=1982154867]
 texture_filter = 1
 material = ExtResource("8_holo_mat")
 custom_minimum_size = Vector2(245, 60)
 layout_mode = 2
 size_flags_horizontal = 0
 texture_normal = ExtResource("6_btn_normal")
-texture_hover = ExtResource("7_btn_hover")
 texture_pressed = ExtResource("7_btn_hover")
+texture_hover = ExtResource("7_btn_hover")
 texture_focused = ExtResource("7_btn_hover")
 ignore_texture_size = true
 stretch_mode = 5
 script = ExtResource("4_tex_btn")
 
-[node name="Label" type="Label" parent="VBoxContainer/BtnTutoriales"]
+[node name="Label" type="Label" parent="VBoxContainer/BtnTutoriales" unique_id=1070653563]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
 theme_override_font_sizes/font_size = 16
 text = "TUTORIALES"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="BtnSalir" type="TextureButton" parent="VBoxContainer"]
+[node name="BtnSalir" type="TextureButton" parent="VBoxContainer" unique_id=1166451162]
 texture_filter = 1
 material = ExtResource("8_holo_mat")
 custom_minimum_size = Vector2(205, 50)
 layout_mode = 2
 size_flags_horizontal = 0
 texture_normal = ExtResource("6_btn_normal")
-texture_hover = ExtResource("7_btn_hover")
 texture_pressed = ExtResource("7_btn_hover")
+texture_hover = ExtResource("7_btn_hover")
 texture_focused = ExtResource("7_btn_hover")
 ignore_texture_size = true
 stretch_mode = 5
 script = ExtResource("4_tex_btn")
 
-[node name="Label" type="Label" parent="VBoxContainer/BtnSalir"]
+[node name="Label" type="Label" parent="VBoxContainer/BtnSalir" unique_id=180332473]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
 theme_override_font_sizes/font_size = 16
 text = "SALIR"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="BottomRightInfo" type="VBoxContainer" parent="."]
+[node name="BottomRightInfo" type="VBoxContainer" parent="." unique_id=987523686]
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
@@ -256,31 +250,31 @@ grow_vertical = 0
 theme_override_constants/separation = 4
 alignment = 2
 
-[node name="BadgeHBox" type="HBoxContainer" parent="BottomRightInfo"]
+[node name="BadgeHBox" type="HBoxContainer" parent="BottomRightInfo" unique_id=1383895464]
 layout_mode = 2
 theme_override_constants/separation = 8
 alignment = 2
 
-[node name="BadgeDot" type="Label" parent="BottomRightInfo/BadgeHBox"]
+[node name="BadgeDot" type="Label" parent="BottomRightInfo/BadgeHBox" unique_id=885673294]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.05, 0.2, 1)
 theme_override_font_sizes/font_size = 11
 text = "●"
 
-[node name="BadgeText" type="Label" parent="BottomRightInfo/BadgeHBox"]
+[node name="BadgeText" type="Label" parent="BottomRightInfo/BadgeHBox" unique_id=403778531]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9, 0.45, 0.95, 0.9)
 theme_override_font_sizes/font_size = 11
 text = "HARDWARE WORKSHOP // REPAIR OS v2.0"
 
-[node name="VersionLabel" type="Label" parent="BottomRightInfo"]
+[node name="VersionLabel" type="Label" parent="BottomRightInfo" unique_id=473611131]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.65, 0.4, 0.7, 0.7)
 theme_override_font_sizes/font_size = 12
 text = "Version 0.0.8 Alpha"
 horizontal_alignment = 2
 
-[node name="DarkenOverlay" type="ColorRect" parent="."]
+[node name="DarkenOverlay" type="ColorRect" parent="." unique_id=1119147378]
 modulate = Color(1, 1, 1, 0)
 layout_mode = 1
 anchors_preset = 15
@@ -291,7 +285,7 @@ grow_vertical = 2
 mouse_filter = 2
 color = Color(0.02, 0.005, 0.05, 0.88)
 
-[node name="ControlsPanel" type="PanelContainer" parent="."]
+[node name="ControlsPanel" type="PanelContainer" parent="." unique_id=1331813820]
 visible = false
 custom_minimum_size = Vector2(560, 390)
 layout_mode = 1
@@ -309,31 +303,31 @@ grow_vertical = 2
 pivot_offset = Vector2(280, 195)
 theme_override_styles/panel = SubResource("StyleBoxEmpty_panel")
 
-[node name="CyberBackgroundFrame" parent="ControlsPanel" instance=ExtResource("13_bg_frame")]
+[node name="CyberBackgroundFrame" parent="ControlsPanel" unique_id=1067493259 instance=ExtResource("13_bg_frame")]
 layout_mode = 2
 
-[node name="Margin" type="MarginContainer" parent="ControlsPanel"]
+[node name="Margin" type="MarginContainer" parent="ControlsPanel" unique_id=127947038]
 layout_mode = 2
 theme_override_constants/margin_left = 22
 theme_override_constants/margin_top = 16
 theme_override_constants/margin_right = 22
 theme_override_constants/margin_bottom = 16
 
-[node name="VBox" type="VBoxContainer" parent="ControlsPanel/Margin"]
+[node name="VBox" type="VBoxContainer" parent="ControlsPanel/Margin" unique_id=1626516903]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="HeaderVBox" type="VBoxContainer" parent="ControlsPanel/Margin/VBox"]
+[node name="HeaderVBox" type="VBoxContainer" parent="ControlsPanel/Margin/VBox" unique_id=1317628753]
 layout_mode = 2
 theme_override_constants/separation = 1
 
-[node name="Badge" type="Label" parent="ControlsPanel/Margin/VBox/HeaderVBox"]
+[node name="Badge" type="Label" parent="ControlsPanel/Margin/VBox/HeaderVBox" unique_id=291782610]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.85, 0.1, 0.95, 1)
 theme_override_font_sizes/font_size = 10
 text = "[ SISTEMA // GUÍA RÁPIDA ]"
 
-[node name="Title" type="Label" parent="ControlsPanel/Margin/VBox/HeaderVBox"]
+[node name="Title" type="Label" parent="ControlsPanel/Margin/VBox/HeaderVBox" unique_id=1659361878]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.12, 0.35, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
@@ -342,36 +336,36 @@ theme_override_fonts/font = ExtResource("9_title_font")
 theme_override_font_sizes/font_size = 18
 text = "MAPA DE CONTROLES"
 
-[node name="Sub" type="Label" parent="ControlsPanel/Margin/VBox/HeaderVBox"]
+[node name="Sub" type="Label" parent="ControlsPanel/Margin/VBox/HeaderVBox" unique_id=671932589]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.85, 0.85, 0.92, 0.85)
 theme_override_font_sizes/font_size = 11
 text = "Comandos esenciales para el taller y minijuegos"
 
-[node name="HSeparator" type="HSeparator" parent="ControlsPanel/Margin/VBox"]
+[node name="HSeparator" type="HSeparator" parent="ControlsPanel/Margin/VBox" unique_id=707517542]
 layout_mode = 2
 
-[node name="ContentHBox" type="HBoxContainer" parent="ControlsPanel/Margin/VBox"]
+[node name="ContentHBox" type="HBoxContainer" parent="ControlsPanel/Margin/VBox" unique_id=1462996939]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 18
 
-[node name="LeftCol" type="VBoxContainer" parent="ControlsPanel/Margin/VBox/ContentHBox"]
+[node name="LeftCol" type="VBoxContainer" parent="ControlsPanel/Margin/VBox/ContentHBox" unique_id=1687153358]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 6
 
-[node name="ColTitle" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/LeftCol"]
+[node name="ColTitle" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/LeftCol" unique_id=2063037745]
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0.9, 1, 1)
 theme_override_font_sizes/font_size = 11
 text = "── MOVIMIENTO ──"
 
-[node name="Item1" type="HBoxContainer" parent="ControlsPanel/Margin/VBox/ContentHBox/LeftCol"]
+[node name="Item1" type="HBoxContainer" parent="ControlsPanel/Margin/VBox/ContentHBox/LeftCol" unique_id=416220332]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="Badge" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/LeftCol/Item1"]
+[node name="Badge" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/LeftCol/Item1" unique_id=745340123]
 custom_minimum_size = Vector2(80, 22)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.1, 0.4, 1)
@@ -379,7 +373,7 @@ theme_override_font_sizes/font_size = 11
 text = "[ W A S D ]"
 vertical_alignment = 1
 
-[node name="Desc" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/LeftCol/Item1"]
+[node name="Desc" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/LeftCol/Item1" unique_id=1193557810]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.92, 0.92, 0.95, 1)
@@ -387,11 +381,11 @@ theme_override_font_sizes/font_size = 11
 text = "Desplazarse"
 autowrap_mode = 2
 
-[node name="Item2" type="HBoxContainer" parent="ControlsPanel/Margin/VBox/ContentHBox/LeftCol"]
+[node name="Item2" type="HBoxContainer" parent="ControlsPanel/Margin/VBox/ContentHBox/LeftCol" unique_id=335943246]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="Badge" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/LeftCol/Item2"]
+[node name="Badge" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/LeftCol/Item2" unique_id=1245389901]
 custom_minimum_size = Vector2(80, 22)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.1, 0.4, 1)
@@ -399,7 +393,7 @@ theme_override_font_sizes/font_size = 11
 text = "[ MOUSE ]"
 vertical_alignment = 1
 
-[node name="Desc" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/LeftCol/Item2"]
+[node name="Desc" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/LeftCol/Item2" unique_id=414698681]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.92, 0.92, 0.95, 1)
@@ -407,11 +401,11 @@ theme_override_font_sizes/font_size = 11
 text = "Mirar / Cursor"
 autowrap_mode = 2
 
-[node name="Item3" type="HBoxContainer" parent="ControlsPanel/Margin/VBox/ContentHBox/LeftCol"]
+[node name="Item3" type="HBoxContainer" parent="ControlsPanel/Margin/VBox/ContentHBox/LeftCol" unique_id=152352930]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="Badge" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/LeftCol/Item3"]
+[node name="Badge" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/LeftCol/Item3" unique_id=1496514163]
 custom_minimum_size = Vector2(80, 22)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.1, 0.4, 1)
@@ -419,7 +413,7 @@ theme_override_font_sizes/font_size = 11
 text = "[ SHIFT ]"
 vertical_alignment = 1
 
-[node name="Desc" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/LeftCol/Item3"]
+[node name="Desc" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/LeftCol/Item3" unique_id=1619316582]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.92, 0.92, 0.95, 1)
@@ -427,11 +421,11 @@ theme_override_font_sizes/font_size = 11
 text = "Correr / Sprint"
 autowrap_mode = 2
 
-[node name="ItemJump" type="HBoxContainer" parent="ControlsPanel/Margin/VBox/ContentHBox/LeftCol"]
+[node name="ItemJump" type="HBoxContainer" parent="ControlsPanel/Margin/VBox/ContentHBox/LeftCol" unique_id=1869398532]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="Badge" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/LeftCol/ItemJump"]
+[node name="Badge" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/LeftCol/ItemJump" unique_id=252374073]
 custom_minimum_size = Vector2(80, 22)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.1, 0.4, 1)
@@ -439,7 +433,7 @@ theme_override_font_sizes/font_size = 11
 text = "[ ESPACIO ]"
 vertical_alignment = 1
 
-[node name="Desc" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/LeftCol/ItemJump"]
+[node name="Desc" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/LeftCol/ItemJump" unique_id=1304260018]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.92, 0.92, 0.95, 1)
@@ -447,11 +441,11 @@ theme_override_font_sizes/font_size = 11
 text = "Saltar"
 autowrap_mode = 2
 
-[node name="Item4" type="HBoxContainer" parent="ControlsPanel/Margin/VBox/ContentHBox/LeftCol"]
+[node name="Item4" type="HBoxContainer" parent="ControlsPanel/Margin/VBox/ContentHBox/LeftCol" unique_id=983203268]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="Badge" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/LeftCol/Item4"]
+[node name="Badge" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/LeftCol/Item4" unique_id=492530485]
 custom_minimum_size = Vector2(80, 22)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.1, 0.4, 1)
@@ -459,7 +453,7 @@ theme_override_font_sizes/font_size = 11
 text = "[ ESC / P ]"
 vertical_alignment = 1
 
-[node name="Desc" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/LeftCol/Item4"]
+[node name="Desc" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/LeftCol/Item4" unique_id=343361277]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.92, 0.92, 0.95, 1)
@@ -467,22 +461,22 @@ theme_override_font_sizes/font_size = 11
 text = "Pausa / Ajustes"
 autowrap_mode = 2
 
-[node name="RightCol" type="VBoxContainer" parent="ControlsPanel/Margin/VBox/ContentHBox"]
+[node name="RightCol" type="VBoxContainer" parent="ControlsPanel/Margin/VBox/ContentHBox" unique_id=2108612852]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 6
 
-[node name="ColTitle" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/RightCol"]
+[node name="ColTitle" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/RightCol" unique_id=1898770719]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.85, 0.15, 0.95, 1)
 theme_override_font_sizes/font_size = 11
 text = "── HERRAMIENTAS ──"
 
-[node name="Item1" type="HBoxContainer" parent="ControlsPanel/Margin/VBox/ContentHBox/RightCol"]
+[node name="Item1" type="HBoxContainer" parent="ControlsPanel/Margin/VBox/ContentHBox/RightCol" unique_id=1428192052]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="Badge" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/RightCol/Item1"]
+[node name="Badge" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/RightCol/Item1" unique_id=1890270239]
 custom_minimum_size = Vector2(80, 22)
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0.95, 1, 1)
@@ -490,7 +484,7 @@ theme_override_font_sizes/font_size = 11
 text = "[ E / CLIC ]"
 vertical_alignment = 1
 
-[node name="Desc" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/RightCol/Item1"]
+[node name="Desc" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/RightCol/Item1" unique_id=244458389]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.92, 0.92, 0.95, 1)
@@ -498,11 +492,11 @@ theme_override_font_sizes/font_size = 11
 text = "Interactuar / Usar"
 autowrap_mode = 2
 
-[node name="Item2" type="HBoxContainer" parent="ControlsPanel/Margin/VBox/ContentHBox/RightCol"]
+[node name="Item2" type="HBoxContainer" parent="ControlsPanel/Margin/VBox/ContentHBox/RightCol" unique_id=267350997]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="Badge" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/RightCol/Item2"]
+[node name="Badge" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/RightCol/Item2" unique_id=932487800]
 custom_minimum_size = Vector2(80, 22)
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0.95, 1, 1)
@@ -510,7 +504,7 @@ theme_override_font_sizes/font_size = 11
 text = "[ TECLA 1 ]"
 vertical_alignment = 1
 
-[node name="Desc" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/RightCol/Item2"]
+[node name="Desc" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/RightCol/Item2" unique_id=1703321941]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.92, 0.92, 0.95, 1)
@@ -518,11 +512,11 @@ theme_override_font_sizes/font_size = 11
 text = "Destornillador Cruz (+)"
 autowrap_mode = 2
 
-[node name="Item3" type="HBoxContainer" parent="ControlsPanel/Margin/VBox/ContentHBox/RightCol"]
+[node name="Item3" type="HBoxContainer" parent="ControlsPanel/Margin/VBox/ContentHBox/RightCol" unique_id=2115169658]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="Badge" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/RightCol/Item3"]
+[node name="Badge" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/RightCol/Item3" unique_id=2097359605]
 custom_minimum_size = Vector2(80, 22)
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0.95, 1, 1)
@@ -530,7 +524,7 @@ theme_override_font_sizes/font_size = 11
 text = "[ TECLA 2 ]"
 vertical_alignment = 1
 
-[node name="Desc" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/RightCol/Item3"]
+[node name="Desc" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/RightCol/Item3" unique_id=889144840]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.92, 0.92, 0.95, 1)
@@ -538,11 +532,11 @@ theme_override_font_sizes/font_size = 11
 text = "Destornillador Pala (-)"
 autowrap_mode = 2
 
-[node name="Item4" type="HBoxContainer" parent="ControlsPanel/Margin/VBox/ContentHBox/RightCol"]
+[node name="Item4" type="HBoxContainer" parent="ControlsPanel/Margin/VBox/ContentHBox/RightCol" unique_id=52029554]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="Badge" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/RightCol/Item4"]
+[node name="Badge" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/RightCol/Item4" unique_id=989253868]
 custom_minimum_size = Vector2(80, 22)
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0.95, 1, 1)
@@ -550,7 +544,7 @@ theme_override_font_sizes/font_size = 11
 text = "[ 3 / 4 / 5 ]"
 vertical_alignment = 1
 
-[node name="Desc" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/RightCol/Item4"]
+[node name="Desc" type="Label" parent="ControlsPanel/Margin/VBox/ContentHBox/RightCol/Item4" unique_id=479468370]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.92, 0.92, 0.95, 1)
@@ -558,47 +552,46 @@ theme_override_font_sizes/font_size = 11
 text = "Cautín, Pinzas, Tester"
 autowrap_mode = 2
 
-[node name="HintBox" type="PanelContainer" parent="ControlsPanel/Margin/VBox"]
+[node name="HintBox" type="PanelContainer" parent="ControlsPanel/Margin/VBox" unique_id=1214949009]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_hint")
 
-[node name="Margin" type="MarginContainer" parent="ControlsPanel/Margin/VBox/HintBox"]
+[node name="Margin" type="MarginContainer" parent="ControlsPanel/Margin/VBox/HintBox" unique_id=251232653]
 layout_mode = 2
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_top = 6
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 6
 
-[node name="HintLabel" type="Label" parent="ControlsPanel/Margin/VBox/HintBox/Margin"]
+[node name="HintLabel" type="Label" parent="ControlsPanel/Margin/VBox/HintBox/Margin" unique_id=441885077]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.85, 0.5, 0.95, 0.9)
 theme_override_font_sizes/font_size = 10
 text = "💡 TIP: Pulsa [1] o [2] para alternar destornilladores en minijuegos."
 autowrap_mode = 2
 
-[node name="Footer" type="HBoxContainer" parent="ControlsPanel/Margin/VBox"]
+[node name="Footer" type="HBoxContainer" parent="ControlsPanel/Margin/VBox" unique_id=91972054]
 layout_mode = 2
 alignment = 1
 
-[node name="BtnVolverControles" type="Button" parent="ControlsPanel/Margin/VBox/Footer"]
-material = ExtResource("16_glitch_mat")
+[node name="BtnVolverControles" type="Button" parent="ControlsPanel/Margin/VBox/Footer" unique_id=2045974137]
 texture_filter = 1
+material = ExtResource("16_glitch_mat")
 custom_minimum_size = Vector2(60, 38)
 layout_mode = 2
 mouse_default_cursor_shape = 2
-theme_override_styles/normal = SubResource("StyleBoxEmpty_volver")
-theme_override_styles/hover = SubResource("StyleBoxEmpty_volver")
-theme_override_styles/pressed = SubResource("StyleBoxEmpty_volver")
-theme_override_styles/focus = SubResource("StyleBoxEmpty_volver")
-theme_override_colors/icon_hover_color = Color(0.2, 0.95, 1, 1)
 theme_override_colors/icon_pressed_color = Color(1, 0.2, 0.5, 1)
+theme_override_colors/icon_hover_color = Color(0.2, 0.95, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxEmpty_volver")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_volver")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_volver")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_volver")
 icon = ExtResource("15_volver_tex")
 flat = true
-expand_icon = true
 icon_alignment = 1
-vertical_icon_alignment = 1
+expand_icon = true
 
-[node name="ConfigPanel" type="PanelContainer" parent="."]
+[node name="ConfigPanel" type="PanelContainer" parent="." unique_id=1264065880]
 visible = false
 custom_minimum_size = Vector2(800, 540)
 layout_mode = 1
@@ -616,31 +609,31 @@ grow_vertical = 2
 pivot_offset = Vector2(400, 270)
 theme_override_styles/panel = SubResource("StyleBoxEmpty_panel")
 
-[node name="CyberBackgroundFrame" parent="ConfigPanel" instance=ExtResource("13_bg_frame")]
+[node name="CyberBackgroundFrame" parent="ConfigPanel" unique_id=199358245 instance=ExtResource("13_bg_frame")]
 layout_mode = 2
 
-[node name="Margin" type="MarginContainer" parent="ConfigPanel"]
+[node name="Margin" type="MarginContainer" parent="ConfigPanel" unique_id=318173415]
 layout_mode = 2
 theme_override_constants/margin_left = 28
 theme_override_constants/margin_top = 22
 theme_override_constants/margin_right = 28
 theme_override_constants/margin_bottom = 22
 
-[node name="VBox" type="VBoxContainer" parent="ConfigPanel/Margin"]
+[node name="VBox" type="VBoxContainer" parent="ConfigPanel/Margin" unique_id=2002891314]
 layout_mode = 2
 theme_override_constants/separation = 14
 
-[node name="HeaderVBox" type="VBoxContainer" parent="ConfigPanel/Margin/VBox"]
+[node name="HeaderVBox" type="VBoxContainer" parent="ConfigPanel/Margin/VBox" unique_id=642922277]
 layout_mode = 2
 theme_override_constants/separation = 2
 
-[node name="Badge" type="Label" parent="ConfigPanel/Margin/VBox/HeaderVBox"]
+[node name="Badge" type="Label" parent="ConfigPanel/Margin/VBox/HeaderVBox" unique_id=1105042521]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.85, 0.1, 0.95, 1)
 theme_override_font_sizes/font_size = 11
 text = "[ SISTEMA // PANEL DE CONFIGURACIÓN ]"
 
-[node name="Title" type="Label" parent="ConfigPanel/Margin/VBox/HeaderVBox"]
+[node name="Title" type="Label" parent="ConfigPanel/Margin/VBox/HeaderVBox" unique_id=2100366850]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.12, 0.35, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
@@ -649,38 +642,38 @@ theme_override_fonts/font = ExtResource("9_title_font")
 theme_override_font_sizes/font_size = 22
 text = "CONFIGURACIÓN DEL SISTEMA"
 
-[node name="Sub" type="Label" parent="ConfigPanel/Margin/VBox/HeaderVBox"]
+[node name="Sub" type="Label" parent="ConfigPanel/Margin/VBox/HeaderVBox" unique_id=2011586331]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.85, 0.85, 0.92, 0.85)
 theme_override_font_sizes/font_size = 12
 text = "Ajustes de audio, pantalla completa y calibración de periféricos"
 
-[node name="HSeparator" type="HSeparator" parent="ConfigPanel/Margin/VBox"]
+[node name="HSeparator" type="HSeparator" parent="ConfigPanel/Margin/VBox" unique_id=1434316782]
 layout_mode = 2
 
-[node name="OptionsVBox" type="VBoxContainer" parent="ConfigPanel/Margin/VBox"]
+[node name="OptionsVBox" type="VBoxContainer" parent="ConfigPanel/Margin/VBox" unique_id=593817099]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 14
 
-[node name="MasterVolRow" type="HBoxContainer" parent="ConfigPanel/Margin/VBox/OptionsVBox"]
+[node name="MasterVolRow" type="HBoxContainer" parent="ConfigPanel/Margin/VBox/OptionsVBox" unique_id=1635298882]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="Lbl" type="Label" parent="ConfigPanel/Margin/VBox/OptionsVBox/MasterVolRow"]
+[node name="Lbl" type="Label" parent="ConfigPanel/Margin/VBox/OptionsVBox/MasterVolRow" unique_id=271280156]
 custom_minimum_size = Vector2(230, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.95, 0.95, 1, 1)
 theme_override_font_sizes/font_size = 13
 text = "VOLUMEN MAESTRO"
 
-[node name="SliderMaster" type="HSlider" parent="ConfigPanel/Margin/VBox/OptionsVBox/MasterVolRow"]
+[node name="SliderMaster" type="HSlider" parent="ConfigPanel/Margin/VBox/OptionsVBox/MasterVolRow" unique_id=1386221335]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
 value = 100.0
 
-[node name="LblVal" type="Label" parent="ConfigPanel/Margin/VBox/OptionsVBox/MasterVolRow"]
+[node name="LblVal" type="Label" parent="ConfigPanel/Margin/VBox/OptionsVBox/MasterVolRow" unique_id=1922283132]
 custom_minimum_size = Vector2(60, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0.9, 1, 1)
@@ -688,24 +681,24 @@ theme_override_font_sizes/font_size = 13
 text = "100%"
 horizontal_alignment = 2
 
-[node name="SFXVolRow" type="HBoxContainer" parent="ConfigPanel/Margin/VBox/OptionsVBox"]
+[node name="SFXVolRow" type="HBoxContainer" parent="ConfigPanel/Margin/VBox/OptionsVBox" unique_id=2042226001]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="Lbl" type="Label" parent="ConfigPanel/Margin/VBox/OptionsVBox/SFXVolRow"]
+[node name="Lbl" type="Label" parent="ConfigPanel/Margin/VBox/OptionsVBox/SFXVolRow" unique_id=487226620]
 custom_minimum_size = Vector2(230, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.95, 0.95, 1, 1)
 theme_override_font_sizes/font_size = 13
 text = "EFECTOS DE SONIDO (SFX)"
 
-[node name="SliderSFX" type="HSlider" parent="ConfigPanel/Margin/VBox/OptionsVBox/SFXVolRow"]
+[node name="SliderSFX" type="HSlider" parent="ConfigPanel/Margin/VBox/OptionsVBox/SFXVolRow" unique_id=1015416291]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
 value = 100.0
 
-[node name="LblVal" type="Label" parent="ConfigPanel/Margin/VBox/OptionsVBox/SFXVolRow"]
+[node name="LblVal" type="Label" parent="ConfigPanel/Margin/VBox/OptionsVBox/SFXVolRow" unique_id=606894296]
 custom_minimum_size = Vector2(60, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0.9, 1, 1)
@@ -713,38 +706,42 @@ theme_override_font_sizes/font_size = 13
 text = "100%"
 horizontal_alignment = 2
 
-[node name="FullscreenRow" type="HBoxContainer" parent="ConfigPanel/Margin/VBox/OptionsVBox"]
+[node name="FullscreenRow" type="HBoxContainer" parent="ConfigPanel/Margin/VBox/OptionsVBox" unique_id=470873337]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="Lbl" type="Label" parent="ConfigPanel/Margin/VBox/OptionsVBox/FullscreenRow"]
+[node name="Lbl" type="Label" parent="ConfigPanel/Margin/VBox/OptionsVBox/FullscreenRow" unique_id=500398789]
 custom_minimum_size = Vector2(230, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.95, 0.95, 1, 1)
 theme_override_font_sizes/font_size = 13
 text = "MODO DE PANTALLA"
 
-[node name="BtnFullscreen" type="Button" parent="ConfigPanel/Margin/VBox/OptionsVBox/FullscreenRow"]
+[node name="BtnFullscreen" type="Button" parent="ConfigPanel/Margin/VBox/OptionsVBox/FullscreenRow" unique_id=670651932]
 custom_minimum_size = Vector2(320, 38)
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0, 0, 0, 0)
+theme_override_colors/font_focus_color = Color(0, 0, 0, 0)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 0)
+theme_override_colors/font_hover_color = Color(0, 0, 0, 0)
 text = "PANTALLA: [ MODO VENTANA ]"
 flat = true
 script = ExtResource("14_cbtn")
 slant = 12.0
 
-[node name="MouseSensRow" type="HBoxContainer" parent="ConfigPanel/Margin/VBox/OptionsVBox"]
+[node name="MouseSensRow" type="HBoxContainer" parent="ConfigPanel/Margin/VBox/OptionsVBox" unique_id=101672272]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="Lbl" type="Label" parent="ConfigPanel/Margin/VBox/OptionsVBox/MouseSensRow"]
+[node name="Lbl" type="Label" parent="ConfigPanel/Margin/VBox/OptionsVBox/MouseSensRow" unique_id=550781401]
 custom_minimum_size = Vector2(230, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.95, 0.95, 1, 1)
 theme_override_font_sizes/font_size = 13
 text = "SENSIBILIDAD DE CÁMARA"
 
-[node name="SliderSens" type="HSlider" parent="ConfigPanel/Margin/VBox/OptionsVBox/MouseSensRow"]
+[node name="SliderSens" type="HSlider" parent="ConfigPanel/Margin/VBox/OptionsVBox/MouseSensRow" unique_id=1250140515]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
@@ -753,7 +750,7 @@ max_value = 300.0
 step = 5.0
 value = 100.0
 
-[node name="LblVal" type="Label" parent="ConfigPanel/Margin/VBox/OptionsVBox/MouseSensRow"]
+[node name="LblVal" type="Label" parent="ConfigPanel/Margin/VBox/OptionsVBox/MouseSensRow" unique_id=1291043530]
 custom_minimum_size = Vector2(60, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.2, 0.5, 1)
@@ -761,44 +758,47 @@ theme_override_font_sizes/font_size = 13
 text = "1.0x"
 horizontal_alignment = 2
 
-[node name="HoloRow" type="HBoxContainer" parent="ConfigPanel/Margin/VBox/OptionsVBox"]
+[node name="HoloRow" type="HBoxContainer" parent="ConfigPanel/Margin/VBox/OptionsVBox" unique_id=667222494]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="Lbl" type="Label" parent="ConfigPanel/Margin/VBox/OptionsVBox/HoloRow"]
+[node name="Lbl" type="Label" parent="ConfigPanel/Margin/VBox/OptionsVBox/HoloRow" unique_id=1640639855]
 custom_minimum_size = Vector2(230, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.95, 0.95, 1, 1)
 theme_override_font_sizes/font_size = 13
 text = "SHADERS HOLOGRÁFICOS"
 
-[node name="BtnHolo" type="Button" parent="ConfigPanel/Margin/VBox/OptionsVBox/HoloRow"]
+[node name="BtnHolo" type="Button" parent="ConfigPanel/Margin/VBox/OptionsVBox/HoloRow" unique_id=291138506]
 custom_minimum_size = Vector2(320, 38)
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0, 0, 0, 0)
+theme_override_colors/font_focus_color = Color(0, 0, 0, 0)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 0)
+theme_override_colors/font_hover_color = Color(0, 0, 0, 0)
 text = "ESTADO: [ ALTA DEFINICIÓN ]"
 flat = true
 script = ExtResource("14_cbtn")
 slant = 12.0
 
-[node name="Footer" type="HBoxContainer" parent="ConfigPanel/Margin/VBox"]
+[node name="Footer" type="HBoxContainer" parent="ConfigPanel/Margin/VBox" unique_id=660271009]
 layout_mode = 2
 alignment = 1
 
-[node name="BtnVolverConfig" type="Button" parent="ConfigPanel/Margin/VBox/Footer"]
-material = ExtResource("16_glitch_mat")
+[node name="BtnVolverConfig" type="Button" parent="ConfigPanel/Margin/VBox/Footer" unique_id=867581164]
 texture_filter = 1
+material = ExtResource("16_glitch_mat")
 custom_minimum_size = Vector2(60, 38)
 layout_mode = 2
 mouse_default_cursor_shape = 2
-theme_override_styles/normal = SubResource("StyleBoxEmpty_volver")
-theme_override_styles/hover = SubResource("StyleBoxEmpty_volver")
-theme_override_styles/pressed = SubResource("StyleBoxEmpty_volver")
-theme_override_styles/focus = SubResource("StyleBoxEmpty_volver")
-theme_override_colors/icon_hover_color = Color(0.2, 0.95, 1, 1)
 theme_override_colors/icon_pressed_color = Color(1, 0.2, 0.5, 1)
+theme_override_colors/icon_hover_color = Color(0.2, 0.95, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxEmpty_volver")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_volver")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_volver")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_volver")
 icon = ExtResource("15_volver_tex")
 flat = true
-expand_icon = true
 icon_alignment = 1
-vertical_icon_alignment = 1
+expand_icon = true

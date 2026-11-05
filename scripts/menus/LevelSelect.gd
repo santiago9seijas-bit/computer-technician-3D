@@ -983,16 +983,16 @@ func _ready() -> void:
 	btn_sistema.pressed.connect(func(): _switch_mode("sistema"))
 	btn_servidor.pressed.connect(func(): _switch_mode("servidor"))
 	
-	# --- Música de selección de nivel ---
+	# --- Efecto de selección de modo / tecnoeffect ---
 	_music_player = AudioStreamPlayer.new()
-	if ResourceLoader.exists("res://efectos/seleccion de nivel.ogg"):
-		_music_player.stream = load("res://efectos/seleccion de nivel.ogg")
-	_music_player.volume_db = -8.0
+	if ResourceLoader.exists("res://efectos/tecnoeffect.ogg"):
+		_music_player.stream = load("res://efectos/tecnoeffect.ogg")
+	elif ResourceLoader.exists("res://sonidos/tecnoeffect.ogg"):
+		_music_player.stream = load("res://sonidos/tecnoeffect.ogg")
+	_music_player.volume_db = -4.0
 	_music_player.bus = "Master"
 	_music_player.autoplay = false
 	add_child(_music_player)
-	_music_player.finished.connect(_music_player.play)
-	_play_level_select_music()
 	
 	# Modales
 	if card_dim_overlay:

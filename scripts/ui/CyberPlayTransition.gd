@@ -45,6 +45,25 @@ func _play_entry_sfx() -> void:
 	player.play()
 	player.finished.connect(player.queue_free)
 
+# Sonido posterior a la animación (tecnoeffect al completar la animación de play)
+func _play_tecnoeffect_sfx() -> void:
+	var stream: AudioStream = null
+	if ResourceLoader.exists("res://efectos/tecnoeffect.ogg"):
+		stream = load("res://efectos/tecnoeffect.ogg")
+	elif ResourceLoader.exists("res://sonidos/tecnoeffect.ogg"):
+		stream = load("res://sonidos/tecnoeffect.ogg")
+	if not stream:
+		return
+	var player = AudioStreamPlayer.new()
+	player.stream = stream
+	player.volume_db = -4.0
+	player.bus = "Master"
+	var current_tree = _tree if _tree else get_tree()
+	if current_tree and current_tree.root:
+		current_tree.root.add_child(player)
+		player.play()
+		player.finished.connect(player.queue_free)
+
 func _start_sequence(
 	tree: SceneTree,
 	target_scene_path: String,
@@ -417,8 +436,9 @@ func _start_sequence(
 	tw.tween_property(shutter_bot, "position:y", screen_h + 20.0, 0.38).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN).set_delay(0.08)
 	tw.tween_property(bg_overlay, "color:a", 0.0, 0.32).set_delay(0.1)
 	
-	# 8. Liberación y finalización
+	# 8. Liberación y finalización (reproduce tecnoeffect tras abrirse compuertas y revelar escena)
 	tw.chain().tween_callback(func():
+		_play_tecnoeffect_sfx()
 		if on_finished.is_valid():
 			on_finished.call()
 		queue_free()
