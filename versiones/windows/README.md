@@ -26,6 +26,13 @@ En este directorio se mantiene el registro y métodos de descarga de todas las v
 
 ## 🗄️ Historial de Versiones Anteriores
 
+### 📦 Versión 0.0.8 Alpha
+- **Nombre de la versión:** `Version 0.0.8 Alpha`
+- **Archivo:** `ComputerTechnician3D-Windows-v0.0.8-alpha.zip`
+- 👉 **[Descargar ComputerTechnician3D-Windows-v0.0.8-alpha.zip](https://github.com/santiago9seijas-bit/computer-technician-3D/releases/download/v0.0.8-alpha/ComputerTechnician3D-Windows-v0.0.8-alpha.zip)**
+
+---
+
 ### 📦 Versión 0.0.7 Alpha
 - **Nombre de la versión:** `Version 0.0.7 Alpha`
 - **Archivo:** `ComputerTechnician3D-Windows-v0.0.7-alpha.zip`
