@@ -6,10 +6,10 @@
 [ext_resource type="FontFile" uid="uid://dbcug8887dro7" path="res://assets/fonts/Bungee-Regular.ttf" id="4_title_font"]
 [ext_resource type="PackedScene" path="res://scenes/ui/CyberBackgroundFrame.tscn" id="5_bg_frame"]
 [ext_resource type="Script" path="res://scripts/menus/CyberCircleToolButton.gd" id="6_circle_btn"]
-[ext_resource type="Texture2D" uid="uid://fhmvb4vcarjv" path="res://pixel art escenario/circulo de objeto .png" id="7_circulo_obj"]
-[ext_resource type="Texture2D" uid="uid://d22ex8vx2lte6" path="res://pixel art escenario/decoracion/reparacion emoticono.png" id="8_ico_reparacion"]
-[ext_resource type="Texture2D" uid="uid://cv6ghw3qgaue3" path="res://pixel art escenario/decoracion/emoticono de rayo.png" id="9_ico_rayo"]
-[ext_resource type="Texture2D" uid="uid://c4cxur3v6xicp" path="res://pixel art escenario/decoracion/emoticono de limpiezakra.png" id="10_ico_limpieza"]
+[ext_resource type="Texture2D" uid="uid://fhmvb4vcarjv" path="res://pixel art menus/pantalla/circulo de objeto .png" id="7_circulo_obj"]
+[ext_resource type="Texture2D" uid="uid://d22ex8vx2lte6" path="res://pixel art menus/decoracion/reparacion emoticono.png" id="8_ico_reparacion"]
+[ext_resource type="Texture2D" uid="uid://cv6ghw3qgaue3" path="res://pixel art menus/decoracion/emoticono de rayo.png" id="9_ico_rayo"]
+[ext_resource type="Texture2D" uid="uid://c4cxur3v6xicp" path="res://pixel art menus/decoracion/emoticono de limpiezakra.png" id="10_ico_limpieza"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_frame"]
 content_margin_left = 20.0

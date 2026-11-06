@@ -44,8 +44,8 @@ var default_psu_x: float = 0.0
 var is_dragging_psu: bool = false
 var drag_start_x: float = 0.0
 
-var tex_screw_cruz = preload("res://pixel art minijuegos/tornillo de cruz.png")
-var tex_screw_pala = preload("res://pixel art minijuegos/tornillo de pala.png")
+var tex_screw_cruz = preload("res://pixel art minijuegos/tornillos/tornillo de cruz.png")
+var tex_screw_pala = preload("res://pixel art minijuegos/tornillos/tornillo de pala.png")
 var voltimeter_minigame_scene = preload("res://scenes/minigames/VoltimeterMinigame.tscn")
 
 # Nodos

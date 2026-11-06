@@ -6,7 +6,7 @@
 [ext_resource type="FontFile" uid="uid://dbcug8887dro7" path="res://assets/fonts/Bungee-Regular.ttf" id="4_title_font"]
 [ext_resource type="Material" uid="uid://cglitchmat8211" path="res://styles/cyber_glitch_sprite.tres" id="5_glitch_mat"]
 [ext_resource type="PackedScene" path="res://scenes/ui/CyberBackgroundFrame.tscn" id="6_bg_frame"]
-[ext_resource type="Texture2D" uid="uid://dmrt507recfdq" path="res://pixel art escenario/boton de volver.png" id="7_volver_tex"]
+[ext_resource type="Texture2D" uid="uid://dmrt507recfdq" path="res://pixel art menus/menus/boton de volver.png" id="7_volver_tex"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_deployed"]
 content_margin_left = 22.0

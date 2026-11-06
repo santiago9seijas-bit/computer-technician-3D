@@ -20,25 +20,25 @@ signal minigame_finished(success: bool)
 @onready var btn_cancel: Button = $ModalControl/Panel/VBox/Footer/BtnCancel
 
 const TEX_RAM: Texture2D = preload("res://pixel art minijuegos/ram.png")
-const TEX_FUENTE_CERRADA: Texture2D = preload("res://pixel art minijuegos/fuente cerrada.png")
-const TEX_FUENTE_ABIERTA: Texture2D = preload("res://pixel art minijuegos/fuente abierta.png")
+const TEX_FUENTE_CERRADA: Texture2D = preload("res://pixel art minijuegos/fuente/fuente cerrada.png")
+const TEX_FUENTE_ABIERTA: Texture2D = preload("res://pixel art minijuegos/fuente/fuente abierta.png")
 
 # =============================================================================
 # SPRITES DE PELUSA EN PIXEL ART
 # =============================================================================
 const DUST_SPRITES: Array[Dictionary] = [
 	{
-		"texture": preload("res://pixel art minijuegos/pelusa grande.png"),
+		"texture": preload("res://pixel art minijuegos/pelusa/pelusa grande.png"),
 		"base_size": Vector2(98, 82),
 		"type": "grande"
 	},
 	{
-		"texture": preload("res://pixel art minijuegos/pelusa mediana.png"),
+		"texture": preload("res://pixel art minijuegos/pelusa/pelusa mediana.png"),
 		"base_size": Vector2(80, 50),
 		"type": "mediana"
 	},
 	{
-		"texture": preload("res://pixel art minijuegos/pelusa pequeña.png"),
+		"texture": preload("res://pixel art minijuegos/pelusa/pelusa pequeña.png"),
 		"base_size": Vector2(60, 44),
 		"type": "pequeña"
 	}

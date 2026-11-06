@@ -94,8 +94,8 @@ var is_dragging_mobo: bool = false
 var drag_start_y: float = 0.0
 
 # Texturas
-var tex_screw_cruz = preload("res://pixel art minijuegos/tornillo de cruz.png")
-var tex_screw_pala = preload("res://pixel art minijuegos/tornillo de pala.png")
+var tex_screw_cruz = preload("res://pixel art minijuegos/tornillos/tornillo de cruz.png")
+var tex_screw_pala = preload("res://pixel art minijuegos/tornillos/tornillo de pala.png")
 
 # Nodos UI
 @onready var modal_control: Control = $ModalControl

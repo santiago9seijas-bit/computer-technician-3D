@@ -1,6 +1,6 @@
 [gd_scene format=3 load_steps=4]
 
-[ext_resource type="Texture2D" uid="uid://1yynh63w76pw" path="res://pixel art escenario/fondos de menus.png" id="1_tex"]
+[ext_resource type="Texture2D" uid="uid://1yynh63w76pw" path="res://pixel art menus/menus/fondos de menus.png" id="1_tex"]
 [ext_resource type="Material" path="res://styles/cyber_panel_hologram.tres" id="2_mat"]
 
 [node name="CyberBackgroundFrame" type="NinePatchRect"]

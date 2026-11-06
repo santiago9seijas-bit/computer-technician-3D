@@ -55,11 +55,11 @@ var glitch_material = preload("res://styles/cyber_glitch_sprite.tres")
 var title_font = preload("res://assets/fonts/Bungee-Regular.ttf")
 
 var PRELOADED_TEXTURES = {
-	"res://pixel art minijuegos/fancooler conectado.png": preload("res://pixel art minijuegos/fancooler conectado.png"),
+	"res://pixel art minijuegos/fancooler/fancooler conectado.png": preload("res://pixel art minijuegos/fancooler/fancooler conectado.png"),
 	"res://pixel art minijuegos/ram.png": preload("res://pixel art minijuegos/ram.png"),
 	"res://pixel art minijuegos/hdd.png": preload("res://pixel art minijuegos/hdd.png"),
-	"res://pixel art minijuegos/pelusa grande.png": preload("res://pixel art minijuegos/pelusa grande.png"),
-	"res://pixel art escenario/fondos de menus.png": preload("res://pixel art escenario/fondos de menus.png")
+	"res://pixel art minijuegos/pelusa/pelusa grande.png": preload("res://pixel art minijuegos/pelusa/pelusa grande.png"),
+	"res://pixel art menus/menus/fondos de menus.png": preload("res://pixel art menus/menus/fondos de menus.png")
 }
 
 # Carga bajo demanda de escenas de minijuegos para garantizar 0 ms al alternar pestañas
@@ -513,7 +513,7 @@ var ALL_TUTORIAL_CARDS: Array[Dictionary] = [
 		"title": "FAN COOLER",
 		"subtitle": "DISIPADOR TÉRMICO ACTIVO PWM",
 		"category": "REFRIGERACIÓN",
-		"texture_path": "res://pixel art minijuegos/fancooler conectado.png",
+		"texture_path": "res://pixel art minijuegos/fancooler/fancooler conectado.png",
 		"color_accent": Color(1.0, 0.15, 0.35, 1.0),
 		"que_es": "Disipador de aleación metálica (aluminio/cobre) acoplado mecánicamente sobre el microprocesador con ventilador de velocidad regulada.",
 		"importancia": "CRÍTICA: Sin disipador activo, la CPU supera los 95°C en segundos, provocando apagados forzados de emergencia o degradación irreversible del silicio.",
@@ -695,7 +695,7 @@ var ALL_TUTORIAL_CARDS: Array[Dictionary] = [
 		"title": "DESOBSTRUCCIÓN DE PELUSA",
 		"subtitle": "LIMPIEZA DE DISIPADORES & ALETAS",
 		"category": "MANTENIMIENTO TÉRMICO",
-		"texture_path": "res://pixel art minijuegos/pelusa grande.png",
+		"texture_path": "res://pixel art minijuegos/pelusa/pelusa grande.png",
 		"color_accent": Color(0.2, 0.95, 0.7, 1.0),
 		"que_es": "Limpieza profunda de cúmulos de pelusa, polvo apelmazado y fibras alojadas entre las aletas de disipación y aspas.",
 		"importancia": "MÁXIMA: Las aletas de aluminio tupidas por pelusa estrangulan el flujo de aire, provocando sobrecalentamiento crítico de más de 95°C y thermal throttling.",
@@ -710,7 +710,7 @@ var ALL_TUTORIAL_CARDS: Array[Dictionary] = [
 		"title": "LIMPIEZA DE RAM",
 		"subtitle": "DESOBSTRUCCIÓN DE PELUSA Y PINES DDR",
 		"category": "MANTENIMIENTO DE MEMORIA",
-		"texture_path": "res://pixel art minijuegos/pelusa grande.png",
+		"texture_path": "res://pixel art minijuegos/pelusa/pelusa grande.png",
 		"color_accent": Color(0.2, 0.95, 0.7, 1.0),
 		"que_es": "Limpieza profunda de cúmulos de pelusa, polvo apelmazado y fibras alojadas sobre los chips y contactos dorados de la memoria RAM.",
 		"importancia": "MÁXIMA: La pelusa acumulada retiene humedad y estática, provocando falsos contactos en las líneas de datos DDR, errores de paridad, pantallas azules (BSOD) o reinicios inesperados.",
@@ -1458,7 +1458,7 @@ func _create_card_slot() -> Button:
 	bg_frame.name = "CyberBg"
 	bg_frame.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	bg_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	bg_frame.texture = PRELOADED_TEXTURES.get("res://pixel art escenario/fondos de menus.png")
+	bg_frame.texture = PRELOADED_TEXTURES.get("res://pixel art menus/menus/fondos de menus.png")
 	bg_frame.material = preload("res://styles/cyber_panel_hologram.tres")
 	bg_frame.patch_margin_left = 32
 	bg_frame.patch_margin_top = 32

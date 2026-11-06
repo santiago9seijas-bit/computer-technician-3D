@@ -26,7 +26,7 @@ var is_standoff_screw_removed: bool = false
 var is_sprung_up: bool = false
 var is_extracted: bool = false
 
-var tex_screw_cruz = preload("res://pixel art minijuegos/tornillo de cruz.png")
+var tex_screw_cruz = preload("res://pixel art minijuegos/tornillos/tornillo de cruz.png")
 
 # Nodos
 @onready var modal_control: Control = $ModalControl

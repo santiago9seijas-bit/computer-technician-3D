@@ -29,11 +29,11 @@ var screw_types: Array[String] = ["cruz", "cruz", "pala", "cruz"]
 var screws_removed: Array[bool] = [false, false, false, false]
 
 # Referencias a texturas
-var tex_cooler_connected = preload("res://pixel art minijuegos/fancooler conectado.png")
-var tex_cooler_disconnected = preload("res://pixel art minijuegos/fancooler.png")
-var tex_screw_cruz = preload("res://pixel art minijuegos/tornillo de cruz.png")
-var tex_screw_pala = preload("res://pixel art minijuegos/tornillo de pala.png")
-var tex_cooler_frame = preload("res://pixel art minijuegos/cuadro de fancoolerpng.png")
+var tex_cooler_connected = preload("res://pixel art minijuegos/fancooler/fancooler conectado.png")
+var tex_cooler_disconnected = preload("res://pixel art minijuegos/fancooler/fancooler.png")
+var tex_screw_cruz = preload("res://pixel art minijuegos/tornillos/tornillo de cruz.png")
+var tex_screw_pala = preload("res://pixel art minijuegos/tornillos/tornillo de pala.png")
+var tex_cooler_frame = preload("res://pixel art minijuegos/fancooler/cuadro de fancoolerpng.png")
 var voltimeter_minigame_scene = preload("res://scenes/minigames/VoltimeterMinigame.tscn")
 
 # Nodos de la escena

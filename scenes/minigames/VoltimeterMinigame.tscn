@@ -5,9 +5,9 @@
 [ext_resource type="FontFile" uid="uid://dbcug8887dro7" path="res://assets/fonts/Bungee-Regular.ttf" id="3_title_font"]
 [ext_resource type="PackedScene" path="res://scenes/ui/CyberBackgroundFrame.tscn" id="4_bg_frame"]
 [ext_resource type="Script" path="res://scripts/menus/CyberButton.gd" id="5_cbtn"]
-[ext_resource type="Texture2D" uid="uid://to8xf8wiw4io" path="res://pixel art minijuegos/circulo de voltimetro.png" id="6_circulo_tex"]
-[ext_resource type="Texture2D" uid="uid://dph11i2ekulpm" path="res://pixel art minijuegos/marca voltimetro.png" id="7_marca_tex"]
-[ext_resource type="Texture2D" uid="uid://blx77k0jo4rwp" path="res://pixel art minijuegos/flecha de voltimetro.png" id="8_flecha_tex"]
+[ext_resource type="Texture2D" uid="uid://to8xf8wiw4io" path="res://pixel art minijuegos/voltimetro/circulo de voltimetro.png" id="6_circulo_tex"]
+[ext_resource type="Texture2D" uid="uid://dph11i2ekulpm" path="res://pixel art minijuegos/voltimetro/marca voltimetro.png" id="7_marca_tex"]
+[ext_resource type="Texture2D" uid="uid://blx77k0jo4rwp" path="res://pixel art minijuegos/voltimetro/flecha de voltimetro.png" id="8_flecha_tex"]
 [ext_resource type="Material" uid="uid://5ra4e5h4fgni" path="res://styles/cyber_glitch_sprite.tres" id="9_glitch_mat"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_frame"]

@@ -157,8 +157,8 @@ func _update_visuals() -> void:
 	if circle_rect:
 		if circle_texture:
 			circle_rect.texture = circle_texture
-		elif ResourceLoader.exists("res://pixel art escenario/circulo de objeto .png"):
-			circle_rect.texture = load("res://pixel art escenario/circulo de objeto .png")
+		elif ResourceLoader.exists("res://pixel art menus/pantalla/circulo de objeto .png"):
+			circle_rect.texture = load("res://pixel art menus/pantalla/circulo de objeto .png")
 			
 	if icon_rect:
 		icon_rect.texture = icon_texture
