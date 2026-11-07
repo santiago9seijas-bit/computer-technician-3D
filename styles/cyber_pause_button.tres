@@ -1,0 +1,13 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3]
+
+[ext_resource type="Shader" path="res://styles/cyber_pause_button.gdshader" id="1_btn_sh"]
+
+[resource]
+shader = ExtResource("1_btn_sh")
+shader_parameter/idle_alpha = 0.58
+shader_parameter/hover_alpha = 0.88
+shader_parameter/scanline_speed = 3.5
+shader_parameter/chromatic_shift = 1.8
+shader_parameter/border_glow_color = Color(1, 0.12, 0.25, 1)
+shader_parameter/inner_gradient_top = Color(0.2, 0.01, 0.06, 0.9)
+shader_parameter/inner_gradient_bottom = Color(0.05, 0.005, 0.02, 0.95)

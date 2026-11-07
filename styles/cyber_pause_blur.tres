@@ -1,0 +1,8 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3]
+
+[ext_resource type="Shader" path="res://styles/cyber_pause_blur.gdshader" id="1_blur"]
+
+[resource]
+shader = ExtResource("1_blur")
+shader_parameter/blur_amount = 2.6
+shader_parameter/dim_color = Color(0.03, 0.01, 0.07, 0.76)

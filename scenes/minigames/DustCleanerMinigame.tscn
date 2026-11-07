@@ -61,6 +61,7 @@ grow_vertical = 2
 color = Color(0.02, 0.04, 0.08, 0.95)
 
 [node name="Panel" type="PanelContainer" parent="ModalControl"]
+custom_minimum_size = Vector2(920, 640)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5

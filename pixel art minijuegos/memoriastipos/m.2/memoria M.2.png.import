@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b241x3knq7u01"
-path="res://.godot/imported/ram.png-fe565dd8855063e238d6cf16f0fa0e22.ctex"
+uid="uid://b1pj41xlrukgf"
+path="res://.godot/imported/memoria M.2.png-3124b798762502501594c906be4fd6f1.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://pixel art minijuegos/ram.png"
-dest_files=["res://.godot/imported/ram.png-fe565dd8855063e238d6cf16f0fa0e22.ctex"]
+source_file="res://pixel art minijuegos/memoriastipos/m.2/memoria M.2.png"
+dest_files=["res://.godot/imported/memoria M.2.png-3124b798762502501594c906be4fd6f1.ctex"]
 
 [params]
 

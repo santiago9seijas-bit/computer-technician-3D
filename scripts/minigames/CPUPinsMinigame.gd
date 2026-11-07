@@ -10,13 +10,23 @@ extends CanvasLayer
 
 signal minigame_finished(success: bool)
 
+const TEX_PIN: Texture2D = preload("res://pixel art minijuegos/limpiezaprofunda/pines/pines.png")
+const TEX_FONDO: Texture2D = preload("res://pixel art minijuegos/limpiezaprofunda/pines/fondo gris.png")
+const TEX_LENTE: Texture2D = preload("res://pixel art minijuegos/limpiezaprofunda/pines/lente.png")
+
 @onready var status_label: Label = $ModalControl/Panel/VBox/Header/StatusLabel
 @onready var progress_label: Label = $ModalControl/Panel/VBox/Header/ProgressLabel
 @onready var progress_bar: ProgressBar = $ModalControl/Panel/VBox/Header/ProgressBar
+@onready var work_area: Control = $ModalControl/Panel/VBox/WorkArea
+@onready var socket_frame: PanelContainer = $ModalControl/Panel/VBox/WorkArea/SocketFrame
 @onready var grid_container: GridContainer = $ModalControl/Panel/VBox/WorkArea/SocketFrame/Margin/PinGrid
+@onready var lente_overlay: TextureRect = $ModalControl/Panel/VBox/WorkArea/LenteOverlay
+@onready var microscope_iris: ColorRect = $ModalControl/Panel/VBox/WorkArea/MicroscopeIris
 @onready var warning_label: Label = $ModalControl/Panel/VBox/WarningLabel
 @onready var victory_banner: PanelContainer = $ModalControl/Panel/VBox/VictoryBanner
 @onready var btn_cancel: Button = $ModalControl/Panel/VBox/Footer/BtnCancel
+
+var lens_idle_tween: Tween = null
 
 const GRID_ROWS: int = 8
 const GRID_COLS: int = 10
@@ -50,6 +60,54 @@ func _ready() -> void:
 	
 	_build_pin_matrix()
 	_update_ui()
+	_play_microscope_intro_animation.call_deferred()
+
+func _play_microscope_intro_animation() -> void:
+	if not is_instance_valid(socket_frame) or not is_instance_valid(lente_overlay):
+		return
+		
+	if is_instance_valid(microscope_iris):
+		microscope_iris.visible = true
+		microscope_iris.modulate.a = 1.0
+		
+	socket_frame.pivot_offset = socket_frame.size * 0.5
+	socket_frame.scale = Vector2(1.15, 1.15)
+	socket_frame.modulate = Color(0.65, 0.85, 1.1, 0.3)
+	
+	lente_overlay.pivot_offset = Vector2(511.0, 316.0)
+	lente_overlay.scale = Vector2(1.18, 1.18)
+	lente_overlay.modulate = Color(1.2, 1.3, 1.5, 0.6)
+	
+	status_label.text = "🔬 AJUSTANDO ENFOQUE DE MICROSCOPIO (100x)..."
+	status_label.modulate = Color(0.0, 0.9, 1.0, 1.0)
+	
+	var tw = create_tween()
+	if is_instance_valid(microscope_iris):
+		tw.parallel().tween_property(microscope_iris, "modulate:a", 0.0, 0.3).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tw.parallel().tween_property(socket_frame, "scale", Vector2(0.97, 0.97), 0.25).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+	tw.parallel().tween_property(lente_overlay, "scale", Vector2(0.98, 0.98), 0.25).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+	tw.parallel().tween_property(socket_frame, "modulate", Color(1.0, 1.0, 1.0, 1.0), 0.28)
+	
+	tw.chain().tween_property(socket_frame, "scale", Vector2(1.0, 1.0), 0.2).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tw.parallel().tween_property(lente_overlay, "scale", Vector2(1.0, 1.0), 0.2).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tw.parallel().tween_property(lente_overlay, "modulate", Color(1.0, 1.0, 1.0, 1.0), 0.2)
+	
+	tw.chain().tween_callback(func():
+		if is_instance_valid(microscope_iris):
+			microscope_iris.visible = false
+		status_label.text = "✓ ¡ENFOQUE 100x CALIBRADO! Haz clic en los pines doblados para enderezarlos a 90°."
+		status_label.modulate = Color(0.2, 1.0, 0.5, 1.0)
+		_start_lens_idle_breathing()
+	)
+
+func _start_lens_idle_breathing() -> void:
+	if not is_instance_valid(lente_overlay):
+		return
+	if is_instance_valid(lens_idle_tween):
+		lens_idle_tween.kill()
+	lens_idle_tween = create_tween().set_loops()
+	lens_idle_tween.tween_property(lente_overlay, "scale", Vector2(1.008, 1.008), 2.0).set_trans(Tween.TRANS_SINE)
+	lens_idle_tween.tween_property(lente_overlay, "scale", Vector2(0.995, 0.995), 2.0).set_trans(Tween.TRANS_SINE)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel") or (event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE):
@@ -64,49 +122,35 @@ func _build_pin_matrix() -> void:
 	for r in range(GRID_ROWS):
 		for c in range(GRID_COLS):
 			var bent_info = _get_bent_info(r, c)
-			var is_bent = (bent_info != null)
+			var is_bent = (bent_info != null and not bent_info.is_empty())
 			
 			var pin_btn = Button.new()
-			pin_btn.custom_minimum_size = Vector2(48, 48)
+			pin_btn.custom_minimum_size = Vector2(38, 30)
 			pin_btn.flat = true
 			pin_btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 			
-			# Contenedor visual del pin
-			var pin_visual = Panel.new()
-			pin_visual.name = "Visual"
-			pin_visual.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			pin_visual.anchors_preset = Control.PRESET_FULL_RECT
-			
-			var sb = StyleBoxFlat.new()
-			sb.set_corner_radius_all(24)
-			sb.bg_color = Color(0.12, 0.14, 0.18, 0.95)
-			sb.border_width_left = 2
-			sb.border_width_top = 2
-			sb.border_width_right = 2
-			sb.border_width_bottom = 2
-			
-			# Pin gráfico central (aguja / punto dorado)
-			var pin_core = ColorRect.new()
-			pin_core.name = "PinCore"
-			pin_core.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			pin_core.custom_minimum_size = Vector2(8, 22)
-			pin_core.pivot_offset = Vector2(4, 20)
-			pin_core.position = Vector2(20, 13)
+			# Pin gráfico con sprite pines.png
+			var pin_sprite = TextureRect.new()
+			pin_sprite.name = "PinSprite"
+			pin_sprite.texture = TEX_PIN
+			pin_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+			pin_sprite.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			pin_sprite.custom_minimum_size = Vector2(22, 28)
+			pin_sprite.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			pin_sprite.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			pin_sprite.position = Vector2(8, 1)
+			pin_sprite.pivot_offset = Vector2(11, 25) # Pivote en la base del pin
 			
 			if is_bent:
-				sb.border_color = Color(1.0, 0.35, 0.1, 0.9)
-				pin_core.color = Color(1.0, 0.4, 0.1, 1.0)
-				pin_core.rotation_degrees = float(bent_info.get("angle", 0.0))
-				pin_btn.tooltip_text = "⚠️ Pin doblado (%d°). ¡Haz clic para enderezarlo!" % int(bent_info.get("angle", 0.0))
+				pin_sprite.rotation_degrees = float(bent_info.get("angle", 0.0))
+				pin_sprite.modulate = Color(1.3, 0.45, 0.15, 1.0)
+				pin_btn.tooltip_text = "⚠️ Pin doblado (%d°). ¡Usa la pinza para enderezarlo a 90°!" % int(bent_info.get("angle", 0.0))
 			else:
-				sb.border_color = Color(0.2, 0.7, 0.4, 0.4)
-				pin_core.color = Color(0.9, 0.8, 0.3, 0.85)
-				pin_core.rotation_degrees = 0.0
+				pin_sprite.rotation_degrees = 0.0
+				pin_sprite.modulate = Color(1.0, 1.0, 1.0, 0.95)
 				pin_btn.tooltip_text = "Pin alineado a 90° ✓"
 				
-			pin_visual.add_theme_stylebox_override("panel", sb)
-			pin_visual.add_child(pin_core)
-			pin_btn.add_child(pin_visual)
+			pin_btn.add_child(pin_sprite)
 			
 			var pin_coord = Vector2i(r, c)
 			pin_btn.pressed.connect(func(): _on_pin_clicked(pin_coord))
@@ -137,18 +181,19 @@ func _on_pin_clicked(coord: Vector2i) -> void:
 	fixed_pins_count += 1
 	
 	var pin_btn = pin_nodes[coord] as Button
-	var visual = pin_btn.get_node("Visual") as Panel
-	var pin_core = visual.get_node("PinCore") as ColorRect
+	var pin_sprite = pin_btn.get_node_or_null("PinSprite") as TextureRect
 	
-	var tw = create_tween().set_parallel(true)
-	tw.tween_property(pin_core, "rotation_degrees", 0.0, 0.25).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	tw.tween_property(pin_core, "color", Color(0.2, 1.0, 0.5), 0.25)
+	if pin_sprite:
+		var tw = create_tween().set_parallel(true)
+		tw.tween_property(pin_sprite, "rotation_degrees", 0.0, 0.28).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		tw.tween_property(pin_sprite, "modulate", Color(0.2, 1.4, 0.6, 1.0), 0.18)
+		tw.chain().tween_property(pin_sprite, "modulate", Color(1.0, 1.0, 1.0, 1.0), 0.2)
 	
-	var sb = visual.get_theme_stylebox("panel") as StyleBoxFlat
-	if sb:
-		var new_sb = sb.duplicate() as StyleBoxFlat
-		new_sb.border_color = Color(0.2, 1.0, 0.5, 0.9)
-		visual.add_theme_stylebox_override("panel", new_sb)
+	# Micro reacción óptica en la lente del microscopio
+	if is_instance_valid(lente_overlay):
+		var lens_tw = create_tween()
+		lens_tw.tween_property(lente_overlay, "scale", Vector2(1.015, 1.015), 0.08).set_trans(Tween.TRANS_SINE)
+		lens_tw.tween_property(lente_overlay, "scale", Vector2(1.0, 1.0), 0.12).set_trans(Tween.TRANS_SINE)
 		
 	_show_feedback("✓ ¡Pin [%d, %d] enderezado con precisión micrométrica!" % [coord.x + 1, coord.y + 1], Color(0.2, 1.0, 0.5))
 	_update_ui()
@@ -165,7 +210,7 @@ func _update_ui() -> void:
 		status_label.text = "Haz clic en los pines marcados en naranja/rojo con la pinza para enderezarlos."
 		status_label.modulate = Color(1.0, 0.85, 0.2)
 	else:
-		status_label.text = "✓ ¡TODOS LOS PINES REPARADOS! Continuidad eléctrica y geometría restauradas al 100%."
+		status_label.text = "✓ ¡TODOS LOS PINES REPARADOS! Continuidad eléctrica y geometría restauradas al 100%%."
 		status_label.modulate = Color(0.2, 1.0, 0.5)
 
 func _trigger_victory() -> void:

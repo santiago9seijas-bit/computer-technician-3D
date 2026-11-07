@@ -34,6 +34,21 @@ var dragging_top_part: String = "" # "left", "right", "center"
 var top_drag_start_y: float = 0.0
 
 var default_seated_y: float = 82.0
+var default_seated_pos: Vector2 = Vector2.ZERO
+var default_socket_pos: Vector2 = Vector2.ZERO
+
+const RAM_TEXTURES: Dictionary = {
+	"ddr": preload("res://pixel art minijuegos/ramstipos/ram ddr.png"),
+	"ddr2": preload("res://pixel art minijuegos/ramstipos/ram ddr2.png"),
+	"ddr3": preload("res://pixel art minijuegos/ramstipos/ram ddr3.png"),
+	"ddr4": preload("res://pixel art minijuegos/ramstipos/ram ddr4.png"),
+	"ddr5": preload("res://pixel art minijuegos/ramstipos/ram ddr5.png")
+}
+
+const TEX_SOCKET_CLOSED: Texture2D = preload("res://pixel art minijuegos/ramstipos/soporte para ram/soporte para ram.png")
+const TEX_SOCKET_OPEN: Texture2D = preload("res://pixel art minijuegos/ramstipos/soporte para ram/soporte para ram abierto.png")
+
+var current_ram_type: String = "ddr"
 
 const COLOR_RED = Color(1.0, 0.15, 0.25, 1.0)
 const COLOR_GREEN = Color(0.2, 1.0, 0.45, 1.0)
@@ -43,8 +58,8 @@ var voltimeter_minigame_scene: PackedScene = preload("res://scenes/minigames/Vol
 # Nodos de la escena
 @onready var modal_control: Control = $ModalControl
 @onready var status_label: Label = $ModalControl/Panel/VBox/Header/StatusLabel
-@onready var socket_base: Panel = $ModalControl/Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea/SocketBase
-@onready var empty_slot_label: Label = $ModalControl/Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea/SocketBase/EmptySlotLabel
+@onready var socket_base: TextureRect = $ModalControl/Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea/SocketBase
+@onready var empty_slot_label: Label = $ModalControl/Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea/EmptySlotLabel
 @onready var ram_stick: TextureRect = $ModalControl/Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea/RAMStick
 
 # Zonas de extracción (en la RAM)
@@ -74,6 +89,12 @@ var voltimeter_minigame_scene: PackedScene = preload("res://scenes/minigames/Vol
 @onready var guide_text: Label = $ModalControl/Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox/GuideText
 @onready var btn_cancel: Button = $ModalControl/Panel/VBox/Footer/BtnCancel
 
+func _set_socket_open(is_open: bool) -> void:
+	if is_instance_valid(socket_base):
+		socket_base.texture = TEX_SOCKET_OPEN if is_open else TEX_SOCKET_CLOSED
+		if default_socket_pos != Vector2.ZERO:
+			socket_base.position = default_socket_pos
+
 func _ready() -> void:
 	layer = 12
 	btn_cancel.pressed.connect(func(): minigame_finished.emit(false))
@@ -99,9 +120,17 @@ func _ready() -> void:
 			tabs.queue_free()
 	
 	if start_as_empty_slot:
+		_set_socket_open(true)
+		var ram_item = _get_first_unbroken_ram()
+		if not ram_item.is_empty():
+			set_ram_type(ram_item.get("ram_type", current_ram_type))
+		else:
+			_update_ram_texture()
 		_start_install_drag_phase()
 	else:
+		_set_socket_open(false)
 		_select_guide_tab(0)
+		_update_ram_texture()
 		ram_stick.visible = true
 		empty_slot_label.visible = false
 		install_top_area.visible = false
@@ -110,6 +139,40 @@ func _ready() -> void:
 		
 	_update_ui_state()
 	_refresh_backpack_ui()
+
+func set_ram_type(type_name: String) -> void:
+	if type_name == null or type_name.is_empty():
+		return
+	var key = type_name.to_lower().strip_edges()
+	key = key.replace("ram", "").replace("memoria", "").strip_edges()
+	if RAM_TEXTURES.has(key):
+		current_ram_type = key
+	elif RAM_TEXTURES.has("ddr" + key):
+		current_ram_type = "ddr" + key
+	else:
+		current_ram_type = key
+	_update_ram_texture()
+
+func _update_ram_texture() -> void:
+	if not ram_stick:
+		return
+	var key = current_ram_type.to_lower()
+	if RAM_TEXTURES.has(key):
+		ram_stick.texture = RAM_TEXTURES[key]
+	elif RAM_TEXTURES.has("ddr" + key):
+		ram_stick.texture = RAM_TEXTURES["ddr" + key]
+	else:
+		ram_stick.texture = RAM_TEXTURES["ddr"]
+
+func _get_first_unbroken_ram() -> Dictionary:
+	if GameManager.selected_backpack_index >= 0 and GameManager.selected_backpack_index < GameManager.backpack.size():
+		var sel = GameManager.backpack[GameManager.selected_backpack_index]
+		if sel.get("name") == "RAM" and not sel.get("broken", true):
+			return sel
+	for it in GameManager.backpack:
+		if it.get("name") == "RAM" and not it.get("broken", true):
+			return it
+	return {}
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel") or (event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE):
@@ -153,9 +216,13 @@ func _select_guide_tab(idx: int) -> void:
 
 func _setup_quitar_phase() -> void:
 	current_state = State.EXTRACT_SIDES
+	_set_socket_open(false)
 	ram_stick.visible = true
 	ram_stick.modulate = Color(1, 1, 1, 1)
-	ram_stick.position.y = _get_base_y()
+	if default_seated_pos != Vector2.ZERO:
+		ram_stick.position = default_seated_pos
+	else:
+		ram_stick.position.y = _get_base_y()
 	ram_stick.rotation_degrees = 0.0
 	empty_slot_label.visible = false
 	install_top_area.visible = false
@@ -167,6 +234,9 @@ func _init_base_position() -> void:
 	await get_tree().process_frame
 	if ram_stick != null and ram_stick.position.y > 0.0:
 		default_seated_y = ram_stick.position.y
+		default_seated_pos = ram_stick.position
+	if socket_base != null:
+		default_socket_pos = socket_base.position
 
 func _on_backpack_changed(_items: Array) -> void:
 	_refresh_backpack_ui()
@@ -193,15 +263,20 @@ func _refresh_backpack_ui() -> void:
 		
 		if item.get("name") == "RAM":
 			if item.get("broken", true):
-				item_btn.text = "%d. RAM (Quemada/Rota)" % (i + 1)
+				var r_type = item.get("ram_type", "").to_upper()
+				var lbl = ("RAM %s (Dañada)" % r_type) if r_type != "" else "RAM (Quemada/Rota)"
+				item_btn.text = "%d. %s" % [i + 1, lbl]
 				item_btn.modulate = Color(1, 0.3, 0.4, 0.85)
 				item_btn.disabled = true
 			else:
 				found_ram = true
-				item_btn.text = "⇪ RAM DDR5 (NUEVA)\n[Lista para instalar]"
+				var r_type = item.get("ram_type", current_ram_type)
+				var display_lbl = item.get("display_name", "RAM " + r_type.to_upper())
+				item_btn.text = "⇪ %s (NUEVA)\n[Lista para instalar]" % display_lbl
 				item_btn.modulate = Color(0.0, 1.0, 0.6, 1.0)
 				item_btn.pressed.connect(func():
-					_show_floating_feedback("¡Arrastra las flechas superiores rojas hacia abajo!", Color(1.0, 0.85, 0.2))
+					set_ram_type(r_type)
+					_show_floating_feedback("✓ Modelo: %s. ¡Arrastra las flechas superiores!" % display_lbl, Color(1.0, 0.85, 0.2))
 				)
 		else:
 			item_btn.text = "%d. %s" % [i + 1, item.get("name", "Pieza")]
@@ -333,12 +408,21 @@ func _complete_ram_removal() -> void:
 	tween.tween_property(ram_stick, "modulate:a", 0.0, 0.30)
 	tween.chain().tween_callback(func():
 		ram_stick.visible = false
+		_set_socket_open(true)
 		empty_slot_label.visible = true
-		GameManager.add_item_to_backpack({"name": "RAM", "broken": true})
+		empty_slot_label.text = "[ ZÓCALO %s VACÍO · PINES EXPUESTOS ]" % current_ram_type.to_upper()
+		GameManager.add_item_to_backpack({
+			"name": "RAM",
+			"type": "RAM",
+			"ram_type": current_ram_type,
+			"display_name": "RAM " + current_ram_type.to_upper(),
+			"broken": true,
+			"functional": false
+		})
 		old_part_extracted.emit()
 		
 		if not is_tutorial_mode:
-			_show_floating_feedback("✓ Módulo RAM averiado extraído. Busca el repuesto en el taller.", COLOR_GREEN)
+			_show_floating_feedback("✓ Módulo RAM %s averiado extraído. Busca el repuesto en el taller." % current_ram_type.to_upper(), COLOR_GREEN)
 			await get_tree().create_timer(1.2).timeout
 			minigame_finished.emit(true)
 			return
@@ -350,7 +434,14 @@ func _complete_ram_removal() -> void:
 				has_new = true
 				break
 		if not has_new:
-			GameManager.add_item_to_backpack({"name": "RAM", "broken": false})
+			GameManager.add_item_to_backpack({
+				"name": "RAM",
+				"type": "RAM",
+				"ram_type": current_ram_type,
+				"display_name": "RAM " + current_ram_type.to_upper(),
+				"broken": false,
+				"functional": true
+			})
 			
 		_select_guide_tab(1)
 		_start_install_drag_phase()
@@ -363,8 +454,17 @@ func _complete_ram_removal() -> void:
 # =============================================================================
 func _start_install_drag_phase() -> void:
 	current_state = State.INSTALL_DRAG
+	_set_socket_open(true)
 	ram_stick.visible = false
 	empty_slot_label.visible = true
+	
+	var ram_item = _get_first_unbroken_ram()
+	if not ram_item.is_empty():
+		set_ram_type(ram_item.get("ram_type", current_ram_type))
+	else:
+		_update_ram_texture()
+		
+	empty_slot_label.text = "[ ZÓCALO %s VACÍO · PINES EXPUESTOS ]" % current_ram_type.to_upper()
 	
 	install_top_area.visible = true
 	install_top_area.modulate.a = 1.0
@@ -397,6 +497,8 @@ func _update_install_status() -> void:
 	var prefix = ""
 	if target_ram_count > 1:
 		prefix = "BANCO RAM #%d DE %d · " % [current_ram_index + 1, target_ram_count]
+	else:
+		prefix = "[RAM %s] " % current_ram_type.to_upper()
 	
 	if not top_left_done and not top_right_done:
 		status_label.text = prefix + "Arrastra hacia ABAJO las flechas superiores (IZQUIERDA y DERECHA, cualquier orden)."
@@ -486,19 +588,34 @@ func _process_top_drag_release(part: String, delta_y: float) -> void:
 
 func _latch_ram_into_socket() -> void:
 	# Retirar el repuesto de la mochila
+	var installed_ram_type = current_ram_type
+	var removed_idx = -1
 	for i in range(GameManager.backpack.size()):
 		var it = GameManager.backpack[i]
 		if it.get("name") == "RAM" and not it.get("broken", true):
-			GameManager.remove_item_from_backpack(i)
-			break
+			if current_ram_type != "" and it.get("ram_type", "").to_lower() == current_ram_type.to_lower():
+				installed_ram_type = it.get("ram_type", current_ram_type)
+				removed_idx = i
+				break
+			elif removed_idx == -1:
+				installed_ram_type = it.get("ram_type", current_ram_type)
+				removed_idx = i
 			
+	if removed_idx != -1:
+		GameManager.remove_item_from_backpack(removed_idx)
+			
+	set_ram_type(installed_ram_type)
 	empty_slot_label.visible = false
+	_set_socket_open(false)
 	
-	# La RAM aparece arriba y se desliza hacia abajo para engancharse en la base gris
+	# La RAM aparece arriba y se desliza hacia abajo para engancharse en el soporte
 	ram_stick.visible = true
 	ram_stick.rotation_degrees = 0.0
 	ram_stick.modulate = Color(1, 1, 1, 0.0)
-	ram_stick.position.y = default_seated_y - 40.0
+	if default_seated_pos != Vector2.ZERO:
+		ram_stick.position = Vector2(default_seated_pos.x, default_seated_y - 40.0)
+	else:
+		ram_stick.position.y = default_seated_y - 40.0
 	
 	# Desvanecer las flechas superiores
 	var tw_top = create_tween()
@@ -540,12 +657,13 @@ func _latch_ram_into_socket() -> void:
 				has_ram = true
 				break
 		if not has_ram:
-			GameManager.add_item_to_backpack({"name": "RAM", "broken": false})
+			GameManager.add_item_to_backpack({"name": "RAM", "type": "RAM", "ram_type": current_ram_type, "broken": false})
 			
 		# Reiniciar el slot limpiamente para el siguiente banco (como el disco duro)
 		ram_stick.visible = false
+		_set_socket_open(true)
 		empty_slot_label.visible = true
-		empty_slot_label.text = "[ ZÓCALO DDR5 VACÍO · BANCO RAM #%d ]" % (current_ram_index + 1)
+		empty_slot_label.text = "[ ZÓCALO %s VACÍO · BANCO RAM #%d ]" % [current_ram_type.to_upper(), current_ram_index + 1]
 		install_top_area.visible = true
 		install_top_area.modulate.a = 1.0
 		
@@ -568,7 +686,7 @@ func _latch_ram_into_socket() -> void:
 		_refresh_backpack_ui()
 	else:
 		current_state = State.COMPLETED
-		var victory_msg = "¡RAM NUEVA INSTALADA Y ENGANCHADA CON TOTAL ÉXITO!" if target_ram_count <= 1 else ("¡LOS %d MÓDULOS RAM ECC ENGANCHADOS CON ÉXITO!" % target_ram_count)
+		var victory_msg = ("¡RAM %s NUEVA INSTALADA Y ENGANCHADA CON TOTAL ÉXITO!" % current_ram_type.to_upper()) if target_ram_count <= 1 else ("¡LOS %d MÓDULOS RAM ECC ENGANCHADOS CON ÉXITO!" % target_ram_count)
 		_show_floating_feedback("✓ ¡CLICK! " + victory_msg, COLOR_GREEN)
 		status_label.text = victory_msg
 		status_label.modulate = COLOR_GREEN

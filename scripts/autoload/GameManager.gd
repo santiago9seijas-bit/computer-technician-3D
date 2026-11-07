@@ -38,8 +38,9 @@ var spares_stock: Dictionary = {
 	"Refrigeracion Liquida": 3
 }
 
-# Estado de pausa
+# Estado de pausa y configuración
 var is_game_paused: bool = false
+var mouse_sensitivity_multiplier: float = 1.0
 
 var feedback_canvas_layer: CanvasLayer = null
 var feedback_container: Control = null
@@ -101,6 +102,15 @@ func is_cleaning_tool_equipped() -> bool:
 	return equipped_tool == 5
 
 func start_level(initial_time: float = 120.0) -> void:
+	# Cancelar cualquier audio residual de menús o selección de nivel al iniciar la partida
+	var tree = get_tree()
+	if tree and tree.root:
+		for child in tree.root.get_children():
+			if child is AudioStreamPlayer:
+				if child.stream and ("seleccion" in child.stream.resource_path or "entrada" in child.stream.resource_path):
+					child.stop()
+					child.queue_free()
+
 	time_left = initial_time
 	score = 0
 	errors = 0

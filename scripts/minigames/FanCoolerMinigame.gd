@@ -29,12 +29,33 @@ var screw_types: Array[String] = ["cruz", "cruz", "pala", "cruz"]
 var screws_removed: Array[bool] = [false, false, false, false]
 
 # Referencias a texturas
-var tex_cooler_connected = preload("res://pixel art minijuegos/fancooler/fancooler conectado.png")
-var tex_cooler_disconnected = preload("res://pixel art minijuegos/fancooler/fancooler.png")
-var tex_screw_cruz = preload("res://pixel art minijuegos/tornillos/tornillo de cruz.png")
-var tex_screw_pala = preload("res://pixel art minijuegos/tornillos/tornillo de pala.png")
-var tex_cooler_frame = preload("res://pixel art minijuegos/fancooler/cuadro de fancoolerpng.png")
+var tex_cooler_connected: Texture2D = preload("res://pixel art minijuegos/fancooler/fancooler.png")
+var tex_cooler_disconnected: Texture2D = preload("res://pixel art minijuegos/fancooler/fancooler desconectado.png")
+var tex_screw_cruz: Texture2D = preload("res://pixel art minijuegos/tornillos/tornillo de cruz.png")
+var tex_screw_pala: Texture2D = preload("res://pixel art minijuegos/tornillos/tornillo de pala.png")
+var tex_plate_intel: Texture2D = preload("res://pixel art minijuegos/fancooler/placa de fancooler/placa de fancooler.png")
+var tex_plate_amd: Texture2D = preload("res://pixel art minijuegos/fancooler/placa de fancooler/placa amd.png")
+
+# Animación de 4 frames del ventilador girando
+var cooler_anim_frames: Array[Texture2D] = [
+	preload("res://pixel art minijuegos/fancooler/fancooler frames/fotograma0000.png"),
+	preload("res://pixel art minijuegos/fancooler/fancooler frames/fotograma0001.png"),
+	preload("res://pixel art minijuegos/fancooler/fancooler frames/fotograma0002.png"),
+	preload("res://pixel art minijuegos/fancooler/fancooler frames/fotograma0003.png")
+]
 var voltimeter_minigame_scene = preload("res://scenes/minigames/VoltimeterMinigame.tscn")
+
+# Placa base (50% probabilidad AMD / 50% Intel)
+var is_amd_plate: bool = false
+
+# Control de animación de giro y frenado progresivo
+const SPIN_MAX_FPS: float = 14.0 # Velocidad intermedia (ni muy rápida ni muy lenta)
+const DECELERATION_RATE: float = 7.5 # Frena de a poco (~1.8s) al desconectar el cable
+var is_spinning: bool = true
+var is_decelerating: bool = false
+var current_spin_fps: float = 14.0
+var anim_frame_idx: int = 0
+var anim_frame_timer: float = 0.0
 
 # Nodos de la escena
 @onready var modal_control: Control = $ModalControl
@@ -45,10 +66,29 @@ var voltimeter_minigame_scene = preload("res://scenes/minigames/VoltimeterMiniga
 
 @onready var socket_frame: TextureRect = $ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketFrame
 @onready var cooler_sprite: TextureRect = $ModalControl/Panel/VBox/ContentHBox/WorkArea/CoolerSprite
+@onready var cable_area: Control = $ModalControl/Panel/VBox/ContentHBox/WorkArea/CableArea
 @onready var cable_button: Button = $ModalControl/Panel/VBox/ContentHBox/WorkArea/CableArea/BtnCable
 @onready var cable_hint: Label = $ModalControl/Panel/VBox/ContentHBox/WorkArea/CableArea/CableHint
 @onready var screws_container: Control = $ModalControl/Panel/VBox/ContentHBox/WorkArea/ScrewsContainer
 @onready var cooler_extract_btn: Button = $ModalControl/Panel/VBox/ContentHBox/WorkArea/BtnExtractCooler
+
+var cable_pulse_tween: Tween = null
+
+func _start_cable_pulse() -> void:
+	if not is_instance_valid(cable_area):
+		return
+	if is_instance_valid(cable_pulse_tween):
+		cable_pulse_tween.kill()
+	cable_pulse_tween = create_tween().set_loops()
+	cable_pulse_tween.tween_property(cable_area, "modulate", Color(1.6, 1.4, 0.2, 1.0), 0.45).set_trans(Tween.TRANS_SINE)
+	cable_pulse_tween.tween_property(cable_area, "modulate", Color(0.2, 1.1, 1.5, 0.85), 0.45).set_trans(Tween.TRANS_SINE)
+
+func _stop_cable_pulse() -> void:
+	if is_instance_valid(cable_pulse_tween):
+		cable_pulse_tween.kill()
+		cable_pulse_tween = null
+	if is_instance_valid(cable_area):
+		cable_area.modulate = Color(1, 1, 1, 1)
 
 @onready var btn_tab_quitar: Button = $ModalControl/Panel/VBox/ContentHBox/SideInfo/Margin/VBox/TabsBox/BtnTabQuitar
 @onready var btn_tab_poner: Button = $ModalControl/Panel/VBox/ContentHBox/SideInfo/Margin/VBox/TabsBox/BtnTabPoner
@@ -94,11 +134,37 @@ func _ready() -> void:
 		
 	_update_status()
 
+func _process(delta: float) -> void:
+	if not is_spinning:
+		return
+		
+	if is_decelerating:
+		current_spin_fps -= DECELERATION_RATE * delta
+		if current_spin_fps <= 1.0:
+			current_spin_fps = 0.0
+			is_spinning = false
+			is_decelerating = false
+			cooler_sprite.texture = tex_cooler_disconnected
+			_show_floating_feedback("✓ Ventilador detenido por completo", Color(0.2, 1.0, 0.5))
+			_check_readiness()
+			return
+			
+	anim_frame_timer += delta
+	var frame_duration = 1.0 / maxf(current_spin_fps, 0.001)
+	if anim_frame_timer >= frame_duration:
+		anim_frame_timer -= frame_duration
+		anim_frame_idx = (anim_frame_idx + 1) % cooler_anim_frames.size()
+		cooler_sprite.texture = cooler_anim_frames[anim_frame_idx]
+
 func _setup_empty_socket_visual() -> void:
 	screws_container.visible = false
 	cable_button.visible = false
 	cable_hint.visible = false
 	cooler_extract_btn.visible = false
+	
+	is_spinning = false
+	is_decelerating = false
+	current_spin_fps = 0.0
 	
 	cooler_sprite.visible = true
 	cooler_sprite.texture = tex_cooler_disconnected
@@ -106,6 +172,25 @@ func _setup_empty_socket_visual() -> void:
 	cooler_sprite.position = default_cooler_pos + Vector2(0, -90.0)
 
 func _on_cooler_sprite_gui_input(event: InputEvent) -> void:
+	if current_state == State.READY_TO_EXTRACT:
+		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+			if event.pressed:
+				is_dragging_cooler = true
+				drag_start_y = event.global_position.y
+			else:
+				if is_dragging_cooler:
+					is_dragging_cooler = false
+					var diff_y = drag_start_y - event.global_position.y
+					if diff_y >= 30.0:
+						_on_extract_cooler_pressed()
+					else:
+						var tw = create_tween()
+						tw.tween_property(cooler_sprite, "position", default_cooler_pos, 0.2)
+		elif event is InputEventMouseMotion and is_dragging_cooler:
+			var pull = clamp(drag_start_y - event.global_position.y, 0.0, 90.0)
+			cooler_sprite.position = default_cooler_pos + Vector2(0, -pull)
+		return
+
 	if current_state != State.EMPTY_SOCKET:
 		return
 		
@@ -137,6 +222,11 @@ func _seat_cooler_into_socket() -> void:
 	var tw = create_tween()
 	tw.tween_property(cooler_sprite, "position", default_cooler_pos, 0.25).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	tw.parallel().tween_property(cooler_sprite, "modulate", Color(1, 1, 1, 1), 0.25)
+	
+	cooler_sprite.texture = tex_cooler_disconnected
+	is_spinning = false
+	is_decelerating = false
+	current_spin_fps = 0.0
 	
 	screws_container.visible = true
 	screws_fastened = [false, false, false, false]
@@ -170,7 +260,7 @@ func _select_tab(idx: int) -> void:
 			btn_tab_poner.modulate = Color(0.2, 1.0, 0.5, 1.0)
 			
 	if idx == 0:
-		instructions_text.text = "• FASE 1: DESMONTAJE (QUITAR)\n\n1. Desconecta el cable PWM de alimentación (clic en el cable).\n2. Identifica la cabeza de cada tornillo: Cruz [1] o Pala [2].\n3. Retira los 4 tornillos de sujeción.\n4. Al quedar libre, presiona 'EXTRAER DISIPADOR'."
+		instructions_text.text = "• FASE 1: DESMONTAJE (QUITAR)\n\n1. Desconecta el cable PWM (el ventilador frenará suavemente por inercia).\n2. Identifica la cabeza de cada tornillo: Cruz [1] o Pala [2].\n3. Retira los 4 tornillos de sujeción.\n4. Al quedar libre y detenido, presiona 'EXTRAER DISIPADOR'."
 		if is_tutorial_mode and (current_state == State.EMPTY_SOCKET or current_state == State.FASTEN_SCREWS or current_state == State.CONNECT_CABLE):
 			_setup_quitar_phase()
 	else:
@@ -186,8 +276,15 @@ func _setup_quitar_phase() -> void:
 	cooler_sprite.visible = true
 	cooler_sprite.modulate = Color(1, 1, 1, 1)
 	cooler_sprite.position = default_cooler_pos
-	cooler_sprite.texture = tex_cooler_connected
+	
 	is_cable_disconnected = false
+	is_spinning = true
+	is_decelerating = false
+	current_spin_fps = SPIN_MAX_FPS
+	anim_frame_idx = 0
+	anim_frame_timer = 0.0
+	cooler_sprite.texture = cooler_anim_frames[0]
+	
 	cable_button.visible = true
 	cable_hint.visible = true
 	cable_hint.modulate.a = 1.0
@@ -283,11 +380,20 @@ func _setup_ui() -> void:
 	cooler_extract_btn.pressed.connect(_on_extract_cooler_pressed)
 	cooler_extract_btn.visible = false
 	
-	# Texturas base
-	cooler_sprite.texture = tex_cooler_connected
-	socket_frame.texture = tex_cooler_frame
+	# Placa base (50% probabilidad AMD / 50% Intel)
+	is_amd_plate = randf() < 0.5
+	socket_frame.texture = tex_plate_amd if is_amd_plate else tex_plate_intel
 	
-	# Configurar los 4 tornillos sobre el sprite del fan cooler
+	# Iniciar animación del ventilador funcionando y pulso visual del cable
+	is_spinning = true
+	is_decelerating = false
+	current_spin_fps = SPIN_MAX_FPS
+	anim_frame_idx = 0
+	anim_frame_timer = 0.0
+	cooler_sprite.texture = cooler_anim_frames[0]
+	_start_cable_pulse()
+	
+	# Configurar los 4 tornillos sobre las esquinas del fan cooler
 	screw_buttons.clear()
 	screw_icons.clear()
 	for i in range(4):
@@ -339,29 +445,38 @@ func _on_cable_disconnected() -> void:
 		if not is_cable_disconnected:
 			return
 		is_cable_disconnected = false
-		cooler_sprite.texture = tex_cooler_connected
 		cable_button.visible = false
 		cable_hint.visible = false
-		_show_floating_feedback("¡CABLE CONECTADO CON ÉXITO!", Color(0.2, 1.0, 0.5))
+		
+		# Arrancar ventilador nuevo al conectar el cable PWM
+		is_spinning = true
+		is_decelerating = false
+		current_spin_fps = SPIN_MAX_FPS
+		anim_frame_idx = 0
+		anim_frame_timer = 0.0
+		cooler_sprite.texture = cooler_anim_frames[0]
+		
+		_show_floating_feedback("✓ ¡CABLE PWM CONECTADO! VENTILADOR ACTIVADO", Color(0.2, 1.0, 0.5))
 		_check_install_completed()
 		return
 		
-	if is_cable_disconnected:
+	if is_cable_disconnected or is_decelerating:
 		return
 		
 	is_cable_disconnected = true
+	is_decelerating = true
+	_stop_cable_pulse()
 	
-	# Animación de desconexión del cable
+	# Desvanecer aviso del cable
 	var tw = create_tween()
 	tw.tween_property(cable_hint, "modulate:a", 0.0, 0.2)
 	tw.tween_callback(func():
 		cable_button.visible = false
 		cable_hint.visible = false
-		cooler_sprite.texture = tex_cooler_disconnected
-		_check_readiness()
 	)
 	
-	_show_floating_feedback("¡CABLE DESCONECTADO!", Color(0.0, 1.0, 0.85))
+	_show_floating_feedback("✓ CABLE PWM DESCONECTADO (Frenando... ¡Puedes extraer ya!)", Color(0.0, 1.0, 0.85))
+	_check_readiness()
 
 func _on_screw_clicked(index: int) -> void:
 	if current_state == State.FASTEN_SCREWS or current_state == State.CONNECT_CABLE:
@@ -437,7 +552,7 @@ func _check_readiness() -> void:
 	if remaining_screws == 0 and is_cable_disconnected:
 		current_state = State.READY_TO_EXTRACT
 		cooler_extract_btn.visible = true
-		_show_floating_feedback("¡FAN COOLER LIBRE! HAZ CLIC PARA EXTRAER", Color(1.0, 0.8, 0.2))
+		_show_floating_feedback("¡FAN COOLER LIBRE! ARRASTRA O HAZ CLIC PARA EXTRAER", Color(1.0, 0.8, 0.2))
 	else:
 		cooler_extract_btn.visible = false
 		
@@ -449,6 +564,9 @@ func _on_extract_cooler_pressed() -> void:
 		
 	current_state = State.EXTRACTING
 	cooler_extract_btn.visible = false
+	is_spinning = false
+	is_decelerating = false
+	cooler_sprite.texture = tex_cooler_disconnected
 	
 	# Animación de extracción hacia arriba
 	var tw = create_tween().set_parallel(true)
@@ -456,7 +574,7 @@ func _on_extract_cooler_pressed() -> void:
 	tw.tween_property(cooler_sprite, "modulate:a", 0.0, 0.45).set_delay(0.2)
 	
 	tw.chain().tween_callback(func():
-		GameManager.add_item_to_backpack({"name": "Fan Cooler", "broken": true})
+		GameManager.add_item_to_backpack({"name": "Fan Cooler", "type": "Fan Cooler", "broken": true, "functional": false})
 		old_part_extracted.emit()
 		
 		if not is_tutorial_mode:
@@ -472,9 +590,10 @@ func _on_extract_cooler_pressed() -> void:
 				has_new = true
 				break
 		if not has_new:
-			GameManager.add_item_to_backpack({"name": "Fan Cooler", "broken": false})
+			GameManager.add_item_to_backpack({"name": "Fan Cooler", "type": "Fan Cooler", "broken": false, "functional": true})
 			
 		current_state = State.EMPTY_SOCKET
+		_setup_empty_socket_visual()
 		_select_tab(1)
 		_show_floating_feedback("✓ FASE 1 (QUITAR) COMPLETADA ➔ AHORA FASE 2: MONTAJE INVERSO (PONER)", Color(0.2, 1.0, 0.5))
 		_update_status()
@@ -492,16 +611,18 @@ func _show_victory_panel() -> void:
 			v_title.text = "¡REPARACIÓN INTEGRAL COMPLETADA! ✓"
 		var v_desc = victory_modal.get_node_or_null("VBox/Desc")
 		if v_desc:
-			v_desc.text = "Has desmontado la pieza averiada e instalado el Fan Cooler nuevo en orden inverso con total éxito."
+			v_desc.text = "Has desmontado la pieza averiada e instalado el Fan Cooler nuevo sobre la %s con total éxito." % ("Placa AMD" if is_amd_plate else "Placa Intel")
 		victory_modal.visible = true
 		var btn_done = victory_modal.get_node_or_null("VBox/BtnContinuar")
 		if btn_done:
 			btn_done.pressed.connect(func(): minigame_finished.emit(true))
 
 func _update_status() -> void:
+	var plate_tag = "Placa AMD" if is_amd_plate else "Placa Intel"
+	
 	match current_state:
 		State.EMPTY_SOCKET:
-			status_label.text = "Paso 1: Zócalo de CPU vacío. Monta el Fan Cooler nuevo desde tu mochila."
+			status_label.text = "Paso 1: Zócalo de CPU vacío [%s]. Monta el Fan Cooler nuevo desde tu mochila." % plate_tag
 			status_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.2, 1.0))
 			return
 		State.FASTEN_SCREWS, State.CONNECT_CABLE:
@@ -509,22 +630,22 @@ func _update_status() -> void:
 			for f in screws_fastened:
 				if not f: rem_fasten += 1
 			if is_cable_disconnected and rem_fasten > 0:
-				status_label.text = "Fase Montaje: Ajusta los 4 tornillos con [1]/[2] y conecta el cable PWM (cualquier orden). Restan %d tornillos." % rem_fasten
+				status_label.text = "Fase Montaje [%s]: Ajusta los %d tornillos y conecta el cable PWM (cualquier orden)." % [plate_tag, rem_fasten]
 				status_label.add_theme_color_override("font_color", Color(0.0, 0.9, 1.0, 1.0))
 			elif is_cable_disconnected and rem_fasten == 0:
 				status_label.text = "Fase Montaje: ¡Tornillos asegurados! Haz clic en el cable PWM para conectarlo."
 				status_label.add_theme_color_override("font_color", Color(0.2, 1.0, 0.5, 1.0))
 			elif not is_cable_disconnected and rem_fasten > 0:
-				status_label.text = "Fase Montaje: ¡Cable PWM conectado! Ajusta los %d tornillos restantes con [1] Cruz o [2] Pala." % rem_fasten
+				status_label.text = "Fase Montaje: ¡Cable conectado! Ajusta los %d tornillos restantes con [1] Cruz o [2] Pala." % rem_fasten
 				status_label.add_theme_color_override("font_color", Color(0.0, 0.9, 1.0, 1.0))
 			return
 		State.COMPLETED:
-			status_label.text = "¡Operación completada con éxito!"
+			status_label.text = "¡Operación completada con éxito en la %s!" % plate_tag
 			status_label.add_theme_color_override("font_color", Color(0.2, 1.0, 0.4, 1.0))
 			return
 
 	if current_state == State.READY_TO_EXTRACT:
-		status_label.text = "¡COMPONENTE LIBRE! Haz clic en el Fan Cooler para retirarlo."
+		status_label.text = "¡COMPONENTE LIBRE [%s]! Haz clic en el Fan Cooler para retirarlo." % plate_tag
 		status_label.add_theme_color_override("font_color", Color(0.2, 1.0, 0.6, 1.0))
 		return
 		
@@ -532,14 +653,17 @@ func _update_status() -> void:
 	for r in screws_removed:
 		if not r: rem += 1
 		
-	if not is_cable_disconnected and rem == 0:
+	if is_decelerating:
+		status_label.text = "El ventilador está frenando de a poco por inercia... Retira los tornillos restantes (%d/4)." % rem
+		status_label.add_theme_color_override("font_color", Color(0.9, 0.5, 1.0, 1.0))
+	elif not is_cable_disconnected and rem == 0:
 		status_label.text = "¡Tornillos retirados! Desconecta el cable de alimentación para liberar."
 		status_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.2, 1.0))
 	elif is_cable_disconnected and rem > 0:
-		status_label.text = "Cable desconectado. Retira los tornillos restantes (%d/4) con Cruz [1] o Pala [2]." % rem
+		status_label.text = "Ventilador detenido. Retira los tornillos restantes (%d/4) con Cruz [1] o Pala [2]." % rem
 		status_label.add_theme_color_override("font_color", Color(0.9, 0.5, 1.0, 1.0))
 	else:
-		status_label.text = "Desconecta el cable y retira los 4 tornillos (cualquier orden). Faltan: %d tornillos." % rem
+		status_label.text = "Desconecta el cable y retira los 4 tornillos (cualquier orden). [%s · Restan: %d tornillos]" % [plate_tag, rem]
 		status_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.2, 1.0))
 
 func _shake_node(n: CanvasItem) -> void:
@@ -565,8 +689,8 @@ func _show_floating_feedback(msg: String, color: Color) -> void:
 	lbl.add_theme_font_size_override("font_size", 16)
 	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	var vp_size = modal_control.size if modal_control else Vector2(1152, 648)
-	lbl.position = Vector2(vp_size.x * 0.5 - 150.0, vp_size.y * 0.5 - 160.0)
-	lbl.size = Vector2(300, 30)
+	lbl.position = Vector2(vp_size.x * 0.5 - 200.0, vp_size.y * 0.5 - 160.0)
+	lbl.size = Vector2(400, 30)
 	lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	if modal_control:
 		modal_control.add_child(lbl)

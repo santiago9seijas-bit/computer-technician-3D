@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://beij2lbvjanfu"
-path="res://.godot/imported/hdd.png-937be8d0c4505c6176f09576d790222b.ctex"
+uid="uid://e858jrargcmx"
+path="res://.godot/imported/intel 5 abierto.png-691c86e352dbc11859ceb04cd68f0617.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://pixel art minijuegos/hdd.png"
-dest_files=["res://.godot/imported/hdd.png-937be8d0c4505c6176f09576d790222b.ctex"]
+source_file="res://pixel art minijuegos/procesador/intel/abiertos/intel 5 abierto.png"
+dest_files=["res://.godot/imported/intel 5 abierto.png-691c86e352dbc11859ceb04cd68f0617.ctex"]
 
 [params]
 

@@ -136,7 +136,7 @@ theme_override_font_sizes/font_size = 12
 text = "DIAGNÓSTICO: Pulsa [E] frente a la PC. En la tarjeta del procesador dispones de:
 • [SACAR] / [REPUESTO]: Mecánica de palanca y placa de carga del zócalo LGA 1700.
 • [LIMPIAR PASTA]: Selecciona el Limpiador [5] para retirar pasta seca con paño y aplicar pasta nueva con el dispensador.
-• [ALINEAR PINES]: Selecciona el Cautín [3] para habilitar la micro-inspección y corregir pines a 90°."
+• [ALINEAR PINES]: Selecciona la Lupa [3] para habilitar la micro-inspección y corregir pines a 90°."
 autowrap_mode = 2
 
 [node name="ToolsBox" type="HBoxContainer" parent="CardModal/Margin/VBox/ContentVBox"]

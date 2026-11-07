@@ -1,0 +1,493 @@
+[gd_scene format=3 load_steps=15]
+
+[ext_resource type="Script" path="res://scripts/ui/RAMSelectionModal.gd" id="1_modal"]
+[ext_resource type="Theme" path="res://styles/cyberpunk_theme.tres" id="2_theme"]
+[ext_resource type="PackedScene" path="res://scenes/ui/CyberBackgroundFrame.tscn" id="3_bg_frame"]
+[ext_resource type="Script" path="res://scripts/menus/CyberButton.gd" id="4_cbtn"]
+[ext_resource type="FontFile" uid="uid://dbcug8887dro7" path="res://assets/fonts/Bungee-Regular.ttf" id="5_title_font"]
+[ext_resource type="Texture2D" uid="uid://c81q1rtf1fjjm" path="res://pixel art minijuegos/ramstipos/ram ddr.png" id="6_ddr"]
+[ext_resource type="Texture2D" uid="uid://ckd3w4c04muvd" path="res://pixel art minijuegos/ramstipos/ram ddr2.png" id="7_ddr2"]
+[ext_resource type="Texture2D" uid="uid://chndwj1cvfh12" path="res://pixel art minijuegos/ramstipos/ram ddr3.png" id="8_ddr3"]
+[ext_resource type="Texture2D" uid="uid://bvww6ko2eslco" path="res://pixel art minijuegos/ramstipos/ram ddr4.png" id="9_ddr4"]
+[ext_resource type="Texture2D" uid="uid://db7yw1nacvms1" path="res://pixel art minijuegos/ramstipos/ram ddr5.png" id="10_ddr5"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_main"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_card"]
+bg_color = Color(0.06, 0.03, 0.12, 0.88)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0, 0.85, 1, 0.45)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+shadow_color = Color(0, 0, 0, 0.5)
+shadow_size = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_card_gold"]
+bg_color = Color(0.06, 0.03, 0.12, 0.88)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.85, 0.2, 0.5)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+shadow_color = Color(0, 0, 0, 0.5)
+shadow_size = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_card_pink"]
+bg_color = Color(0.06, 0.03, 0.12, 0.88)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.15, 0.55, 0.5)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+shadow_color = Color(0, 0, 0, 0.5)
+shadow_size = 4
+
+[node name="RAMSelectionModal" type="Control"]
+process_mode = 3
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+theme = ExtResource("2_theme")
+script = ExtResource("1_modal")
+
+[node name="DimOverlay" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.02, 0.01, 0.05, 0.85)
+
+[node name="CardModal" type="PanelContainer" parent="."]
+custom_minimum_size = Vector2(1060, 480)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -530.0
+offset_top = -240.0
+offset_right = 530.0
+offset_bottom = 240.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(530, 240)
+theme_override_styles/panel = SubResource("StyleBoxEmpty_main")
+
+[node name="CyberBackgroundFrame" parent="CardModal" instance=ExtResource("3_bg_frame")]
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="CardModal"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 18
+
+[node name="VBox" type="VBoxContainer" parent="CardModal/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Header" type="HBoxContainer" parent="CardModal/Margin/VBox"]
+layout_mode = 2
+
+[node name="TitleVBox" type="VBoxContainer" parent="CardModal/Margin/VBox/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 2
+
+[node name="Badge" type="Label" parent="CardModal/Margin/VBox/Header/TitleVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.15, 0.45, 1)
+theme_override_font_sizes/font_size = 11
+text = "[ CAJA DE REPUESTOS · BANCO DE MEMORIAS DEL TALLER ]"
+
+[node name="Title" type="Label" parent="CardModal/Margin/VBox/Header/TitleVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.95, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0.95, 1, 0.4)
+theme_override_fonts/font = ExtResource("5_title_font")
+theme_override_font_sizes/font_size = 17
+text = "SELECCIONA EL TIPO DE MEMORIA RAM"
+
+[node name="StockLabel" type="Label" parent="CardModal/Margin/VBox/Header/TitleVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 1, 0.6, 1)
+theme_override_font_sizes/font_size = 12
+text = "Stock disponible en caja: 3 módulos | Mochila: 0/3"
+
+[node name="BtnClose" type="Button" parent="CardModal/Margin/VBox/Header"]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 0
+text = "✕"
+flat = true
+script = ExtResource("4_cbtn")
+slant = 6.0
+
+[node name="Divider" type="ColorRect" parent="CardModal/Margin/VBox"]
+custom_minimum_size = Vector2(0, 2)
+layout_mode = 2
+color = Color(0, 0.85, 1, 0.35)
+
+[node name="CardsContainer" type="HBoxContainer" parent="CardModal/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="CardDDR" type="PanelContainer" parent="CardModal/Margin/VBox/CardsContainer"]
+custom_minimum_size = Vector2(190, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+
+[node name="VBox" type="VBoxContainer" parent="CardModal/Margin/VBox/CardsContainer/CardDDR"]
+layout_mode = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="Margin" type="MarginContainer" parent="CardModal/Margin/VBox/CardsContainer/CardDDR/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 6
+
+[node name="Content" type="VBoxContainer" parent="CardModal/Margin/VBox/CardsContainer/CardDDR/VBox/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Tag" type="Label" parent="CardModal/Margin/VBox/CardsContainer/CardDDR/VBox/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.95, 1, 1)
+theme_override_fonts/font = ExtResource("5_title_font")
+theme_override_font_sizes/font_size = 14
+text = "[1] DDR"
+horizontal_alignment = 1
+
+[node name="Texture" type="TextureRect" parent="CardModal/Margin/VBox/CardsContainer/CardDDR/VBox/Margin/Content"]
+texture_filter = 1
+custom_minimum_size = Vector2(160, 75)
+layout_mode = 2
+size_flags_vertical = 3
+texture = ExtResource("6_ddr")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Name" type="Label" parent="CardModal/Margin/VBox/CardsContainer/CardDDR/VBox/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 13
+text = "RAM DDR (DDR1)"
+horizontal_alignment = 1
+
+[node name="Specs" type="Label" parent="CardModal/Margin/VBox/CardsContainer/CardDDR/VBox/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.8, 0.9, 0.8)
+theme_override_font_sizes/font_size = 11
+text = "• 184 Pines clásicos
+• 200 - 400 MHz
+• Tensión: 2.5V"
+horizontal_alignment = 1
+
+[node name="BtnSelect" type="Button" parent="CardModal/Margin/VBox/CardsContainer/CardDDR"]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+size_flags_vertical = 8
+text = "TOMAR DDR"
+script = ExtResource("4_cbtn")
+slant = 10.0
+border_color = Color(0, 0.85, 1, 1)
+hover_border_color = Color(0.2, 1, 0.6, 1)
+
+[node name="CardDDR2" type="PanelContainer" parent="CardModal/Margin/VBox/CardsContainer"]
+custom_minimum_size = Vector2(190, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+
+[node name="VBox" type="VBoxContainer" parent="CardModal/Margin/VBox/CardsContainer/CardDDR2"]
+layout_mode = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="Margin" type="MarginContainer" parent="CardModal/Margin/VBox/CardsContainer/CardDDR2/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 6
+
+[node name="Content" type="VBoxContainer" parent="CardModal/Margin/VBox/CardsContainer/CardDDR2/VBox/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Tag" type="Label" parent="CardModal/Margin/VBox/CardsContainer/CardDDR2/VBox/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.95, 1, 1)
+theme_override_fonts/font = ExtResource("5_title_font")
+theme_override_font_sizes/font_size = 14
+text = "[2] DDR2"
+horizontal_alignment = 1
+
+[node name="Texture" type="TextureRect" parent="CardModal/Margin/VBox/CardsContainer/CardDDR2/VBox/Margin/Content"]
+texture_filter = 1
+custom_minimum_size = Vector2(160, 75)
+layout_mode = 2
+size_flags_vertical = 3
+texture = ExtResource("7_ddr2")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Name" type="Label" parent="CardModal/Margin/VBox/CardsContainer/CardDDR2/VBox/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 13
+text = "RAM DDR2"
+horizontal_alignment = 1
+
+[node name="Specs" type="Label" parent="CardModal/Margin/VBox/CardsContainer/CardDDR2/VBox/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.8, 0.9, 0.8)
+theme_override_font_sizes/font_size = 11
+text = "• 240 Pines estándar
+• 400 - 800 MHz
+• Tensión: 1.8V"
+horizontal_alignment = 1
+
+[node name="BtnSelect" type="Button" parent="CardModal/Margin/VBox/CardsContainer/CardDDR2"]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+size_flags_vertical = 8
+text = "TOMAR DDR2"
+script = ExtResource("4_cbtn")
+slant = 10.0
+border_color = Color(0, 0.85, 1, 1)
+hover_border_color = Color(0.2, 1, 0.6, 1)
+
+[node name="CardDDR3" type="PanelContainer" parent="CardModal/Margin/VBox/CardsContainer"]
+custom_minimum_size = Vector2(190, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+
+[node name="VBox" type="VBoxContainer" parent="CardModal/Margin/VBox/CardsContainer/CardDDR3"]
+layout_mode = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="Margin" type="MarginContainer" parent="CardModal/Margin/VBox/CardsContainer/CardDDR3/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 6
+
+[node name="Content" type="VBoxContainer" parent="CardModal/Margin/VBox/CardsContainer/CardDDR3/VBox/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Tag" type="Label" parent="CardModal/Margin/VBox/CardsContainer/CardDDR3/VBox/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 1, 0.6, 1)
+theme_override_fonts/font = ExtResource("5_title_font")
+theme_override_font_sizes/font_size = 14
+text = "[3] DDR3"
+horizontal_alignment = 1
+
+[node name="Texture" type="TextureRect" parent="CardModal/Margin/VBox/CardsContainer/CardDDR3/VBox/Margin/Content"]
+texture_filter = 1
+custom_minimum_size = Vector2(160, 75)
+layout_mode = 2
+size_flags_vertical = 3
+texture = ExtResource("8_ddr3")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Name" type="Label" parent="CardModal/Margin/VBox/CardsContainer/CardDDR3/VBox/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 13
+text = "RAM DDR3"
+horizontal_alignment = 1
+
+[node name="Specs" type="Label" parent="CardModal/Margin/VBox/CardsContainer/CardDDR3/VBox/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.8, 0.9, 0.8)
+theme_override_font_sizes/font_size = 11
+text = "• 240 Pines desplazados
+• 800 - 2133 MHz
+• Tensión: 1.5V"
+horizontal_alignment = 1
+
+[node name="BtnSelect" type="Button" parent="CardModal/Margin/VBox/CardsContainer/CardDDR3"]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+size_flags_vertical = 8
+text = "TOMAR DDR3"
+script = ExtResource("4_cbtn")
+slant = 10.0
+border_color = Color(0.2, 1, 0.6, 1)
+hover_border_color = Color(0.9, 1, 0.2, 1)
+
+[node name="CardDDR4" type="PanelContainer" parent="CardModal/Margin/VBox/CardsContainer"]
+custom_minimum_size = Vector2(190, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_card_gold")
+
+[node name="VBox" type="VBoxContainer" parent="CardModal/Margin/VBox/CardsContainer/CardDDR4"]
+layout_mode = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="Margin" type="MarginContainer" parent="CardModal/Margin/VBox/CardsContainer/CardDDR4/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 6
+
+[node name="Content" type="VBoxContainer" parent="CardModal/Margin/VBox/CardsContainer/CardDDR4/VBox/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Tag" type="Label" parent="CardModal/Margin/VBox/CardsContainer/CardDDR4/VBox/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_fonts/font = ExtResource("5_title_font")
+theme_override_font_sizes/font_size = 14
+text = "[4] DDR4"
+horizontal_alignment = 1
+
+[node name="Texture" type="TextureRect" parent="CardModal/Margin/VBox/CardsContainer/CardDDR4/VBox/Margin/Content"]
+texture_filter = 1
+custom_minimum_size = Vector2(160, 75)
+layout_mode = 2
+size_flags_vertical = 3
+texture = ExtResource("9_ddr4")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Name" type="Label" parent="CardModal/Margin/VBox/CardsContainer/CardDDR4/VBox/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 13
+text = "RAM DDR4"
+horizontal_alignment = 1
+
+[node name="Specs" type="Label" parent="CardModal/Margin/VBox/CardsContainer/CardDDR4/VBox/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.8, 0.9, 0.8)
+theme_override_font_sizes/font_size = 11
+text = "• 288 Pines curvados
+• 1600 - 3200 MHz
+• Tensión: 1.2V"
+horizontal_alignment = 1
+
+[node name="BtnSelect" type="Button" parent="CardModal/Margin/VBox/CardsContainer/CardDDR4"]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+size_flags_vertical = 8
+text = "TOMAR DDR4"
+script = ExtResource("4_cbtn")
+slant = 10.0
+border_color = Color(1, 0.85, 0.2, 1)
+hover_border_color = Color(1, 1, 1, 1)
+
+[node name="CardDDR5" type="PanelContainer" parent="CardModal/Margin/VBox/CardsContainer"]
+custom_minimum_size = Vector2(190, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_card_pink")
+
+[node name="VBox" type="VBoxContainer" parent="CardModal/Margin/VBox/CardsContainer/CardDDR5"]
+layout_mode = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="Margin" type="MarginContainer" parent="CardModal/Margin/VBox/CardsContainer/CardDDR5/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 6
+
+[node name="Content" type="VBoxContainer" parent="CardModal/Margin/VBox/CardsContainer/CardDDR5/VBox/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Tag" type="Label" parent="CardModal/Margin/VBox/CardsContainer/CardDDR5/VBox/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.15, 0.55, 1)
+theme_override_fonts/font = ExtResource("5_title_font")
+theme_override_font_sizes/font_size = 14
+text = "[5] DDR5"
+horizontal_alignment = 1
+
+[node name="Texture" type="TextureRect" parent="CardModal/Margin/VBox/CardsContainer/CardDDR5/VBox/Margin/Content"]
+texture_filter = 1
+custom_minimum_size = Vector2(160, 75)
+layout_mode = 2
+size_flags_vertical = 3
+texture = ExtResource("10_ddr5")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Name" type="Label" parent="CardModal/Margin/VBox/CardsContainer/CardDDR5/VBox/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 13
+text = "RAM DDR5"
+horizontal_alignment = 1
+
+[node name="Specs" type="Label" parent="CardModal/Margin/VBox/CardsContainer/CardDDR5/VBox/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.8, 0.9, 0.8)
+theme_override_font_sizes/font_size = 11
+text = "• 288 Pines + PMIC Dual
+• 4800 - 8400 MHz
+• Tensión: 1.1V"
+horizontal_alignment = 1
+
+[node name="BtnSelect" type="Button" parent="CardModal/Margin/VBox/CardsContainer/CardDDR5"]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+size_flags_vertical = 8
+text = "TOMAR DDR5"
+script = ExtResource("4_cbtn")
+slant = 10.0
+border_color = Color(1, 0.15, 0.55, 1)
+hover_border_color = Color(1, 0.8, 0.9, 1)
+
+[node name="FooterHint" type="Label" parent="CardModal/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.7, 0.8, 0.7)
+theme_override_font_sizes/font_size = 11
+text = "Presiona [1] al [5] o pulsa [TOMAR] para elegir modelo · [ESC] para cancelar"
+horizontal_alignment = 1

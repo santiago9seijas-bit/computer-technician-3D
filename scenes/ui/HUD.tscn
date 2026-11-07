@@ -1,4 +1,4 @@
-[gd_scene format=3 load_steps=19]
+[gd_scene format=3 load_steps=20]
 
 [ext_resource type="Script" path="res://scripts/ui/HUD.gd" id="1_hud"]
 [ext_resource type="Script" path="res://scripts/menus/CyberButton.gd" id="2_cbtn"]
@@ -15,6 +15,7 @@
 [ext_resource type="Texture2D" uid="uid://d22ex8vx2lte6" path="res://pixel art menus/decoracion/reparacion emoticono.png" id="13_ico_reparacion"]
 [ext_resource type="Texture2D" uid="uid://cv6ghw3qgaue3" path="res://pixel art menus/decoracion/emoticono de rayo.png" id="14_ico_rayo"]
 [ext_resource type="Texture2D" uid="uid://c4cxur3v6xicp" path="res://pixel art menus/decoracion/emoticono de limpiezakra.png" id="15_ico_limpieza"]
+[ext_resource type="Texture2D" uid="uid://boc84emlym0d" path="res://pixel art menus/decoracion/emoticon de lupa.png" id="16_ico_lupa"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_mochila"]
 content_margin_left = 16.0
@@ -271,9 +272,9 @@ layout_mode = 2
 flat = true
 script = ExtResource("11_circle_btn")
 tool_id = 3
-tool_name = "Cautín"
+tool_name = "Lupa"
 key_shortcut = "[ 3 ]"
-icon_texture = ExtResource("14_ico_rayo")
+icon_texture = ExtResource("16_ico_lupa")
 icon_modulate = Color(1, 0.5, 0.2, 1)
 circle_texture = ExtResource("12_circulo_obj")
 

@@ -1,16 +1,29 @@
-[gd_scene format=3 load_steps=7]
+[gd_scene format=3 load_steps=12]
 
 [ext_resource type="Script" path="res://scripts/menus/PauseMenu.gd" id="1_pause"]
-[ext_resource type="Script" path="res://scripts/menus/CyberButton.gd" id="2_cbtn"]
+[ext_resource type="Script" path="res://scripts/menus/MenuTextureButton.gd" id="2_tex_btn"]
 [ext_resource type="Theme" path="res://styles/cyberpunk_theme.tres" id="3_theme"]
 [ext_resource type="FontFile" uid="uid://dbcug8887dro7" path="res://assets/fonts/Bungee-Regular.ttf" id="4_title_font"]
-[ext_resource type="PackedScene" path="res://scenes/ui/CyberBackgroundFrame.tscn" id="5_bg_frame"]
+[ext_resource type="Material" path="res://styles/cyber_pause_blur.tres" id="5_blur_mat"]
+[ext_resource type="Material" path="res://styles/cyber_pause_button.tres" id="6_btn_mat"]
+[ext_resource type="Texture2D" uid="uid://bpemd5djputrv" path="res://pixel art menus/botones/fondo de boton.png" id="7_btn_normal"]
+[ext_resource type="Texture2D" uid="uid://b86mg812vtc17" path="res://pixel art menus/botones/fondo de boton mouse encima.png" id="8_btn_hover"]
+[ext_resource type="Script" path="res://scripts/menus/PauseWebOverlay.gd" id="9_web_script"]
+[ext_resource type="PackedScene" path="res://scenes/ui/CyberBackgroundFrame.tscn" id="10_bg_frame"]
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_frame"]
-content_margin_left = 22.0
-content_margin_top = 18.0
-content_margin_right = 22.0
-content_margin_bottom = 18.0
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_time_box"]
+bg_color = Color(0.04, 0.01, 0.09, 0.94)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(1, 0.12, 0.3, 0.85)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0.85, 0.05, 0.25, 0.4)
+shadow_size = 8
 
 [node name="PauseMenu" type="Control"]
 process_mode = 3
@@ -23,91 +36,354 @@ grow_vertical = 2
 theme = ExtResource("3_theme")
 script = ExtResource("1_pause")
 
-[node name="DimOverlay" type="ColorRect" parent="."]
+[node name="BlurOverlay" type="ColorRect" parent="."]
+material = ExtResource("5_blur_mat")
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.04, 0.01, 0.08, 0.82)
+color = Color(0.03, 0.01, 0.07, 0.76)
 
-[node name="Modal" type="PanelContainer" parent="."]
+[node name="PauseWebOverlay" type="Control" parent="."]
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -220.0
-offset_top = -210.0
-offset_right = 220.0
-offset_bottom = 210.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxEmpty_frame")
+mouse_filter = 2
+script = ExtResource("9_web_script")
 
-[node name="CyberBackgroundFrame" parent="Modal" instance=ExtResource("5_bg_frame")]
-layout_mode = 2
+[node name="InfoContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 75.0
+offset_top = -160.0
+offset_right = 540.0
+offset_bottom = 160.0
+grow_vertical = 2
+theme_override_constants/separation = 18
 
-[node name="VBox" type="VBoxContainer" parent="Modal"]
+[node name="TitleBox" type="VBoxContainer" parent="InfoContainer"]
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 6
 
-[node name="Titulo" type="Label" parent="Modal/VBox"]
+[node name="Titulo" type="Label" parent="InfoContainer/TitleBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.1, 0.22, 1)
+theme_override_colors/font_color = Color(1, 0.12, 0.28, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 10
-theme_override_colors/font_shadow_color = Color(0.65, 0.0, 0.85, 0.85)
+theme_override_constants/outline_size = 12
+theme_override_colors/font_shadow_color = Color(0.7, 0.0, 0.2, 0.85)
 theme_override_constants/shadow_outline_size = 14
 theme_override_fonts/font = ExtResource("4_title_font")
-theme_override_font_sizes/font_size = 36
+theme_override_font_sizes/font_size = 54
 text = "PAUSA"
-horizontal_alignment = 1
 
-[node name="LblTiempo" type="Label" parent="Modal/VBox"]
+[node name="Subtitulo" type="Label" parent="InfoContainer/TitleBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.85, 0.85, 0.95, 1)
-theme_override_font_sizes/font_size = 14
-text = "Tiempo restante: 02:00"
-horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.2, 0.9, 1, 0.9)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.8)
+theme_override_font_sizes/font_size = 13
+text = "// SIMULACIÓN DETENIDA · TALLER EN ESPERA //"
 
-[node name="HSeparator" type="HSeparator" parent="Modal/VBox"]
+[node name="TimePanel" type="PanelContainer" parent="InfoContainer"]
 layout_mode = 2
+size_flags_horizontal = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_time_box")
 
-[node name="BtnReanudar" type="Button" parent="Modal/VBox"]
-custom_minimum_size = Vector2(270, 48)
+[node name="Margin" type="MarginContainer" parent="InfoContainer/TimePanel"]
 layout_mode = 2
-size_flags_horizontal = 4
+theme_override_constants/margin_left = 22
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 26
+theme_override_constants/margin_bottom = 14
+
+[node name="VBox" type="VBoxContainer" parent="InfoContainer/TimePanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="TimeHeader" type="Label" parent="InfoContainer/TimePanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.75, 0.85, 0.85)
+theme_override_font_sizes/font_size = 11
+text = "CRONÓMETRO DE REPARACIÓN"
+
+[node name="LblTiempo" type="Label" parent="InfoContainer/TimePanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.88, 0.2, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 8
+theme_override_colors/font_shadow_color = Color(0.8, 0.2, 0, 0.7)
+theme_override_constants/shadow_outline_size = 8
+theme_override_fonts/font = ExtResource("4_title_font")
+theme_override_font_sizes/font_size = 24
+text = "TIEMPO: 02:00"
+
+[node name="HintLabel" type="Label" parent="InfoContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.65, 0.75, 0.7)
+theme_override_font_sizes/font_size = 12
+text = "Presiona [ ESC ] para reanudar la partida."
+
+[node name="ButtonsStaircase" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -440.0
+offset_top = -180.0
+offset_right = -40.0
+offset_bottom = 200.0
+grow_horizontal = 0
+grow_vertical = 2
+
+[node name="BtnReanudar" type="TextureButton" parent="ButtonsStaircase"]
+texture_filter = 1
+material = ExtResource("6_btn_mat")
+layout_mode = 1
+offset_left = 40.0
+offset_top = 0.0
+offset_right = 400.0
+offset_bottom = 80.0
+texture_normal = ExtResource("7_btn_normal")
+texture_pressed = ExtResource("8_btn_hover")
+texture_hover = ExtResource("8_btn_hover")
+texture_focused = ExtResource("8_btn_hover")
+ignore_texture_size = true
+stretch_mode = 5
+script = ExtResource("2_tex_btn")
+
+[node name="Label" type="Label" parent="ButtonsStaircase/BtnReanudar"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_fonts/font = ExtResource("4_title_font")
+theme_override_font_sizes/font_size = 22
 text = "REANUDAR"
-flat = true
-script = ExtResource("2_cbtn")
-slant = 20.0
+horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="BtnConfiguracion" type="Button" parent="Modal/VBox"]
-custom_minimum_size = Vector2(250, 44)
-layout_mode = 2
-size_flags_horizontal = 4
-text = "CONFIGURACION"
-flat = true
-script = ExtResource("2_cbtn")
-slant = 18.0
+[node name="BtnConfiguracion" type="TextureButton" parent="ButtonsStaircase"]
+texture_filter = 1
+material = ExtResource("6_btn_mat")
+layout_mode = 1
+offset_left = 80.0
+offset_top = 96.0
+offset_right = 400.0
+offset_bottom = 168.0
+texture_normal = ExtResource("7_btn_normal")
+texture_pressed = ExtResource("8_btn_hover")
+texture_hover = ExtResource("8_btn_hover")
+texture_focused = ExtResource("8_btn_hover")
+ignore_texture_size = true
+stretch_mode = 5
+script = ExtResource("2_tex_btn")
 
-[node name="BtnReiniciar" type="Button" parent="Modal/VBox"]
-custom_minimum_size = Vector2(230, 40)
-layout_mode = 2
-size_flags_horizontal = 4
+[node name="Label" type="Label" parent="ButtonsStaircase/BtnConfiguracion"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_fonts/font = ExtResource("4_title_font")
+theme_override_font_sizes/font_size = 20
+text = "OPCIONES"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BtnReiniciar" type="TextureButton" parent="ButtonsStaircase"]
+texture_filter = 1
+material = ExtResource("6_btn_mat")
+layout_mode = 1
+offset_left = 120.0
+offset_top = 184.0
+offset_right = 400.0
+offset_bottom = 248.0
+texture_normal = ExtResource("7_btn_normal")
+texture_pressed = ExtResource("8_btn_hover")
+texture_hover = ExtResource("8_btn_hover")
+texture_focused = ExtResource("8_btn_hover")
+ignore_texture_size = true
+stretch_mode = 5
+script = ExtResource("2_tex_btn")
+
+[node name="Label" type="Label" parent="ButtonsStaircase/BtnReiniciar"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_fonts/font = ExtResource("4_title_font")
+theme_override_font_sizes/font_size = 16
 text = "REINICIAR"
-flat = true
-script = ExtResource("2_cbtn")
-slant = 16.0
+horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="BtnVolver" type="Button" parent="Modal/VBox"]
-custom_minimum_size = Vector2(210, 38)
+[node name="BtnVolver" type="TextureButton" parent="ButtonsStaircase"]
+texture_filter = 1
+material = ExtResource("6_btn_mat")
+layout_mode = 1
+offset_left = 160.0
+offset_top = 264.0
+offset_right = 400.0
+offset_bottom = 322.0
+texture_normal = ExtResource("7_btn_normal")
+texture_pressed = ExtResource("8_btn_hover")
+texture_hover = ExtResource("8_btn_hover")
+texture_focused = ExtResource("8_btn_hover")
+ignore_texture_size = true
+stretch_mode = 5
+script = ExtResource("2_tex_btn")
+
+[node name="Label" type="Label" parent="ButtonsStaircase/BtnVolver"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_fonts/font = ExtResource("4_title_font")
+theme_override_font_sizes/font_size = 14
+text = "SALIR AL SELECTOR"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="OptionsPanel" type="PanelContainer" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -450.0
+offset_top = -210.0
+offset_right = -40.0
+offset_bottom = 210.0
+grow_horizontal = 0
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_time_box")
+
+[node name="Margin" type="MarginContainer" parent="OptionsPanel"]
 layout_mode = 2
-size_flags_horizontal = 4
-text = "VOLVER AL MENU"
-flat = true
-script = ExtResource("2_cbtn")
-slant = 14.0
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 18
+
+[node name="VBox" type="VBoxContainer" parent="OptionsPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Header" type="VBoxContainer" parent="OptionsPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="Title" type="Label" parent="OptionsPanel/Margin/VBox/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.12, 0.28, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 8
+theme_override_colors/font_shadow_color = Color(0.7, 0, 0.2, 0.8)
+theme_override_constants/shadow_outline_size = 8
+theme_override_fonts/font = ExtResource("4_title_font")
+theme_override_font_sizes/font_size = 20
+text = "⚙ OPCIONES"
+horizontal_alignment = 1
+
+[node name="Subtitle" type="Label" parent="OptionsPanel/Margin/VBox/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.9, 1, 0.85)
+theme_override_font_sizes/font_size = 11
+text = "// CONFIGURACIÓN DEL SISTEMA //"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="OptionsPanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="SettingsList" type="VBoxContainer" parent="OptionsPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="VolumeSection" type="VBoxContainer" parent="OptionsPanel/Margin/VBox/SettingsList"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="HBox" type="HBoxContainer" parent="OptionsPanel/Margin/VBox/SettingsList/VolumeSection"]
+layout_mode = 2
+
+[node name="Lbl" type="Label" parent="OptionsPanel/Margin/VBox/SettingsList/VolumeSection/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.85, 0.85, 0.95, 1)
+theme_override_font_sizes/font_size = 11
+text = "VOLUMEN AUDIO:"
+
+[node name="LblVal" type="Label" parent="OptionsPanel/Margin/VBox/SettingsList/VolumeSection/HBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.88, 0.2, 1)
+theme_override_font_sizes/font_size = 11
+text = "100%"
+
+[node name="SliderVolume" type="HSlider" parent="OptionsPanel/Margin/VBox/SettingsList/VolumeSection"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+value = 100.0
+
+[node name="SensSection" type="VBoxContainer" parent="OptionsPanel/Margin/VBox/SettingsList"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="HBox" type="HBoxContainer" parent="OptionsPanel/Margin/VBox/SettingsList/SensSection"]
+layout_mode = 2
+
+[node name="Lbl" type="Label" parent="OptionsPanel/Margin/VBox/SettingsList/SensSection/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.85, 0.85, 0.95, 1)
+theme_override_font_sizes/font_size = 11
+text = "SENSIBILIDAD MOUSE:"
+
+[node name="LblVal" type="Label" parent="OptionsPanel/Margin/VBox/SettingsList/SensSection/HBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 11
+text = "1.0x"
+
+[node name="SliderSens" type="HSlider" parent="OptionsPanel/Margin/VBox/SettingsList/SensSection"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+min_value = 50.0
+max_value = 200.0
+step = 10.0
+value = 100.0
+
+[node name="Footer" type="HBoxContainer" parent="OptionsPanel/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 10
+alignment = 1
+
+[node name="BtnCerrarOpciones" type="Button" parent="OptionsPanel/Margin/VBox/Footer"]
+custom_minimum_size = Vector2(280, 40)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "◄ VOLVER A PAUSA"

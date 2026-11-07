@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cpe00gux4jj2y"
-path="res://.godot/imported/fancooler conectado.png-5ce6c6c2623ab55ea7ec45c618f18789.ctex"
+uid="uid://cte11graku4rq"
+path="res://.godot/imported/ amd ryzen 3 abierto.png-71b5ada9eab621a0a3413fb0b2bd9c46.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://pixel art minijuegos/fancooler/fancooler conectado.png"
-dest_files=["res://.godot/imported/fancooler conectado.png-5ce6c6c2623ab55ea7ec45c618f18789.ctex"]
+source_file="res://pixel art minijuegos/procesador/amd/abiertos/ amd ryzen 3 abierto.png"
+dest_files=["res://.godot/imported/ amd ryzen 3 abierto.png-71b5ada9eab621a0a3413fb0b2bd9c46.ctex"]
 
 [params]
 

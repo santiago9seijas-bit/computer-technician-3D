@@ -1,10 +1,17 @@
-[gd_scene format=3 load_steps=7]
+[gd_scene format=3 load_steps=14]
 
 [ext_resource type="Script" path="res://scripts/minigames/HDDMinigame.gd" id="1_hdd"]
 [ext_resource type="Script" path="res://scripts/menus/CyberButton.gd" id="2_cbtn"]
 [ext_resource type="Theme" path="res://styles/cyberpunk_theme.tres" id="3_theme"]
 [ext_resource type="FontFile" uid="uid://dbcug8887dro7" path="res://assets/fonts/Bungee-Regular.ttf" id="4_title_font"]
 [ext_resource type="PackedScene" path="res://scenes/ui/CyberBackgroundFrame.tscn" id="5_bg_frame"]
+[ext_resource type="Texture2D" uid="uid://cfu6snirrk8ms" path="res://pixel art minijuegos/memoriastipos/soporte para ssd/placa.png" id="6_placa"]
+[ext_resource type="Texture2D" uid="uid://b1pj41xlrukgf" path="res://pixel art minijuegos/memoriastipos/m.2/memoria M.2.png" id="7_m2"]
+[ext_resource type="Texture2D" uid="uid://sipfcv4twukw" path="res://pixel art minijuegos/memoriastipos/ssd/memoria.png" id="8_ssd"]
+[ext_resource type="Texture2D" uid="uid://bdnwy2jt8hh53" path="res://pixel art minijuegos/memoriastipos/soporte para ssd/pines de memoria.png" id="9_pins_c"]
+[ext_resource type="Texture2D" uid="uid://ctmdqifv7ain7" path="res://pixel art minijuegos/memoriastipos/soporte para ssd/pines de memoria abiertos.png" id="10_pins_o"]
+[ext_resource type="Texture2D" uid="uid://0d74wkeefjsa" path="res://pixel art minijuegos/tornillos/tornillo de cruz.png" id="11_screw_cruz"]
+[ext_resource type="Texture2D" uid="uid://bhq6g74hxlnqt" path="res://pixel art minijuegos/tornillos/tornillo de pala.png" id="12_screw_pala"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_frame"]
 content_margin_left = 24.0
@@ -35,6 +42,7 @@ grow_vertical = 2
 color = Color(0.04, 0.01, 0.08, 0.94)
 
 [node name="Panel" type="PanelContainer" parent="ModalControl"]
+custom_minimum_size = Vector2(960, 560)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -204,6 +212,149 @@ theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
 theme_override_font_sizes/font_size = 14
 text = "Tornillo de Cruz (Tecla 1)"
 vertical_alignment = 1
+
+[node name="LevelDriveArea" type="Control" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea"]
+visible = false
+custom_minimum_size = Vector2(514, 271)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -257.0
+offset_top = -135.5
+offset_right = 257.0
+offset_bottom = 135.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PlacaBase" type="TextureRect" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/LevelDriveArea"]
+texture_filter = 1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("6_placa")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="MemoryDrive" type="Control" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/LevelDriveArea"]
+z_index = 1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -61.0
+offset_bottom = -61.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MemorySprite" type="TextureRect" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/LevelDriveArea/MemoryDrive"]
+texture_filter = 1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("7_m2")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="PinsSprite" type="TextureRect" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/LevelDriveArea"]
+z_index = 2
+texture_filter = 1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("9_pins_c")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="BtnPins" type="Button" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/LevelDriveArea"]
+layout_mode = 1
+offset_left = 75.0
+offset_top = 35.0
+offset_right = 150.0
+offset_bottom = 130.0
+focus_mode = 0
+flat = true
+
+[node name="RearScrewBtn" type="Button" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/LevelDriveArea"]
+z_index = 3
+custom_minimum_size = Vector2(34, 34)
+layout_mode = 1
+offset_left = 388.0
+offset_top = 62.0
+offset_right = 422.0
+offset_bottom = 96.0
+focus_mode = 0
+flat = true
+
+[node name="ScrewIcon" type="TextureRect" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/LevelDriveArea/RearScrewBtn"]
+texture_filter = 1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("11_screw_cruz")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="DragArrowIndicator" type="PanelContainer" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/LevelDriveArea"]
+visible = false
+z_index = 4
+custom_minimum_size = Vector2(340, 36)
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -170.0
+offset_top = -46.0
+offset_right = 170.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+
+[node name="ArrowLabel" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/LevelDriveArea/DragArrowIndicator"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.9, 0.1, 1)
+theme_override_font_sizes/font_size = 13
+text = "➔ ➔ ARRASTRA A LA DERECHA PARA EXTRAER ➔ ➔"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BtnToggleModel" type="Button" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/LevelDriveArea"]
+visible = false
+z_index = 5
+custom_minimum_size = Vector2(280, 32)
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -140.0
+offset_top = 6.0
+offset_right = 140.0
+offset_bottom = 38.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.1, 1, 0.85, 1)
+theme_override_font_sizes/font_size = 12
+text = "🔀 CAMBIAR MODELO: M.2 NVMe ⇄ SSD SATA"
 
 [node name="BackpackPanel" type="PanelContainer" parent="ModalControl/Panel/VBox/ContentHBox"]
 custom_minimum_size = Vector2(250, 260)

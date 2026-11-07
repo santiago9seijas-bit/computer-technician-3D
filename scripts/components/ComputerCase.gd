@@ -48,6 +48,9 @@ var components: Dictionary = {
 }
 
 var saved_screw_type: String = ""
+var ram_type: String = "ddr4"
+var drive_type: String = "m2"
+@export var cpu_brand: String = ""
 var is_completed: bool = false
 var has_player_inspected: bool = false
 var current_glow_color: Color = Color(0.0, 0.65, 1.0)
@@ -94,6 +97,10 @@ func setup_diagnostic_case(case_idx: int = -1) -> void:
 	}
 	for part in diagnostic_faulty_parts:
 		components[part] = "broken"
+	if drive_type == "":
+		drive_type = "m2" if randf() > 0.5 else "ssd"
+	if cpu_brand == "":
+		cpu_brand = "amd" if randf() > 0.5 else "intel"
 
 func _process(delta: float) -> void:
 	if arrow_mesh:

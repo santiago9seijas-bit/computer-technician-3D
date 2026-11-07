@@ -44,6 +44,10 @@ func _ready() -> void:
 			if mi:
 				_cached_mesh_instances.append(mi)
 	_setup_animation_player()
+	# Sincronizar sensibilidad de ratón con GameManager
+	var gm = get_node_or_null("/root/GameManager")
+	if gm and "mouse_sensitivity_multiplier" in gm:
+		mouse_sensitivity = 0.002 * gm.mouse_sensitivity_multiplier
 	# En vista primera persona habitual, ocultar malla para no bloquear cámara pero manteniendo sombras
 	set_character_shadows_only(true)
 
@@ -207,7 +211,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
 			var root_node = get_tree().root
 			var modal_open = false
-			for modal_name in ["PCInspectionModal", "ServerInspectionModal", "LevelIntroModal", "LevelSystemsIntroModal", "LevelServerIntroModal", "PCSystemsModal"]:
+			for modal_name in ["PCInspectionModal", "ServerInspectionModal", "LevelIntroModal", "LevelSystemsIntroModal", "LevelServerIntroModal", "PCSystemsModal", "RAMSelectionModal"]:
 				var found = root_node.find_child(modal_name, true, false)
 				if is_instance_valid(found) and (not ("visible" in found) or found.visible):
 					modal_open = true

@@ -205,7 +205,7 @@ func _ready() -> void:
 	}
 
 	var comp_pines_labels = {
-		"RAM": "📍 SOLDAR PINES / PISTAS [3]",
+		"RAM": "🔍 ALINEAR PINES (LUPA [3])",
 		"Disco Duro": "📍 SOLDAR PINES SATA [3]",
 		"Grafica": "📍 SOLDAR PINES PCIE [3]",
 		"Fuente": "📍 SOLDAR CABLES / PINES [3]",
@@ -498,7 +498,12 @@ func _try_install_spare(backpack_idx: int, target_comp: String) -> void:
 		
 	selected_backpack_idx = -1
 	_show_feedback("✓ ¡Repuesto de %s verificado! Iniciando montaje..." % target_comp, true)
-	_open_minigame_by_name(target_comp, true)
+	if target_comp == "RAM":
+		_open_ram_minigame(true, item.get("ram_type", ""))
+	elif target_comp == "Disco Duro":
+		_open_hdd_minigame(true, item.get("drive_type", ""))
+	else:
+		_open_minigame_by_name(target_comp, true)
 
 # =============================================================================
 # ACCIÓN DEL BOTÓN SACAR (DESMONTAJE) Y EXAMINAR
@@ -603,21 +608,45 @@ func _open_dust_cleaner(comp_name: String) -> void:
 
 func _on_pines_pressed(comp_name: String) -> void:
 	if not GameManager.is_soldering_tool_equipped():
-		_show_feedback("⚠️ Necesitas seleccionar el Cautín [3] para realizar micro-soldadura.", false)
+		_show_feedback("⚠️ Necesitas seleccionar la Lupa [3] para inspeccionar y alinear pines.", false)
 		return
 	if current_pc == null:
 		return
 	var status = current_pc.components.get(comp_name, "ok")
 	if status == "empty":
-		_show_feedback("🎒 El slot de [%s] está vacío. No hay circuitos para soldar." % comp_name, false)
+		_show_feedback("🎒 El slot de [%s] está vacío. No hay pines para inspeccionar." % comp_name, false)
 		return
 
 	if comp_name == "CPU":
 		_open_cpu_pines()
+	elif comp_name == "RAM":
+		_open_ram_pines()
 	else:
 		GameManager.register_repair(50, 3.0)
-		_show_feedback("✓ ¡Micro-soldadura con Cautín [3] en [%s] completada! Pines, pistas y conectores reparados." % comp_name, true)
+		_show_feedback("✓ ¡Inspección con Lupa [3] en [%s] completada! Pines y contactos reparados." % comp_name, true)
 		_refresh_ui()
+
+func _open_ram_pines() -> void:
+	if not GameManager.is_soldering_tool_equipped():
+		_show_feedback("⚠️ Necesitas seleccionar la Lupa [3] para inspeccionar los pines de la RAM.", false)
+		return
+	modal_control.visible = false
+	var minigame = cpupins_minigame_scene.instantiate()
+	get_tree().root.add_child(minigame)
+	
+	minigame.connect("minigame_finished", func(success: bool):
+		minigame.queue_free()
+		modal_control.visible = true
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+		if success:
+			GameManager.register_repair(80, 5.0)
+			_show_feedback("✓ ¡Pines y contactos de la RAM inspeccionados con Lupa [3] y enderezados!", true)
+			if current_pc and current_pc.components.get("RAM", "") == "broken":
+				current_pc.components["RAM"] = "ok"
+				_set_examined_status("RAM", "ok")
+				current_pc.update_3d_state()
+		_refresh_ui()
+	)
 
 func _open_cpu_limpiar() -> void:
 	if not GameManager.is_cleaning_tool_equipped():
@@ -626,6 +655,10 @@ func _open_cpu_limpiar() -> void:
 	modal_control.visible = false
 	var minigame = cpupaste_minigame_scene.instantiate()
 	minigame.set("is_tutorial_mode", false)
+	if current_pc:
+		var brand = current_pc.get("cpu_brand")
+		if brand != null and brand != "":
+			minigame.set("cpu_brand", brand)
 	get_tree().root.add_child(minigame)
 	
 	minigame.connect("minigame_finished", func(success: bool):
@@ -641,7 +674,7 @@ func _open_cpu_limpiar() -> void:
 
 func _open_cpu_pines() -> void:
 	if not GameManager.is_soldering_tool_equipped():
-		_show_feedback("⚠️ Necesitas seleccionar el Cautín [3] para manipular los pines.", false)
+		_show_feedback("⚠️ Necesitas seleccionar la Lupa [3] para manipular los pines.", false)
 		return
 	modal_control.visible = false
 	var minigame = cpupins_minigame_scene.instantiate()
@@ -736,14 +769,17 @@ func _refresh_ui() -> void:
 	if comps_dict.is_empty():
 		return
 		
+	var ram_spec = ("%s 16GB" % current_pc.ram_type.to_upper()) if (current_pc and "ram_type" in current_pc) else "DDR5 16GB"
+	var drive_spec = ("SSD M.2 NVMe" if current_pc.get("drive_type") == "m2" else "SSD SATA 2.5\"") if (current_pc and "drive_type" in current_pc) else "SSD / M.2"
+	var cpu_spec = ("AMD RYZEN 3" if (current_pc and current_pc.get("cpu_brand") == "amd") else "INTEL CORE I5") if (current_pc and "cpu_brand" in current_pc) else "INTEL CORE I5"
 	var comp_subtitles = {
-		"RAM": "DDR5 16GB",
-		"Disco Duro": "SATA SSD 1TB",
+		"RAM": ram_spec,
+		"Disco Duro": drive_spec,
 		"Grafica": "RTX 4070 OC",
 		"Fuente": "850W GOLD",
 		"Placa Madre": "CHIPSET Z790",
 		"Fan Cooler": "DISIPADOR PWM",
-		"CPU": "LGA 1700 OCTA-CORE"
+		"CPU": cpu_spec
 	}
 	
 	# Comprobar si el jugador tiene el kit de refrigeración líquida en la mochila
@@ -867,7 +903,7 @@ func _refresh_ui() -> void:
 				
 		if comp_pines_btns.has(comp_name):
 			var btn_p: Button = comp_pines_btns[comp_name]
-			btn_p.visible = is_cautin_equipped
+			btn_p.visible = is_cautin_equipped and (comp_name == "CPU" or comp_name == "RAM")
 			btn_p.disabled = is_empty
 			if is_empty:
 				btn_p.modulate = Color(0.6, 0.6, 0.6, 0.5)
@@ -889,7 +925,7 @@ func _refresh_ui() -> void:
 		if i < GameManager.backpack.size():
 			var it = GameManager.backpack[i]
 			var is_broken = it.get("broken", false)
-			var item_name = it.get("name", "")
+			var item_name = it.get("display_name", it.get("name", ""))
 			if is_broken:
 				slot_btn.text = "Slot %d: [ DAÑADO ]\n%s (Papelera)" % [i + 1, item_name]
 				slot_btn.modulate = Color(1.0, 0.35, 0.35, 0.85)
@@ -1012,11 +1048,15 @@ func _open_cooler_minigame(is_empty: bool) -> void:
 		_refresh_ui()
 	)
 
-func _open_ram_minigame(is_empty: bool) -> void:
+func _open_ram_minigame(is_empty: bool, preferred_ram_type: String = "") -> void:
 	modal_control.visible = false
 	var minigame = ram_minigame_scene.instantiate()
 	minigame.start_as_empty_slot = is_empty
 	minigame.set("is_tutorial_mode", false)
+	if preferred_ram_type != "":
+		minigame.set_ram_type(preferred_ram_type)
+	elif not is_empty and current_pc and "ram_type" in current_pc:
+		minigame.set_ram_type(current_pc.ram_type)
 	get_tree().root.add_child(minigame)
 	
 	minigame.connect("old_part_extracted", func():
@@ -1030,42 +1070,56 @@ func _open_ram_minigame(is_empty: bool) -> void:
 		if success:
 			if is_empty:
 				current_pc.components["RAM"] = "fixed"
+				if minigame.get("current_ram_type") != null and minigame.current_ram_type != "":
+					current_pc.ram_type = minigame.current_ram_type
 				_set_examined_status("RAM", "ok")
 				current_pc.update_3d_state()
 				GameManager.register_repair(100, 10.0)
-				_show_feedback("✓ ¡Módulo RAM nuevo instalado y testeado!", true)
+				var type_lbl = current_pc.ram_type.to_upper() if "ram_type" in current_pc else "DDR"
+				_show_feedback("✓ ¡Módulo RAM %s nuevo instalado y testeado!" % type_lbl, true)
 			else:
 				_show_feedback("✓ Módulo RAM averiado retirado. Slot libre para repuesto.", true)
 		_refresh_ui()
 	)
 
-func _open_hdd_minigame(is_empty: bool) -> void:
+func _open_hdd_minigame(is_empty: bool, preferred_drive_type: String = "") -> void:
 	modal_control.visible = false
 	var minigame = hdd_minigame_scene.instantiate()
 	minigame.start_as_empty_slot = is_empty
 	minigame.set("is_tutorial_mode", false)
-	if current_pc.saved_screw_type != "":
+	if current_pc and "saved_screw_type" in current_pc and current_pc.saved_screw_type != "":
 		minigame.screw_type = current_pc.saved_screw_type
+	if preferred_drive_type != "":
+		minigame.set("current_drive_type", preferred_drive_type)
+	elif current_pc and "drive_type" in current_pc and current_pc.drive_type != "":
+		minigame.set("current_drive_type", current_pc.drive_type)
 	get_tree().root.add_child(minigame)
 	
 	minigame.connect("old_part_extracted", func():
-		current_pc.components["Disco Duro"] = "empty"
-		_clear_examined_status("Disco Duro")
-		current_pc.saved_screw_type = minigame.screw_type
-		current_pc.update_3d_state()
+		if current_pc:
+			current_pc.components["Disco Duro"] = "empty"
+			_clear_examined_status("Disco Duro")
+			current_pc.saved_screw_type = minigame.screw_type
+			if "current_drive_type" in minigame and "drive_type" in current_pc:
+				current_pc.drive_type = minigame.current_drive_type
+			current_pc.update_3d_state()
 	)
 	minigame.connect("minigame_finished", func(success: bool):
 		minigame.queue_free()
 		modal_control.visible = true
-		if success:
+		if success and current_pc:
+			var d_type = minigame.get("current_drive_type") if minigame.get("current_drive_type") != null else "m2"
+			var d_lbl = "SSD M.2 NVMe" if d_type == "m2" else "SSD SATA"
 			if is_empty:
 				current_pc.components["Disco Duro"] = "fixed"
+				if "drive_type" in current_pc:
+					current_pc.drive_type = d_type
 				_set_examined_status("Disco Duro", "ok")
 				current_pc.update_3d_state()
 				GameManager.register_repair(100, 10.0)
-				_show_feedback("✓ ¡Disco Duro nuevo instalado y testeado!", true)
+				_show_feedback("✓ ¡Unidad %s nueva instalada y testeada!" % d_lbl, true)
 			else:
-				_show_feedback("✓ Disco Duro averiado retirado. Bahía libre para repuesto.", true)
+				_show_feedback("✓ Unidad %s averiada retirada. Puerto libre para repuesto." % d_lbl, true)
 		_refresh_ui()
 	)
 

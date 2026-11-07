@@ -223,7 +223,8 @@ func _update_backpack_ui(items: Array) -> void:
 			var item = items[i]
 			var btn = Button.new()
 			var estado = "(Dañada)" if item.get("broken", false) else "(Nueva)"
-			btn.text = "%d. %s %s" % [i + 1, item.get("name", "Pieza"), estado]
+			var item_label = item.get("display_name", item.get("name", "Pieza"))
+			btn.text = "%d. %s %s" % [i + 1, item_label, estado]
 			if item.get("broken", false):
 				btn.modulate = Color(1, 0.4, 0.4, 1)
 			else:

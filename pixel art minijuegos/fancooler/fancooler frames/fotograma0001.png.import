@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c8rs5d6xqjndx"
-path="res://.godot/imported/cautin emoticon.png-16c6e0eb44a517de0f0886651a2e1f2f.ctex"
+uid="uid://15nc5q7ikdvy"
+path="res://.godot/imported/fotograma0001.png-9e4caf539a2293aad3029446e8b10f1b.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://pixel art menus/decoracion/cautin emoticon.png"
-dest_files=["res://.godot/imported/cautin emoticon.png-16c6e0eb44a517de0f0886651a2e1f2f.ctex"]
+source_file="res://pixel art minijuegos/fancooler/fancooler frames/fotograma0001.png"
+dest_files=["res://.godot/imported/fotograma0001.png-9e4caf539a2293aad3029446e8b10f1b.ctex"]
 
 [params]
 

@@ -1,80 +1,20 @@
-[gd_scene format=3 load_steps=12]
+[gd_scene format=3 load_steps=11]
 
 [ext_resource type="Script" path="res://scripts/minigames/CPUPasteMinigame.gd" id="1_paste"]
 [ext_resource type="Script" path="res://scripts/menus/CyberButton.gd" id="2_cbtn"]
 [ext_resource type="Theme" path="res://styles/cyberpunk_theme.tres" id="3_theme"]
 [ext_resource type="FontFile" uid="uid://dbcug8887dro7" path="res://assets/fonts/Bungee-Regular.ttf" id="4_title_font"]
 [ext_resource type="PackedScene" path="res://scenes/ui/CyberBackgroundFrame.tscn" id="5_bg_frame"]
+[ext_resource type="Texture2D" uid="uid://43y6u2hk1ihl" path="res://pixel art minijuegos/procesador/placa de procesador.png" id="6_placa"]
+[ext_resource type="Texture2D" uid="uid://e858jrargcmx" path="res://pixel art minijuegos/procesador/intel/abiertos/intel 5 abierto.png" id="7_cpu_intel"]
+[ext_resource type="Texture2D" uid="uid://btfgqxg3g2xl2" path="res://pixel art minijuegos/limpiezaprofunda/cpuprofunda/pasta termica mancha.png" id="8_stain"]
+[ext_resource type="Texture2D" uid="uid://csbiywp6h5g5k" path="res://pixel art minijuegos/limpiezaprofunda/cpuprofunda/pañuelo.png" id="9_panuelo"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_frame"]
 content_margin_left = 24.0
 content_margin_top = 20.0
 content_margin_right = 24.0
 content_margin_bottom = 20.0
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_socket"]
-bg_color = Color(0.1, 0.1, 0.14, 0.98)
-border_width_left = 4
-border_width_top = 4
-border_width_right = 4
-border_width_bottom = 4
-border_color = Color(0.1, 0.85, 0.7, 0.8)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ihs"]
-bg_color = Color(0.28, 0.3, 0.34, 1)
-border_width_left = 4
-border_width_top = 4
-border_width_right = 4
-border_width_bottom = 4
-border_color = Color(0.65, 0.7, 0.75, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_target"]
-bg_color = Color(0, 0.9, 1, 0.15)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0, 1, 0.8, 0.9)
-corner_radius_top_left = 24
-corner_radius_top_right = 24
-corner_radius_bottom_right = 24
-corner_radius_bottom_left = 24
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_new_paste"]
-bg_color = Color(0.72, 0.76, 0.82, 0.98)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.9, 0.95, 1, 1)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
-shadow_color = Color(0, 0, 0, 0.45)
-shadow_size = 4
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dispenser_cube"]
-bg_color = Color(0.24, 0.26, 0.3, 0.96)
-border_width_left = 3
-border_width_top = 3
-border_width_right = 3
-border_width_bottom = 3
-border_color = Color(0.1, 0.85, 0.7, 0.9)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-shadow_color = Color(0, 0, 0, 0.45)
-shadow_size = 6
 
 [node name="CPUPasteMinigame" type="CanvasLayer"]
 layer = 12
@@ -106,9 +46,9 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -460.0
-offset_top = -290.0
+offset_top = -305.0
 offset_right = 460.0
-offset_bottom = 290.0
+offset_bottom = 305.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxEmpty_frame")
@@ -118,7 +58,7 @@ layout_mode = 2
 
 [node name="VBox" type="VBoxContainer" parent="ModalControl/Panel"]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 10
 
 [node name="Header" type="VBoxContainer" parent="ModalControl/Panel/VBox"]
 layout_mode = 2
@@ -132,19 +72,19 @@ theme_override_constants/outline_size = 8
 theme_override_colors/font_shadow_color = Color(0.02, 0.45, 0.35, 0.85)
 theme_override_constants/shadow_outline_size = 8
 theme_override_fonts/font = ExtResource("4_title_font")
-theme_override_font_sizes/font_size = 20
-text = "REPARACIÓN A FONDO: LIMPIEZA Y REAPLICACIÓN DE PASTA TÉRMICA"
+theme_override_font_sizes/font_size = 19
+text = "REPARACIÓN A FONDO: LIMPIEZA Y RENOVACIÓN DE PASTA TÉRMICA"
 horizontal_alignment = 1
 
 [node name="ToolBar" type="HBoxContainer" parent="ModalControl/Panel/VBox/Header"]
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 16
 alignment = 1
 
 [node name="BtnTool1" type="Button" parent="ModalControl/Panel/VBox/Header/ToolBar"]
-custom_minimum_size = Vector2(180, 36)
+custom_minimum_size = Vector2(210, 36)
 layout_mode = 2
-text = "[1] Pinzas"
+text = "[1] Pañuelo Limpiador"
 flat = true
 script = ExtResource("2_cbtn")
 slant = 12.0
@@ -152,15 +92,7 @@ slant = 12.0
 [node name="BtnTool2" type="Button" parent="ModalControl/Panel/VBox/Header/ToolBar"]
 custom_minimum_size = Vector2(210, 36)
 layout_mode = 2
-text = "[2] Paño Isopropílico"
-flat = true
-script = ExtResource("2_cbtn")
-slant = 12.0
-
-[node name="BtnTool3" type="Button" parent="ModalControl/Panel/VBox/Header/ToolBar"]
-custom_minimum_size = Vector2(210, 36)
-layout_mode = 2
-text = "[3] Jeringa de Pasta"
+text = "[2] Jeringa de Pasta"
 flat = true
 script = ExtResource("2_cbtn")
 slant = 12.0
@@ -169,7 +101,7 @@ slant = 12.0
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
 theme_override_font_sizes/font_size = 14
-text = "PASO 1 (LIMPIAR): Frota el [2] Paño Isopropílico sobre la pasta seca para disolverla."
+text = "PASO 1 (LIMPIAR): Haz clic con el [1] Pañuelo sobre la pasta térmica vieja para removerla."
 horizontal_alignment = 1
 
 [node name="WarningLabel" type="Label" parent="ModalControl/Panel/VBox"]
@@ -179,7 +111,7 @@ theme_override_font_sizes/font_size = 13
 horizontal_alignment = 1
 
 [node name="WorkArea" type="Control" parent="ModalControl/Panel/VBox"]
-custom_minimum_size = Vector2(850, 360)
+custom_minimum_size = Vector2(850, 385)
 layout_mode = 2
 
 [node name="ProgressBars" type="VBoxContainer" parent="ModalControl/Panel/VBox/WorkArea"]
@@ -190,7 +122,7 @@ anchor_right = 0.5
 offset_left = -230.0
 offset_top = 0.0
 offset_right = 230.0
-offset_bottom = 48.0
+offset_bottom = 44.0
 grow_horizontal = 2
 theme_override_constants/separation = 4
 alignment = 1
@@ -229,205 +161,111 @@ custom_minimum_size = Vector2(220, 16)
 layout_mode = 2
 size_flags_vertical = 4
 
-[node name="SocketBase" type="Panel" parent="ModalControl/Panel/VBox/WorkArea"]
+[node name="SocketCenter" type="Control" parent="ModalControl/Panel/VBox/WorkArea"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -165.0
-offset_top = -95.0
-offset_right = 165.0
-offset_bottom = 165.0
+offset_left = -194.0
+offset_top = -140.0
+offset_right = 194.0
+offset_bottom = 202.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_socket")
+pivot_offset = Vector2(194, 171)
 
-[node name="SocketLabel" type="Label" parent="ModalControl/Panel/VBox/WorkArea/SocketBase"]
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -120.0
-offset_top = 8.0
-offset_right = 120.0
-offset_bottom = 26.0
-grow_horizontal = 2
-theme_override_colors/font_color = Color(0.1, 0.85, 0.7, 0.9)
-theme_override_font_sizes/font_size = 11
-text = "ZÓCALO LGA 1700 // BANCO DE LIMPIEZA"
-horizontal_alignment = 1
-
-[node name="CPUIHS" type="Panel" parent="ModalControl/Panel/VBox/WorkArea/SocketBase"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -95.0
-offset_top = -95.0
-offset_right = 95.0
-offset_bottom = 95.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 1
-theme_override_styles/panel = SubResource("StyleBoxFlat_ihs")
-
-[node name="CPUBrand" type="Label" parent="ModalControl/Panel/VBox/WorkArea/SocketBase/CPUIHS"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -80.0
-offset_top = -24.0
-offset_right = 80.0
-offset_bottom = 24.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_colors/font_color = Color(0.85, 0.9, 0.95, 0.9)
-theme_override_font_sizes/font_size = 12
-text = "CYBER_CORE i9-14900K
-24 CORES // 5.8 GHz
-MADE IN CYBERPUNK LABS"
-horizontal_alignment = 1
-
-[node name="PasteStain" type="ColorRect" parent="ModalControl/Panel/VBox/WorkArea/SocketBase/CPUIHS"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -75.0
-offset_top = -75.0
-offset_right = 75.0
-offset_bottom = 75.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 1
-mouse_default_cursor_shape = 2
-color = Color(0.48, 0.5, 0.53, 0.96)
-
-[node name="PasteLabel" type="Label" parent="ModalControl/Panel/VBox/WorkArea/SocketBase/CPUIHS/PasteStain"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -60.0
-offset_top = -18.0
-offset_right = 60.0
-offset_bottom = 18.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_colors/font_color = Color(0.2, 0.22, 0.25, 1)
-theme_override_font_sizes/font_size = 10
-text = "PASTA SECA
-(Frota para limpiar)"
-horizontal_alignment = 1
-
-[node name="ApplyTarget" type="Panel" parent="ModalControl/Panel/VBox/WorkArea/SocketBase/CPUIHS"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -50.0
-offset_top = -50.0
-offset_right = 50.0
-offset_bottom = 50.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 1
-mouse_default_cursor_shape = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_target")
-
-[node name="TargetLabel" type="Label" parent="ModalControl/Panel/VBox/WorkArea/SocketBase/CPUIHS/ApplyTarget"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -45.0
-offset_top = -20.0
-offset_right = 45.0
-offset_bottom = 20.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_colors/font_color = Color(0, 1, 0.8, 1)
-theme_override_font_sizes/font_size = 10
-text = "🎯
-[ ZONA IHS ]"
-horizontal_alignment = 1
-
-[node name="NewPasteDot" type="Panel" parent="ModalControl/Panel/VBox/WorkArea/SocketBase/CPUIHS"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -40.0
-offset_top = -40.0
-offset_right = 40.0
-offset_bottom = 40.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_new_paste")
-
-[node name="DotLabel" type="Label" parent="ModalControl/Panel/VBox/WorkArea/SocketBase/CPUIHS/NewPasteDot"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -35.0
-offset_top = -14.0
-offset_right = 35.0
-offset_bottom = 14.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_colors/font_color = Color(0.12, 0.15, 0.2, 1)
-theme_override_font_sizes/font_size = 9
-text = "PASTA NUEVA
-[ ✓ ]"
-horizontal_alignment = 1
-
-[node name="DispenserCube" type="Panel" parent="ModalControl/Panel/VBox/WorkArea"]
-z_index = 10
-layout_mode = 0
-offset_left = 45.0
-offset_top = 135.0
-offset_right = 155.0
-offset_bottom = 245.0
-mouse_filter = 0
-mouse_default_cursor_shape = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_dispenser_cube")
-
-[node name="CubeLabel" type="Label" parent="ModalControl/Panel/VBox/WorkArea/DispenserCube"]
+[node name="PlacaBase" type="TextureRect" parent="ModalControl/Panel/VBox/WorkArea/SocketCenter"]
+texture_filter = 1
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_colors/font_color = Color(0.85, 0.9, 0.95, 1)
-theme_override_font_sizes/font_size = 10
-text = "PASTA
-TÉRMICA
-[ PASA VARIAS
-VECES ]"
+texture = ExtResource("6_placa")
+stretch_mode = 5
+
+[node name="CPUSprite" type="TextureRect" parent="ModalControl/Panel/VBox/WorkArea/SocketCenter"]
+texture_filter = 1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("7_cpu_intel")
+stretch_mode = 5
+
+[node name="OldPasteStain" type="TextureRect" parent="ModalControl/Panel/VBox/WorkArea/SocketCenter"]
+texture_filter = 1
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -104.0
+offset_top = -100.0
+offset_right = 104.0
+offset_bottom = 98.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(104, 99)
+mouse_filter = 0
+texture = ExtResource("8_stain")
+stretch_mode = 5
+
+[node name="NewPasteStain" type="TextureRect" parent="ModalControl/Panel/VBox/WorkArea/SocketCenter"]
+visible = false
+texture_filter = 1
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -104.0
+offset_top = -100.0
+offset_right = 104.0
+offset_bottom = 98.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(104, 99)
+mouse_filter = 0
+texture = ExtResource("8_stain")
+stretch_mode = 5
+
+[node name="CPUTag" type="Label" parent="ModalControl/Panel/VBox/WorkArea/SocketCenter"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -160.0
+offset_top = -18.0
+offset_right = 160.0
+offset_bottom = 6.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.2, 0.75, 1, 0.95)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 11
+text = "INTEL CORE I5 // LGA 1700"
 horizontal_alignment = 1
-vertical_alignment = 1
+
+[node name="ClickArea" type="Control" parent="ModalControl/Panel/VBox/WorkArea/SocketCenter"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+mouse_default_cursor_shape = 2
 
 [node name="Footer" type="HBoxContainer" parent="ModalControl/Panel/VBox"]
 layout_mode = 2
@@ -441,3 +279,14 @@ flat = true
 script = ExtResource("2_cbtn")
 slant = 12.0
 custom_font_size = 12
+
+[node name="CursorSprite" type="TextureRect" parent="ModalControl"]
+z_index = 100
+texture_filter = 1
+layout_mode = 0
+offset_right = 84.0
+offset_bottom = 80.0
+mouse_filter = 2
+texture = ExtResource("9_panuelo")
+expand_mode = 1
+stretch_mode = 5

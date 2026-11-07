@@ -19,7 +19,7 @@ signal minigame_finished(success: bool)
 @onready var victory_banner: PanelContainer = $ModalControl/Panel/VBox/VictoryBanner
 @onready var btn_cancel: Button = $ModalControl/Panel/VBox/Footer/BtnCancel
 
-const TEX_RAM: Texture2D = preload("res://pixel art minijuegos/ram.png")
+const TEX_RAM: Texture2D = preload("res://pixel art minijuegos/ramstipos/ram ddr.png")
 const TEX_FUENTE_CERRADA: Texture2D = preload("res://pixel art minijuegos/fuente/fuente cerrada.png")
 const TEX_FUENTE_ABIERTA: Texture2D = preload("res://pixel art minijuegos/fuente/fuente abierta.png")
 
