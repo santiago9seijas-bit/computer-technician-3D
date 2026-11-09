@@ -31,11 +31,13 @@ var intro_tween: Tween = null
 var intro_callback: Callable = Callable()
 var _cached_mesh_instances: Array[MeshInstance3D] = []
 var _space_was_pressed: bool = false
+var _e_was_pressed: bool = false
 
 func _ready() -> void:
 	_ensure_action("jump", KEY_SPACE)
 	_ensure_action("sprint", KEY_SHIFT)
 	_ensure_action("spring", KEY_SHIFT)
+	_ensure_action("interact", KEY_E)
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	if character_model:
 		var found = character_model.find_children("*", "MeshInstance3D")
@@ -168,12 +170,36 @@ func _finish_intro_cinematic() -> void:
 		cb.call()
 
 func set_movement_enabled(enabled: bool) -> void:
+	if GameManager.is_game_over:
+		can_move = false
+		velocity = Vector3.ZERO
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+		return
 	can_move = enabled
 	if not enabled:
 		velocity = Vector3.ZERO
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	else:
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+
+func is_dialog_active_anywhere() -> bool:
+	if GameManager.is_game_over:
+		return true
+	if hud_node:
+		var go_p = hud_node.get_node_or_null("GameOverPanel")
+		if is_instance_valid(go_p) and go_p.visible:
+			return true
+	var cur_sc = get_tree().current_scene
+	if cur_sc and "is_dialog_active" in cur_sc and cur_sc.is_dialog_active:
+		return true
+	var root_node = get_tree().root
+	var dlg = root_node.find_child("DialogBox", true, false)
+	if is_instance_valid(dlg) and dlg.visible and dlg.get("is_active"):
+		return true
+	var tut_vic = root_node.find_child("TutorialVictoryModal", true, false)
+	if is_instance_valid(tut_vic) and tut_vic.visible:
+		return true
+	return false
 
 func _unhandled_input(event: InputEvent) -> void:
 	if is_in_cinematic:
@@ -185,6 +211,9 @@ func _unhandled_input(event: InputEvent) -> void:
 			return
 		return
 		
+	if is_dialog_active_anywhere():
+		return
+
 	if not can_move or GameManager.is_game_paused:
 		return
 
@@ -199,7 +228,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		
 	# Si se hace clic en pantalla durante juego libre, asegurar captura del ratón
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		if not can_move or GameManager.is_game_paused:
+		if not can_move or GameManager.is_game_paused or is_dialog_active_anywhere():
 			return
 		if hud_node:
 			var win_panel = hud_node.get_node_or_null("WinPanel")
@@ -211,7 +240,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
 			var root_node = get_tree().root
 			var modal_open = false
-			for modal_name in ["PCInspectionModal", "ServerInspectionModal", "LevelIntroModal", "LevelSystemsIntroModal", "LevelServerIntroModal", "PCSystemsModal", "RAMSelectionModal"]:
+			for modal_name in ["PCInspectionModal", "ServerInspectionModal", "LevelIntroModal", "LevelSystemsIntroModal", "LevelServerIntroModal", "PCSystemsModal", "RAMSelectionModal", "DialogBox", "TutorialVictoryModal"]:
 				var found = root_node.find_child(modal_name, true, false)
 				if is_instance_valid(found) and (not ("visible" in found) or found.visible):
 					modal_open = true
@@ -225,6 +254,14 @@ func _unhandled_input(event: InputEvent) -> void:
 				Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 func _physics_process(delta: float) -> void:
+	if is_dialog_active_anywhere():
+		velocity.x = 0.0
+		velocity.z = 0.0
+		if not is_on_floor():
+			velocity.y -= gravity * delta
+		move_and_slide()
+		return
+
 	if not is_on_floor():
 		velocity.y -= gravity * delta
 	elif velocity.y < 0.0:
@@ -329,6 +366,11 @@ func bounce(force: float = 8.5) -> void:
 func _ensure_action(action_name: String, key: Key) -> void:
 	if not InputMap.has_action(action_name):
 		InputMap.add_action(action_name)
+	# Remover clics de ratón de la acción interactuar para impedir que doble clic abra la PC
+	if action_name == "interact":
+		for existing in InputMap.action_get_events(action_name):
+			if existing is InputEventMouseButton:
+				InputMap.action_erase_event(action_name, existing)
 	var has_event := false
 	for existing in InputMap.action_get_events(action_name):
 		if existing is InputEventKey and (existing.physical_keycode == key or existing.keycode == key):
@@ -345,6 +387,10 @@ func _ensure_action(action_name: String, key: Key) -> void:
 var _last_interaction_collider: Object = null
 
 func _handle_interaction() -> void:
+	var e_pressed = Input.is_physical_key_pressed(KEY_E) or Input.is_key_pressed(KEY_E)
+	var just_e = e_pressed and not _e_was_pressed
+	_e_was_pressed = e_pressed
+
 	if not can_move or GameManager.is_game_paused or is_in_cinematic:
 		if _last_interaction_collider != null:
 			_last_interaction_collider = null
@@ -360,7 +406,8 @@ func _handle_interaction() -> void:
 			if hud_node and hud_node.has_method("set_interaction_prompt"):
 				hud_node.set_interaction_prompt(prompt)
 				
-			if Input.is_action_just_pressed("interact"):
+			# Solo y exclusivamente abrir con tecla [E], nunca con clics de ratón
+			if just_e or (Input.is_action_just_pressed("interact") and not Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)):
 				target.interact(self)
 			return
 			

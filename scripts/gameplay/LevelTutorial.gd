@@ -6,6 +6,7 @@ extends Node3D
 # =============================================================================
 
 const DIALOG_SCENE: PackedScene = preload("res://scenes/ui/DialogBox.tscn")
+const VICTORY_MODAL_SCENE: PackedScene = preload("res://scenes/ui/TutorialVictoryModal.tscn")
 
 enum TutorialStep {
 	INTRO,
@@ -13,7 +14,8 @@ enum TutorialStep {
 	WAIT_REMOVE_RAM,
 	WAIT_FETCH_RAM,
 	WAIT_INSTALL_RAM,
-	WAIT_REPAIR_REST,
+	WAIT_HANDLE_SSD,
+	WAIT_HANDLE_PSU,
 	COMPLETED
 }
 
@@ -23,6 +25,7 @@ enum TutorialStep {
 @onready var holo_sub_banner: MeshInstance3D = $WorkBench/HoloSubBanner
 
 var dialog_box: Control = null
+var victory_modal: Control = null
 var current_step: TutorialStep = TutorialStep.INTRO
 var is_dialog_active: bool = false
 
@@ -63,14 +66,25 @@ func _ready() -> void:
 
 	# Instanciar el sistema de diálogo en CanvasLayerDialog (capa superior a cualquier modal)
 	dialog_box = DIALOG_SCENE.instantiate()
+	victory_modal = VICTORY_MODAL_SCENE.instantiate()
 	var dlg_canvas = get_node_or_null("CanvasLayerDialog") as CanvasLayer
 	if dlg_canvas:
 		dlg_canvas.add_child(dialog_box)
+		dlg_canvas.add_child(victory_modal)
 	else:
 		$CanvasLayerHUD.add_child(dialog_box)
+		$CanvasLayerHUD.add_child(victory_modal)
 
-	# Escuchar eventos de adición de nodos para detectar apertura del chasis de la PC
+	if victory_modal:
+		victory_modal.repeat_pressed.connect(_on_reintentar)
+		victory_modal.finish_pressed.connect(_on_siguiente)
+
+	# Escuchar eventos de adición y remoción de nodos para detectar apertura y cierre de modales
 	get_tree().node_added.connect(_on_tree_node_added)
+	get_tree().node_removed.connect(func(_n):
+		if not is_dialog_active:
+			_check_state_transitions()
+	)
 	GameManager.backpack_updated.connect(_on_backpack_updated)
 
 	# Iniciar cinemática de entrada del técnico
@@ -82,7 +96,11 @@ func _ready() -> void:
 		_start_intro_sequence()
 
 func _process(_delta: float) -> void:
-	if is_dialog_active:
+	if is_dialog_active or (is_instance_valid(victory_modal) and victory_modal.visible):
+		if player and player.has_method("set_movement_enabled") and player.can_move:
+			player.set_movement_enabled(false)
+		if Input.mouse_mode != Input.MOUSE_MODE_VISIBLE:
+			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 		return
 	_check_state_transitions()
 
@@ -94,7 +112,9 @@ func _set_holo_sub_text(text: String) -> void:
 
 func _is_modal_currently_open() -> bool:
 	for child in get_tree().root.get_children():
-		if child.name.begins_with("PCInspectionModal") or child.name.begins_with("RAMSelectionModal"):
+		if child.name.begins_with("PCInspectionModal") \
+			or child.name.begins_with("RAMSelectionModal") \
+			or (child.has_method("is_closed") and not child.is_closed):
 			return true
 	return false
 
@@ -213,40 +233,74 @@ func _advance_to_install_ram() -> void:
 	]
 	_show_dialog_sequence(install_dialogs)
 
-func _advance_to_repair_rest() -> void:
-	current_step = TutorialStep.WAIT_REPAIR_REST
-	var exact_ram = _get_ram_type_name()
-	_set_holo_sub_text("[PASO 5] SUSTITUYE LA FUENTE DE PODER Y EL DISCO DURO CON REPUESTOS NUEVOS")
+func _advance_to_handle_ssd() -> void:
+	current_step = TutorialStep.WAIT_HANDLE_SSD
+	_set_holo_sub_text("[PASO 2] DESMONTA EL DISCO DURO (SSD) Y COLOCA EL REPUESTO NUEVO")
+	GameManager.spawn_floating_text("Paso 2: Ahora desmonta y coloca el Disco Duro (SSD)", true)
 	
-	var remaining_dialogs: Array = [
+	var ssd_dialogs: Array = [
 		{
 			"speaker": "[SISTEMA // RAM INSTALADA CON ÉXITO]",
-			"text": "¡Gran trabajo! Has instalado la Memoria RAM %s correctamente y el zócalo ya está 100%% operativo." % exact_ram
+			"text": "¡Gran trabajo! Has colocado la Memoria RAM correctamente y su zócalo ya está 100%% operativo."
 		},
 		{
-			"speaker": "[OBJETIVO 5 // COMPLETAR EL EQUIPO]",
-			"text": "Paso 5: ¡Ya conoces el ciclo de trabajo de todo técnico!\nAhora haz lo mismo con los otros dos componentes defectuosos:\n1. Retira la Fuente de Poder rota y el Disco Duro roto.\n2. Busca repuestos nuevos en sus cajas azules laterales.\n3. Instálalos en la PC para que quede 100% operativa."
+			"speaker": "[OBJETIVO 2 // AHORA EL DISCO DURO]",
+			"text": "Paso 2: Ahora el Disco Duro (Almacenamiento SSD).\nEn el panel de la PC, ubica 'ALMACENAMIENTO (SSD / HDD)' averiado [❌] y haz clic en 'SACAR'.\nUsa el destornillador para quitar el tornillo trasero, haz clic en el recuadro resaltado de los PINES para destrabar el conector, arrastra el disco para retirarlo y luego instala el repuesto nuevo."
 		}
 	]
-	_show_dialog_sequence(remaining_dialogs)
+	_show_dialog_sequence(ssd_dialogs)
+
+func _advance_to_handle_psu() -> void:
+	current_step = TutorialStep.WAIT_HANDLE_PSU
+	_set_holo_sub_text("[PASO 3] DESMONTA LA FUENTE DE PODER (PSU) Y COLOCA EL REPUESTO NUEVO")
+	GameManager.spawn_floating_text("Paso 3: Ahora desmonta y coloca la Fuente de Poder", true)
+	
+	var psu_dialogs: Array = [
+		{
+			"speaker": "[SISTEMA // DISCO DURO INSTALADO]",
+			"text": "¡Perfecto! El almacenamiento SSD ha quedado conectado y asegurado en el puerto con éxito."
+		},
+		{
+			"speaker": "[OBJETIVO 3 // AHORA LA FUENTE DE PODER]",
+			"text": "Paso 3: Ahora la Fuente de Poder (PSU).\nUbica 'FUENTE DE PODER' averiada [❌] y haz clic en 'SACAR'.\nDesconecta el conector ATX principal y el arnés de CPU para retirar la fuente dañada, y luego instala la nueva fuente."
+		}
+	]
+	_show_dialog_sequence(psu_dialogs)
 
 func _advance_to_completed() -> void:
+	if current_step == TutorialStep.COMPLETED:
+		return
 	current_step = TutorialStep.COMPLETED
-	_set_holo_sub_text("¡TUTORIAL COMPLETADO! EQUIPO 100% OPERATIVO ✓")
+	_set_holo_sub_text("¡TUTORIAL COMPLETADO! HABILIDADES ADQUIRIDAS AL 100% ✓")
+	
+	# Si algún modal de inspección o minijuego sigue abierto, cerrarlo inmediatamente
+	for child in get_tree().root.get_children():
+		if child.name.begins_with("PCInspectionModal") \
+			or child.name.begins_with("RAMSelectionModal") \
+			or child.name.ends_with("Minigame") \
+			or child.is_in_group("minigames"):
+			child.queue_free()
 	
 	var completed_dialogs: Array = [
 		{
 			"speaker": "[SISTEMA // TUTORIAL COMPLETADO]",
-			"text": "¡FELICITACIONES, LÍDER! :)\nHas diagnosticado y reparado tu primera computadora al 100%.\nTodos los subsistemas funcionan a la perfección."
+			"text": "¡FELICITACIONES, LÍDER! :)\n¡Has colocado todas las piezas buenas en la computadora y el equipo quedó 100%% reparado y operativo!"
 		},
 		{
 			"speaker": "[CERTIFICACIÓN TÉCNICA // APROBADA]",
-			"text": "¡Has completado el entrenamiento con éxito!\nAhora estás listo para entrar al taller de reparaciones y afrontar cualquier reto técnico."
+			"text": "¡Has completado el entrenamiento técnico al 100%%!\nYa dominas los procedimientos para Memoria RAM, Almacenamiento SSD y Fuente de Poder.\n¡Presiona [E] para continuar!"
 		}
 	]
 	_show_dialog_sequence(completed_dialogs, func():
-		GameManager.win_level()
+		_show_tutorial_victory()
 	)
+
+func _show_tutorial_victory() -> void:
+	if player and player.has_method("set_movement_enabled"):
+		player.set_movement_enabled(false)
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	if is_instance_valid(victory_modal):
+		victory_modal.open()
 
 # =============================================================================
 # MONITOREO DE EVENTOS Y PROGRESIÓN
@@ -267,9 +321,18 @@ func _on_backpack_updated(_items: Array) -> void:
 	_check_state_transitions()
 
 func _check_state_transitions() -> void:
-	if not is_instance_valid(pc):
+	if not is_instance_valid(pc) or current_step == TutorialStep.COMPLETED:
 		return
 		
+	var ram_ok = pc.components.get("RAM", "") in ["ok", "fixed"]
+	var ssd_ok = pc.components.get("Disco Duro", "") in ["ok", "fixed"]
+	var psu_ok = pc.components.get("Fuente", "") in ["ok", "fixed"]
+	
+	# Verificación maestra: si todas las piezas del tutorial fueron reparadas o si la PC está 100% reparada
+	if (ram_ok and ssd_ok and psu_ok) or pc.is_fully_repaired():
+		_advance_to_completed()
+		return
+
 	match current_step:
 		TutorialStep.WAIT_REMOVE_RAM:
 			# Si la ranura de RAM de la PC quedó vacía (la desmontó)
@@ -277,18 +340,23 @@ func _check_state_transitions() -> void:
 				_advance_to_fetch_ram()
 				
 		TutorialStep.WAIT_FETCH_RAM:
-			# Si tomó una RAM funcional en la mochila
-			if _has_functional_ram_in_backpack():
+			# Si tomó una RAM funcional en la mochila Y ya cerró el modal de selección
+			if _has_functional_ram_in_backpack() and not _is_modal_currently_open():
 				_advance_to_install_ram()
 				
 		TutorialStep.WAIT_INSTALL_RAM:
 			# Si instaló la RAM en la PC con éxito
-			if pc.components.get("RAM", "") == "ok":
-				_advance_to_repair_rest()
+			if ram_ok:
+				_advance_to_handle_ssd()
 				
-		TutorialStep.WAIT_REPAIR_REST:
-			# Si reparó los 3 componentes (RAM, Fuente y Disco)
-			if pc.is_fully_repaired() or pc.is_completed:
+		TutorialStep.WAIT_HANDLE_SSD:
+			# Si instaló el Disco Duro en la PC con éxito
+			if ssd_ok:
+				_advance_to_handle_psu()
+				
+		TutorialStep.WAIT_HANDLE_PSU:
+			# Si instaló la Fuente en la PC con éxito
+			if psu_ok:
 				_advance_to_completed()
 
 func _has_functional_ram_in_backpack() -> bool:
@@ -299,8 +367,23 @@ func _has_functional_ram_in_backpack() -> bool:
 	return false
 
 func _on_reintentar() -> void:
-	get_tree().reload_current_scene()
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	CyberPlayTransition.play(
+		get_tree(),
+		"res://scenes/gameplay/LevelTutorial.tscn",
+		"REINICIANDO ENTRENAMIENTO",
+		"// RESTABLECIENDO COMPONENTES DE PRUEBA //",
+		Callable(),
+		true
+	)
 
 func _on_siguiente() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-	get_tree().change_scene_to_file("res://scenes/menus/LevelSelect.tscn")
+	CyberPlayTransition.play(
+		get_tree(),
+		"res://scenes/menus/LevelSelect.tscn",
+		"TUTORIAL COMPLETADO",
+		"// CERTIFICACIÓN TÉCNICA OFICIAL REGISTRADA //",
+		Callable(),
+		true
+	)

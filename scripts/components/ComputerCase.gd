@@ -108,6 +108,12 @@ func _process(delta: float) -> void:
 		arrow_mesh.position.y = original_arrow_y + sin(t * 3.0) * 0.08
 
 func is_fully_repaired() -> bool:
+	if get_meta("is_tutorial_pc", false):
+		for target in ["RAM", "Fuente", "Disco Duro"]:
+			var st = components.get(target, "")
+			if st != "ok" and st != "fixed":
+				return false
+		return true
 	for comp in components.keys():
 		if components[comp] == "broken" or components[comp] == "empty":
 			return false
@@ -131,7 +137,11 @@ func update_3d_state() -> void:
 			is_completed = true
 			GameManager.computers_fixed += 1
 			GameManager.register_repair(150, 15.0)
-			GameManager.win_level()
+			var cur_sc = get_tree().current_scene
+			if cur_sc and cur_sc.has_method("_advance_to_completed"):
+				cur_sc._advance_to_completed()
+			else:
+				GameManager.win_level()
 			
 		label_3d.text = "PC #%d [FALLA SOLUCIONADA ✓ EQUIPO 100%% OPERATIVO]" % pc_id
 		label_3d.modulate = current_glow_color

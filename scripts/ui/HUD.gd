@@ -9,6 +9,7 @@ extends Control
 @onready var stamina_bar: Control = $Center/CurvedStaminaBar
 @onready var tools_bar: HBoxContainer = $BottomCenter/ToolsBar
 @onready var floating_feedback_container: Control = $FloatingFeedback
+@onready var game_over_dim: ColorRect = get_node_or_null("GameOverDim")
 @onready var game_over_panel: PanelContainer = $GameOverPanel
 @onready var win_panel: PanelContainer = $WinPanel
 
@@ -27,6 +28,8 @@ func set_infinite_time(enabled: bool = true) -> void:
 		lbl_tiempo.modulate = Color(0, 0.9, 1, 1)
 
 func _ready() -> void:
+	if game_over_dim:
+		game_over_dim.visible = false
 	game_over_panel.visible = false
 	win_panel.visible = false
 	prompt_label.text = ""
@@ -267,9 +270,16 @@ func _spawn_floating_text(text: String, is_positive: bool, custom_origin: Vector
 	if gm and gm.has_method("spawn_floating_text"):
 		gm.spawn_floating_text(text, is_positive, custom_origin)
 
+func _process(_delta: float) -> void:
+	if (game_over_panel and game_over_panel.visible) or (win_panel and win_panel.visible):
+		if Input.mouse_mode != Input.MOUSE_MODE_VISIBLE:
+			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+
 func _on_game_over(reason: String) -> void:
-	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	if game_over_dim:
+		game_over_dim.visible = true
 	game_over_panel.visible = true
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	var reason_lbl = game_over_panel.get_node_or_null("VBox/ReasonLabel") as Label
 	if reason_lbl:
 		reason_lbl.text = reason

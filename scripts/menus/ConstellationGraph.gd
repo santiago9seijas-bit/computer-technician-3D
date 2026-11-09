@@ -122,56 +122,56 @@ var initialized_fx: bool = false
 # RAÍZ PRINCIPAL AL NIVEL 1 EN EL OESTE/NOROESTE CONECTADA DIRECTA AL NÚCLEO
 # =============================================================================
 var MODE_NODES: Dictionary = {
-	# 1. REPARACIÓN: Telaraña Octagonal de Hardware y Placa Madre
+	# 1. REPARACIÓN: Telaraña Octagonal de Hardware y Placa Madre Ampliada
 	"reparacion": [
 		Vector2(640, 395), # [0] TUTORIAL: Núcleo Central de Inducción Técnica (AZUL)
-		Vector2(500, 395), # [1] NIVEL 1: Montaje Fan Cooler (Raíz Primaria Oeste, ROJO)
-		Vector2(640, 255), # [2] NIVEL 2: Diagnóstico Banco RAM (Spoke Norte)
-		Vector2(780, 395), # [3] NIVEL 3: Unidad SATA y Buses (Spoke Este)
-		Vector2(640, 535), # [4] NIVEL 4: Pasta Térmica CPU (Spoke Sur)
-		Vector2(385, 395), # [5] NIVEL 5: Tarjeta Gráfica PCIe (Anillo Medio Oeste)
-		Vector2(820, 215), # [6] NIVEL 6: Bahía M.2 NVMe (Anillo Medio Noreste)
-		Vector2(460, 575), # [7] NIVEL 7: Fuente de Poder ATX (Anillo Medio Suroeste)
-		Vector2(820, 575), # [8] NIVEL 8: Módulos VRM MOSFETs (Anillo Medio Sureste)
-		Vector2(378, 135), # [9] NIVEL 9: Refrigeración Líquida (Anillo Exterior Noroeste)
-		Vector2(640, 125), # [10] NIVEL 10: Multímetro y Cortos (Anillo Exterior Norte)
-		Vector2(240, 560), # [11] NIVEL 11: Estación Multi-GPU (Anillo Exterior Suroeste)
-		Vector2(1040, 395),# [12] NIVEL 12: Jefe de Taller Supreme (Vértice Maestro Este)
-		Vector2(550, 305)  # [13] SALA DE PRÁCTICA: Banco Libre (Noroeste, NARANJA NEÓN)
+		Vector2(440, 395), # [1] NIVEL 1: Montaje Fan Cooler (Raíz Primaria Oeste, ROJO)
+		Vector2(640, 195), # [2] NIVEL 2: Diagnóstico Banco RAM (Spoke Norte)
+		Vector2(840, 395), # [3] NIVEL 3: Unidad SATA y Buses (Spoke Este)
+		Vector2(640, 595), # [4] NIVEL 4: Pasta Térmica CPU (Spoke Sur)
+		Vector2(270, 395), # [5] NIVEL 5: Tarjeta Gráfica PCIe (Anillo Medio Oeste)
+		Vector2(890, 145), # [6] NIVEL 6: Bahía M.2 NVMe (Anillo Medio Noreste)
+		Vector2(410, 640), # [7] NIVEL 7: Fuente de Poder ATX (Anillo Medio Suroeste)
+		Vector2(910, 640), # [8] NIVEL 8: Módulos VRM MOSFETs (Anillo Medio Sureste)
+		Vector2(250, 135), # [9] NIVEL 9: Refrigeración Líquida (Anillo Exterior Noroeste)
+		Vector2(640, 65),  # [10] NIVEL 10: Multímetro y Cortos (Anillo Exterior Norte)
+		Vector2(130, 605), # [11] NIVEL 11: Estación Multi-GPU (Anillo Exterior Suroeste)
+		Vector2(1150, 395),# [12] NIVEL 12: Jefe de Taller Supreme (Vértice Maestro Este)
+		Vector2(380, 260)  # [13] SALA DE PRÁCTICA: Banco Libre (Distanciada, NARANJA NEÓN)
 	],
-	# 2. SISTEMA: Telaraña de Diamante Cibernético y Matriz de Kernel
+	# 2. SISTEMA: Telaraña de Diamante Cibernético y Matriz de Kernel Ampliada
 	"sistema": [
 		Vector2(640, 395), # [0] TUTORIAL: Núcleo Central de Boot & BIOS (AZUL)
-		Vector2(537, 292), # [1] NIVEL 1: Cold Boot POST (Raíz Primaria Noroeste, ROJO)
-		Vector2(743, 292), # [2] NIVEL 2: Firmware Diagnostics (Raíz Noreste)
-		Vector2(743, 498), # [3] NIVEL 3: BIOS Flash (Raíz Sureste)
-		Vector2(537, 498), # [4] NIVEL 4: Secure Boot (Raíz Suroeste)
-		Vector2(640, 145), # [5] NIVEL 5: Tabla GPT (Ápice Medio Norte)
-		Vector2(890, 395), # [6] NIVEL 6: Cargador GRUB/BCD (Ápice Medio Este)
-		Vector2(640, 645), # [7] NIVEL 7: Kernel Ring 0 (Ápice Medio Sur)
-		Vector2(390, 395), # [8] NIVEL 8: Sandbox Malware (Ápice Medio Oeste)
-		Vector2(382, 137), # [9] NIVEL 9: Registro HKLM (Vértice Exterior Noroeste)
-		Vector2(898, 137), # [10] NIVEL 10: Protección ASLR (Vértice Exterior Noreste)
-		Vector2(898, 653), # [11] NIVEL 11: Rescate BitLocker (Vértice Exterior Sureste)
-		Vector2(382, 653), # [12] NIVEL 12: SysAdmin Master (Vértice Exterior Suroeste)
-		Vector2(550, 305)  # [13] SALA DE PRÁCTICA (NARANJA NEÓN)
+		Vector2(480, 235), # [1] NIVEL 1: Cold Boot POST (Raíz Primaria Noroeste, ROJO)
+		Vector2(800, 235), # [2] NIVEL 2: Firmware Diagnostics (Raíz Noreste)
+		Vector2(800, 555), # [3] NIVEL 3: BIOS Flash (Raíz Sureste)
+		Vector2(480, 555), # [4] NIVEL 4: Secure Boot (Raíz Suroeste)
+		Vector2(640, 85),  # [5] NIVEL 5: Tabla GPT (Ápice Medio Norte)
+		Vector2(1020, 395),# [6] NIVEL 6: Cargador GRUB/BCD (Ápice Medio Este)
+		Vector2(640, 690), # [7] NIVEL 7: Kernel Ring 0 (Ápice Medio Sur)
+		Vector2(260, 395), # [8] NIVEL 8: Sandbox Malware (Ápice Medio Oeste)
+		Vector2(240, 85),  # [9] NIVEL 9: Registro HKLM (Vértice Exterior Noroeste)
+		Vector2(1040, 85), # [10] NIVEL 10: Protección ASLR (Vértice Exterior Noreste)
+		Vector2(1040, 690),# [11] NIVEL 11: Rescate BitLocker (Vértice Exterior Sureste)
+		Vector2(240, 690), # [12] NIVEL 12: SysAdmin Master (Vértice Exterior Suroeste)
+		Vector2(360, 260)  # [13] SALA DE PRÁCTICA: Distanciada del Nivel 1 (NARANJA NEÓN)
 	],
-	# 3. SERVIDOR: Hiper-Malla Circular de Datacenter y Anillos de Fibra Óptica
+	# 3. SERVIDOR: Hiper-Malla Circular de Datacenter y Anillos de Fibra Óptica Ampliada
 	"servidor": [
 		Vector2(640, 395), # [0] TUTORIAL: Núcleo Central de Infraestructura 1U (AZUL)
-		Vector2(500, 395), # [1] NIVEL 1: Bastidor 1U (Raíz Primaria Oeste 9h, ROJO)
-		Vector2(570, 274), # [2] NIVEL 2: Servidor Blade 2U (Radio 11h)
-		Vector2(710, 274), # [3] NIVEL 3: Cabina 4U SAN (Radio 1h)
-		Vector2(780, 395), # [4] NIVEL 4: PDU Redundante (Radio 3h)
-		Vector2(710, 516), # [5] NIVEL 5: Fibra SAN Fabric (Radio 5h)
-		Vector2(570, 516), # [6] NIVEL 6: SAS Hot-Swap RAID (Radio 7h)
-		Vector2(345, 225), # [7] NIVEL 7: Switch ToR 100G (Anillo Exterior 10h)
-		Vector2(640, 135), # [8] NIVEL 8: Trunking VLAN LACP (Anillo Exterior 12h)
-		Vector2(935, 225), # [9] NIVEL 9: Pasillo Frío (Anillo Exterior 2h)
-		Vector2(1020, 395),# [10] NIVEL 10: Clúster HA (Anillo Exterior 4h)
-		Vector2(640, 655), # [11] NIVEL 11: Live Migration (Anillo Exterior 6h)
-		Vector2(260, 395), # [12] NIVEL 12: Centro NOC Datacenter (Anillo Exterior 8h)
-		Vector2(550, 305)  # [13] SALA DE PRÁCTICA (NARANJA NEÓN)
+		Vector2(430, 395), # [1] NIVEL 1: Bastidor 1U (Raíz Primaria Oeste 9h, ROJO)
+		Vector2(535, 215), # [2] NIVEL 2: Servidor Blade 2U (Radio 11h)
+		Vector2(745, 215), # [3] NIVEL 3: Cabina 4U SAN (Radio 1h)
+		Vector2(850, 395), # [4] NIVEL 4: PDU Redundante (Radio 3h)
+		Vector2(745, 575), # [5] NIVEL 5: Fibra SAN Fabric (Radio 5h)
+		Vector2(535, 575), # [6] NIVEL 6: SAS Hot-Swap RAID (Radio 7h)
+		Vector2(230, 160), # [7] NIVEL 7: Switch ToR 100G (Anillo Exterior 10h)
+		Vector2(640, 75),  # [8] NIVEL 8: Trunking VLAN LACP (Anillo Exterior 12h)
+		Vector2(1050, 160),# [9] NIVEL 9: Pasillo Frío (Anillo Exterior 2h)
+		Vector2(1160, 395),# [10] NIVEL 10: Clúster HA (Anillo Exterior 4h)
+		Vector2(640, 695), # [11] NIVEL 11: Live Migration (Anillo Exterior 6h)
+		Vector2(120, 395), # [12] NIVEL 12: Centro NOC Datacenter (Anillo Exterior 8h)
+		Vector2(340, 280)  # [13] SALA DE PRÁCTICA: Distanciada de Servidores 1U y 2U (NARANJA NEÓN)
 	]
 }
 
@@ -810,7 +810,7 @@ func _draw_spiderweb_background(w: float, h: float, hub: Vector2) -> void:
 
 	var spoke_count: int
 	var spoke_angles: Array[float] = []
-	var web_radii: Array[float] = [120.0, 210.0, 310.0, 420.0, 540.0]
+	var web_radii: Array[float] = [150.0, 260.0, 380.0, 520.0, 680.0]
 	var web_color: Color
 	var glow_color: Color
 
@@ -874,9 +874,9 @@ func _draw_transition_effect(hub: Vector2, w: float, h: float) -> void:
 		"shockwave_burst":
 			# ANIMACIÓN 1 (REPARACIÓN): Triple onda de choque carmesí con chispas de hardware
 			var p = transition_progress
-			var shock_r1 = p * (w * 0.72)
-			var shock_r2 = max(0.0, shock_r1 - 50.0)
-			var shock_r3 = max(0.0, shock_r1 - 110.0)
+			var shock_r1 = p * (w * 0.92)
+			var shock_r2 = max(0.0, shock_r1 - 65.0)
+			var shock_r3 = max(0.0, shock_r1 - 140.0)
 			var alpha1 = (1.0 - p) * 0.65
 			var alpha2 = (1.0 - p) * 0.45
 			var alpha3 = (1.0 - p) * 0.25
@@ -904,7 +904,7 @@ func _draw_transition_effect(hub: Vector2, w: float, h: float) -> void:
 			
 			for k in range(1, turns):
 				var frac = float(k) / float(turns)
-				var r = frac * (w * 0.58)
+				var r = frac * (w * 0.72)
 				var theta1 = spiral_rot + frac * TAU * 1.1
 				var theta2 = -spiral_rot - frac * TAU * 1.1
 				var p1 = hub + Vector2(cos(theta1), sin(theta1)) * r

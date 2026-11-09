@@ -1,4 +1,4 @@
-[gd_scene format=3 load_steps=14]
+[gd_scene format=3 load_steps=15]
 
 [ext_resource type="Script" path="res://scripts/minigames/HDDMinigame.gd" id="1_hdd"]
 [ext_resource type="Script" path="res://scripts/menus/CyberButton.gd" id="2_cbtn"]
@@ -18,6 +18,20 @@ content_margin_left = 24.0
 content_margin_top = 20.0
 content_margin_right = 24.0
 content_margin_bottom = 20.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pin_highlight"]
+bg_color = Color(0, 0.9, 1, 0.16)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.1, 1, 0.85, 0.95)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+shadow_color = Color(0, 0.95, 1, 0.45)
+shadow_size = 6
 
 [node name="HDDMinigame" type="CanvasLayer"]
 layer = 12
@@ -248,8 +262,8 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = -61.0
-offset_bottom = -61.0
+offset_top = -17.75
+offset_bottom = -17.75
 grow_horizontal = 2
 grow_vertical = 2
 
@@ -273,6 +287,8 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_top = 45.0
+offset_bottom = 45.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
@@ -280,23 +296,51 @@ texture = ExtResource("9_pins_c")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="BtnPins" type="Button" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/LevelDriveArea"]
+[node name="PinHighlightBox" type="Panel" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/LevelDriveArea"]
+visible = false
+z_index = 3
 layout_mode = 1
-offset_left = 75.0
-offset_top = 35.0
-offset_right = 150.0
-offset_bottom = 130.0
+offset_left = 76.0
+offset_top = 74.0
+offset_right = 152.0
+offset_bottom = 174.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_pin_highlight")
+
+[node name="PinBadge" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/LevelDriveArea/PinHighlightBox"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = -22.0
+offset_bottom = -2.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(1, 0.9, 0.1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_fonts/font = ExtResource("4_title_font")
+theme_override_font_sizes/font_size = 10
+text = "PINES"
+horizontal_alignment = 1
+
+[node name="BtnPins" type="Button" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/LevelDriveArea"]
+z_index = 4
+layout_mode = 1
+offset_left = 76.0
+offset_top = 74.0
+offset_right = 152.0
+offset_bottom = 174.0
 focus_mode = 0
 flat = true
 
 [node name="RearScrewBtn" type="Button" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/LevelDriveArea"]
-z_index = 3
+z_index = 5
 custom_minimum_size = Vector2(34, 34)
 layout_mode = 1
-offset_left = 388.0
-offset_top = 62.0
-offset_right = 422.0
-offset_bottom = 96.0
+offset_left = 384.0
+offset_top = 108.0
+offset_right = 418.0
+offset_bottom = 142.0
+pivot_offset = Vector2(17, 17)
 focus_mode = 0
 flat = true
 

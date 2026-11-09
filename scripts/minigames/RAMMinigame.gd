@@ -100,7 +100,7 @@ func _set_socket_open(is_open: bool) -> void:
 
 func _ready() -> void:
 	layer = 12
-	btn_cancel.pressed.connect(func(): minigame_finished.emit(false))
+	btn_cancel.pressed.connect(func(): _finish_minigame_with_slide(false))
 	
 	# Inputs de extracción en la RAM
 	zone_left.gui_input.connect(func(event): _handle_zone_input("left", event))
@@ -122,6 +122,8 @@ func _ready() -> void:
 		if tabs:
 			tabs.queue_free()
 	
+	_init_base_position.call_deferred()
+	
 	if start_as_empty_slot:
 		_set_socket_open(true)
 		var ram_item = _get_first_unbroken_ram()
@@ -141,7 +143,9 @@ func _ready() -> void:
 		empty_slot_label.visible = false
 		install_top_area.visible = false
 		current_state = State.EXTRACT_SIDES
-		_init_base_position.call_deferred()
+		
+	_update_ui_state()
+	_refresh_backpack_ui()
 		
 	_update_ui_state()
 	_refresh_backpack_ui()
@@ -183,7 +187,7 @@ func _get_first_unbroken_ram() -> Dictionary:
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel") or (event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE):
 		get_viewport().set_input_as_handled()
-		minigame_finished.emit(false)
+		_finish_minigame_with_slide(false)
 		return
 	if event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode == KEY_4 or event.keycode == KEY_KP_4:
@@ -245,9 +249,13 @@ func _setup_quitar_phase() -> void:
 
 func _init_base_position() -> void:
 	await get_tree().process_frame
-	if ram_stick != null and ram_stick.position.y > 0.0:
-		default_seated_y = ram_stick.position.y
-		default_seated_pos = ram_stick.position
+	if ram_stick != null:
+		if ram_stick.position.y > 0.0:
+			default_seated_y = ram_stick.position.y
+			default_seated_pos = ram_stick.position
+		elif socket_base != null and socket_base.position.y > 0.0:
+			default_seated_pos = Vector2(socket_base.position.x + 18.0, socket_base.position.y - 49.0)
+			default_seated_y = default_seated_pos.y
 	if socket_base != null:
 		default_socket_pos = socket_base.position
 
@@ -436,8 +444,8 @@ func _complete_ram_removal() -> void:
 		
 		if not is_tutorial_mode:
 			_show_floating_feedback("✓ Módulo RAM %s averiado extraído. Busca el repuesto en el taller." % current_ram_type.to_upper(), COLOR_GREEN)
-			await get_tree().create_timer(1.2).timeout
-			minigame_finished.emit(true)
+			await get_tree().create_timer(1.0).timeout
+			_finish_minigame_with_slide(true)
 			return
 		
 		# Modo tutorial:
@@ -631,10 +639,14 @@ func _latch_ram_into_socket() -> void:
 	ram_stick.visible = true
 	ram_stick.rotation_degrees = 0.0
 	ram_stick.modulate = Color(1, 1, 1, 0.0)
-	if default_seated_pos != Vector2.ZERO:
-		ram_stick.position = Vector2(default_seated_pos.x, default_seated_y - 40.0)
-	else:
-		ram_stick.position.y = default_seated_y - 40.0
+	if default_seated_pos == Vector2.ZERO or default_seated_y <= 0.0:
+		if is_instance_valid(socket_base) and socket_base.position != Vector2.ZERO:
+			default_seated_pos = Vector2(socket_base.position.x + 18.0, socket_base.position.y - 49.0)
+			default_seated_y = default_seated_pos.y
+		else:
+			default_seated_pos = ram_stick.position
+			default_seated_y = ram_stick.position.y
+	ram_stick.position = Vector2(default_seated_pos.x, default_seated_y - 40.0)
 	
 	# Desvanecer las flechas superiores
 	var tw_top = create_tween()
@@ -710,8 +722,20 @@ func _latch_ram_into_socket() -> void:
 		status_label.text = victory_msg
 		status_label.modulate = COLOR_GREEN
 		
-		await get_tree().create_timer(1.3).timeout
-		minigame_finished.emit(true)
+		await get_tree().create_timer(1.0).timeout
+		_finish_minigame_with_slide(true)
+
+func _finish_minigame_with_slide(success: bool) -> void:
+	if is_instance_valid(modal_control):
+		var tw = create_tween().set_parallel(true)
+		tw.tween_property(modal_control, "position:x", modal_control.position.x + 950.0, 0.35)\
+			.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+		tw.tween_property(modal_control, "modulate:a", 0.0, 0.30)
+		tw.chain().tween_callback(func():
+			minigame_finished.emit(success)
+		)
+	else:
+		minigame_finished.emit(success)
 
 func _shake_node(n: CanvasItem) -> void:
 	if not n: return

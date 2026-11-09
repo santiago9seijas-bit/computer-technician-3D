@@ -30,6 +30,18 @@ static var initial_tab: String = "niveles"
 @onready var btn_play_level1: Button = $BtnPlayLevel1
 @onready var difficulty_selector: Control = $DifficultySelector
 @onready var tutorial_info_panel: Control = get_node_or_null("TutorialInfoPanel")
+@onready var level_nav_controls: HBoxContainer = get_node_or_null("LevelNavControls")
+@onready var btn_nav_prev: Button = get_node_or_null("LevelNavControls/BtnNavPrev")
+@onready var btn_nav_next: Button = get_node_or_null("LevelNavControls/BtnNavNext")
+@onready var map_zoom_controls: Control = get_node_or_null("MapZoomControls")
+@onready var btn_zoom_out: Button = get_node_or_null("MapZoomControls/Margin/HBox/BtnZoomOut")
+@onready var btn_zoom_in: Button = get_node_or_null("MapZoomControls/Margin/HBox/BtnZoomIn")
+@onready var zoom_slider: HSlider = get_node_or_null("MapZoomControls/Margin/HBox/ZoomSlider")
+@onready var zoom_label: Label = get_node_or_null("MapZoomControls/Margin/HBox/ZoomLabel")
+
+var current_map_zoom: float = 1.0
+const MIN_MAP_ZOOM: float = 0.65
+const MAX_MAP_ZOOM: float = 1.6
 
 # --- Área de Tutoriales (Centro de Entrenamiento) ---
 @onready var tutorial_area: Control = $TutorialArea
@@ -1045,6 +1057,27 @@ func _ready() -> void:
 	if tutorial_info_panel:
 		tutorial_info_panel.visible = false
 		tutorial_info_panel.launch_requested.connect(_on_btn_play_level_pressed)
+	if btn_nav_prev:
+		btn_nav_prev.focus_mode = Control.FOCUS_NONE
+		btn_nav_prev.pressed.connect(func(): _navigate_level_camera(-1))
+	if btn_nav_next:
+		btn_nav_next.focus_mode = Control.FOCUS_NONE
+		btn_nav_next.pressed.connect(func(): _navigate_level_camera(1))
+		
+	# Inicialización de controles de navegación y zoom de mapa
+	if level_nav_controls:
+		level_nav_controls.visible = false
+	if map_zoom_controls:
+		map_zoom_controls.visible = true
+	if zoom_slider:
+		zoom_slider.min_value = MIN_MAP_ZOOM
+		zoom_slider.max_value = MAX_MAP_ZOOM
+		zoom_slider.value = current_map_zoom
+		zoom_slider.value_changed.connect(_on_zoom_slider_changed)
+	if btn_zoom_out:
+		btn_zoom_out.pressed.connect(func(): _adjust_map_zoom(-0.15))
+	if btn_zoom_in:
+		btn_zoom_in.pressed.connect(func(): _adjust_map_zoom(0.15))
 	
 	if graph_lines and graph_lines.has_signal("mode_transition_completed"):
 		graph_lines.mode_transition_completed.connect(_update_node_hitboxes_positions)
@@ -1076,6 +1109,10 @@ func _switch_main_tab(tab_name: String, instant: bool = false) -> void:
 	_update_tab_buttons_visuals()
 	_update_mode_buttons()
 	_update_btn_play_level1_visibility()
+	if level_nav_controls:
+		level_nav_controls.visible = is_level_zoomed and (current_tab == "niveles")
+	if map_zoom_controls:
+		map_zoom_controls.visible = not is_level_zoomed and (current_tab == "niveles")
 
 	if current_tab == "niveles":
 		tutorial_area.visible = false
@@ -1229,6 +1266,7 @@ func _create_node_hitboxes() -> void:
 		var btn = Button.new()
 		btn.custom_minimum_size = Vector2(60, 60)
 		btn.flat = true
+		btn.focus_mode = Control.FOCUS_NONE
 		btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		btn.button_down.connect(_on_node_pressed.bind(i))
 		btn.pressed.connect(_on_node_clicked.bind(i))
@@ -1263,6 +1301,12 @@ func _on_node_clicked(index: int) -> void:
 		
 	is_level_zoomed = true
 	active_zoomed_index = index
+	
+	# Ocultar barra de zoom del mapa y mostrar flechas de navegación de nivel
+	if map_zoom_controls:
+		map_zoom_controls.visible = false
+	if level_nav_controls:
+		level_nav_controls.visible = true
 	
 	# Desvanecer todos los demás botones de la interfaz para dejar limpio el nivel y selector
 	_fade_menu_chrome(false)
@@ -1329,6 +1373,13 @@ func _unzoom_camera() -> void:
 	is_level_zoomed = false
 	active_zoomed_index = -1
 	
+	# Ocultar flechas de navegación de nivel
+	if level_nav_controls:
+		level_nav_controls.visible = false
+	# Reaparecer barra de zoom del mapa en la vista general
+	if map_zoom_controls:
+		map_zoom_controls.visible = (current_tab == "niveles")
+	
 	if card_dim_overlay:
 		card_dim_overlay.visible = false
 			
@@ -1337,9 +1388,10 @@ func _unzoom_camera() -> void:
 		
 	camera_zoom_tween = create_tween().set_parallel(true)
 	if constellation_area:
+		constellation_area.pivot_offset = Vector2(640, 395)
 		camera_zoom_tween.tween_property(constellation_area, "position", Vector2.ZERO, 0.38)\
 			.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-		camera_zoom_tween.tween_property(constellation_area, "scale", Vector2.ONE, 0.38)\
+		camera_zoom_tween.tween_property(constellation_area, "scale", Vector2(current_map_zoom, current_map_zoom), 0.38)\
 			.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 		
 	if btn_play_level1 and btn_play_level1.visible:
@@ -1352,6 +1404,58 @@ func _unzoom_camera() -> void:
 		
 	# Restaurar todos los botones de la interfaz
 	_fade_menu_chrome(true)
+
+func _navigate_level_camera(direction: int) -> void:
+	if not is_level_zoomed:
+		return
+	var list = LEVELS_DATA.get(current_mode, [])
+	if list.is_empty():
+		return
+		
+	var total = list.size()
+	var new_index = active_zoomed_index + direction
+	if new_index < 0:
+		new_index = total - 1
+	elif new_index >= total:
+		new_index = 0
+			
+	# Micro punch animado en el botón presionado
+	var target_btn = btn_nav_next if direction > 0 else btn_nav_prev
+	if target_btn:
+		var tw = create_tween()
+		tw.tween_property(target_btn, "scale", Vector2(1.14, 1.14), 0.08).set_trans(Tween.TRANS_QUAD)
+		tw.tween_property(target_btn, "scale", Vector2.ONE, 0.1).set_trans(Tween.TRANS_QUAD)
+		
+	# Mover suavemente la cámara al nivel indicado sin entrar a jugar
+	_on_node_clicked(new_index)
+
+func _adjust_map_zoom(delta_val: float) -> void:
+	if is_level_zoomed or current_tab != "niveles":
+		return
+	var new_zoom = clampf(current_map_zoom + delta_val, MIN_MAP_ZOOM, MAX_MAP_ZOOM)
+	_apply_map_zoom(new_zoom)
+
+func _on_zoom_slider_changed(val: float) -> void:
+	if is_level_zoomed or current_tab != "niveles":
+		return
+	_apply_map_zoom(val)
+
+func _apply_map_zoom(target_zoom: float) -> void:
+	current_map_zoom = target_zoom
+	if zoom_slider and abs(zoom_slider.value - current_map_zoom) > 0.01:
+		zoom_slider.value = current_map_zoom
+	if zoom_label:
+		zoom_label.text = "%d%%" % int(round(current_map_zoom * 100.0))
+		
+	if constellation_area:
+		constellation_area.pivot_offset = Vector2(640, 395)
+		if camera_zoom_tween and camera_zoom_tween.is_valid():
+			camera_zoom_tween.kill()
+		camera_zoom_tween = create_tween().set_parallel(true)
+		camera_zoom_tween.tween_property(constellation_area, "scale", Vector2(current_map_zoom, current_map_zoom), 0.18)\
+			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		camera_zoom_tween.tween_property(constellation_area, "position", Vector2.ZERO, 0.18)\
+			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 
 func _fade_menu_chrome(visible_state: bool) -> void:
 	var target_alpha = 1.0 if visible_state else 0.0
@@ -1911,7 +2015,7 @@ func _show_toast(msg: String) -> void:
 func _on_volver_pressed() -> void:
 	get_tree().change_scene_to_file("res://scenes/menus/MainMenu.tscn")
 
-func _unhandled_input(event: InputEvent) -> void:
+func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel") or (event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE):
 		if deployed_modal and deployed_modal.visible:
 			get_viewport().set_input_as_handled()
@@ -1923,3 +2027,31 @@ func _unhandled_input(event: InputEvent) -> void:
 			return
 		get_viewport().set_input_as_handled()
 		_on_volver_pressed()
+		return
+		
+	# 1. Rueda del ratón para alejar y acercar la vista del mapa en vista general
+	if not is_level_zoomed and current_tab == "niveles" and not (deployed_modal and deployed_modal.visible):
+		if event is InputEventMouseButton and event.pressed:
+			if event.button_index == MOUSE_BUTTON_WHEEL_UP:
+				get_viewport().set_input_as_handled()
+				_adjust_map_zoom(0.08)
+				return
+			elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+				get_viewport().set_input_as_handled()
+				_adjust_map_zoom(-0.08)
+				return
+
+	# 2. Navegación de cámara entre niveles con flechas de teclado (activa cuando se está inspeccionando un nivel)
+	if is_level_zoomed and current_tab == "niveles" and not (deployed_modal and deployed_modal.visible):
+		var is_left: bool = (event is InputEventKey and event.pressed and not event.echo and (event.keycode == KEY_LEFT or event.physical_keycode == KEY_LEFT or event.keycode == KEY_A)) \
+			or event.is_action_pressed("ui_left")
+		var is_right: bool = (event is InputEventKey and event.pressed and not event.echo and (event.keycode == KEY_RIGHT or event.physical_keycode == KEY_RIGHT or event.keycode == KEY_D)) \
+			or event.is_action_pressed("ui_right")
+		if is_left:
+			get_viewport().set_input_as_handled()
+			_navigate_level_camera(-1)
+			return
+		elif is_right:
+			get_viewport().set_input_as_handled()
+			_navigate_level_camera(1)
+			return

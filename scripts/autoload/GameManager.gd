@@ -47,6 +47,7 @@ func get_difficulty_name() -> String:
 # Variables de juego
 var time_left: float = 120.0
 var timer_active: bool = false
+var is_game_over: bool = false
 var score: int = 0
 var errors: int = 0
 var computers_fixed: int = 0
@@ -153,6 +154,7 @@ func start_level(initial_time: float = -1.0) -> void:
 	backpack.clear()
 	equipped_tool = 0
 	is_game_paused = false
+	is_game_over = false
 	timer_active = true
 	
 	spares_stock = {
@@ -346,7 +348,9 @@ func complete_level() -> void:
 	win_level()
 
 func trigger_game_over(reason: String) -> void:
+	is_game_over = true
 	timer_active = false
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	game_over_triggered.emit(reason)
 
 func toggle_pause() -> void:

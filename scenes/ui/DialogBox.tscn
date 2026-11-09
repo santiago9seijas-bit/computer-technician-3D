@@ -1,4 +1,4 @@
-[gd_scene format=3 load_steps=6]
+[gd_scene format=3 load_steps=9]
 
 [ext_resource type="Script" path="res://scripts/ui/DialogBox.gd" id="1_dlg"]
 [ext_resource type="Theme" path="res://styles/cyberpunk_theme.tres" id="2_theme"]
@@ -6,6 +6,58 @@
 [ext_resource type="FontFile" uid="uid://dbcug8887dro7" path="res://assets/fonts/Bungee-Regular.ttf" id="4_font"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_box"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_normal"]
+content_margin_left = 22.0
+content_margin_top = 10.0
+content_margin_right = 22.0
+content_margin_bottom = 10.0
+bg_color = Color(0.1, 0.04, 0.2, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.2, 0.65, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(1, 0.15, 0.55, 0.45)
+shadow_size = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_hover"]
+content_margin_left = 22.0
+content_margin_top = 10.0
+content_margin_right = 22.0
+content_margin_bottom = 10.0
+bg_color = Color(0.2, 0.08, 0.38, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.15, 0.95, 1, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0.15, 0.95, 1, 0.5)
+shadow_size = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_pressed"]
+content_margin_left = 22.0
+content_margin_top = 10.0
+content_margin_right = 22.0
+content_margin_bottom = 10.0
+bg_color = Color(0.35, 0.12, 0.55, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(1, 0.9, 0.2, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
 [node name="DialogBox" type="Control"]
 process_mode = 3
@@ -15,7 +67,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
+mouse_filter = 1
 theme = ExtResource("2_theme")
 script = ExtResource("1_dlg")
 
@@ -26,16 +78,17 @@ anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 60.0
-offset_top = -180.0
+offset_top = -195.0
 offset_right = -60.0
-offset_bottom = -28.0
+offset_bottom = -25.0
 grow_horizontal = 2
 grow_vertical = 0
-mouse_filter = 2
+mouse_filter = 1
 
 [node name="Panel" type="PanelContainer" parent="BoxMargin"]
 layout_mode = 2
-pivot_offset = Vector2(580, 76)
+pivot_offset = Vector2(580, 85)
+mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxEmpty_box")
 
 [node name="CyberBackgroundFrame" parent="BoxMargin/Panel" instance=ExtResource("3_bg_frame")]
@@ -43,6 +96,7 @@ layout_mode = 2
 
 [node name="Margin" type="MarginContainer" parent="BoxMargin/Panel"]
 layout_mode = 2
+mouse_filter = 1
 theme_override_constants/margin_left = 28
 theme_override_constants/margin_top = 16
 theme_override_constants/margin_right = 28
@@ -50,10 +104,12 @@ theme_override_constants/margin_bottom = 14
 
 [node name="VBox" type="VBoxContainer" parent="BoxMargin/Panel/Margin"]
 layout_mode = 2
+mouse_filter = 1
 theme_override_constants/separation = 8
 
 [node name="SpeakerLabel" type="Label" parent="BoxMargin/Panel/Margin/VBox"]
 layout_mode = 2
+mouse_filter = 2
 theme_override_colors/font_color = Color(0.2, 0.95, 1, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 6
@@ -64,6 +120,7 @@ text = "[SISTEMA // TUTORIAL]"
 [node name="MessageLabel" type="Label" parent="BoxMargin/Panel/Margin/VBox"]
 layout_mode = 2
 size_flags_vertical = 3
+mouse_filter = 2
 theme_override_colors/font_color = Color(0.96, 0.98, 1, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.8)
 theme_override_constants/shadow_offset_x = 2
@@ -74,13 +131,22 @@ autowrap_mode = 2
 
 [node name="PromptHBox" type="HBoxContainer" parent="BoxMargin/Panel/Margin/VBox"]
 layout_mode = 2
+mouse_filter = 1
 alignment = 2
 
-[node name="PromptLabel" type="Label" parent="BoxMargin/Panel/Margin/VBox/PromptHBox"]
+[node name="BtnContinue" type="Button" parent="BoxMargin/Panel/Margin/VBox/PromptHBox"]
+custom_minimum_size = Vector2(340, 42)
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.25, 0.65, 1)
+pivot_offset = Vector2(170, 21)
+focus_mode = 0
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(0.2, 0.95, 1, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 4
+theme_override_constants/outline_size = 5
 theme_override_fonts/font = ExtResource("4_font")
-theme_override_font_sizes/font_size = 13
-text = "[E / CLIC] CONTINUAR ▶"
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+text = "[ ⌨ PRESIONA 'E' PARA CONTINUAR ▶ ]"

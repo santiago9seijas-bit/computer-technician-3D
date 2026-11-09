@@ -5,7 +5,7 @@ signal dialog_closed
 @onready var panel: PanelContainer = $BoxMargin/Panel
 @onready var speaker_label: Label = $BoxMargin/Panel/Margin/VBox/SpeakerLabel
 @onready var message_label: Label = $BoxMargin/Panel/Margin/VBox/MessageLabel
-@onready var prompt_label: Label = $BoxMargin/Panel/Margin/VBox/PromptHBox/PromptLabel
+@onready var btn_continue: Button = $BoxMargin/Panel/Margin/VBox/PromptHBox/BtnContinue
 
 var is_active: bool = false
 var on_finish_callback: Callable = Callable()
@@ -15,21 +15,27 @@ var tween_open: Tween
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	visible = false
-	_start_prompt_blink()
+	if btn_continue:
+		btn_continue.focus_mode = Control.FOCUS_NONE
+		btn_continue.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_start_prompt_pulse()
 
-func _start_prompt_blink() -> void:
+func _start_prompt_pulse() -> void:
 	if tween_prompt:
 		tween_prompt.kill()
-	if not prompt_label:
+	if not btn_continue:
 		return
 	tween_prompt = create_tween().set_loops()
-	tween_prompt.tween_property(prompt_label, "modulate:a", 0.25, 0.5).set_trans(Tween.TRANS_SINE)
-	tween_prompt.tween_property(prompt_label, "modulate:a", 1.0, 0.5).set_trans(Tween.TRANS_SINE)
+	tween_prompt.tween_property(btn_continue, "scale", Vector2(1.03, 1.03), 0.55).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween_prompt.tween_property(btn_continue, "scale", Vector2(1.0, 1.0), 0.55).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
 func show_message(speaker: String, text: String, callback: Callable = Callable()) -> void:
 	on_finish_callback = callback
 	is_active = true
 	visible = true
+	
+	if Input.mouse_mode != Input.MOUSE_MODE_VISIBLE:
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	
 	if speaker_label:
 		speaker_label.text = speaker
@@ -62,17 +68,19 @@ func show_sequence(dialogs: Array, callback: Callable = Callable()) -> void:
 func _gui_input(event: InputEvent) -> void:
 	if not is_active or not visible:
 		return
-	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+	# Consumir clics sobre la caja para que no traspasen al mundo 3D,
+	# pero NO avanzar el diálogo: solo se avanza con la tecla [E].
+	if event is InputEventMouseButton:
 		accept_event()
-		close_dialog()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not is_active or not visible:
 		return
 		
-	if event.is_action_pressed("interact") \
-		or (event is InputEventKey and event.pressed and not event.echo and (event.keycode == KEY_E or event.physical_keycode == KEY_E or event.keycode == KEY_SPACE or event.keycode == KEY_ENTER)) \
-		or (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT):
+	# Solo y únicamente avanzar con la tecla [E]
+	var is_e_key: bool = (event is InputEventKey and event.pressed and not event.echo and (event.keycode == KEY_E or event.physical_keycode == KEY_E))
+	var is_e_action: bool = event.is_action_pressed("interact") and not (event is InputEventMouseButton)
+	if is_e_key or is_e_action:
 		get_viewport().set_input_as_handled()
 		close_dialog()
 

@@ -483,8 +483,30 @@ func _on_slot_clicked(idx: int) -> void:
 	_show_feedback("👉 Repuesto [%s] seleccionado. Haz clic en el cuadro del componente o en 'MONTAR' para instalarlo." % it.get("name", ""), true)
 	_refresh_ui()
 
+func _is_component_locked_for_tutorial(comp_name: String) -> bool:
+	if current_pc == null or not current_pc.get_meta("is_tutorial_pc", false):
+		return false
+		
+	var ram_done = current_pc.components.get("RAM", "") in ["ok", "fixed"]
+	var ssd_done = current_pc.components.get("Disco Duro", "") in ["ok", "fixed"]
+	
+	if not ram_done:
+		if comp_name != "RAM":
+			_show_feedback("🔒 [TUTORIAL] Paso 1: Primero debes retirar e instalar la nueva Memoria RAM.", false)
+			GameManager.spawn_floating_text("🔒 Paso 1: Primero instala la Memoria RAM", false)
+			return true
+	elif not ssd_done:
+		if comp_name == "Fuente":
+			_show_feedback("🔒 [TUTORIAL] Paso 2: Primero debes retirar e instalar el Disco Duro (SSD).", false)
+			GameManager.spawn_floating_text("🔒 Paso 2: Primero instala el Disco Duro (SSD)", false)
+			return true
+			
+	return false
+
 func _try_install_spare(backpack_idx: int, target_comp: String) -> void:
 	if backpack_idx < 0 or backpack_idx >= GameManager.backpack.size():
+		return
+	if _is_component_locked_for_tutorial(target_comp):
 		return
 	var item = GameManager.backpack[backpack_idx]
 	var item_name = item.get("name", "")
@@ -517,6 +539,8 @@ func _try_install_spare(backpack_idx: int, target_comp: String) -> void:
 # =============================================================================
 func _on_sacar_pressed(comp_name: String) -> void:
 	if current_pc == null:
+		return
+	if _is_component_locked_for_tutorial(comp_name):
 		return
 		
 	var status = current_pc.components.get(comp_name, "ok")
@@ -851,6 +875,19 @@ func _refresh_ui() -> void:
 					btn_sacar.text = "⬇ SACAR"
 					btn_sacar.disabled = false
 					btn_sacar.modulate = Color(1.0, 1.0, 1.0, 1.0)
+
+		# Bloqueo visual progresivo exclusivo para el tutorial
+		if current_pc and current_pc.get_meta("is_tutorial_pc", false):
+			var ram_done = current_pc.components.get("RAM", "") in ["ok", "fixed"]
+			var ssd_done = current_pc.components.get("Disco Duro", "") in ["ok", "fixed"]
+			if comp_sacar_btns.has(comp_name):
+				var s_btn: Button = comp_sacar_btns[comp_name]
+				if not ram_done and comp_name != "RAM":
+					s_btn.text = "🔒 PRIMERO LA RAM"
+					s_btn.modulate = Color(0.5, 0.5, 0.5, 0.6)
+				elif not ssd_done and comp_name == "Fuente":
+					s_btn.text = "🔒 PRIMERO EL DISCO"
+					s_btn.modulate = Color(0.5, 0.5, 0.5, 0.6)
 				
 		if comp_name == "CPU":
 			match status:
@@ -1282,6 +1319,11 @@ func _show_feedback(msg: String, is_positive: bool) -> void:
 func _on_volver_pressed() -> void:
 	if current_pc and current_pc.has_method("is_fully_repaired") and current_pc.is_fully_repaired():
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+		var cur_sc = get_tree().current_scene
+		if cur_sc and cur_sc.has_method("_advance_to_completed"):
+			cur_sc._advance_to_completed()
+		elif not current_pc.get_meta("is_tutorial_pc", false):
+			GameManager.win_level()
 	else:
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	inspection_closed.emit()

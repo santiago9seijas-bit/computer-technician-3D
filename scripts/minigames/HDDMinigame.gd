@@ -82,8 +82,12 @@ const TEX_SCREW_PALA = preload("res://pixel art minijuegos/tornillos/tornillo de
 @onready var drag_arrow_indicator: PanelContainer = $ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/LevelDriveArea/DragArrowIndicator
 @onready var arrow_label: Label = $ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/LevelDriveArea/DragArrowIndicator/ArrowLabel
 @onready var btn_toggle_model: Button = $ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/LevelDriveArea/BtnToggleModel
+@onready var pin_highlight_box: Panel = $ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/LevelDriveArea/PinHighlightBox
+
+const MEMORY_DRIVE_Y: float = -17.75
 
 var arrow_tween: Tween = null
+var pin_pulse_tween: Tween = null
 
 # Mochila y guía
 @onready var backpack_items_box: VBoxContainer = $ModalControl/Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox/ItemsContainer
@@ -207,10 +211,10 @@ func _setup_level_removal_phase() -> void:
 	placa_base.texture = TEX_PLACA
 	placa_base.z_index = 0
 	
-	# 2. Memoria instalada (Capa intermedia z_index = 1, alineada a la par con pines Y=-61)
+	# 2. Memoria instalada (Capa intermedia z_index = 1, alineada a la par con pines)
 	memory_drive.visible = true
 	memory_drive.modulate = Color(1, 1, 1, 1)
-	memory_drive.position = Vector2(0.0, -61.0)
+	memory_drive.position = Vector2(0.0, MEMORY_DRIVE_Y)
 	memory_drive.z_index = 1
 	memory_sprite.texture = TEX_M2 if current_drive_type == "m2" else TEX_SSD
 	
@@ -243,7 +247,7 @@ func _setup_level_empty_slot_phase() -> void:
 	# Memoria lista para colocarse (aparece a la derecha para arrastrar a la izquierda)
 	memory_drive.visible = true
 	memory_drive.modulate = Color(1, 1, 1, 1)
-	memory_drive.position = Vector2(85.0, -61.0)
+	memory_drive.position = Vector2(85.0, MEMORY_DRIVE_Y)
 	memory_drive.z_index = 1
 	
 	# Pines abiertos: su capa pasa a estar POR DEBAJO de la memoria (z_index = 0)
@@ -273,6 +277,23 @@ func _start_arrow_pulse(to_right: bool) -> void:
 	arrow_tween.tween_property(drag_arrow_indicator, "position:x", base_x + offset_x, 0.45).set_trans(Tween.TRANS_SINE)
 	arrow_tween.tween_property(drag_arrow_indicator, "position:x", base_x, 0.45).set_trans(Tween.TRANS_SINE)
 
+func _start_pin_pulse() -> void:
+	if not is_instance_valid(pin_highlight_box):
+		return
+	if is_instance_valid(pin_pulse_tween):
+		pin_pulse_tween.kill()
+	pin_highlight_box.visible = true
+	pin_highlight_box.modulate.a = 0.4
+	pin_pulse_tween = create_tween().set_loops()
+	pin_pulse_tween.tween_property(pin_highlight_box, "modulate:a", 1.0, 0.45).set_trans(Tween.TRANS_SINE)
+	pin_pulse_tween.tween_property(pin_highlight_box, "modulate:a", 0.35, 0.45).set_trans(Tween.TRANS_SINE)
+
+func _stop_pin_pulse() -> void:
+	if is_instance_valid(pin_pulse_tween):
+		pin_pulse_tween.kill()
+	if is_instance_valid(pin_highlight_box):
+		pin_highlight_box.visible = false
+
 func _update_level_ui_state() -> void:
 	var drive_name = "SSD M.2 NVMe" if current_drive_type == "m2" else "SSD SATA 2.5\""
 	var tool_name = "Cruz ★ [Tecla 1]" if screw_type == "cruz" else "Pala ▬ [Tecla 2]"
@@ -281,16 +302,19 @@ func _update_level_ui_state() -> void:
 		LevelPhase.REMOVE_SCREW:
 			status_label.text = "Paso 1: Quita el tornillo trasero de la [%s] con Destornillador de %s." % [drive_name, tool_name]
 			status_label.modulate = Color(1.0, 0.85, 0.2, 1)
+			_stop_pin_pulse()
 			if is_instance_valid(drag_arrow_indicator): drag_arrow_indicator.visible = false
 			if is_instance_valid(btn_toggle_model): btn_toggle_model.visible = false
 		LevelPhase.OPEN_PINS:
-			status_label.text = "Paso 2: Haz clic sobre el PIN del conector (izquierda) para abrir la traba."
-			status_label.modulate = Color(0.0, 0.9, 1.0, 1)
+			status_label.text = "Paso 2: Haz clic en los PINES del zócalo (recuadro resaltado a la izquierda) para abrir la traba del puerto."
+			status_label.modulate = Color(0.0, 0.95, 1.0, 1)
+			_start_pin_pulse()
 			if is_instance_valid(drag_arrow_indicator): drag_arrow_indicator.visible = false
 			if is_instance_valid(btn_toggle_model): btn_toggle_model.visible = false
 		LevelPhase.EXTRACT_DRIVE:
 			status_label.text = "Paso 3: Arrastra la [%s] hacia la DERECHA para desconectarla del soporte." % drive_name
 			status_label.modulate = Color(0.2, 1.0, 0.5, 1)
+			_stop_pin_pulse()
 			if is_instance_valid(arrow_label):
 				arrow_label.text = "➔ ➔ ARRASTRA A LA DERECHA PARA EXTRAER ➔ ➔"
 				arrow_label.modulate = Color(1.0, 0.9, 0.1, 1.0)
@@ -299,11 +323,13 @@ func _update_level_ui_state() -> void:
 		LevelPhase.EMPTY_SLOT:
 			status_label.text = "Soporte vacío. Arrastra el repuesto nuevo hacia la izquierda."
 			status_label.modulate = Color(1.0, 0.85, 0.2, 1)
+			_stop_pin_pulse()
 			if is_instance_valid(drag_arrow_indicator): drag_arrow_indicator.visible = false
 			if is_instance_valid(btn_toggle_model): btn_toggle_model.visible = false
 		LevelPhase.INSERT_DRAG_LEFT:
 			status_label.text = "Paso 1: Arrastra la [%s] hacia la IZQUIERDA para calzarla en el conector." % drive_name
 			status_label.modulate = Color(0.0, 0.9, 1.0, 1)
+			_stop_pin_pulse()
 			if is_instance_valid(arrow_label):
 				arrow_label.text = "◀ ◀ ARRASTRA A LA IZQUIERDA PARA CONECTAR ◀ ◀"
 				arrow_label.modulate = Color(0.1, 1.0, 0.85, 1.0)
@@ -312,18 +338,21 @@ func _update_level_ui_state() -> void:
 				btn_toggle_model.visible = true
 				btn_toggle_model.text = "🔀 CAMBIAR MODELO: M.2 NVMe ⇄ SSD SATA (Actual: %s)" % ("M.2" if current_drive_type == "m2" else "SSD")
 		LevelPhase.CLOSE_PINS:
-			status_label.text = "Paso 2: Haz clic sobre el PIN del conector para cerrarlo y asegurar el puerto."
+			status_label.text = "Paso 2: Haz clic en los PINES del zócalo (recuadro resaltado a la izquierda) para trabar y fijar la unidad."
 			status_label.modulate = Color(1.0, 0.85, 0.2, 1)
+			_start_pin_pulse()
 			if is_instance_valid(drag_arrow_indicator): drag_arrow_indicator.visible = false
 			if is_instance_valid(btn_toggle_model): btn_toggle_model.visible = false
 		LevelPhase.INSTALL_SCREW:
 			status_label.text = "Paso 3: Equipa Destornillador de %s y haz clic para ajustar el tornillo trasero." % tool_name
 			status_label.modulate = Color(0.2, 1.0, 0.5, 1)
+			_stop_pin_pulse()
 			if is_instance_valid(drag_arrow_indicator): drag_arrow_indicator.visible = false
 			if is_instance_valid(btn_toggle_model): btn_toggle_model.visible = false
 		LevelPhase.COMPLETED:
 			status_label.text = "✓ ¡Unidad [%s] instalada y asegurada con éxito al 100%%!" % drive_name
 			status_label.modulate = Color(0.0, 1.0, 0.4, 1)
+			_stop_pin_pulse()
 			if is_instance_valid(drag_arrow_indicator): drag_arrow_indicator.visible = false
 			if is_instance_valid(btn_toggle_model): btn_toggle_model.visible = false
 
@@ -404,6 +433,15 @@ func _on_level_pins_pressed() -> void:
 		_update_level_ui_state()
 
 func _on_level_drive_gui_input(event: InputEvent) -> void:
+	if level_phase == LevelPhase.OPEN_PINS:
+		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+			status_label.text = "¡El puerto está trabado! Haz clic en el recuadro resaltado de los PINES a la izquierda."
+			status_label.modulate = Color(1.0, 0.35, 0.45, 1.0)
+			_start_pin_pulse()
+			if is_instance_valid(pin_highlight_box):
+				_shake_node(pin_highlight_box)
+			return
+
 	if level_phase == LevelPhase.EXTRACT_DRIVE:
 		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 			if event.pressed:
@@ -417,10 +455,10 @@ func _on_level_drive_gui_input(event: InputEvent) -> void:
 						_complete_level_drive_extraction()
 					else:
 						var tw = create_tween()
-						tw.tween_property(memory_drive, "position:x", 0.0, 0.15)
+						tw.tween_property(memory_drive, "position", Vector2(0.0, MEMORY_DRIVE_Y), 0.15)
 		elif event is InputEventMouseMotion and is_dragging_level_drive:
 			var pull = clamp(event.global_position.x - drag_level_start_x, 0.0, 120.0)
-			memory_drive.position.x = pull
+			memory_drive.position = Vector2(pull, MEMORY_DRIVE_Y)
 			
 	elif level_phase == LevelPhase.INSERT_DRAG_LEFT:
 		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
@@ -435,10 +473,10 @@ func _on_level_drive_gui_input(event: InputEvent) -> void:
 						_seat_level_drive()
 					else:
 						var tw = create_tween()
-						tw.tween_property(memory_drive, "position:x", 85.0, 0.15)
+						tw.tween_property(memory_drive, "position", Vector2(85.0, MEMORY_DRIVE_Y), 0.15)
 		elif event is InputEventMouseMotion and is_dragging_level_drive:
 			var push = clamp(drag_level_start_x - event.global_position.x, 0.0, 85.0)
-			memory_drive.position.x = 85.0 - push
+			memory_drive.position = Vector2(85.0 - push, MEMORY_DRIVE_Y)
 
 func _complete_level_drive_extraction() -> void:
 	var tw = create_tween()
@@ -467,7 +505,7 @@ func _complete_level_drive_extraction() -> void:
 
 func _seat_level_drive() -> void:
 	var tw = create_tween()
-	tw.tween_property(memory_drive, "position:x", 0.0, 0.18).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tw.tween_property(memory_drive, "position", Vector2(0.0, MEMORY_DRIVE_Y), 0.18).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	tw.tween_callback(func():
 		level_phase = LevelPhase.CLOSE_PINS
 		_update_level_ui_state()

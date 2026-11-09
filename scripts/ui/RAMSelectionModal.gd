@@ -154,9 +154,25 @@ func _close_dialog() -> void:
 		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	tw.chain().tween_callback(func():
 		visible = false
-		if player_ref and is_instance_valid(player_ref) and player_ref.has_method("set_movement_enabled"):
-			player_ref.set_movement_enabled(true)
-		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 		modal_closed.emit()
+		
+		# Solo rehabilitar movimiento si NO hay un diálogo activo en la escena
+		var current_sc = get_tree().current_scene
+		var is_dialog = false
+		if current_sc and "is_dialog_active" in current_sc and current_sc.is_dialog_active:
+			is_dialog = true
+		var dlg = get_tree().root.find_child("DialogBox", true, false)
+		if is_instance_valid(dlg) and dlg.visible and dlg.get("is_active"):
+			is_dialog = true
+				
+		if not is_dialog:
+			if player_ref and is_instance_valid(player_ref) and player_ref.has_method("set_movement_enabled"):
+				player_ref.set_movement_enabled(true)
+			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+		else:
+			if player_ref and is_instance_valid(player_ref) and player_ref.has_method("set_movement_enabled"):
+				player_ref.set_movement_enabled(false)
+			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+			
 		queue_free()
 	)

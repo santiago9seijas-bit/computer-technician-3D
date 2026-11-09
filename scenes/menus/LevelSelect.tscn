@@ -1,4 +1,4 @@
-[gd_scene format=3 load_steps=13]
+[gd_scene format=3 load_steps=14]
 
 [ext_resource type="Script" path="res://scripts/menus/LevelSelect.gd" id="1_sel"]
 [ext_resource type="Script" path="res://scripts/menus/ConstellationGraph.gd" id="2_graph"]
@@ -19,6 +19,20 @@ content_margin_right = 22.0
 content_margin_bottom = 18.0
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_volver"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_zoom_panel"]
+bg_color = Color(0.05, 0.02, 0.12, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.15, 0.9, 1, 0.5)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+shadow_color = Color(0, 0.85, 1, 0.2)
+shadow_size = 4
 
 [node name="LevelSelect" type="Control"]
 layout_mode = 3
@@ -333,6 +347,103 @@ offset_right = -60.0
 offset_bottom = 240.0
 grow_horizontal = 0
 grow_vertical = 2
+
+[node name="LevelNavControls" type="HBoxContainer" parent="."]
+visible = false
+z_index = 6
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 32.0
+offset_top = -68.0
+offset_right = 196.0
+offset_bottom = -20.0
+grow_vertical = 0
+theme_override_constants/separation = 40
+
+[node name="BtnNavPrev" type="Button" parent="LevelNavControls"]
+custom_minimum_size = Vector2(58, 44)
+layout_mode = 2
+tooltip_text = "Nivel anterior (Flecha Izquierda)"
+text = "◀"
+flat = true
+script = ExtResource("3_cbtn")
+slant = 12.0
+
+[node name="BtnNavNext" type="Button" parent="LevelNavControls"]
+custom_minimum_size = Vector2(58, 44)
+layout_mode = 2
+tooltip_text = "Nivel siguiente (Flecha Derecha)"
+text = "▶"
+flat = true
+script = ExtResource("3_cbtn")
+slant = -12.0
+
+[node name="MapZoomControls" type="PanelContainer" parent="."]
+z_index = 6
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -290.0
+offset_top = -68.0
+offset_right = -30.0
+offset_bottom = -20.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_zoom_panel")
+
+[node name="Margin" type="MarginContainer" parent="MapZoomControls"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 4
+
+[node name="HBox" type="HBoxContainer" parent="MapZoomControls/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="BtnZoomOut" type="Button" parent="MapZoomControls/Margin/HBox"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+tooltip_text = "Alejar mapa (Vista global)"
+theme_override_colors/font_color = Color(0.2, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 18
+text = "−"
+flat = true
+
+[node name="ZoomSlider" type="HSlider" parent="MapZoomControls/Margin/HBox"]
+custom_minimum_size = Vector2(100, 16)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+min_value = 0.65
+max_value = 1.6
+step = 0.05
+value = 1.0
+
+[node name="BtnZoomIn" type="Button" parent="MapZoomControls/Margin/HBox"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+tooltip_text = "Acercar mapa (Detalle)"
+theme_override_colors/font_color = Color(0.2, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 18
+text = "+"
+flat = true
+
+[node name="ZoomLabel" type="Label" parent="MapZoomControls/Margin/HBox"]
+custom_minimum_size = Vector2(44, 20)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 11
+text = "100%"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="DeployedModal" type="Control" parent="."]
 visible = false
