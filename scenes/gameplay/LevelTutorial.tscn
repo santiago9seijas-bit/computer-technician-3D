@@ -9,6 +9,8 @@
 [ext_resource type="PackedScene" path="res://scenes/components/SparesBox.tscn" id="7_spares"]
 [ext_resource type="PackedScene" path="res://scenes/components/ComputerCase.tscn" id="8_pc"]
 [ext_resource type="PackedScene" uid="uid://b22icmba8dehh" path="res://modelos_3d/escenario_3d/parte de tutorial.glb" id="9_parte_tutorial"]
+[ext_resource type="PackedScene" uid="uid://bkddyrm8tl53r" path="res://modelos_3d/escenario_3d/mesa de reparacion.glb" id="10_mesa"]
+[ext_resource type="Texture2D" uid="uid://bd41dv8d5gy0e" path="res://assets/textures/tutorial_checkerboard.png" id="11_tut_checker"]
 
 [sub_resource type="Environment" id="Environment_tut"]
 background_mode = 1
@@ -21,31 +23,31 @@ glow_intensity = 0.75
 glow_bloom = 0.08
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_floor_col"]
-size = Vector3(16.5, 1, 16.5)
+size = Vector3(18, 1, 18)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_ceil_col"]
-size = Vector3(16.5, 1, 16.5)
+size = Vector3(18, 1, 18)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_wall_ns"]
-size = Vector3(16.5, 5, 1)
+size = Vector3(18, 5, 1)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_wall_ew"]
-size = Vector3(1, 5, 16.5)
+size = Vector3(1, 5, 18)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_bench"]
-size = Vector3(3.0, 0.9, 1.1)
+size = Vector3(1.92, 0.912, 0.98)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bench"]
-albedo_color = Color(0.12, 0.18, 0.28, 1)
-metallic = 0.75
-roughness = 0.35
-emission_enabled = true
-emission = Color(0, 0.4, 0.6, 1)
-emission_energy_multiplier = 0.15
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tut_checker"]
+cull_mode = 2
+albedo_texture = ExtResource("11_tut_checker")
+texture_filter = 0
+metallic = 0.0
+roughness = 0.5
+uv1_scale = Vector3(4, 1, 1)
 
-[sub_resource type="BoxMesh" id="BoxMesh_bench"]
-material = SubResource("StandardMaterial3D_bench")
-size = Vector3(3.0, 0.9, 1.1)
+[sub_resource type="QuadMesh" id="QuadMesh_tut_wall"]
+material = SubResource("StandardMaterial3D_tut_checker")
+size = Vector2(16, 4)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_hologram"]
 transparency = 1
@@ -218,7 +220,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, -1, 6)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, 0)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="RoomTutorial/Ceiling"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
 shape = SubResource("BoxShape3D_ceil_col")
 
 [node name="CeilingTile_1" parent="RoomTutorial/Ceiling" instance=ExtResource("9_parte_tutorial")]
@@ -273,97 +275,66 @@ transform = Transform3D(1, 0, 0, 0, -1, 0, 0, 0, -1, 6, 0, 6)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="RoomTutorial/WallNorth"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, -7.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, -8.5)
 shape = SubResource("BoxShape3D_wall_ns")
 
-[node name="WallNTile_1" parent="RoomTutorial/WallNorth" instance=ExtResource("9_parte_tutorial")]
-transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, -6, 2, -8)
-
-[node name="WallNTile_2" parent="RoomTutorial/WallNorth" instance=ExtResource("9_parte_tutorial")]
-transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, -2, 2, -8)
-
-[node name="WallNTile_3" parent="RoomTutorial/WallNorth" instance=ExtResource("9_parte_tutorial")]
-transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 2, 2, -8)
-
-[node name="WallNTile_4" parent="RoomTutorial/WallNorth" instance=ExtResource("9_parte_tutorial")]
-transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 6, 2, -8)
+[node name="MeshNorth" type="MeshInstance3D" parent="RoomTutorial/WallNorth"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, -8)
+mesh = SubResource("QuadMesh_tut_wall")
 
 [node name="WallSouth" type="StaticBody3D" parent="RoomTutorial"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="RoomTutorial/WallSouth"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 7.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 8.5)
 shape = SubResource("BoxShape3D_wall_ns")
 
-[node name="WallSTile_1" parent="RoomTutorial/WallSouth" instance=ExtResource("9_parte_tutorial")]
-transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, -6, 2, 8)
-
-[node name="WallSTile_2" parent="RoomTutorial/WallSouth" instance=ExtResource("9_parte_tutorial")]
-transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, -2, 2, 8)
-
-[node name="WallSTile_3" parent="RoomTutorial/WallSouth" instance=ExtResource("9_parte_tutorial")]
-transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, 2, 2, 8)
-
-[node name="WallSTile_4" parent="RoomTutorial/WallSouth" instance=ExtResource("9_parte_tutorial")]
-transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, 6, 2, 8)
+[node name="MeshSouth" type="MeshInstance3D" parent="RoomTutorial/WallSouth"]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 2, 8)
+mesh = SubResource("QuadMesh_tut_wall")
 
 [node name="WallWest" type="StaticBody3D" parent="RoomTutorial"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="RoomTutorial/WallWest"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.5, 2, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.5, 2, 0)
 shape = SubResource("BoxShape3D_wall_ew")
 
-[node name="WallWTile_1" parent="RoomTutorial/WallWest" instance=ExtResource("9_parte_tutorial")]
-transform = Transform3D(0, 0, 1, -1, 0, 0, 0, 1, 0, -8, 2, -6)
-
-[node name="WallWTile_2" parent="RoomTutorial/WallWest" instance=ExtResource("9_parte_tutorial")]
-transform = Transform3D(0, 0, 1, -1, 0, 0, 0, 1, 0, -8, 2, -2)
-
-[node name="WallWTile_3" parent="RoomTutorial/WallWest" instance=ExtResource("9_parte_tutorial")]
-transform = Transform3D(0, 0, 1, -1, 0, 0, 0, 1, 0, -8, 2, 2)
-
-[node name="WallWTile_4" parent="RoomTutorial/WallWest" instance=ExtResource("9_parte_tutorial")]
-transform = Transform3D(0, 0, 1, -1, 0, 0, 0, 1, 0, -8, 2, 6)
+[node name="MeshWest" type="MeshInstance3D" parent="RoomTutorial/WallWest"]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -8, 2, 0)
+mesh = SubResource("QuadMesh_tut_wall")
 
 [node name="WallEast" type="StaticBody3D" parent="RoomTutorial"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="RoomTutorial/WallEast"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.5, 2, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.5, 2, 0)
 shape = SubResource("BoxShape3D_wall_ew")
 
-[node name="WallETile_1" parent="RoomTutorial/WallEast" instance=ExtResource("9_parte_tutorial")]
-transform = Transform3D(0, 0, -1, 1, 0, 0, 0, 1, 0, 8, 2, -6)
-
-[node name="WallETile_2" parent="RoomTutorial/WallEast" instance=ExtResource("9_parte_tutorial")]
-transform = Transform3D(0, 0, -1, 1, 0, 0, 0, 1, 0, 8, 2, -2)
-
-[node name="WallETile_3" parent="RoomTutorial/WallEast" instance=ExtResource("9_parte_tutorial")]
-transform = Transform3D(0, 0, -1, 1, 0, 0, 0, 1, 0, 8, 2, 2)
-
-[node name="WallETile_4" parent="RoomTutorial/WallEast" instance=ExtResource("9_parte_tutorial")]
-transform = Transform3D(0, 0, -1, 1, 0, 0, 0, 1, 0, 8, 2, 6)
+[node name="MeshEast" type="MeshInstance3D" parent="RoomTutorial/WallEast"]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 8, 2, 0)
+mesh = SubResource("QuadMesh_tut_wall")
 
 [node name="WorkBench" type="StaticBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, -1.6)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.6)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="WorkBench"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.456, 0)
 shape = SubResource("BoxShape3D_bench")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="WorkBench"]
-mesh = SubResource("BoxMesh_bench")
+[node name="MesaReparacion" parent="WorkBench" instance=ExtResource("10_mesa")]
+transform = Transform3D(0.012, 0, 0, 0, 0.012, 0, 0, 0, 0.012, 0, 0, 0)
 
 [node name="Computer1" parent="WorkBench" instance=ExtResource("8_pc")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.912, 0)
 pc_id = 1
 
 [node name="HoloBanner" type="MeshInstance3D" parent="WorkBench"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.8, -0.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.25, -0.4)
 mesh = SubResource("TextMesh_tut_sign")
 
 [node name="HoloSubBanner" type="MeshInstance3D" parent="WorkBench"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.45, -0.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.9, -0.4)
 mesh = SubResource("TextMesh_sub_sign")
 
 [node name="TrashBin" parent="." instance=ExtResource("5_trash")]
@@ -373,23 +344,15 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.4, 0.1, -1.2)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.8, -6.8)
 
 [node name="SparesRAM" parent="." instance=ExtResource("7_spares")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.6, 0.1, -1.6)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.6, 0.1, -1.2)
 spare_type = "RAM"
 
 [node name="SparesHDD" parent="." instance=ExtResource("7_spares")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.6, 0.1, -0.8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.6, 0.1, 0.0)
 spare_type = "Disco Duro"
 
-[node name="SparesCooler" parent="." instance=ExtResource("7_spares")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.6, 0.1, 0)
-spare_type = "Fan Cooler"
-
-[node name="SparesGPU" parent="." instance=ExtResource("7_spares")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.6, 0.1, 0.8)
-spare_type = "Grafica"
-
 [node name="SparesPSU" parent="." instance=ExtResource("7_spares")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.6, 0.1, 1.6)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.6, 0.1, 1.2)
 spare_type = "Fuente"
 
 [node name="Player" parent="." instance=ExtResource("2_player")]
@@ -400,7 +363,10 @@ layer = 1
 
 [node name="HUD" parent="CanvasLayerHUD" instance=ExtResource("3_hud")]
 
+[node name="CanvasLayerDialog" type="CanvasLayer" parent="."]
+layer = 25
+
 [node name="CanvasLayerPause" type="CanvasLayer" parent="."]
-layer = 20
+layer = 30
 
 [node name="PauseMenu" parent="CanvasLayerPause" instance=ExtResource("4_pause")]

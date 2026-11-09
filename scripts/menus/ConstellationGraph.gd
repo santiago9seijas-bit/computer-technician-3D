@@ -24,9 +24,9 @@ var transition_target_nodes: Array[Vector2] = []
 var mode_switch_pulse: float = 0.0
 var transition_sweep_angle: float = 0.0
 
-# Micro-animación de zoom táctil sobre los círculos de nivel (13 nodos)
-var node_zoom_scales: Array[float] = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
-var node_ripples: Array[float] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+# Micro-animación de zoom táctil sobre los círculos de nivel (16 nodos: 0 tutorial, 1-12 niveles, 13-15 práctica)
+var node_zoom_scales: Array[float] = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+var node_ripples: Array[float] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 var node_press_tweens: Dictionary = {}
 
 func trigger_node_click_zoom(index: int) -> void:
@@ -136,7 +136,8 @@ var MODE_NODES: Dictionary = {
 		Vector2(378, 135), # [9] NIVEL 9: Refrigeración Líquida (Anillo Exterior Noroeste)
 		Vector2(640, 125), # [10] NIVEL 10: Multímetro y Cortos (Anillo Exterior Norte)
 		Vector2(240, 560), # [11] NIVEL 11: Estación Multi-GPU (Anillo Exterior Suroeste)
-		Vector2(1040, 395) # [12] NIVEL 12: Jefe de Taller Supreme (Vértice Maestro Este)
+		Vector2(1040, 395),# [12] NIVEL 12: Jefe de Taller Supreme (Vértice Maestro Este)
+		Vector2(550, 305)  # [13] SALA DE PRÁCTICA: Banco Libre (Noroeste, NARANJA NEÓN)
 	],
 	# 2. SISTEMA: Telaraña de Diamante Cibernético y Matriz de Kernel
 	"sistema": [
@@ -152,7 +153,8 @@ var MODE_NODES: Dictionary = {
 		Vector2(382, 137), # [9] NIVEL 9: Registro HKLM (Vértice Exterior Noroeste)
 		Vector2(898, 137), # [10] NIVEL 10: Protección ASLR (Vértice Exterior Noreste)
 		Vector2(898, 653), # [11] NIVEL 11: Rescate BitLocker (Vértice Exterior Sureste)
-		Vector2(382, 653)  # [12] NIVEL 12: SysAdmin Master (Vértice Exterior Suroeste)
+		Vector2(382, 653), # [12] NIVEL 12: SysAdmin Master (Vértice Exterior Suroeste)
+		Vector2(550, 305)  # [13] SALA DE PRÁCTICA (NARANJA NEÓN)
 	],
 	# 3. SERVIDOR: Hiper-Malla Circular de Datacenter y Anillos de Fibra Óptica
 	"servidor": [
@@ -168,7 +170,8 @@ var MODE_NODES: Dictionary = {
 		Vector2(935, 225), # [9] NIVEL 9: Pasillo Frío (Anillo Exterior 2h)
 		Vector2(1020, 395),# [10] NIVEL 10: Clúster HA (Anillo Exterior 4h)
 		Vector2(640, 655), # [11] NIVEL 11: Live Migration (Anillo Exterior 6h)
-		Vector2(260, 395)  # [12] NIVEL 12: Centro NOC Datacenter (Anillo Exterior 8h)
+		Vector2(260, 395), # [12] NIVEL 12: Centro NOC Datacenter (Anillo Exterior 8h)
+		Vector2(550, 305)  # [13] SALA DE PRÁCTICA (NARANJA NEÓN)
 	]
 }
 
@@ -177,6 +180,8 @@ var MODE_CONNECTIONS: Dictionary = {
 	"reparacion": [
 		# Raíces directas desde el núcleo tutorial (0)
 		Vector2i(0, 1), Vector2i(0, 2), Vector2i(0, 3), Vector2i(0, 4),
+		# Conexión satélite de práctica (Naranja Neón)
+		Vector2i(0, 13), Vector2i(1, 13),
 		# Anillo de telaraña interno
 		Vector2i(1, 2), Vector2i(2, 3), Vector2i(3, 4), Vector2i(4, 1),
 		# Filamentos radiales de conexión a anillo medio
@@ -193,6 +198,8 @@ var MODE_CONNECTIONS: Dictionary = {
 	"sistema": [
 		# Raíces directas desde el núcleo tutorial (0)
 		Vector2i(0, 1), Vector2i(0, 2), Vector2i(0, 3), Vector2i(0, 4),
+		# Conexión satélite de práctica (Naranja Neón)
+		Vector2i(0, 13), Vector2i(1, 13),
 		# Diamante de telaraña interno
 		Vector2i(1, 2), Vector2i(2, 3), Vector2i(3, 4), Vector2i(4, 1),
 		# Filamentos radiales a ápices de diamante medio
@@ -210,6 +217,8 @@ var MODE_CONNECTIONS: Dictionary = {
 		# Raíces orbitales directas desde el núcleo tutorial (0)
 		Vector2i(0, 1), Vector2i(0, 2), Vector2i(0, 3),
 		Vector2i(0, 4), Vector2i(0, 5), Vector2i(0, 6),
+		# Conexión satélite de práctica (Naranja Neón)
+		Vector2i(0, 13), Vector2i(1, 13),
 		# Anillo de telaraña circular interno
 		Vector2i(1, 2), Vector2i(2, 3), Vector2i(3, 4),
 		Vector2i(4, 5), Vector2i(5, 6), Vector2i(6, 1),
@@ -502,8 +511,9 @@ func _draw() -> void:
 		for conn in conns:
 			if conn.x < nodes.size() and conn.y < nodes.size():
 				var is_primary_root = (conn.x == 0 and conn.y == 1) or (conn.x == 1 and conn.y == 0)
-				var line_alpha = 0.95 if is_primary_root else 0.55
-				_draw_circuit_line(nodes[conn.x], nodes[conn.y], line_alpha, conn.x + conn.y, is_primary_root)
+				var is_practice_link = (conn.x == 13 or conn.y == 13)
+				var line_alpha = 0.95 if (is_primary_root or is_practice_link) else 0.55
+				_draw_circuit_line(nodes[conn.x], nodes[conn.y], line_alpha, conn.x + conn.y, is_primary_root, is_practice_link)
 
 	# =========================================================================
 	# 6. POLVO DIGITAL AMBIENTAL
@@ -532,13 +542,14 @@ func _draw() -> void:
 		var np = nodes[i]
 		var is_hovered = (hovered_node_index == i)
 		var is_tutorial = (i == 0)
+		var is_practice = (i == 13) # Nodo de Práctica en Naranja Neón
 		var is_playable = (i == 1) # Nivel 1 es jugable en Rojo Carmesí
 		var zoom_scale = node_zoom_scales[i] if i < node_zoom_scales.size() else 1.0
 		var ripple = node_ripples[i] if i < node_ripples.size() else 0.0
 
 		var node_phase = float(i) * 0.52
 		var core_breath = sin(anim_offset * 3.0 + node_phase) * 0.5 + 0.5
-		var base_radius = 26.0 if is_tutorial else (21.0 + core_breath * 2.2)
+		var base_radius = (26.0 if is_tutorial else (24.0 if is_practice else 21.0)) + core_breath * 2.2
 		if is_hovered:
 			base_radius += 3.5
 		var breath_radius = base_radius * zoom_scale
@@ -550,6 +561,8 @@ func _draw() -> void:
 			var rip_col: Color
 			if is_tutorial:
 				rip_col = Color(0.0, 0.88, 1.0, rip_a)
+			elif is_practice:
+				rip_col = Color(1.0, 0.55, 0.05, rip_a)
 			elif is_playable:
 				rip_col = Color(1.0, 0.08, 0.25, rip_a)
 			else:
@@ -562,6 +575,9 @@ func _draw() -> void:
 		if is_tutorial:
 			socket_bg = Color(0.0, 0.35, 0.65, 0.22)
 			socket_arc = Color(0.0, 0.88, 1.0, 0.75)
+		elif is_practice:
+			socket_bg = Color(0.9, 0.45, 0.02, 0.22)
+			socket_arc = Color(1.0, 0.55, 0.05, 0.85)
 		elif is_playable:
 			socket_bg = Color(0.8, 0.05, 0.22, 0.18)
 			socket_arc = Color(1.0, 0.08, 0.25, 0.75)
@@ -569,7 +585,7 @@ func _draw() -> void:
 			socket_bg = Color(0.12, 0.3, 0.48, 0.08)
 			socket_arc = Color(0.22, 0.42, 0.6, 0.32)
 
-		var socket_sz = (36.0 if is_tutorial else 32.0) * zoom_scale
+		var socket_sz = (36.0 if is_tutorial else (34.0 if is_practice else 32.0)) * zoom_scale
 		draw_circle(np, socket_sz, socket_bg)
 		draw_arc(np, socket_sz - 4.0 * zoom_scale, 0, TAU, 32, socket_arc, 1.6)
 
@@ -578,6 +594,8 @@ func _draw() -> void:
 		var tick_col: Color
 		if is_tutorial:
 			tick_col = Color(0.1, 0.95, 1.0, 0.95)
+		elif is_practice:
+			tick_col = Color(1.0, 0.65, 0.1, 0.95)
 		elif is_playable:
 			tick_col = Color(1.0, 0.15, 0.35, 0.9)
 		else:
@@ -591,8 +609,8 @@ func _draw() -> void:
 		# --- Anillos segmentados rotatorios ---
 		var rot_cw = anim_offset * (1.2 + float(i % 3) * 0.3)
 		var rot_ccw = -anim_offset * (0.9 + float((i + 1) % 3) * 0.25)
-		var ring_r1 = (28.0 if is_tutorial else 25.5) * zoom_scale
-		var ring_r2 = (25.0 if is_tutorial else 23.0) * zoom_scale
+		var ring_r1 = (28.0 if is_tutorial else (27.0 if is_practice else 25.5)) * zoom_scale
+		var ring_r2 = (25.0 if is_tutorial else (24.0 if is_practice else 23.0)) * zoom_scale
 
 		if is_tutorial:
 			draw_arc(np, ring_r1, rot_cw, rot_cw + PI * 0.5, 14, Color(0.0, 0.9, 1.0, 0.95), 2.2)
@@ -601,6 +619,14 @@ func _draw() -> void:
 
 			draw_arc(np, ring_r2, rot_ccw, rot_ccw + PI * 0.65, 14, Color(0.1, 0.85, 1.0, 0.8), 1.6)
 			draw_arc(np, ring_r2, rot_ccw + PI * 1.05, rot_ccw + PI * 1.7, 14, Color(0.4, 0.95, 1.0, 0.8), 1.6)
+		elif is_practice:
+			# Anillos giratorios de práctica en Naranja Neón
+			draw_arc(np, ring_r1, rot_cw, rot_cw + PI * 0.5, 14, Color(1.0, 0.55, 0.05, 0.95), 2.2)
+			draw_arc(np, ring_r1, rot_cw + PI * 0.75, rot_cw + PI * 1.25, 14, Color(1.0, 0.75, 0.15, 0.95), 2.2)
+			draw_arc(np, ring_r1, rot_cw + PI * 1.5, rot_cw + PI * 1.95, 14, Color(1.0, 0.45, 0.0, 0.95), 2.2)
+
+			draw_arc(np, ring_r2, rot_ccw, rot_ccw + PI * 0.65, 14, Color(1.0, 0.65, 0.1, 0.8), 1.6)
+			draw_arc(np, ring_r2, rot_ccw + PI * 1.05, rot_ccw + PI * 1.7, 14, Color(1.0, 0.85, 0.3, 0.8), 1.6)
 		elif is_playable:
 			draw_arc(np, ring_r1, rot_cw, rot_cw + PI * 0.45, 12, Color(1.0, 0.08, 0.25, 0.9), 1.8)
 			draw_arc(np, ring_r1, rot_cw + PI * 0.7, rot_cw + PI * 1.15, 12, Color(1.0, 0.22, 0.38, 0.9), 1.8)
@@ -620,6 +646,8 @@ func _draw() -> void:
 		var crystal_col: Color
 		if is_tutorial:
 			crystal_col = Color(0.015, 0.06, 0.15, 0.98)
+		elif is_practice:
+			crystal_col = Color(0.15, 0.05, 0.01, 0.98) # Ámbar oscuro
 		elif is_playable:
 			crystal_col = Color(0.14, 0.015, 0.04, 0.98)
 		else:
@@ -632,6 +660,10 @@ func _draw() -> void:
 			base_neon = Color(0.0, 0.88, 1.0, 1.0).lerp(Color(0.3, 1.0, 1.0, 1.0), core_breath)
 			if is_hovered:
 				base_neon = Color(0.6, 1.0, 1.0, 1.0)
+		elif is_practice:
+			base_neon = Color(1.0, 0.55, 0.05, 1.0).lerp(Color(1.0, 0.8, 0.25, 1.0), core_breath)
+			if is_hovered:
+				base_neon = Color(1.0, 0.9, 0.5, 1.0)
 		elif is_playable:
 			base_neon = Color(1.0, 0.06, 0.22, 1.0).lerp(Color(1.0, 0.25, 0.4, 1.0), core_breath)
 			if is_hovered:
@@ -641,16 +673,19 @@ func _draw() -> void:
 			if is_hovered:
 				base_neon = Color(0.0, 1.0, 0.75, 1.0)
 
-		draw_arc(np, breath_radius, 0, TAU, 32, base_neon, 2.6 if (is_tutorial or is_playable or is_hovered) else 1.6)
+		draw_arc(np, breath_radius, 0, TAU, 32, base_neon, 2.6 if (is_tutorial or is_practice or is_playable or is_hovered) else 1.6)
 
 		if is_tutorial:
 			var halo_r = breath_radius + (4.0 + core_breath * 3.0) * zoom_scale
 			draw_arc(np, halo_r, 0, TAU, 32, Color(0.0, 0.88, 1.0, 0.45 + core_breath * 0.3), 1.8)
+		elif is_practice:
+			var halo_r = breath_radius + (4.0 + core_breath * 3.0) * zoom_scale
+			draw_arc(np, halo_r, 0, TAU, 32, Color(1.0, 0.55, 0.05, 0.45 + core_breath * 0.3), 1.8)
 		elif is_playable:
 			var halo_r = breath_radius + (3.2 + core_breath * 2.5) * zoom_scale
 			draw_arc(np, halo_r, 0, TAU, 32, Color(1.0, 0.08, 0.25, 0.42 + core_breath * 0.25), 1.5)
 
-		# --- ÍCONO CENTRAL ---
+		# --- ÍCONO CENTRAL (OTRA FIGURA PARA PRÁCTICA) ---
 		if is_tutorial:
 			var em_col = Color(0.2, 0.95, 1.0, 0.98) if not is_hovered else Color.WHITE
 			var sz = 7.5 * zoom_scale
@@ -663,6 +698,43 @@ func _draw() -> void:
 			draw_arc(np + Vector2(0, sz * 0.2), sz * 0.75, 0.15 * PI, 0.85 * PI, 10, em_col, 1.4)
 			draw_line(p_rt, p_rt + Vector2(3.0 * zoom_scale, 6.0 * zoom_scale), em_col, 1.2)
 			draw_circle(p_rt + Vector2(3.0 * zoom_scale, 6.0 * zoom_scale), 1.5 * zoom_scale, em_col)
+		elif is_practice:
+			# FIGURA DE HERRAMIENTAS CRUZADAS DE PRÁCTICA (LLAVE INGLESA + DESTORNILLADOR SCI-FI)
+			var tool_col = Color(1.0, 0.82, 0.35, 1.0) if not is_hovered else Color.WHITE
+			var tool_glow = Color(1.0, 0.55, 0.05, 0.8)
+			var sz = 8.5 * zoom_scale
+
+			# 1. Llave inglesa en diagonal (SO a NE)
+			var w_start = np + Vector2(-sz * 0.85, sz * 0.85)
+			var w_end = np + Vector2(sz * 0.85, -sz * 0.85)
+			draw_line(w_start, w_end, tool_glow, 3.8 * zoom_scale)
+			draw_line(w_start, w_end, tool_col, 2.2 * zoom_scale)
+			# Cabeza abierta de la llave inglesa en w_end
+			var head_dir = Vector2(0.707, -0.707)
+			var head_perp = Vector2(0.707, 0.707)
+			var j1 = w_end + head_perp * (sz * 0.45)
+			var j2 = w_end - head_perp * (sz * 0.45)
+			draw_line(j1, j1 + head_dir * (sz * 0.4), tool_col, 2.0 * zoom_scale)
+			draw_line(j2, j2 + head_dir * (sz * 0.4), tool_col, 2.0 * zoom_scale)
+			draw_line(j1, j2, tool_col, 1.8 * zoom_scale)
+			# Anillo de la llave inglesa en w_start
+			draw_arc(w_start, sz * 0.32, 0, TAU, 12, tool_col, 1.6 * zoom_scale)
+
+			# 2. Destornillador cruzado (SE a NO)
+			var s_start = np + Vector2(sz * 0.85, sz * 0.85)
+			var s_end = np + Vector2(-sz * 0.85, -sz * 0.85)
+			draw_line(s_start, s_end, tool_glow, 3.4 * zoom_scale)
+			draw_line(s_start, s_end, tool_col, 1.8 * zoom_scale)
+			# Punta plana del destornillador en s_end
+			var s_dir = Vector2(-0.707, -0.707)
+			draw_line(s_end - s_dir * (sz * 0.3), s_end, Color(1.0, 1.0, 1.0, 0.95), 2.4 * zoom_scale)
+			# Mango ergonómico en s_start
+			var handle_p = s_start - s_dir * (sz * 0.5)
+			draw_line(handle_p, s_start, Color(1.0, 0.45, 0.05, 1.0), 3.2 * zoom_scale)
+
+			# 3. Núcleo perno luminoso en la intersección
+			draw_circle(np, 2.6 * zoom_scale, Color(1.0, 0.9, 0.4, 1.0))
+			draw_circle(np, 1.2 * zoom_scale, Color.WHITE)
 		elif is_playable:
 			var tri_sz = 6.8 * zoom_scale
 			var p_top = np + Vector2(-tri_sz * 0.65, -tri_sz)
@@ -686,6 +758,10 @@ func _draw() -> void:
 			var tut_str = "TUTORIAL"
 			var tut_col = Color(0.2, 0.95, 1.0, 1.0) if not is_hovered else Color.WHITE
 			draw_string(font, np + Vector2(-32 * zoom_scale, -34 * zoom_scale), tut_str, HORIZONTAL_ALIGNMENT_CENTER, int(64 * zoom_scale), int(12 * zoom_scale), tut_col)
+		elif is_practice:
+			var prac_str = "PRÁCTICA"
+			var prac_col = Color(1.0, 0.65, 0.15, 1.0) if not is_hovered else Color.WHITE
+			draw_string(font, np + Vector2(-32 * zoom_scale, -34 * zoom_scale), prac_str, HORIZONTAL_ALIGNMENT_CENTER, int(64 * zoom_scale), int(12 * zoom_scale), prac_col)
 		else:
 			var lvl_str = str(i)
 			var num_color: Color
@@ -701,7 +777,7 @@ func _draw() -> void:
 		if is_hovered:
 			var b_dist = (socket_sz + 4.0)
 			var b_sz = 9.0 * zoom_scale
-			var b_col = Color(0.0, 0.95, 1.0, 0.95) if is_tutorial else (Color(1.0, 0.2, 0.35, 0.95) if is_playable else Color(0.0, 1.0, 0.8, 0.95))
+			var b_col = Color(0.0, 0.95, 1.0, 0.95) if is_tutorial else (Color(1.0, 0.55, 0.05, 0.95) if is_practice else (Color(1.0, 0.2, 0.35, 0.95) if is_playable else Color(0.0, 1.0, 0.8, 0.95)))
 			draw_line(np + Vector2(-b_dist, -b_dist), np + Vector2(-b_dist + b_sz, -b_dist), b_col, 2.2)
 			draw_line(np + Vector2(-b_dist, -b_dist), np + Vector2(-b_dist, -b_dist + b_sz), b_col, 2.2)
 			draw_line(np + Vector2(b_dist, -b_dist), np + Vector2(b_dist - b_sz, -b_dist), b_col, 2.2)
@@ -883,7 +959,7 @@ func _draw_transition_effect(hub: Vector2, w: float, h: float) -> void:
 # =============================================================================
 # ENLACE CIRCUIT LINE CON SOPORTE PARA RAÍZ PRINCIPAL
 # =============================================================================
-func _draw_circuit_line(p1: Vector2, p2: Vector2, alpha: float, seed_val: int, is_primary_root: bool = false) -> void:
+func _draw_circuit_line(p1: Vector2, p2: Vector2, alpha: float, seed_val: int, is_primary_root: bool = false, is_practice_link: bool = false) -> void:
 	if is_primary_root:
 		# RAÍZ PRINCIPAL (TUTORIAL -> NIVEL 1): Doble intensidad y filamento dorado/cian
 		draw_line(p1, p2, Color(0.0, 0.65, 1.0, 0.4 * alpha), 6.5)
@@ -894,6 +970,16 @@ func _draw_circuit_line(p1: Vector2, p2: Vector2, alpha: float, seed_val: int, i
 		var packet_pos1 = p1.lerp(p2, packet_t1)
 		draw_circle(packet_pos1, 4.0, Color(0.0, 0.9, 1.0, min(1.0, alpha * 1.8)))
 		draw_circle(packet_pos1, 2.0, Color.WHITE)
+	elif is_practice_link:
+		# ENLACE DE PRÁCTICA (TUTORIAL / NIVEL 1 -> SALA DE PRÁCTICA): Naranja Neón brillante
+		draw_line(p1, p2, Color(1.0, 0.45, 0.0, 0.35 * alpha), 6.0)
+		draw_line(p1, p2, Color(1.0, 0.60, 0.1, alpha), 2.6)
+		draw_line(p1, p2, Color(1.0, 0.90, 0.5, alpha * 0.85), 1.2)
+		
+		var packet_tp = fmod(anim_offset * 1.0 + float(seed_val) * 0.14, 1.0)
+		var packet_posp = p1.lerp(p2, packet_tp)
+		draw_circle(packet_posp, 4.0, Color(1.0, 0.55, 0.05, min(1.0, alpha * 1.8)))
+		draw_circle(packet_posp, 2.0, Color.WHITE)
 	else:
 		# Glow exterior estándar
 		draw_line(p1, p2, Color(0.48, 0.05, 0.70, 0.28 * alpha), 4.5)

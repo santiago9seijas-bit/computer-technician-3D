@@ -53,6 +53,9 @@ var current_ram_type: String = "ddr"
 const COLOR_RED = Color(1.0, 0.15, 0.25, 1.0)
 const COLOR_GREEN = Color(0.2, 1.0, 0.45, 1.0)
 
+const GUIDE_REMOVE: String = "FASE DE DESMONTAJE (QUITAR):\n1. Arrastra hacia ARRIBA los lados IZQUIERDO y DERECHO (un poco).\n2. Luego arrastra hacia arriba el CENTRO para retirar la RAM."
+const GUIDE_INSTALL: String = "FASE DE MONTAJE (PONER):\n1. Arrastra hacia ABAJO las flechas superiores (IZQUIERDA y DERECHA).\n2. Luego arrastra hacia abajo la flecha del CENTRO para trabar la RAM en el zócalo."
+
 var voltimeter_minigame_scene: PackedScene = preload("res://scenes/minigames/VoltimeterMinigame.tscn")
 
 # Nodos de la escena
@@ -129,7 +132,10 @@ func _ready() -> void:
 		_start_install_drag_phase()
 	else:
 		_set_socket_open(false)
-		_select_guide_tab(0)
+		if is_instance_valid(guide_text):
+			guide_text.text = GUIDE_REMOVE
+		if is_tutorial_mode:
+			_select_guide_tab(0)
 		_update_ram_texture()
 		ram_stick.visible = true
 		empty_slot_label.visible = false
@@ -206,17 +212,24 @@ func _select_guide_tab(idx: int) -> void:
 			btn_tab_poner.modulate = Color(0.2, 1.0, 0.5, 1.0)
 			
 	if idx == 0:
-		guide_text.text = "FASE 1 (QUITAR): Arrastra hacia arriba lados izq y der (un poquitito). Luego arrastra el centro para retirar la RAM."
+		if is_instance_valid(guide_text):
+			guide_text.text = GUIDE_REMOVE
 		if is_tutorial_mode:
 			_setup_quitar_phase()
 	else:
-		guide_text.text = "FASE 2 (PONER AL REVÉS): El zócalo está vacío. Arrastra hacia abajo las flechas superiores (izq y der) y al tercer jalón (centro) la RAM baja y se engancha."
+		if is_instance_valid(guide_text):
+			guide_text.text = GUIDE_INSTALL
 		if is_tutorial_mode:
 			_start_install_drag_phase()
 
 func _setup_quitar_phase() -> void:
 	current_state = State.EXTRACT_SIDES
 	_set_socket_open(false)
+	if is_instance_valid(guide_text):
+		guide_text.text = GUIDE_REMOVE
+	if is_instance_valid(btn_tab_quitar) and is_instance_valid(btn_tab_poner):
+		btn_tab_quitar.modulate = Color(1.2, 1.2, 0.4, 1.0)
+		btn_tab_poner.modulate = Color(0.7, 0.7, 0.7, 0.7)
 	ram_stick.visible = true
 	ram_stick.modulate = Color(1, 1, 1, 1)
 	if default_seated_pos != Vector2.ZERO:
@@ -457,6 +470,12 @@ func _start_install_drag_phase() -> void:
 	_set_socket_open(true)
 	ram_stick.visible = false
 	empty_slot_label.visible = true
+	
+	if is_instance_valid(guide_text):
+		guide_text.text = GUIDE_INSTALL
+	if is_instance_valid(btn_tab_quitar) and is_instance_valid(btn_tab_poner):
+		btn_tab_quitar.modulate = Color(0.7, 0.7, 0.7, 0.7)
+		btn_tab_poner.modulate = Color(0.2, 1.0, 0.5, 1.0)
 	
 	var ram_item = _get_first_unbroken_ram()
 	if not ram_item.is_empty():

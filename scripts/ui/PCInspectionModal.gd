@@ -30,6 +30,7 @@ var liquid_cooling_scene: PackedScene = preload("res://scenes/minigames/LiquidCo
 @onready var card_mobo: PanelContainer = $ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardMOBO
 @onready var card_cooler: PanelContainer = $ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCooler
 @onready var card_cpu: PanelContainer = $ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCPU
+@onready var row_bottom: Container = $ModalControl/Panel/VBox/ComponentsContainer/RowBottom
 
 # Etiquetas de estado
 @onready var lbl_status_ram: Label = $ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardRAM/Margin/VBox/Status
@@ -307,8 +308,14 @@ func _ready() -> void:
 
 func setup_pc(pc_node) -> void:
 	current_pc = pc_node
+	var is_tutorial_pc: bool = (current_pc and current_pc.has_meta("is_tutorial_pc") and current_pc.get_meta("is_tutorial_pc")) or (get_tree().current_scene and "LevelTutorial" in get_tree().current_scene.name)
 	var pc_id_val = current_pc.get("pc_id") if current_pc.get("pc_id") != null else 1
-	title_label.text = "DIAGNÓSTICO TÉCNICO: COMPUTADORA #%d" % pc_id_val
+	if is_tutorial_pc:
+		title_label.text = "INDUCCIÓN TÉCNICA: PC DE ENTRENAMIENTO"
+		if pc_state_badge:
+			pc_state_badge.text = "[ MODO TUTORIAL: EXTRACCIÓN GUIADA ]"
+	else:
+		title_label.text = "DIAGNÓSTICO TÉCNICO: COMPUTADORA #%d" % pc_id_val
 	
 	# Mostrar la pregunta de diagnóstico según el reporte del cliente
 	var q_text = current_pc.get("diagnostic_question") if current_pc.get("diagnostic_question") != null else ""
@@ -918,6 +925,18 @@ func _refresh_ui() -> void:
 				btn_v.modulate = Color(0.6, 0.6, 0.6, 0.5)
 			else:
 				btn_v.modulate = Color(1.0, 1.0, 1.0, 1.0)
+	
+	# En el tutorial solo se muestra RAM, Fuente de Poder y Almacenamiento (SSD/HDD)
+	var is_tut_pc: bool = (current_pc and current_pc.has_meta("is_tutorial_pc") and current_pc.get_meta("is_tutorial_pc")) or (get_tree().current_scene and "LevelTutorial" in get_tree().current_scene.name)
+	if is_tut_pc:
+		if card_gpu:
+			card_gpu.visible = false
+		if row_bottom:
+			row_bottom.visible = false
+		if card_hdd:
+			var hdd_title = card_hdd.get_node_or_null("Margin/VBox/Title") as Label
+			if hdd_title:
+				hdd_title.text = "ALMACENAMIENTO (SSD / HDD)"
 	
 	# Actualizar slots de mochila
 	for i in range(slot_buttons.size()):

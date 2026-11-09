@@ -46,11 +46,33 @@ func show_message(speaker: String, text: String, callback: Callable = Callable()
 		tween_open.parallel().tween_property(panel, "scale", Vector2.ONE, 0.2).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 		tween_open.parallel().tween_property(panel, "modulate:a", 1.0, 0.2)
 
+func show_sequence(dialogs: Array, callback: Callable = Callable()) -> void:
+	if dialogs.is_empty():
+		if callback.is_valid():
+			callback.call()
+		return
+	var current = dialogs[0]
+	var remaining: Array = []
+	for k in range(1, dialogs.size()):
+		remaining.append(dialogs[k])
+	show_message(current.get("speaker", ""), current.get("text", ""), func():
+		show_sequence(remaining, callback)
+	)
+
+func _gui_input(event: InputEvent) -> void:
+	if not is_active or not visible:
+		return
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		accept_event()
+		close_dialog()
+
 func _unhandled_input(event: InputEvent) -> void:
 	if not is_active or not visible:
 		return
 		
-	if event.is_action_pressed("interact") or (event is InputEventKey and event.pressed and not event.echo and (event.keycode == KEY_E or event.physical_keycode == KEY_E)):
+	if event.is_action_pressed("interact") \
+		or (event is InputEventKey and event.pressed and not event.echo and (event.keycode == KEY_E or event.physical_keycode == KEY_E or event.keycode == KEY_SPACE or event.keycode == KEY_ENTER)) \
+		or (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT):
 		get_viewport().set_input_as_handled()
 		close_dialog()
 

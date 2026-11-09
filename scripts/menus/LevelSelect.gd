@@ -28,6 +28,8 @@ static var initial_tab: String = "niveles"
 @onready var graph_lines: Control = $ConstellationArea/GraphLines
 @onready var card_dim_overlay: ColorRect = $CardDimOverlay
 @onready var btn_play_level1: Button = $BtnPlayLevel1
+@onready var difficulty_selector: Control = $DifficultySelector
+@onready var tutorial_info_panel: Control = get_node_or_null("TutorialInfoPanel")
 
 # --- Área de Tutoriales (Centro de Entrenamiento) ---
 @onready var tutorial_area: Control = $TutorialArea
@@ -231,6 +233,17 @@ var LEVELS_DATA: Dictionary = {
 			"description": "Estación de trabajo de ingeniería completamente inerte. Diagnóstico holístico de 7 fallas simultáneas en cadena.",
 			"requirements": "EQUIPO COMPLETO DE LABORATORIO · LÍMITE: 150s · RECOMPENSA: 1000 PTS ★",
 			"can_play": false
+		},
+		{
+			"number": 13,
+			"is_practice": true,
+			"title": "SALA DE PRÁCTICA 3D",
+			"stage": "LABORATORIO PRÁCTICO // ENTRENAMIENTO",
+			"mode_name": "REPARACIÓN",
+			"color_accent": Color(1.0, 0.55, 0.05),
+			"description": "Banco de trabajo libre sin límite de tiempo.\nPractica la extracción, sustitución y ensamblaje de componentes (Memoria RAM, Fuente ATX, Almacenamiento SSD/HDD) las veces que desees.",
+			"requirements": "HERRAMIENTAS: Acceso Total · MODO PRÁCTICA LIBRE · SIN TIEMPO",
+			"can_play": true
 		}
 	],
 	"sistema": [
@@ -364,6 +377,17 @@ var LEVELS_DATA: Dictionary = {
 			"description": "Despliegue automatizado de imagen corporativa con endurecimiento de seguridad, directivas de grupo y parches de kernel.",
 			"requirements": "MASTER SYSTEM ADMINISTRATOR · LÍMITE: 150s · RECOMPENSA: 1000 PTS ★",
 			"can_play": false
+		},
+		{
+			"number": 13,
+			"is_practice": true,
+			"title": "SALA DE PRÁCTICA 3D",
+			"stage": "LABORATORIO PRÁCTICO // ENTRENAMIENTO",
+			"mode_name": "SISTEMA",
+			"color_accent": Color(1.0, 0.55, 0.05),
+			"description": "Entorno libre de pruebas sin presión de tiempo.\nPractica la interacción con terminales y software en el banco de trabajo.",
+			"requirements": "HERRAMIENTAS: Consola / BIOS · MODO PRÁCTICA LIBRE · SIN TIEMPO",
+			"can_play": true
 		}
 	],
 	"servidor": [
@@ -497,6 +521,17 @@ var LEVELS_DATA: Dictionary = {
 			"description": "Puesta en marcha completa de una fila de servidores rack con balanceo de carga, enlace troncal y energía redundante.",
 			"requirements": "CERTIFICACIÓN SUPREMA DE SERVIDORES · LÍMITE: 150s · RECOMPENSA: 1000 PTS ★",
 			"can_play": false
+		},
+		{
+			"number": 13,
+			"is_practice": true,
+			"title": "SALA DE PRÁCTICA 3D",
+			"stage": "LABORATORIO PRÁCTICO // ENTRENAMIENTO",
+			"mode_name": "SERVIDOR",
+			"color_accent": Color(1.0, 0.55, 0.05),
+			"description": "Entorno libre de pruebas sin presión de tiempo.\nManipulación y montaje de componentes de servidor en bastidores a tu propio ritmo.",
+			"requirements": "HERRAMIENTAS: Acceso Total · MODO PRÁCTICA LIBRE · SIN TIEMPO",
+			"can_play": true
 		}
 	]
 }
@@ -988,16 +1023,7 @@ func _ready() -> void:
 		card_dim_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
 		card_dim_overlay.gui_input.connect(func(event: InputEvent):
 			if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-				# Si hace clic en el círculo ampliado (radio 85px desde Vector2(260, 390)), accionar
-				if is_level_zoomed:
-					var dist = event.position.distance_to(Vector2(260, 390))
-					if dist <= 85.0:
-						if active_zoomed_index == 0:
-							_play_tutorial_level()
-							return
-						elif active_zoomed_index == 1 and (current_mode == "reparacion" or current_mode == "sistema" or current_mode == "servidor"):
-							_play_level_1()
-							return
+				# Clic fuera des-zoomea la cámara y restaura la interfaz; no entra al nivel
 				_unzoom_camera()
 		)
 	if deployed_modal:
@@ -1013,6 +1039,12 @@ func _ready() -> void:
 	deployed_btn_play.pressed.connect(_on_deployed_play_pressed)
 	if btn_play_level1:
 		btn_play_level1.pressed.connect(_on_btn_play_level_pressed)
+	if difficulty_selector:
+		difficulty_selector.visible = false
+		difficulty_selector.launch_requested.connect(_on_btn_play_level_pressed)
+	if tutorial_info_panel:
+		tutorial_info_panel.visible = false
+		tutorial_info_panel.launch_requested.connect(_on_btn_play_level_pressed)
 	
 	if graph_lines and graph_lines.has_signal("mode_transition_completed"):
 		graph_lines.mode_transition_completed.connect(_update_node_hitboxes_positions)
@@ -1225,17 +1257,15 @@ func _on_node_clicked(index: int) -> void:
 		
 	var data = list[index]
 	
-	# Si ya está en zoom sobre el nodo y vuelven a presionar:
+	# Si ya está en zoom sobre el nodo y vuelven a presionar: no accionar entrada, permanecer enfocado
 	if is_level_zoomed and active_zoomed_index == index:
-		if index == 0:
-			_play_tutorial_level()
-			return
-		elif index == 1 and (current_mode == "reparacion" or current_mode == "sistema" or current_mode == "servidor"):
-			_play_level_1()
-			return
+		return
 		
 	is_level_zoomed = true
 	active_zoomed_index = index
+	
+	# Desvanecer todos los demás botones de la interfaz para dejar limpio el nivel y selector
+	_fade_menu_chrome(false)
 	
 	if graph_lines and graph_lines.has_method("trigger_node_click_zoom"):
 		graph_lines.trigger_node_click_zoom(index)
@@ -1259,34 +1289,34 @@ func _on_node_clicked(index: int) -> void:
 		camera_zoom_tween.tween_property(constellation_area, "scale", Vector2(zoom_factor, zoom_factor), 0.42)\
 			.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 		
-	# Botón de acción contextual bajo el círculo ampliado
+	# Ocultar botón antiguo bajo el círculo
 	if btn_play_level1:
-		if index == 0:
-			# NÚCLEO TUTORIAL (AZUL ELÉCTRICO NEÓN)
-			btn_play_level1.visible = true
-			btn_play_level1.text = "▶ INICIAR TUTORIAL"
-			btn_play_level1.modulate.a = 0.0
-			if "border_color" in btn_play_level1:
-				btn_play_level1.border_color = Color(0.0, 0.88, 1.0)
-			btn_play_level1.position = Vector2(140, 460)
-			btn_play_level1.size = Vector2(240, 40)
-			camera_zoom_tween.tween_property(btn_play_level1, "position:y", 475.0, 0.42)\
-				.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-			camera_zoom_tween.tween_property(btn_play_level1, "modulate:a", 1.0, 0.32)
-		elif index == 1 and (current_mode == "reparacion" or current_mode == "sistema" or current_mode == "servidor"):
-			# NIVEL 1 JUGABLE (ROJO CARMESÍ NEÓN)
-			btn_play_level1.visible = true
-			btn_play_level1.text = "▶ DALE CLIC PARA INICIAR"
-			btn_play_level1.modulate.a = 0.0
-			if "border_color" in btn_play_level1:
-				btn_play_level1.border_color = Color(1.0, 0.15, 0.35)
-			btn_play_level1.position = Vector2(140, 460)
-			btn_play_level1.size = Vector2(240, 40)
-			camera_zoom_tween.tween_property(btn_play_level1, "position:y", 475.0, 0.42)\
-				.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-			camera_zoom_tween.tween_property(btn_play_level1, "modulate:a", 1.0, 0.32)
-		else:
-			btn_play_level1.visible = false
+		btn_play_level1.visible = false
+		
+	# Paneles laterales según el tipo de nodo (Tutorial o Nivel)
+	if index == 0:
+		# NÚCLEO TUTORIAL (AZUL ELÉCTRICO NEÓN) - Mostrar Panel de Información del Tutorial
+		if difficulty_selector and difficulty_selector.visible:
+			difficulty_selector.play_exit_animation()
+		if tutorial_info_panel:
+			tutorial_info_panel.open_for_tutorial(current_mode)
+	elif index == 13:
+		# SALA DE PRÁCTICA (NARANJA NEÓN) - Mostrar Panel en modo práctica libre
+		if difficulty_selector and difficulty_selector.visible:
+			difficulty_selector.play_exit_animation()
+		if tutorial_info_panel:
+			tutorial_info_panel.open_for_practice(data)
+	elif index >= 1 and index <= 12 and (current_mode == "reparacion" or current_mode == "sistema" or current_mode == "servidor"):
+		# NIVEL JUGABLE: El botón antiguo se oculta y se sustituye por el Selector de Dificultad
+		if tutorial_info_panel and tutorial_info_panel.visible:
+			tutorial_info_panel.play_exit_animation()
+		if difficulty_selector:
+			difficulty_selector.open_for_level()
+	else:
+		if tutorial_info_panel and tutorial_info_panel.visible:
+			tutorial_info_panel.play_exit_animation()
+		if difficulty_selector and difficulty_selector.visible:
+			difficulty_selector.play_exit_animation()
 		
 	# Habilitar el overlay invisible de captura de clics fuera de la tarjeta
 	if card_dim_overlay:
@@ -1313,22 +1343,70 @@ func _unzoom_camera() -> void:
 			.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 		
 	if btn_play_level1 and btn_play_level1.visible:
-		camera_zoom_tween.tween_property(btn_play_level1, "modulate:a", 0.0, 0.22)
-		camera_zoom_tween.chain().tween_callback(func():
-			if btn_play_level1 and not is_level_zoomed:
-				btn_play_level1.visible = false
-		)
+		btn_play_level1.visible = false
+	
+	if difficulty_selector and difficulty_selector.visible:
+		difficulty_selector.play_exit_animation()
+	if tutorial_info_panel and tutorial_info_panel.visible:
+		tutorial_info_panel.play_exit_animation()
+		
+	# Restaurar todos los botones de la interfaz
+	_fade_menu_chrome(true)
+
+func _fade_menu_chrome(visible_state: bool) -> void:
+	var target_alpha = 1.0 if visible_state else 0.0
+	var target_mouse = Control.MOUSE_FILTER_PASS if visible_state else Control.MOUSE_FILTER_IGNORE
+	var chrome_nodes = [
+		get_node_or_null("TopBar"),
+		get_node_or_null("ModeSelector"),
+		get_node_or_null("SectionBanner"),
+		get_node_or_null("ColumnHeaders"),
+		get_node_or_null("FooterHint")
+	]
+	for node in chrome_nodes:
+		if node:
+			node.mouse_filter = target_mouse
+			var tw = create_tween()
+			tw.tween_property(node, "modulate:a", target_alpha, 0.22).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 
 func _update_btn_play_level1_visibility() -> void:
-	if not btn_play_level1:
-		return
-	btn_play_level1.visible = (is_level_zoomed and (active_zoomed_index == 0 or active_zoomed_index == 1) and (current_mode == "reparacion" or current_mode == "sistema" or current_mode == "servidor") and current_tab == "niveles")
+	if btn_play_level1:
+		btn_play_level1.visible = false
+	if difficulty_selector and not (is_level_zoomed and active_zoomed_index >= 1 and active_zoomed_index <= 12 and current_tab == "niveles"):
+		difficulty_selector.visible = false
+	if tutorial_info_panel and not (is_level_zoomed and (active_zoomed_index == 0 or active_zoomed_index == 13) and current_tab == "niveles"):
+		tutorial_info_panel.visible = false
 
 func _on_btn_play_level_pressed() -> void:
 	if active_zoomed_index == 0:
 		_play_tutorial_level()
-	elif active_zoomed_index == 1:
+	elif active_zoomed_index == 13:
+		_play_practice_level()
+	elif active_zoomed_index >= 1:
 		_play_level_1()
+
+func _play_practice_level() -> void:
+	if is_launching_level:
+		return
+	is_launching_level = true
+	
+	if btn_play_level1:
+		btn_play_level1.visible = false
+		
+	var gm = get_node_or_null("/root/GameManager")
+	if gm and gm.has_method("start_level"):
+		gm.start_level(999.0)
+		gm.timer_active = false
+		
+	CyberPlayTransition.play(
+		get_tree(),
+		"res://scenes/gameplay/LevelPractice.tscn",
+		"ENTRANDO A LA SALA DE PRÁCTICA 3D",
+		"// ENTRENAMIENTO TÉCNICO · BANCO DE TRABAJO //",
+		Callable(),
+		false,
+		true
+	)
 
 func _play_tutorial_level() -> void:
 	if is_launching_level:
@@ -1336,10 +1414,7 @@ func _play_tutorial_level() -> void:
 	is_launching_level = true
 	
 	if btn_play_level1:
-		btn_play_level1.pivot_offset = btn_play_level1.size * 0.5
-		var punch_tw = create_tween()
-		punch_tw.tween_property(btn_play_level1, "scale", Vector2(1.12, 1.12), 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-		punch_tw.parallel().tween_property(btn_play_level1, "modulate", Color(1.8, 2.2, 2.8, 1.0), 0.12)
+		btn_play_level1.visible = false
 		
 	var gm = get_node_or_null("/root/GameManager")
 	if gm and gm.has_method("start_level"):
@@ -1349,7 +1424,9 @@ func _play_tutorial_level() -> void:
 		get_tree(),
 		"res://scenes/gameplay/LevelTutorial.tscn",
 		"ENTRANDO AL TUTORIAL 3D",
-		"// SALA DE ENTRENAMIENTO · INDUCCIÓN TÉCNICA //"
+		"// SALA DE ENTRENAMIENTO · INDUCCIÓN TÉCNICA //",
+		Callable(),
+		true
 	)
 
 func _open_tutorial_from_hub() -> void:
@@ -1376,7 +1453,7 @@ func _play_level_1() -> void:
 		
 	var gm = get_node_or_null("/root/GameManager")
 	if gm and gm.has_method("start_level"):
-		gm.start_level(900.0)
+		gm.start_level(gm.get_difficulty_time())
 		
 	var target_scene = "res://scenes/gameplay/Level1.tscn"
 	var mode_title = "TALLER DE HARDWARE 3D"

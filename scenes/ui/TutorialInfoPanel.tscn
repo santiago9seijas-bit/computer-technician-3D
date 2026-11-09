@@ -1,0 +1,285 @@
+[gd_scene load_steps=12 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/TutorialInfoPanel.gd" id="1_tut"]
+[ext_resource type="FontFile" uid="uid://dbcug8887dro7" path="res://assets/fonts/Bungee-Regular.ttf" id="2_bungee"]
+[ext_resource type="FontFile" path="res://assets/fonts/JetBrainsMono-Bold.ttf" id="3_mono"]
+[ext_resource type="Texture2D" uid="uid://bpemd5djputrv" path="res://pixel art menus/botones/fondo de boton.png" id="4_btn_nor"]
+[ext_resource type="Texture2D" uid="uid://b86mg812vtc17" path="res://pixel art menus/botones/fondo de boton mouse encima.png" id="5_btn_hov"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_card"]
+bg_color = Color(0.02, 0.045, 0.1, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0, 0.88, 1, 0.95)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0, 0.65, 1, 0.35)
+shadow_size = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_piece_ram"]
+bg_color = Color(0.03, 0.08, 0.16, 0.85)
+border_width_left = 2
+border_color = Color(0, 0.9, 1, 0.9)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+content_margin_left = 8.0
+content_margin_top = 4.0
+content_margin_right = 8.0
+content_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_piece_psu"]
+bg_color = Color(0.03, 0.08, 0.16, 0.85)
+border_width_left = 2
+border_color = Color(1, 0.75, 0.1, 0.9)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+content_margin_left = 8.0
+content_margin_top = 4.0
+content_margin_right = 8.0
+content_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_piece_ssd"]
+bg_color = Color(0.03, 0.08, 0.16, 0.85)
+border_width_left = 2
+border_color = Color(0.2, 1, 0.6, 0.9)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+content_margin_left = 8.0
+content_margin_top = 4.0
+content_margin_right = 8.0
+content_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_piece_hdd"]
+bg_color = Color(0.03, 0.08, 0.16, 0.85)
+border_width_left = 2
+border_color = Color(0.85, 0.4, 1, 0.9)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+content_margin_left = 8.0
+content_margin_top = 4.0
+content_margin_right = 8.0
+content_margin_bottom = 4.0
+
+[node name="TutorialInfoPanel" type="Control"]
+custom_minimum_size = Vector2(520, 480)
+layout_mode = 3
+anchors_preset = 0
+offset_right = 520.0
+offset_bottom = 480.0
+mouse_filter = 1
+script = ExtResource("1_tut")
+
+[node name="CardPanel" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+
+[node name="Margin" type="MarginContainer" parent="CardPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 12
+
+[node name="VBox" type="VBoxContainer" parent="CardPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="HeaderBox" type="VBoxContainer" parent="CardPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 1
+
+[node name="LblBadge" type="Label" parent="CardPanel/Margin/VBox/HeaderBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.94, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0.35, 0.7, 0.8)
+theme_override_constants/shadow_offset_y = 1
+theme_override_fonts/font = ExtResource("3_mono")
+theme_override_font_sizes/font_size = 10
+text = "// PROTOCOLO DE APRENDIZAJE TÉCNICO // MODO SEGURO //"
+
+[node name="LblTitle" type="Label" parent="CardPanel/Margin/VBox/HeaderBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0.75, 1, 0.85)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_constants/outline_size = 6
+theme_override_constants/shadow_outline_size = 6
+theme_override_fonts/font = ExtResource("2_bungee")
+theme_override_font_sizes/font_size = 17
+text = "TUTORIAL: REPARACIÓN BÁSICA"
+
+[node name="LblSubtitle" type="Label" parent="CardPanel/Margin/VBox/HeaderBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.88, 1, 0.95)
+theme_override_fonts/font = ExtResource("3_mono")
+theme_override_font_sizes/font_size = 9
+text = "// EXTRACCIÓN Y DIAGNÓSTICO DE PIEZAS CLAVE //"
+
+[node name="SepLine" type="ColorRect" parent="CardPanel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 2)
+layout_mode = 2
+color = Color(0, 0.88, 1, 0.5)
+
+[node name="PiecesContainer" type="VBoxContainer" parent="CardPanel/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 5
+
+[node name="PieceRAM" type="PanelContainer" parent="CardPanel/Margin/VBox/PiecesContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_piece_ram")
+
+[node name="VBox" type="VBoxContainer" parent="CardPanel/Margin/VBox/PiecesContainer/PieceRAM"]
+layout_mode = 2
+theme_override_constants/separation = 1
+
+[node name="Title" type="Label" parent="CardPanel/Margin/VBox/PiecesContainer/PieceRAM/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.94, 1, 1)
+theme_override_fonts/font = ExtResource("3_mono")
+theme_override_font_sizes/font_size = 10
+text = "⚡ MEMORIA RAM (DDR4 / DDR5)"
+
+[node name="Desc" type="Label" parent="CardPanel/Margin/VBox/PiecesContainer/PieceRAM/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.92, 1, 0.9)
+theme_override_font_sizes/font_size = 9
+text = "Liberación de clips laterales del zócalo DIMM y extracción perpendicular segura sin dañar los pines dorados."
+autowrap_mode = 2
+
+[node name="PiecePSU" type="PanelContainer" parent="CardPanel/Margin/VBox/PiecesContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_piece_psu")
+
+[node name="VBox" type="VBoxContainer" parent="CardPanel/Margin/VBox/PiecesContainer/PiecePSU"]
+layout_mode = 2
+theme_override_constants/separation = 1
+
+[node name="Title" type="Label" parent="CardPanel/Margin/VBox/PiecesContainer/PiecePSU/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_fonts/font = ExtResource("3_mono")
+theme_override_font_sizes/font_size = 10
+text = "🔌 FUENTE DE PODER (ATX 850W)"
+
+[node name="Desc" type="Label" parent="CardPanel/Margin/VBox/PiecesContainer/PiecePSU/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.92, 1, 0.9)
+theme_override_font_sizes/font_size = 9
+text = "Desacople seguro de arneses principales de 24 pines y CPU, liberando el cajón de alimentación del chasis."
+autowrap_mode = 2
+
+[node name="PieceSSD" type="PanelContainer" parent="CardPanel/Margin/VBox/PiecesContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_piece_ssd")
+
+[node name="VBox" type="VBoxContainer" parent="CardPanel/Margin/VBox/PiecesContainer/PieceSSD"]
+layout_mode = 2
+theme_override_constants/separation = 1
+
+[node name="Title" type="Label" parent="CardPanel/Margin/VBox/PiecesContainer/PieceSSD/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 1, 0.7, 1)
+theme_override_fonts/font = ExtResource("3_mono")
+theme_override_font_sizes/font_size = 10
+text = "💾 MEMORIA SSD (M.2 NVMe / SATA)"
+
+[node name="Desc" type="Label" parent="CardPanel/Margin/VBox/PiecesContainer/PieceSSD/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.92, 1, 0.9)
+theme_override_font_sizes/font_size = 9
+text = "Retiro del tornillo de fijación micrométrico y desacople térmico de almacenamiento de estado sólido."
+autowrap_mode = 2
+
+[node name="PieceHDD" type="PanelContainer" parent="CardPanel/Margin/VBox/PiecesContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_piece_hdd")
+
+[node name="VBox" type="VBoxContainer" parent="CardPanel/Margin/VBox/PiecesContainer/PieceHDD"]
+layout_mode = 2
+theme_override_constants/separation = 1
+
+[node name="Title" type="Label" parent="CardPanel/Margin/VBox/PiecesContainer/PieceHDD/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.5, 1, 1)
+theme_override_fonts/font = ExtResource("3_mono")
+theme_override_font_sizes/font_size = 10
+text = "💽 DISCO DURO (HDD MECÁNICO 3.5\")"
+
+[node name="Desc" type="Label" parent="CardPanel/Margin/VBox/PiecesContainer/PieceHDD/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.92, 1, 0.9)
+theme_override_font_sizes/font_size = 9
+text = "Apertura de bahía frontal, desconexión de bus de datos SATA y bandeja de rieles (próxima integración en taller)."
+autowrap_mode = 2
+
+[node name="BottomRow" type="HBoxContainer" parent="CardPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+alignment = 2
+
+[node name="InfoBox" type="VBoxContainer" parent="CardPanel/Margin/VBox/BottomRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+
+[node name="Badge" type="Label" parent="CardPanel/Margin/VBox/BottomRow/InfoBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.95, 1, 1)
+theme_override_fonts/font = ExtResource("3_mono")
+theme_override_font_sizes/font_size = 9
+text = "[ MODO INDUCCIÓN ]"
+
+[node name="TimeHint" type="Label" parent="CardPanel/Margin/VBox/BottomRow/InfoBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.9, 1, 0.85)
+theme_override_font_sizes/font_size = 9
+text = "⏱ TIEMPO: INFINITO"
+
+[node name="BtnIniciar" type="TextureButton" parent="CardPanel/Margin/VBox/BottomRow"]
+custom_minimum_size = Vector2(250, 54)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("4_btn_nor")
+texture_hover = ExtResource("5_btn_hov")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="LblBtn" type="Label" parent="CardPanel/Margin/VBox/BottomRow/BtnIniciar"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0.65, 1, 0.9)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 0
+theme_override_constants/shadow_offset_y = 2
+theme_override_constants/outline_size = 6
+theme_override_constants/shadow_outline_size = 8
+theme_override_fonts/font = ExtResource("2_bungee")
+theme_override_font_sizes/font_size = 14
+text = "▶ INICIAR TUTORIAL"
+horizontal_alignment = 1
+vertical_alignment = 1

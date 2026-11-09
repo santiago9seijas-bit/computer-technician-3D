@@ -5,6 +5,8 @@ signal transition_completed
 
 # =============================================================================
 # CINEMÁTICA Y ANIMACIÓN DE ENTRADA CIBERNÉTICA DE ALTO IMPACTO (PLAY / INICIAR)
+# SOPORTA MODO NIVEL (ROJO), MODO TUTORIAL (AZUL) Y MODO PRÁCTICA (NARANJA)
+# AUDIO REPRODUCIDO ÚNICAMENTE 1 VEZ AL INICIAR
 # =============================================================================
 
 var _tree: SceneTree = null
@@ -12,13 +14,17 @@ var _target_scene: String = ""
 var _title_text: String = ""
 var _subtitle_text: String = ""
 var _on_finished: Callable = Callable()
+var _is_tutorial: bool = false
+var _is_practice: bool = false
 
 static func play(
 	tree: SceneTree,
 	target_scene_path: String,
 	title_text: String = "INICIALIZANDO SIMULACIÓN",
 	subtitle_text: String = "// ENLACE NEURONAL CON TALLER TÉCNICO //",
-	on_finished: Callable = Callable()
+	on_finished: Callable = Callable(),
+	is_tutorial: bool = false,
+	is_practice: bool = false
 ) -> void:
 	if not tree or not tree.root:
 		return
@@ -31,12 +37,14 @@ static func play(
 	transition._title_text = title_text
 	transition._subtitle_text = subtitle_text
 	transition._on_finished = on_finished
+	transition._is_tutorial = is_tutorial
+	transition._is_practice = is_practice
 	tree.root.call_deferred("add_child", transition)
 
 func _ready() -> void:
 	_start_sequence(_tree if _tree else get_tree(), _target_scene, _title_text, _subtitle_text, _on_finished)
 
-# Sonido de entrada de nivel (OGG real)
+# Sonido de entrada de nivel (OGG real) reproducido exactamente una vez
 func _play_entry_sfx() -> void:
 	if not ResourceLoader.exists("res://efectos/sonido de entrada.ogg"):
 		return
@@ -61,46 +69,68 @@ func _start_sequence(
 	root_ctrl.mouse_filter = Control.MOUSE_FILTER_STOP
 	add_child(root_ctrl)
 	
+	# Reproducir el audio una única vez aquí al inicio
 	_play_entry_sfx()
 	
 	var screen_w = root_ctrl.size.x if root_ctrl.size.x > 0 else 1280.0
 	var screen_h = root_ctrl.size.y if root_ctrl.size.y > 0 else 720.0
 	var half_h = screen_h * 0.5
 	
-	# Fondo oscurecido con tinte cian/púrpura
+	# Paletas de color según el modo (Nivel = Rojo / Tutorial = Azul / Práctica = Naranja)
+	var theme_primary_col: Color
+	var theme_accent_col: Color
+	var theme_bg_shutter: Color
+	var theme_shadow_col: Color
+	
+	if _is_practice:
+		theme_primary_col = Color(1.0, 0.55, 0.05, 1.0) # Naranja Neón
+		theme_accent_col  = Color(1.0, 0.85, 0.35, 1.0)
+		theme_bg_shutter  = Color(0.04, 0.02, 0.01, 0.98)
+		theme_shadow_col  = Color(1.0, 0.5, 0.0, 0.55)
+	elif _is_tutorial:
+		theme_primary_col = Color(0.0, 0.88, 1.0, 1.0)  # Azul Eléctrico y Cian
+		theme_accent_col  = Color(0.7, 1.0, 1.0, 1.0)
+		theme_bg_shutter  = Color(0.02, 0.04, 0.09, 0.98)
+		theme_shadow_col  = Color(0.0, 0.7, 1.0, 0.55)
+	else:
+		theme_primary_col = Color(1.0, 0.08, 0.25, 1.0) # Rojo Carmesí Neón
+		theme_accent_col  = Color(0.0, 0.95, 1.0, 1.0)
+		theme_bg_shutter  = Color(0.04, 0.012, 0.08, 0.98)
+		theme_shadow_col  = Color(1.0, 0.05, 0.2, 0.45)
+	
+	# Fondo oscurecido
 	var bg_overlay = ColorRect.new()
 	bg_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
-	bg_overlay.color = Color(0.02, 0.005, 0.05, 0.0)
+	bg_overlay.color = Color(0.01, 0.01, 0.02, 0.0)
 	bg_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root_ctrl.add_child(bg_overlay)
 	
 	# -------------------------------------------------------------------------
-	# MATRIZ Y ELEMENTOS HOLOGRAMA ROJO CYBERPUNK (RETÍCULAS Y LÍNEAS DE ESCANEO)
+	# MATRIZ Y ELEMENTOS HOLOGRAMA (RETÍCULAS Y LÍNEAS DE ESCANEO)
 	# -------------------------------------------------------------------------
-	var red_hologram_layer = Control.new()
-	red_hologram_layer.set_anchors_preset(Control.PRESET_FULL_RECT)
-	red_hologram_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	red_hologram_layer.modulate.a = 0.0
-	root_ctrl.add_child(red_hologram_layer)
+	var hologram_layer = Control.new()
+	hologram_layer.set_anchors_preset(Control.PRESET_FULL_RECT)
+	hologram_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hologram_layer.modulate.a = 0.0
+	root_ctrl.add_child(hologram_layer)
 	
-	# Rejilla roja holográfica sutil
+	# Rejilla holográfica sutil
 	for y_step in range(0, int(screen_h), 32):
 		var grid_line = ColorRect.new()
-		grid_line.color = Color(1.0, 0.05, 0.2, 0.08)
+		grid_line.color = Color(theme_primary_col.r, theme_primary_col.g, theme_primary_col.b, 0.08)
 		grid_line.size = Vector2(screen_w, 1.0)
 		grid_line.position = Vector2(0.0, float(y_step))
-		red_hologram_layer.add_child(grid_line)
+		hologram_layer.add_child(grid_line)
 		
-	# Brackets y marcas holográficas rojas en las 4 esquinas
+	# Brackets y marcas holográficas en las 4 esquinas
 	var corner_margin = 28.0
 	var corner_size = 40.0
-	var red_bracket_col = Color(1.0, 0.08, 0.25, 0.95)
 	
 	var corner_positions = [
-		{"pos": Vector2(corner_margin, corner_margin), "label": "[+ REC.01 // RED-LINK]"},
-		{"pos": Vector2(screen_w - corner_margin - corner_size, corner_margin), "label": "[RED.SYS // +]"},
+		{"pos": Vector2(corner_margin, corner_margin), "label": "[+ PRÁCTICA.INIT]" if _is_practice else ("[+ TUTORIAL.INIT]" if _is_tutorial else "[+ REC.01 // RED-LINK]")},
+		{"pos": Vector2(screen_w - corner_margin - corner_size, corner_margin), "label": "[ORANGE.SYS // +]" if _is_practice else ("[BLUE.SYS // +]" if _is_tutorial else "[RED.SYS // +]")},
 		{"pos": Vector2(corner_margin, screen_h - corner_margin - corner_size), "label": "[+ PWR.NEXUS]"},
-		{"pos": Vector2(screen_w - corner_margin - corner_size, screen_h - corner_margin - corner_size), "label": "[OVERRIDE.OK +]"}
+		{"pos": Vector2(screen_w - corner_margin - corner_size, screen_h - corner_margin - corner_size), "label": "[PRÁCTICA.OK +]" if _is_practice else ("[TUTORIAL.OK +]" if _is_tutorial else "[OVERRIDE.OK +]")}
 	]
 	
 	for cp in corner_positions:
@@ -110,31 +140,30 @@ func _start_sequence(
 		c_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		var csb = StyleBoxFlat.new()
 		csb.draw_center = false
-		csb.border_color = red_bracket_col
+		csb.border_color = theme_primary_col
 		csb.set_border_width_all(2)
-		csb.shadow_color = Color(1.0, 0.05, 0.2, 0.6)
+		csb.shadow_color = theme_shadow_col
 		csb.shadow_size = 6
 		c_rect.add_theme_stylebox_override("panel", csb)
-		red_hologram_layer.add_child(c_rect)
+		hologram_layer.add_child(c_rect)
 		
 		var clbl = Label.new()
 		clbl.text = cp["label"]
-		clbl.add_theme_color_override("font_color", Color(1.0, 0.15, 0.3, 0.95))
+		clbl.add_theme_color_override("font_color", theme_primary_col)
 		clbl.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
 		clbl.add_theme_constant_override("outline_size", 4)
 		clbl.add_theme_font_size_override("font_size", 9)
 		clbl.position = cp["pos"] + Vector2(0, corner_size + 4.0)
-		red_hologram_layer.add_child(clbl)
+		hologram_layer.add_child(clbl)
 	
-	# Retícula circular holográfica roja central
-	var red_reticle = Control.new()
-	red_reticle.position = Vector2(screen_w * 0.5, screen_h * 0.5)
-	red_reticle.scale = Vector2(0.2, 0.2)
-	red_reticle.modulate.a = 0.0
-	red_reticle.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	root_ctrl.add_child(red_reticle)
+	# Retícula circular holográfica central
+	var reticle_ctrl = Control.new()
+	reticle_ctrl.position = Vector2(screen_w * 0.5, screen_h * 0.5)
+	reticle_ctrl.scale = Vector2(0.2, 0.2)
+	reticle_ctrl.modulate.a = 0.0
+	reticle_ctrl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root_ctrl.add_child(reticle_ctrl)
 	
-	# Dibujar anillos concéntricos rojos mediante ColorRects circulares estilizados
 	for r in [90.0, 140.0, 210.0]:
 		var ring = Panel.new()
 		ring.size = Vector2(r * 2.0, r * 2.0)
@@ -142,44 +171,47 @@ func _start_sequence(
 		ring.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		var r_sb = StyleBoxFlat.new()
 		r_sb.draw_center = false
-		r_sb.border_color = Color(1.0, 0.08, 0.25, 0.65)
+		r_sb.border_color = theme_primary_col
 		r_sb.set_border_width_all(1)
 		r_sb.set_corner_radius_all(int(r))
-		r_sb.shadow_color = Color(1.0, 0.05, 0.2, 0.4)
+		r_sb.shadow_color = theme_shadow_col
 		r_sb.shadow_size = 8
 		ring.add_theme_stylebox_override("panel", r_sb)
-		red_reticle.add_child(ring)
+		reticle_ctrl.add_child(ring)
 	
 	# -------------------------------------------------------------------------
 	# COMPUERTA SUPERIOR (SHUTTER TOP)
 	# -------------------------------------------------------------------------
 	var shutter_top = ColorRect.new()
-	shutter_top.color = Color(0.04, 0.012, 0.08, 0.98)
+	shutter_top.color = theme_bg_shutter
 	shutter_top.size = Vector2(screen_w, half_h + 4.0)
 	shutter_top.position = Vector2(0.0, -half_h - 10.0)
 	shutter_top.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root_ctrl.add_child(shutter_top)
 	
-	# Borde inferior de la compuerta superior (Línea Neón Roja y Cian)
 	var line_top = ColorRect.new()
-	line_top.color = Color(1.0, 0.08, 0.25, 1.0) # Borde Rojo Neón Holográfico
+	line_top.color = theme_primary_col
 	line_top.size = Vector2(screen_w, 3.0)
 	line_top.position = Vector2(0.0, half_h + 1.0)
 	shutter_top.add_child(line_top)
 	
 	var accent_top = ColorRect.new()
-	accent_top.color = Color(0.0, 0.95, 1.0, 1.0) # Centro cian de contraste
-	accent_top.size = Vector2(220.0, 3.0)
-	accent_top.position = Vector2((screen_w - 220.0) * 0.5, half_h + 1.0)
+	accent_top.color = theme_accent_col
+	accent_top.size = Vector2(260.0, 3.0)
+	accent_top.position = Vector2((screen_w - 260.0) * 0.5, half_h + 1.0)
 	shutter_top.add_child(accent_top)
 	
-	# Chevrons rojos de advertencia cyberpunk en la compuerta superior
 	var top_chevrons = Label.new()
-	top_chevrons.text = ">>> [ SYSTEM OVERRIDE // HOLOGRAMA ROJO ACTIVO // DIVERGENCIA NEURONAL ] <<<"
+	if _is_practice:
+		top_chevrons.text = ">>> [ COMPUERTA A // NIVEL DE PRÁCTICA // TIEMPO INFINITO ] <<<"
+	elif _is_tutorial:
+		top_chevrons.text = ">>> [ COMPUERTA A // NÚCLEO TUTORIAL 3D // AISLAMIENTO NEURONAL ] <<<"
+	else:
+		top_chevrons.text = ">>> [ SYSTEM OVERRIDE // HOLOGRAMA ROJO ACTIVO // DIVERGENCIA NEURONAL ] <<<"
 	top_chevrons.set_anchors_preset(Control.PRESET_FULL_RECT)
 	top_chevrons.position = Vector2(0.0, half_h - 22.0)
 	top_chevrons.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	top_chevrons.add_theme_color_override("font_color", Color(1.0, 0.15, 0.3, 0.85))
+	top_chevrons.add_theme_color_override("font_color", theme_primary_col)
 	top_chevrons.add_theme_font_size_override("font_size", 10)
 	shutter_top.add_child(top_chevrons)
 	
@@ -187,165 +219,318 @@ func _start_sequence(
 	# COMPUERTA INFERIOR (SHUTTER BOTTOM)
 	# -------------------------------------------------------------------------
 	var shutter_bot = ColorRect.new()
-	shutter_bot.color = Color(0.04, 0.012, 0.08, 0.98)
+	shutter_bot.color = theme_bg_shutter
 	shutter_bot.size = Vector2(screen_w, half_h + 4.0)
 	shutter_bot.position = Vector2(0.0, screen_h + 10.0)
 	shutter_bot.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root_ctrl.add_child(shutter_bot)
 	
-	# Borde superior de la compuerta inferior (Línea Neón Roja y Magenta)
 	var line_bot = ColorRect.new()
-	line_bot.color = Color(1.0, 0.08, 0.25, 1.0)
+	line_bot.color = theme_primary_col
 	line_bot.size = Vector2(screen_w, 3.0)
 	line_bot.position = Vector2(0.0, 0.0)
 	shutter_bot.add_child(line_bot)
 	
 	var accent_bot = ColorRect.new()
-	accent_bot.color = Color(1.0, 0.08, 0.45, 1.0)
-	accent_bot.size = Vector2(220.0, 3.0)
-	accent_bot.position = Vector2((screen_w - 220.0) * 0.5, 0.0)
+	accent_bot.color = theme_accent_col
+	accent_bot.size = Vector2(260.0, 3.0)
+	accent_bot.position = Vector2((screen_w - 260.0) * 0.5, 0.0)
 	shutter_bot.add_child(accent_bot)
 	
 	var bot_chevrons = Label.new()
-	bot_chevrons.text = "/// /// /// HARDWARE LINK // VULKAN SHADER EMISSION // RED MATRIX // /// ///"
+	if _is_practice:
+		bot_chevrons.text = "/// /// /// TALLER DE PRÁCTICA // ENTRENAMIENTO LIBRE // COMPUERTA B /// /// ///"
+	elif _is_tutorial:
+		bot_chevrons.text = "/// /// /// SALA DE ENTRENAMIENTO // MODO GUIADO // COMPUERTA B /// /// ///"
+	else:
+		bot_chevrons.text = "/// /// /// HARDWARE LINK // VULKAN SHADER EMISSION // RED MATRIX // /// ///"
 	bot_chevrons.set_anchors_preset(Control.PRESET_FULL_RECT)
 	bot_chevrons.position = Vector2(0.0, 8.0)
 	bot_chevrons.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	bot_chevrons.add_theme_color_override("font_color", Color(1.0, 0.15, 0.3, 0.85))
+	bot_chevrons.add_theme_color_override("font_color", theme_primary_col)
 	bot_chevrons.add_theme_font_size_override("font_size", 10)
 	shutter_bot.add_child(bot_chevrons)
 	
 	# -------------------------------------------------------------------------
-	# DOS HAZES LÁSER ESCÁNER (ROJO NEÓN Y CIAN)
+	# HAZ LÁSER ESCÁNER
 	# -------------------------------------------------------------------------
-	var laser_beam_red = ColorRect.new()
-	laser_beam_red.color = Color(1.0, 0.08, 0.25, 0.95) # Láser Rojo Neón Principal
-	laser_beam_red.size = Vector2(screen_w, 5.0)
-	laser_beam_red.position = Vector2(0.0, -10.0)
-	laser_beam_red.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	laser_beam_red.modulate.a = 0.0
-	root_ctrl.add_child(laser_beam_red)
+	var laser_beam_main = ColorRect.new()
+	laser_beam_main.color = theme_primary_col
+	laser_beam_main.size = Vector2(screen_w, 5.0)
+	laser_beam_main.position = Vector2(0.0, -10.0)
+	laser_beam_main.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	laser_beam_main.modulate.a = 0.0
+	root_ctrl.add_child(laser_beam_main)
 	
-	var laser_beam_cyan = ColorRect.new()
-	laser_beam_cyan.color = Color(0.1, 1.0, 0.9, 0.85) # Láser Cian secundario
-	laser_beam_cyan.size = Vector2(screen_w, 3.0)
-	laser_beam_cyan.position = Vector2(0.0, -10.0)
-	laser_beam_cyan.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	laser_beam_cyan.modulate.a = 0.0
-	root_ctrl.add_child(laser_beam_cyan)
+	var laser_beam_sub = ColorRect.new()
+	laser_beam_sub.color = theme_accent_col
+	laser_beam_sub.size = Vector2(screen_w, 3.0)
+	laser_beam_sub.position = Vector2(0.0, -10.0)
+	laser_beam_sub.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	laser_beam_sub.modulate.a = 0.0
+	root_ctrl.add_child(laser_beam_sub)
 	
-	# -------------------------------------------------------------------------
-	# TARJETA / HUD HOLOGRÁFICO CENTRAL CON ESTÉTICA ROJA CYBERPUNK
-	# -------------------------------------------------------------------------
-	var card_center = PanelContainer.new()
-	card_center.custom_minimum_size = Vector2(640.0, 225.0)
-	card_center.size = Vector2(640.0, 225.0)
-	card_center.position = Vector2((screen_w - 640.0) * 0.5, (screen_h - 225.0) * 0.5)
-	card_center.pivot_offset = Vector2(320.0, 112.5)
-	card_center.scale = Vector2(0.85, 0.85)
-	card_center.modulate.a = 0.0
-	card_center.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	
-	var card_sb = StyleBoxFlat.new()
-	card_sb.bg_color = Color(0.04, 0.015, 0.08, 0.96)
-	card_sb.border_color = Color(1.0, 0.08, 0.25, 0.95) # Borde Rojo Neón
-	card_sb.set_border_width_all(2)
-	card_sb.set_corner_radius_all(8)
-	card_sb.content_margin_left = 30.0
-	card_sb.content_margin_right = 30.0
-	card_sb.content_margin_top = 20.0
-	card_sb.content_margin_bottom = 20.0
-	card_sb.shadow_color = Color(1.0, 0.05, 0.2, 0.45) # Resplandor Rojo Holográfico
-	card_sb.shadow_size = 18
-	card_center.add_theme_stylebox_override("panel", card_sb)
-	root_ctrl.add_child(card_center)
-	
-	var vbox = VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 6)
-	card_center.add_child(vbox)
-	
-	# Etiqueta de Protocolo / Header Rojo
-	var lbl_protocol = Label.new()
-	lbl_protocol.text = "🔴 // PROTOCOLO DE ENLACE // MATRIZ HOLOGRAMA ROJO v0.0.9 //"
-	lbl_protocol.add_theme_color_override("font_color", Color(1.0, 0.2, 0.35, 1.0))
-	lbl_protocol.add_theme_color_override("font_shadow_color", Color(0.8, 0.0, 0.1, 0.9))
-	lbl_protocol.add_theme_constant_override("shadow_outline_size", 4)
-	lbl_protocol.add_theme_font_size_override("font_size", 11)
-	lbl_protocol.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	vbox.add_child(lbl_protocol)
-	
-	# Título Principal
+	# Fuentes opcionales
 	var font_bungee: Font = null
 	if ResourceLoader.exists("res://assets/fonts/Bungee-Regular.ttf"):
 		font_bungee = load("res://assets/fonts/Bungee-Regular.ttf")
 		
-	var lbl_title = Label.new()
-	lbl_title.text = title_text
-	if font_bungee:
-		lbl_title.add_theme_font_override("font", font_bungee)
-	lbl_title.add_theme_font_size_override("font_size", 22)
-	lbl_title.add_theme_color_override("font_color", Color(1.0, 0.15, 0.3, 1.0)) # Rojo Neón Intenso
-	lbl_title.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
-	lbl_title.add_theme_constant_override("outline_size", 6)
-	lbl_title.add_theme_color_override("font_shadow_color", Color(0.9, 0.0, 0.2, 0.95))
-	lbl_title.add_theme_constant_override("shadow_outline_size", 10)
-	lbl_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	vbox.add_child(lbl_title)
+	var font_mono: Font = null
+	if ResourceLoader.exists("res://assets/fonts/JetBrainsMono-Bold.ttf"):
+		font_mono = load("res://assets/fonts/JetBrainsMono-Bold.ttf")
+
+	# Elementos de progreso y telemetría
+	var prog_bar: ProgressBar = null
+	var lbl_progress_val: Label = null
+	var lbl_telemetry: Label = null
+	var center_element: Control = null
 	
-	# Subtítulo
-	var lbl_sub = Label.new()
-	lbl_sub.text = subtitle_text
-	lbl_sub.add_theme_color_override("font_color", Color(0.95, 0.45, 0.6, 1.0))
-	lbl_sub.add_theme_font_size_override("font_size", 12)
-	lbl_sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	vbox.add_child(lbl_sub)
-	
-	# Espaciador
-	var spacer = Control.new()
-	spacer.custom_minimum_size = Vector2(0, 4)
-	vbox.add_child(spacer)
-	
-	# Barra de progreso cibernética en tonos rojo neón y cian
-	var progress_box = PanelContainer.new()
-	progress_box.custom_minimum_size = Vector2(0, 22)
-	var prog_bg_sb = StyleBoxFlat.new()
-	prog_bg_sb.bg_color = Color(0.08, 0.015, 0.04, 0.95)
-	prog_bg_sb.border_color = Color(1.0, 0.1, 0.3, 0.8)
-	prog_bg_sb.set_border_width_all(1)
-	prog_bg_sb.set_corner_radius_all(4)
-	progress_box.add_theme_stylebox_override("panel", prog_bg_sb)
-	vbox.add_child(progress_box)
-	
-	var progress_bar_fill = ColorRect.new()
-	progress_bar_fill.color = Color(1.0, 0.1, 0.3, 0.95) # Relleno Rojo Neón
-	progress_bar_fill.size = Vector2(0.0, 22.0)
-	progress_box.add_child(progress_bar_fill)
-	
-	var lbl_progress_val = Label.new()
-	lbl_progress_val.text = "[ INICIANDO PROTOCOLO: 0% ]"
-	lbl_progress_val.set_anchors_preset(Control.PRESET_FULL_RECT)
-	lbl_progress_val.add_theme_color_override("font_color", Color(1, 1, 1, 1))
-	lbl_progress_val.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
-	lbl_progress_val.add_theme_constant_override("outline_size", 4)
-	lbl_progress_val.add_theme_font_size_override("font_size", 11)
-	lbl_progress_val.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	lbl_progress_val.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	progress_box.add_child(lbl_progress_val)
-	
-	# Consola de telemetría inferior con advertencia roja
-	var lbl_telemetry = Label.new()
-	lbl_telemetry.text = "> RED_MATRIX: ACTIVA // CARGANDO CONTROLADORES Y MAPA DE HARDWARE..."
-	lbl_telemetry.add_theme_color_override("font_color", Color(1.0, 0.45, 0.55, 0.85))
-	lbl_telemetry.add_theme_font_size_override("font_size", 10)
-	lbl_telemetry.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	vbox.add_child(lbl_telemetry)
+	if _is_tutorial or _is_practice:
+		# =====================================================================
+		# CÍRCULO HOLOGRÁFICO (AZUL PARA TUTORIAL, NARANJA PARA PRÁCTICA)
+		# =====================================================================
+		var circle_center = Control.new()
+		circle_center.custom_minimum_size = Vector2(380.0, 380.0)
+		circle_center.size = Vector2(380.0, 380.0)
+		circle_center.position = Vector2((screen_w - 380.0) * 0.5, (screen_h - 380.0) * 0.5)
+		circle_center.pivot_offset = Vector2(190.0, 190.0)
+		circle_center.scale = Vector2(0.2, 0.2)
+		circle_center.modulate.a = 0.0
+		circle_center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		root_ctrl.add_child(circle_center)
+		center_element = circle_center
+		
+		# Anillo exterior
+		var outer_circle = Panel.new()
+		outer_circle.size = Vector2(210.0, 210.0)
+		outer_circle.position = Vector2(85.0, 25.0)
+		outer_circle.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var oc_sb = StyleBoxFlat.new()
+		oc_sb.draw_center = true
+		oc_sb.bg_color = theme_bg_shutter
+		oc_sb.border_color = theme_primary_col
+		oc_sb.set_border_width_all(3)
+		oc_sb.set_corner_radius_all(105)
+		oc_sb.shadow_color = theme_shadow_col
+		oc_sb.shadow_size = 20
+		outer_circle.add_theme_stylebox_override("panel", oc_sb)
+		circle_center.add_child(outer_circle)
+		
+		# Anillo interior concéntrico
+		var inner_ring = Panel.new()
+		inner_ring.size = Vector2(174.0, 174.0)
+		inner_ring.position = Vector2(18.0, 18.0)
+		inner_ring.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var ir_sb = StyleBoxFlat.new()
+		ir_sb.draw_center = false
+		ir_sb.border_color = theme_accent_col
+		ir_sb.set_border_width_all(2)
+		ir_sb.set_corner_radius_all(87)
+		inner_ring.add_theme_stylebox_override("panel", ir_sb)
+		outer_circle.add_child(inner_ring)
+
+		# Núcleo holográfico central limpio
+		var core_ring = Panel.new()
+		core_ring.size = Vector2(100.0, 100.0)
+		core_ring.position = Vector2(55.0, 55.0)
+		core_ring.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var cr_sb = StyleBoxFlat.new()
+		cr_sb.draw_center = true
+		cr_sb.bg_color = Color(theme_primary_col.r, theme_primary_col.g, theme_primary_col.b, 0.16)
+		cr_sb.border_color = theme_primary_col
+		cr_sb.set_border_width_all(2)
+		cr_sb.set_corner_radius_all(50)
+		cr_sb.shadow_color = theme_shadow_col
+		cr_sb.shadow_size = 14
+		core_ring.add_theme_stylebox_override("panel", cr_sb)
+		outer_circle.add_child(core_ring)
+		
+		var core_lbl = Label.new()
+		core_lbl.text = "🛠" if _is_practice else "⚡"
+		core_lbl.set_anchors_preset(Control.PRESET_FULL_RECT)
+		core_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		core_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		core_lbl.add_theme_font_size_override("font_size", 34)
+		core_lbl.modulate = Color(1.2, 1.2, 1.3, 1.0)
+		core_ring.add_child(core_lbl)
+		
+		# Títulos e indicador bajo el círculo
+		var vbox_center = VBoxContainer.new()
+		vbox_center.position = Vector2(0.0, 245.0)
+		vbox_center.size = Vector2(380.0, 125.0)
+		vbox_center.add_theme_constant_override("separation", 4)
+		vbox_center.alignment = BoxContainer.ALIGNMENT_CENTER
+		circle_center.add_child(vbox_center)
+		
+		var lbl_t = Label.new()
+		lbl_t.text = "SALA DE PRÁCTICA 3D" if _is_practice else "NÚCLEO TUTORIAL 3D"
+		if font_bungee:
+			lbl_t.add_theme_font_override("font", font_bungee)
+		lbl_t.add_theme_font_size_override("font_size", 18)
+		lbl_t.add_theme_color_override("font_color", theme_primary_col)
+		lbl_t.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
+		lbl_t.add_theme_constant_override("outline_size", 6)
+		lbl_t.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.95))
+		lbl_t.add_theme_constant_override("shadow_outline_size", 8)
+		lbl_t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		vbox_center.add_child(lbl_t)
+		
+		var lbl_sub = Label.new()
+		lbl_sub.text = "// ENTRENAMIENTO LIBRE · BANCO DE TRABAJO //" if _is_practice else "// SALA DE ENTRENAMIENTO · INDUCCIÓN TÉCNICA //"
+		if font_mono:
+			lbl_sub.add_theme_font_override("font", font_mono)
+		lbl_sub.add_theme_font_size_override("font_size", 10)
+		lbl_sub.add_theme_color_override("font_color", theme_accent_col)
+		lbl_sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		vbox_center.add_child(lbl_sub)
+		
+		# Barra de progreso nativa (100% exacta)
+		prog_bar = ProgressBar.new()
+		prog_bar.custom_minimum_size = Vector2(320.0, 20.0)
+		prog_bar.min_value = 0.0
+		prog_bar.max_value = 100.0
+		prog_bar.value = 0.0
+		prog_bar.show_percentage = false
+		
+		var pb_bg = StyleBoxFlat.new()
+		pb_bg.bg_color = Color(0.02, 0.03, 0.05, 0.95)
+		pb_bg.border_color = theme_primary_col
+		pb_bg.set_border_width_all(1)
+		pb_bg.set_corner_radius_all(4)
+		prog_bar.add_theme_stylebox_override("background", pb_bg)
+		
+		var pb_fill = StyleBoxFlat.new()
+		pb_fill.bg_color = theme_primary_col
+		pb_fill.set_corner_radius_all(3)
+		prog_bar.add_theme_stylebox_override("fill", pb_fill)
+		vbox_center.add_child(prog_bar)
+		
+		lbl_progress_val = Label.new()
+		lbl_progress_val.text = "[ ENLAZANDO BANCO DE PRÁCTICA: 0% ]" if _is_practice else "[ ENLAZANDO BANCO DE TRABAJO: 0% ]"
+		lbl_progress_val.set_anchors_preset(Control.PRESET_FULL_RECT)
+		lbl_progress_val.add_theme_color_override("font_color", Color(1, 1, 1, 1))
+		lbl_progress_val.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
+		lbl_progress_val.add_theme_constant_override("outline_size", 4)
+		lbl_progress_val.add_theme_font_size_override("font_size", 10)
+		lbl_progress_val.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		lbl_progress_val.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		prog_bar.add_child(lbl_progress_val)
+		
+		lbl_telemetry = Label.new()
+		lbl_telemetry.text = "> PRÁCTICA_3D: CONFIGURANDO REPUESTOS Y COMPONENTES..." if _is_practice else "> INDUCCION_3D: VERIFICANDO PC DE PRUEBA Y REPUESTOS..."
+		lbl_telemetry.add_theme_color_override("font_color", theme_accent_col)
+		lbl_telemetry.add_theme_font_size_override("font_size", 9)
+		lbl_telemetry.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		vbox_center.add_child(lbl_telemetry)
+	else:
+		# ---------------------------------------------------------------------
+		# TARJETA / HUD HOLOGRÁFICO CENTRAL CON ESTÉTICA ROJA CYBERPUNK (NIVELES)
+		# ---------------------------------------------------------------------
+		var card_center = PanelContainer.new()
+		card_center.custom_minimum_size = Vector2(640.0, 225.0)
+		card_center.size = Vector2(640.0, 225.0)
+		card_center.position = Vector2((screen_w - 640.0) * 0.5, (screen_h - 225.0) * 0.5)
+		card_center.pivot_offset = Vector2(320.0, 112.5)
+		card_center.scale = Vector2(0.85, 0.85)
+		card_center.modulate.a = 0.0
+		card_center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		
+		var card_sb = StyleBoxFlat.new()
+		card_sb.bg_color = Color(0.04, 0.015, 0.08, 0.96)
+		card_sb.border_color = Color(1.0, 0.08, 0.25, 0.95)
+		card_sb.set_border_width_all(2)
+		card_sb.set_corner_radius_all(8)
+		card_sb.content_margin_left = 30.0
+		card_sb.content_margin_right = 30.0
+		card_sb.content_margin_top = 20.0
+		card_sb.content_margin_bottom = 20.0
+		card_sb.shadow_color = Color(1.0, 0.05, 0.2, 0.45)
+		card_sb.shadow_size = 18
+		card_center.add_theme_stylebox_override("panel", card_sb)
+		root_ctrl.add_child(card_center)
+		center_element = card_center
+		
+		var vbox = VBoxContainer.new()
+		vbox.add_theme_constant_override("separation", 6)
+		card_center.add_child(vbox)
+		
+		var lbl_protocol = Label.new()
+		lbl_protocol.text = "🔴 // PROTOCOLO DE ENLACE // MATRIZ HOLOGRAMA ROJO v0.0.9 //"
+		lbl_protocol.add_theme_color_override("font_color", Color(1.0, 0.2, 0.35, 1.0))
+		lbl_protocol.add_theme_color_override("font_shadow_color", Color(0.8, 0.0, 0.1, 0.9))
+		lbl_protocol.add_theme_constant_override("shadow_outline_size", 4)
+		lbl_protocol.add_theme_font_size_override("font_size", 11)
+		lbl_protocol.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		vbox.add_child(lbl_protocol)
+		
+		var lbl_title = Label.new()
+		lbl_title.text = title_text
+		if font_bungee:
+			lbl_title.add_theme_font_override("font", font_bungee)
+		lbl_title.add_theme_font_size_override("font_size", 22)
+		lbl_title.add_theme_color_override("font_color", Color(1.0, 0.15, 0.3, 1.0))
+		lbl_title.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
+		lbl_title.add_theme_constant_override("outline_size", 6)
+		lbl_title.add_theme_color_override("font_shadow_color", Color(0.9, 0.0, 0.2, 0.95))
+		lbl_title.add_theme_constant_override("shadow_outline_size", 10)
+		lbl_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		vbox.add_child(lbl_title)
+		
+		var lbl_sub = Label.new()
+		lbl_sub.text = subtitle_text
+		lbl_sub.add_theme_color_override("font_color", Color(0.95, 0.45, 0.6, 1.0))
+		lbl_sub.add_theme_font_size_override("font_size", 12)
+		lbl_sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		vbox.add_child(lbl_sub)
+		
+		var spacer = Control.new()
+		spacer.custom_minimum_size = Vector2(0, 4)
+		vbox.add_child(spacer)
+		
+		prog_bar = ProgressBar.new()
+		prog_bar.custom_minimum_size = Vector2(580.0, 22.0)
+		prog_bar.min_value = 0.0
+		prog_bar.max_value = 100.0
+		prog_bar.value = 0.0
+		prog_bar.show_percentage = false
+		
+		var prog_bg_sb = StyleBoxFlat.new()
+		prog_bg_sb.bg_color = Color(0.08, 0.015, 0.04, 0.95)
+		prog_bg_sb.border_color = Color(1.0, 0.1, 0.3, 0.8)
+		prog_bg_sb.set_border_width_all(1)
+		prog_bg_sb.set_corner_radius_all(4)
+		prog_bar.add_theme_stylebox_override("background", prog_bg_sb)
+		
+		var prog_fill_sb = StyleBoxFlat.new()
+		prog_fill_sb.bg_color = Color(1.0, 0.1, 0.3, 0.95)
+		prog_fill_sb.set_corner_radius_all(3)
+		prog_bar.add_theme_stylebox_override("fill", prog_fill_sb)
+		vbox.add_child(prog_bar)
+		
+		lbl_progress_val = Label.new()
+		lbl_progress_val.text = "[ INICIANDO PROTOCOLO: 0% ]"
+		lbl_progress_val.set_anchors_preset(Control.PRESET_FULL_RECT)
+		lbl_progress_val.add_theme_color_override("font_color", Color(1, 1, 1, 1))
+		lbl_progress_val.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
+		lbl_progress_val.add_theme_constant_override("outline_size", 4)
+		lbl_progress_val.add_theme_font_size_override("font_size", 11)
+		lbl_progress_val.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		lbl_progress_val.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		prog_bar.add_child(lbl_progress_val)
+		
+		lbl_telemetry = Label.new()
+		lbl_telemetry.text = "> RED_MATRIX: ACTIVA // CARGANDO CONTROLADORES Y MAPA DE HARDWARE..."
+		lbl_telemetry.add_theme_color_override("font_color", Color(1.0, 0.45, 0.55, 0.85))
+		lbl_telemetry.add_theme_font_size_override("font_size", 10)
+		lbl_telemetry.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		vbox.add_child(lbl_telemetry)
 	
 	# -------------------------------------------------------------------------
-	# DESTELLO ÓPTICO BLANCO/CIAN (FLASH DE TRASPASO)
+	# DESTELLO ÓPTICO (FLASH DE TRASPASO)
 	# -------------------------------------------------------------------------
 	var flash_rect = ColorRect.new()
 	flash_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
-	flash_rect.color = Color(0.8, 1.0, 1.0, 0.0)
+	flash_rect.color = Color(theme_primary_col.r, theme_primary_col.g, theme_primary_col.b, 0.0)
 	flash_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root_ctrl.add_child(flash_rect)
 	
@@ -360,49 +545,74 @@ func _start_sequence(
 	tw.tween_property(shutter_top, "position:y", 0.0, 0.38).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	tw.tween_property(shutter_bot, "position:y", half_h, 0.38).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	
-	# Activar capa de hologramas y rejilla roja
-	tw.tween_property(red_hologram_layer, "modulate:a", 1.0, 0.22)
+	# Activar capa de hologramas
+	tw.tween_property(hologram_layer, "modulate:a", 1.0, 0.22)
 	
-	# Retícula holográfica roja circular expandiéndose
-	tw.tween_property(red_reticle, "modulate:a", 0.85, 0.2).set_delay(0.08)
-	tw.tween_property(red_reticle, "scale", Vector2(1.15, 1.15), 0.45).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT).set_delay(0.08)
+	# Retícula holográfica
+	tw.tween_property(reticle_ctrl, "modulate:a", 0.85, 0.2).set_delay(0.08)
+	tw.tween_property(reticle_ctrl, "scale", Vector2(1.15, 1.15), 0.45).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT).set_delay(0.08)
 	
-	# 2. Barrido de haz láser doble (Rojo Neón y Cian)
-	laser_beam_red.modulate.a = 1.0
-	laser_beam_cyan.modulate.a = 0.8
-	tw.tween_property(laser_beam_red, "position:y", screen_h + 10.0, 0.42).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
-	tw.tween_property(laser_beam_cyan, "position:y", screen_h + 10.0, 0.38).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT).set_delay(0.04)
+	# 2. Barrido de haz láser
+	laser_beam_main.modulate.a = 1.0
+	laser_beam_sub.modulate.a = 0.8
+	tw.tween_property(laser_beam_main, "position:y", screen_h + 10.0, 0.42).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
+	tw.tween_property(laser_beam_sub, "position:y", screen_h + 10.0, 0.38).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT).set_delay(0.04)
 	
-	# 3. Aparición con escala del HUD central
-	tw.tween_property(card_center, "modulate:a", 1.0, 0.25).set_delay(0.12)
-	tw.tween_property(card_center, "scale", Vector2(1.0, 1.0), 0.32).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT).set_delay(0.1)
+	# 3. Aparición con escala del elemento central
+	if center_element:
+		tw.tween_property(center_element, "modulate:a", 1.0, 0.25).set_delay(0.12)
+		tw.tween_property(center_element, "scale", Vector2(1.0, 1.0), 0.32).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT).set_delay(0.1)
 	
-	# 4. Llenado rápido de la barra de progreso
-	var max_fill_w = 640.0 - 60.0 # ancho interior aproximado
-	tw.tween_property(progress_bar_fill, "size:x", max_fill_w, 0.45).set_trans(Tween.TRANS_QUAD).set_delay(0.12)
+	# 4. Llenado exacto y fiable de la barra de progreso
+	if prog_bar:
+		tw.tween_property(prog_bar, "value", 100.0, 0.50).set_trans(Tween.TRANS_QUAD).set_delay(0.12)
 	
-	# Actualizar texto de progreso dinámicamente
+	# Actualizar texto de porcentaje dinámicamente hasta 100%
 	tw.tween_method(func(val: float):
 		if is_instance_valid(lbl_progress_val):
-			var pct = int(val * 100.0)
+			var pct = clamp(int(val), 0, 100)
 			if pct >= 100:
 				lbl_progress_val.text = "✓ [ CARGA COMPLETA: 100% OK ]"
 				lbl_progress_val.add_theme_color_override("font_color", Color(0.2, 1.0, 0.5, 1.0))
-				lbl_telemetry.text = "> TECNICO_VULKAN: CONECTADO // BIENVENIDO AL ENTORNO TÉCNICO"
+				if lbl_telemetry:
+					if _is_practice:
+						lbl_telemetry.text = "> PRÁCTICA_3D: LISTO // ABRIENDO TALLER..."
+					elif _is_tutorial:
+						lbl_telemetry.text = "> INDUCCION_3D: LISTO // ABRIENDO COMPUERTAS..."
+					else:
+						lbl_telemetry.text = "> TECNICO_VULKAN: CONECTADO // BIENVENIDO AL ENTORNO TÉCNICO"
 			elif pct >= 65:
 				lbl_progress_val.text = "[ SINCRONIZANDO NODOS: %d%% ]" % pct
-				lbl_telemetry.text = "> WORKSHOP_3D: INSTANCIANDO MÁQUINAS Y BANCO DE TRABAJO..."
+				if lbl_telemetry:
+					if _is_practice:
+						lbl_telemetry.text = "> PRÁCTICA_ROOM: INSTANCIANDO MESA Y COMPONENTES..."
+					elif _is_tutorial:
+						lbl_telemetry.text = "> TUTORIAL_ROOM: PREPARANDO MESA DE REPARACIÓN..."
+					else:
+						lbl_telemetry.text = "> WORKSHOP_3D: INSTANCIANDO MÁQUINAS Y BANCO DE TRABAJO..."
 			elif pct >= 30:
 				lbl_progress_val.text = "[ DESPLEGANDO SISTEMA: %d%% ]" % pct
-				lbl_telemetry.text = "> DIAGNOSTIC_ENGINE: VERIFICANDO PREGUNTAS Y REPUESTOS..."
+				if lbl_telemetry:
+					lbl_telemetry.text = "> DIAGNOSTIC_ENGINE: VERIFICANDO RAM, FUENTE Y ALMACENAMIENTO..."
 			else:
 				lbl_progress_val.text = "[ INICIALIZANDO: %d%% ]" % pct
-	, 0.0, 1.0, 0.45).set_delay(0.12)
+	, 0.0, 100.0, 0.50).set_delay(0.12)
 	
-	# 5. Destello óptico en el pico de la animación (0.55s)
+	# Pausa deliberada con 100% a la vista para apreciarlo claramente
+	tw.chain().tween_callback(func():
+		if is_instance_valid(prog_bar):
+			prog_bar.value = 100.0
+		if is_instance_valid(lbl_progress_val):
+			lbl_progress_val.text = "✓ [ CARGA COMPLETA: 100% OK ]"
+			lbl_progress_val.add_theme_color_override("font_color", Color(0.2, 1.0, 0.5, 1.0))
+	)
+	tw.chain().tween_interval(0.20)
+	
+	# 5. Destello óptico en el pico de la animación (0.12s)
 	tw.chain().tween_property(flash_rect, "color:a", 0.65, 0.12).set_trans(Tween.TRANS_QUAD)
 	
 	# 6. Momento pico: Cambio de escena seguro bajo el destello y compuertas cerradas
+	# (Sin duplicar el efecto de sonido, solo cambio de escena)
 	tw.chain().tween_callback(func():
 		if target_scene_path != "":
 			tree.change_scene_to_file(target_scene_path)
@@ -411,11 +621,13 @@ func _start_sequence(
 	# 7. Desvanecer destello y abrir compuertas revelando la nueva escena
 	tw.chain().set_parallel(true)
 	tw.tween_property(flash_rect, "color:a", 0.0, 0.28).set_trans(Tween.TRANS_QUAD)
-	tw.tween_property(card_center, "modulate:a", 0.0, 0.2).set_trans(Tween.TRANS_QUAD)
-	tw.tween_property(card_center, "scale", Vector2(1.1, 1.1), 0.2).set_trans(Tween.TRANS_QUAD)
-	tw.tween_property(red_hologram_layer, "modulate:a", 0.0, 0.25).set_delay(0.05)
-	tw.tween_property(red_reticle, "modulate:a", 0.0, 0.25).set_delay(0.05)
+	if center_element:
+		tw.tween_property(center_element, "modulate:a", 0.0, 0.2).set_trans(Tween.TRANS_QUAD)
+		tw.tween_property(center_element, "scale", Vector2(1.12, 1.12), 0.2).set_trans(Tween.TRANS_QUAD)
+	tw.tween_property(hologram_layer, "modulate:a", 0.0, 0.25).set_delay(0.05)
+	tw.tween_property(reticle_ctrl, "modulate:a", 0.0, 0.25).set_delay(0.05)
 	
+	# Apertura suave de las compuertas hacia arriba y abajo
 	tw.tween_property(shutter_top, "position:y", -half_h - 20.0, 0.38).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN).set_delay(0.08)
 	tw.tween_property(shutter_bot, "position:y", screen_h + 20.0, 0.38).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN).set_delay(0.08)
 	tw.tween_property(bg_overlay, "color:a", 0.0, 0.32).set_delay(0.1)

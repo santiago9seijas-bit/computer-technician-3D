@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" path="res://scenes/components/ServerRackCase.tscn" id="5_rack"]
 [ext_resource type="PackedScene" uid="uid://b2h1pmid7pek2" path="res://modelos_3d/escenario_3d/torre de servidor.glb" id="6_torre"]
 [ext_resource type="PackedScene" path="res://scenes/components/SparesBox.tscn" id="7_spares"]
+[ext_resource type="PackedScene" uid="uid://cidts6etijohr" path="res://modelos_3d/escenario_3d/piso.glb" id="8_piso"]
 
 [sub_resource type="Environment" id="Environment_srv"]
 background_mode = 1
@@ -19,15 +20,6 @@ glow_intensity = 0.7
 glow_bloom = 0.06
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
-size = Vector3(16, 0.2, 16)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_floor"]
-albedo_color = Color(0.06, 0.08, 0.13, 1)
-metallic = 0.7
-roughness = 0.35
-
-[sub_resource type="BoxMesh" id="BoxMesh_floor"]
-material = SubResource("StandardMaterial3D_floor")
 size = Vector3(16, 0.2, 16)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wall"]
@@ -80,8 +72,8 @@ light_energy = 0.85
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Room/Floor"]
 shape = SubResource("BoxShape3D_floor")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Room/Floor"]
-mesh = SubResource("BoxMesh_floor")
+[node name="PisoModel" parent="Room/Floor" instance=ExtResource("8_piso")]
+transform = Transform3D(2, 0, 0, 0, 1, 0, 0, 0, 2, -6, -0.546, 2)
 
 [node name="WallBack" type="MeshInstance3D" parent="Room"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, -6)

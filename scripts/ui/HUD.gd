@@ -18,6 +18,13 @@ var bottom_cinematic_bar: ColorRect = null
 var optic_flash_rect: ColorRect = null
 var optic_text_label: Label = null
 var is_cinematic_active: bool = false
+var is_infinite_time: bool = false
+
+func set_infinite_time(enabled: bool = true) -> void:
+	is_infinite_time = enabled
+	if is_infinite_time and lbl_tiempo:
+		lbl_tiempo.text = "Tiempo: Infinito"
+		lbl_tiempo.modulate = Color(0, 0.9, 1, 1)
 
 func _ready() -> void:
 	game_over_panel.visible = false
@@ -189,6 +196,10 @@ func _on_score_updated(new_score: int, _delta: int) -> void:
 	lbl_puntaje.text = "Puntaje: %d" % new_score
 
 func _on_time_updated(t: float, _delta: float) -> void:
+	if is_infinite_time:
+		lbl_tiempo.text = "Tiempo: Infinito"
+		lbl_tiempo.modulate = Color(0, 0.9, 1, 1)
+		return
 	var total_sec := int(t)
 	if total_sec == _last_displayed_second:
 		return

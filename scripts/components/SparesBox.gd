@@ -10,20 +10,26 @@ func _ready() -> void:
 	_update_label()
 	GameManager.spares_repopulated.connect(_update_label)
 
+func _get_display_name() -> String:
+	if spare_type == "Disco Duro":
+		return "SSD / HDD"
+	return spare_type
+
 func _update_label() -> void:
 	if label_3d:
 		var stock = GameManager.spares_stock.get(spare_type, 0)
-		label_3d.text = "REPUESTO: %s\n[ STOCK: %d ]" % [spare_type.to_upper(), stock]
+		label_3d.text = "REPUESTO: %s\n[ STOCK: %d ]" % [_get_display_name().to_upper(), stock]
 
 func get_interaction_prompt() -> String:
 	var stock = GameManager.spares_stock.get(spare_type, 0)
+	var d_name = _get_display_name()
 	if stock <= 0:
-		return "Caja de %s: Sin stock (¡Usa el botón de la pared!)" % spare_type
+		return "Caja de %s: Sin stock (¡Usa el botón de la pared!)" % d_name
 	if GameManager.backpack.size() >= GameManager.MAX_BACKPACK_SLOTS:
-		return "Caja de %s: Mochila llena (3/3)" % spare_type
+		return "Caja de %s: Mochila llena (3/3)" % d_name
 	if spare_type == "RAM":
 		return "[E] Abrir caja de RAM: Elegir modelo (Disponibles: %d)" % stock
-	return "[E] Tomar repuesto nuevo de %s (Disponibles: %d)" % [spare_type, stock]
+	return "[E] Tomar repuesto nuevo de %s (Disponibles: %d)" % [d_name, stock]
 
 func interact(player) -> void:
 	var stock = GameManager.spares_stock.get(spare_type, 0)

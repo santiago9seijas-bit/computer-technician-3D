@@ -10,6 +10,39 @@ signal game_over_triggered(reason: String)
 signal level_completed(stars: int, final_score: int)
 signal spares_repopulated()
 signal pause_state_changed(is_paused: bool)
+signal difficulty_changed(new_difficulty: String)
+
+# Sistema de Dificultad: "brutal" (10 min), "dificil" (15 min), "normal" (20 min), "facil" (25 min)
+const DIFFICULTY_TIMES: Dictionary = {
+	"brutal": 600.0,   # 10 minutos
+	"dificil": 900.0,  # 15 minutos
+	"normal": 1200.0,  # 20 minutos
+	"facil": 1500.0    # 25 minutos
+}
+
+var current_difficulty: String = "normal"
+
+func set_difficulty(diff: String) -> void:
+	var lower = diff.to_lower().strip_edges()
+	if DIFFICULTY_TIMES.has(lower):
+		current_difficulty = lower
+		difficulty_changed.emit(current_difficulty)
+
+func get_difficulty_time() -> float:
+	return DIFFICULTY_TIMES.get(current_difficulty, 1200.0)
+
+func get_difficulty_name() -> String:
+	match current_difficulty:
+		"brutal":
+			return "BRUTAL"
+		"dificil":
+			return "DIFÍCIL"
+		"normal":
+			return "NORMAL"
+		"facil":
+			return "FÁCIL"
+		_:
+			return "NORMAL"
 
 # Variables de juego
 var time_left: float = 120.0
@@ -101,7 +134,9 @@ func is_voltimeter_equipped() -> bool:
 func is_cleaning_tool_equipped() -> bool:
 	return equipped_tool == 5
 
-func start_level(initial_time: float = 120.0) -> void:
+func start_level(initial_time: float = -1.0) -> void:
+	if initial_time <= 0.0:
+		initial_time = get_difficulty_time()
 	# Cancelar cualquier audio residual de menús o selección de nivel al iniciar la partida
 	var tree = get_tree()
 	if tree and tree.root:

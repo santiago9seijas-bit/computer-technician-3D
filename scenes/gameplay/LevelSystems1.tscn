@@ -5,6 +5,8 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/HUD.tscn" id="3_hud"]
 [ext_resource type="PackedScene" path="res://scenes/menus/PauseMenu.tscn" id="4_pause"]
 [ext_resource type="PackedScene" path="res://scenes/components/SystemsComputerCase.tscn" id="5_pc"]
+[ext_resource type="PackedScene" uid="uid://bkddyrm8tl53r" path="res://modelos_3d/escenario_3d/mesa de reparacion.glb" id="6_mesa"]
+[ext_resource type="PackedScene" uid="uid://cidts6etijohr" path="res://modelos_3d/escenario_3d/piso.glb" id="7_piso"]
 
 [sub_resource type="Environment" id="Environment_1"]
 background_mode = 1
@@ -19,26 +21,8 @@ glow_bloom = 0.05
 [sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
 size = Vector3(14, 0.2, 14)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_floor"]
-albedo_color = Color(0.08, 0.09, 0.16, 1)
-metallic = 0.6
-roughness = 0.4
-
-[sub_resource type="BoxMesh" id="BoxMesh_floor"]
-material = SubResource("StandardMaterial3D_floor")
-size = Vector3(14, 0.2, 14)
-
 [sub_resource type="BoxShape3D" id="BoxShape3D_bench"]
-size = Vector3(3.2, 0.9, 1.2)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bench"]
-albedo_color = Color(0.12, 0.16, 0.26, 1)
-metallic = 0.5
-roughness = 0.5
-
-[sub_resource type="BoxMesh" id="BoxMesh_bench"]
-material = SubResource("StandardMaterial3D_bench")
-size = Vector3(3.2, 0.9, 1.2)
+size = Vector3(1.92, 0.912, 0.98)
 
 [node name="LevelSystems1" type="Node3D"]
 script = ExtResource("1_syslvl")
@@ -58,20 +42,21 @@ light_energy = 0.9
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Room/Floor"]
 shape = SubResource("BoxShape3D_floor")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Room/Floor"]
-mesh = SubResource("BoxMesh_floor")
+[node name="PisoModel" parent="Room/Floor" instance=ExtResource("7_piso")]
+transform = Transform3D(1.75, 0, 0, 0, 1, 0, 0, 0, 1.75, -5.25, -0.546, 1.75)
 
 [node name="WorkBench" type="StaticBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, -1.8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.8)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="WorkBench"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.456, 0)
 shape = SubResource("BoxShape3D_bench")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="WorkBench"]
-mesh = SubResource("BoxMesh_bench")
+[node name="MesaReparacion" parent="WorkBench" instance=ExtResource("6_mesa")]
+transform = Transform3D(0.012, 0, 0, 0, 0.012, 0, 0, 0, 0.012, 0, 0, 0)
 
 [node name="SystemsComputer" parent="WorkBench" instance=ExtResource("5_pc")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.912, 0)
 pc_id = 1
 
 [node name="Player" parent="." instance=ExtResource("2_player")]

@@ -17,8 +17,8 @@ func _ready() -> void:
 	if btn_siguiente:
 		btn_siguiente.pressed.connect(_on_siguiente)
 
-	# Pre-inicializar el nivel con tiempo suficiente (900s) para probar todos los minijuegos
-	GameManager.start_level(900.0)
+	# Pre-inicializar el nivel con el tiempo según la dificultad seleccionada
+	GameManager.start_level(GameManager.get_difficulty_time())
 	GameManager.timer_active = false
 
 	# Iniciar cinemática de entrada orbital vistosa
