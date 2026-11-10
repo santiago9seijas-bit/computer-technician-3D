@@ -17,14 +17,15 @@ var arcade_minigame_scene: PackedScene = preload("res://scenes/minigames/Malware
 @onready var title_label: Label = $ModalControl/Panel/VBox/Header/TitleLabel
 @onready var status_summary: Label = $ModalControl/Panel/VBox/Header/StatusSummary
 @onready var pc_state_badge: Label = $ModalControl/Panel/VBox/Header/BadgeLabel
+@onready var neofetch_specs: Label = $ModalControl/Panel/VBox/MainContentHBox/NeofetchPanel/Margin/VBox/NeofetchSpecs
 
-@onready var btn_comp_os: Button = $ModalControl/Panel/VBox/GridContainer/BtnOS
-@onready var btn_comp_drivers: Button = $ModalControl/Panel/VBox/GridContainer/BtnDrivers
-@onready var btn_comp_malware: Button = $ModalControl/Panel/VBox/GridContainer/BtnMalware
-@onready var btn_comp_adware: Button = $ModalControl/Panel/VBox/GridContainer/BtnAdware
-@onready var btn_comp_debugger: Button = $ModalControl/Panel/VBox/GridContainer/BtnDebugger
-@onready var btn_comp_usb: Button = $ModalControl/Panel/VBox/GridContainer/BtnUSB
-@onready var btn_comp_arcade: Button = $ModalControl/Panel/VBox/GridContainer/BtnArcade
+@onready var btn_comp_os: Button = $ModalControl/Panel/VBox/MainContentHBox/TilingGrid/BtnOS
+@onready var btn_comp_drivers: Button = $ModalControl/Panel/VBox/MainContentHBox/TilingGrid/BtnDrivers
+@onready var btn_comp_malware: Button = $ModalControl/Panel/VBox/MainContentHBox/TilingGrid/BtnMalware
+@onready var btn_comp_adware: Button = $ModalControl/Panel/VBox/MainContentHBox/TilingGrid/BtnAdware
+@onready var btn_comp_debugger: Button = $ModalControl/Panel/VBox/MainContentHBox/TilingGrid/BtnDebugger
+@onready var btn_comp_usb: Button = $ModalControl/Panel/VBox/MainContentHBox/TilingGrid/BtnUSB
+@onready var btn_comp_arcade: Button = $ModalControl/Panel/VBox/MainContentHBox/TilingGrid/BtnArcade
 
 @onready var btn_volver: Button = $ModalControl/Panel/VBox/Footer/BtnVolver
 @onready var feedback_label: Label = $ModalControl/Panel/VBox/FeedbackLabel
@@ -76,8 +77,9 @@ func _refresh_ui() -> void:
 	if not is_inside_tree() or current_pc == null or pc_state_badge == null:
 		return
 		
+	var pc_id_str = str(current_pc.pc_id) if current_pc else "1"
 	if title_label and current_pc:
-		title_label.text = "TERMINAL DE SISTEMAS & SOFTWARE // WORKSTATION #" + str(current_pc.pc_id)
+		title_label.text = "ESTACIÓN DE SISTEMAS // CONSOLA ANDROMEDA LINUX BSPWM (PC #" + pc_id_str + ")"
 		
 	var os_status = current_pc.components.get("Sistema Operativo", "broken")
 	var driver_status = current_pc.components.get("Drivers", "broken")
@@ -87,42 +89,56 @@ func _refresh_ui() -> void:
 	var usb_status = current_pc.components.get("Pendrive USB", "broken")
 	var arc_status = current_pc.components.get("Arcade Ciberdefensa", "broken")
 	
-	_update_btn_style(btn_comp_os, "SISTEMA OPERATIVO", "CYBER-OS UEFI & GPT", os_status)
-	_update_btn_style(btn_comp_drivers, "CONTROLADORES", "DRIVERS WHQL", driver_status)
-	_update_btn_style(btn_comp_malware, "ESCÁNER ANTIMALWARE", "HEURÍSTICA & FIRMAS", mal_status)
-	_update_btn_style(btn_comp_adware, "LIMPIEZA DE ADWARE", "BLOQUEADOR DE POP-UPS", ad_status)
-	_update_btn_style(btn_comp_debugger, "TERMINAL & DEBUGGER", "CORRECCIÓN DE BUGS", deb_status)
-	_update_btn_style(btn_comp_usb, "HERRAMIENTA USB", "RESPALDO & BOOTABLE", usb_status)
-	_update_btn_style(btn_comp_arcade, "ARCADE CIBERDEFENSA", "DEFENSA RETRO", arc_status)
+	_update_btn_style(btn_comp_os, "❯ pacman -S andromeda-os-uefi", "Particionado GPT · systemd-boot", os_status)
+	_update_btn_style(btn_comp_drivers, "❯ mhwd -a pci nonfree", "Controladores WHQL & Kernel modules", driver_status)
+	_update_btn_style(btn_comp_malware, "❯ clamav --scan /system", "Escaneo heurístico & Firmas SHA256", mal_status)
+	_update_btn_style(btn_comp_adware, "❯ ublock --purge-adware", "Filtro anti-adware & Daemon popups", ad_status)
+	_update_btn_style(btn_comp_debugger, "❯ gdb -q ./security_daemon", "Depuración sintaxis & Tests unitarios", deb_status)
+	_update_btn_style(btn_comp_usb, "❯ dd if=andromeda.iso of=/dev/sdb", "Montaje pendrive rescate FAT32", usb_status)
+	_update_btn_style(btn_comp_arcade, "❯ ./malware_invaders.sh", "Ciberdefensa del núcleo del sistema", arc_status)
 	
 	var fixed_count = 0
 	for k in current_pc.components.keys():
 		if current_pc.components[k] == "fixed":
 			fixed_count += 1
 			
+	if neofetch_specs:
+		neofetch_specs.text = "tech@andromeda-station\n" + \
+			"--------------------\n" + \
+			"OS: Andromeda Linux x86_64\n" + \
+			"Host: Workstation #" + pc_id_str + "\n" + \
+			"Kernel: 6.9.1-arch1-zen\n" + \
+			"Uptime: 1h 45m\n" + \
+			"Packages: 7 (pacman)\n" + \
+			"Shell: zsh 5.9\n" + \
+			"WM: bspwm (tiling)\n" + \
+			"Terminal: kitty\n" + \
+			"Tasks: " + str(fixed_count) + "/7 Resueltos\n" + \
+			"Security: " + ("100% OK ✓" if fixed_count == 7 else "INCIDENCIAS ACTIVAS")
+			
 	if current_pc.is_fully_repaired():
-		pc_state_badge.text = "¡PC DE SISTEMAS 100% OPERATIVA · 7/7 TAREAS RESUELTAS! ✓"
+		pc_state_badge.text = "¡ANDROMEDA LINUX 100% OPERATIVO · 7/7 TAREAS RESUELTAS! ✓"
 		pc_state_badge.modulate = Color(0.2, 1.0, 0.4)
-		status_summary.text = "Todos los servicios de software y ciberseguridad han sido restaurados con éxito."
+		status_summary.text = "Todos los demonios, paquetes y defensas del sistema Andromeda Linux están en estado activo."
 		if btn_volver:
-			btn_volver.text = "★ COMPLETAR TRABAJO Y ENTREGAR TERMINAL ★"
+			btn_volver.text = "★ COMPLETAR TRABAJO Y CERRAR SESIÓN ANDROMEDA ★"
 			btn_volver.modulate = Color(0.2, 1.0, 0.5)
 	else:
 		pc_state_badge.text = "ESTADO: INCIDENCIAS PENDIENTES (" + str(fixed_count) + "/7 COMPLETADAS)"
-		pc_state_badge.modulate = Color(1.0, 0.85, 0.2)
-		status_summary.text = "Haz clic en cualquiera de los módulos para iniciar el diagnóstico y reparación de software."
+		pc_state_badge.modulate = Color(0.15, 0.85, 1.0)
+		status_summary.text = "Haz clic en una de las ventanas del tiling window manager para resolver la incidencia."
 		if btn_volver:
-			btn_volver.text = "◀ VOLVER A LA ESTACIÓN"
+			btn_volver.text = "◀ CERRAR SESIÓN ANDROMEDA LINUX"
 			btn_volver.modulate = Color(1.0, 1.0, 1.0)
 
-func _update_btn_style(btn: Button, title: String, subtitle: String, status: String) -> void:
+func _update_btn_style(btn: Button, cmd_title: String, subtitle: String, status: String) -> void:
 	if not btn: return
 	if status == "fixed":
-		btn.text = "✓ " + title + "\n" + subtitle + "\n[ RESTAURADO / OK ]"
-		btn.modulate = Color(0.3, 1.0, 0.5, 1.0)
+		btn.text = "✓ " + cmd_title + "\n" + subtitle + "\n[ ✓ RESTAURADO ]"
+		btn.modulate = Color(0.2, 1.0, 0.55, 1.0)
 	else:
-		btn.text = "⚡ " + title + "\n" + subtitle + "\n[ CLIC PARA INICIAR ]"
-		btn.modulate = Color(1.0, 0.4, 0.5, 1.0)
+		btn.text = "❯ " + cmd_title + "\n" + subtitle + "\n[ PENDIENTE ]"
+		btn.modulate = Color(0.15, 0.75, 1.0, 1.0)
 
 func _launch_minigame(task_name: String, scene_packed: PackedScene) -> void:
 	if scene_packed == null: return

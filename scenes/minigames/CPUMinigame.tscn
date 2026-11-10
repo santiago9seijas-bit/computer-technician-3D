@@ -145,9 +145,9 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -480.0
+offset_left = -540.0
 offset_top = -310.0
-offset_right = 480.0
+offset_right = 540.0
 offset_bottom = 310.0
 grow_horizontal = 2
 grow_vertical = 2
@@ -208,11 +208,17 @@ theme_override_font_sizes/font_size = 12
 text = "Palanca lista para manipular."
 horizontal_alignment = 1
 
-[node name="WorkArea" type="Control" parent="ModalControl/Panel/VBox"]
-custom_minimum_size = Vector2(850, 350)
+[node name="ContentHBox" type="HBoxContainer" parent="ModalControl/Panel/VBox"]
 layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 14
 
-[node name="SocketBase" type="Panel" parent="ModalControl/Panel/VBox/WorkArea"]
+[node name="WorkArea" type="Control" parent="ModalControl/Panel/VBox/ContentHBox"]
+custom_minimum_size = Vector2(680, 350)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="SocketBase" type="Panel" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -227,7 +233,7 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_socket")
 
-[node name="PinsMatrix" type="Panel" parent="ModalControl/Panel/VBox/WorkArea/SocketBase"]
+[node name="PinsMatrix" type="Panel" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -244,7 +250,7 @@ mouse_filter = 1
 mouse_default_cursor_shape = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_matrix")
 
-[node name="MatrixText" type="Label" parent="ModalControl/Panel/VBox/WorkArea/SocketBase/PinsMatrix"]
+[node name="MatrixText" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase/PinsMatrix"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -264,7 +270,7 @@ text = "MATRIZ DE PINES (LGA)
 ▶ Clic aquí para insertar"
 horizontal_alignment = 1
 
-[node name="CPUChip" type="Button" parent="ModalControl/Panel/VBox/WorkArea/SocketBase"]
+[node name="CPUChip" type="Button" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase"]
 custom_minimum_size = Vector2(190, 190)
 layout_mode = 1
 anchors_preset = 8
@@ -284,7 +290,7 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_ihs")
 theme_override_styles/hover = SubResource("StyleBoxFlat_ihs")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ihs")
 
-[node name="CPULabel" type="Label" parent="ModalControl/Panel/VBox/WorkArea/SocketBase/CPUChip"]
+[node name="CPULabel" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase/CPUChip"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -304,7 +310,7 @@ LGA 1700 OCTA-CORE
 [ CLIC PARA EXTRAER ]"
 horizontal_alignment = 1
 
-[node name="NotchIndicator" type="Label" parent="ModalControl/Panel/VBox/WorkArea/SocketBase/CPUChip"]
+[node name="NotchIndicator" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase/CPUChip"]
 layout_mode = 1
 anchors_preset = 2
 anchor_top = 1.0
@@ -318,7 +324,7 @@ theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
 theme_override_font_sizes/font_size = 16
 text = "▲"
 
-[node name="LoadPlate" type="Panel" parent="ModalControl/Panel/VBox/WorkArea/SocketBase"]
+[node name="LoadPlate" type="Panel" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -334,7 +340,7 @@ grow_vertical = 2
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_plate")
 
-[node name="PlateLabel" type="Label" parent="ModalControl/Panel/VBox/WorkArea/SocketBase/LoadPlate"]
+[node name="PlateLabel" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase/LoadPlate"]
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
@@ -349,7 +355,7 @@ theme_override_font_sizes/font_size = 10
 text = "[ PROTECCIÓN METÁLICA ]"
 horizontal_alignment = 1
 
-[node name="Screw1" type="Button" parent="ModalControl/Panel/VBox/WorkArea/SocketBase"]
+[node name="Screw1" type="Button" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase"]
 visible = false
 custom_minimum_size = Vector2(44, 44)
 layout_mode = 1
@@ -376,7 +382,7 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_screw_hover")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_screw_pressed")
 text = "1"
 
-[node name="Screw2" type="Button" parent="ModalControl/Panel/VBox/WorkArea/SocketBase"]
+[node name="Screw2" type="Button" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase"]
 visible = false
 custom_minimum_size = Vector2(44, 44)
 layout_mode = 1
@@ -403,7 +409,7 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_screw_hover")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_screw_pressed")
 text = "2"
 
-[node name="Screw3" type="Button" parent="ModalControl/Panel/VBox/WorkArea/SocketBase"]
+[node name="Screw3" type="Button" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase"]
 visible = false
 custom_minimum_size = Vector2(44, 44)
 layout_mode = 1
@@ -430,7 +436,7 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_screw_hover")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_screw_pressed")
 text = "3"
 
-[node name="LeverArea" type="Control" parent="ModalControl/Panel/VBox/WorkArea/SocketBase"]
+[node name="LeverArea" type="Control" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase"]
 layout_mode = 1
 anchors_preset = 6
 anchor_left = 1.0
@@ -444,7 +450,7 @@ offset_bottom = 115.0
 grow_horizontal = 0
 grow_vertical = 2
 
-[node name="LeverTrack" type="Panel" parent="ModalControl/Panel/VBox/WorkArea/SocketBase/LeverArea"]
+[node name="LeverTrack" type="Panel" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase/LeverArea"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -458,7 +464,7 @@ offset_bottom = 85.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="LeverStatusText" type="Label" parent="ModalControl/Panel/VBox/WorkArea/SocketBase/LeverArea"]
+[node name="LeverStatusText" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase/LeverArea"]
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
@@ -474,7 +480,7 @@ text = "PALANCA:
 TRABADA [0°]"
 horizontal_alignment = 1
 
-[node name="LeverArrow" type="Label" parent="ModalControl/Panel/VBox/WorkArea/SocketBase/LeverArea"]
+[node name="LeverArrow" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase/LeverArea"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -494,7 +500,7 @@ ARRASTRA
 ABAJO"
 horizontal_alignment = 1
 
-[node name="LeverHandle" type="Button" parent="ModalControl/Panel/VBox/WorkArea/SocketBase/LeverArea"]
+[node name="LeverHandle" type="Button" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase/LeverArea"]
 custom_minimum_size = Vector2(36, 50)
 layout_mode = 1
 anchors_preset = 5
@@ -510,6 +516,65 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_lever_handle")
 theme_override_styles/hover = SubResource("StyleBoxFlat_lever_handle")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_lever_handle")
 text = "❚❚❚"
+
+[node name="RightPanel" type="PanelContainer" parent="ModalControl/Panel/VBox/ContentHBox"]
+custom_minimum_size = Vector2(300, 320)
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/ContentHBox/RightPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 10
+
+[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/ContentHBox/RightPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/RightPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.08, 0.45, 1)
+theme_override_font_sizes/font_size = 14
+text = "GUÍA DE PROCEDIMIENTO"
+horizontal_alignment = 1
+
+[node name="GuideText" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/RightPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.9, 1.0, 0.9)
+theme_override_font_sizes/font_size = 11
+text = "FASE DE MONTAJE:\n1. Desatornilla los 3 pernos en orden (3 -> 1 -> 2).\n2. Haz clic en el socket para asentar el procesador.\n3. Arrastra la palanca hacia arriba para trabar el socket."
+autowrap_mode = 2
+
+[node name="SlotsContainer" type="VBoxContainer" parent="ModalControl/Panel/VBox/ContentHBox/RightPanel/Margin/VBox"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="SlotsTitle" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/RightPanel/Margin/VBox/SlotsContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.1, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 12
+text = "PROCESADORES ENTERPRISE (3x):"
+horizontal_alignment = 1
+
+[node name="BtnSlot0" type="Button" parent="ModalControl/Panel/VBox/ContentHBox/RightPanel/Margin/VBox/SlotsContainer"]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "SOCKET CPU #1"
+
+[node name="BtnSlot1" type="Button" parent="ModalControl/Panel/VBox/ContentHBox/RightPanel/Margin/VBox/SlotsContainer"]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "SOCKET CPU #2"
+
+[node name="BtnSlot2" type="Button" parent="ModalControl/Panel/VBox/ContentHBox/RightPanel/Margin/VBox/SlotsContainer"]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "SOCKET CPU #3"
 
 [node name="Footer" type="HBoxContainer" parent="ModalControl/Panel/VBox"]
 layout_mode = 2

@@ -14,7 +14,14 @@ var current_state: State = State.EXTRACT_SIDES
 var start_as_empty_slot: bool = false
 var is_tutorial_mode: bool = false
 @export var target_ram_count: int = 1
+@export var initial_installed_count: int = 0
 var current_ram_index: int = 0
+
+func get_installed_count() -> int:
+	var cnt = 0
+	for s in ram_installed_states:
+		if s: cnt += 1
+	return cnt
 
 # Estados de extracción de la RAM vieja (hacia arriba)
 var left_unseated: bool = false
@@ -50,11 +57,16 @@ const TEX_SOCKET_OPEN: Texture2D = preload("res://pixel art minijuegos/ramstipos
 
 var current_ram_type: String = "ddr"
 
-const COLOR_RED = Color(1.0, 0.15, 0.25, 1.0)
+const COLOR_RED = Color(1.0, 0.15, 0.15, 1.0) # Rojo brillante puro (nunca gris)
 const COLOR_GREEN = Color(0.2, 1.0, 0.45, 1.0)
 
-const GUIDE_REMOVE: String = "FASE DE DESMONTAJE (QUITAR):\n1. Arrastra hacia ARRIBA los lados IZQUIERDO y DERECHO (un poco).\n2. Luego arrastra hacia arriba el CENTRO para retirar la RAM."
-const GUIDE_INSTALL: String = "FASE DE MONTAJE (PONER):\n1. Arrastra hacia ABAJO las flechas superiores (IZQUIERDA y DERECHA).\n2. Luego arrastra hacia abajo la flecha del CENTRO para trabar la RAM en el zócalo."
+var is_ram_at_support_height: bool = false # Detecta si la RAM está a la misma altura que su soporte
+
+func is_ram_correctly_seated() -> bool:
+	return is_ram_at_support_height
+
+const GUIDE_REMOVE: String = "INSTRUCCIONES DE MONTAJE:\n1. Arrastra hacia ABAJO las flechas rojas superiores (IZQUIERDA y DERECHA).\n2. Arrastra hacia abajo la flecha del CENTRO para calzar la memoria en el zócalo."
+const GUIDE_INSTALL: String = "INSTRUCCIONES DE MONTAJE:\n1. Arrastra hacia ABAJO las flechas rojas superiores (IZQUIERDA y DERECHA).\n2. Arrastra hacia abajo la flecha del CENTRO para trabar la RAM en el zócalo a la misma altura del soporte."
 
 var voltimeter_minigame_scene: PackedScene = preload("res://scenes/minigames/VoltimeterMinigame.tscn")
 
@@ -83,6 +95,13 @@ var voltimeter_minigame_scene: PackedScene = preload("res://scenes/minigames/Vol
 @onready var lbl_top_left: Label = $ModalControl/Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea/InstallTopArea/TopZoneLeft/LblTopLeft
 @onready var lbl_top_center: Label = $ModalControl/Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea/InstallTopArea/TopZoneCenter/LblTopCenter
 @onready var lbl_top_right: Label = $ModalControl/Panel/VBox/ContentHBox/SocketAreaContainer/SocketArea/InstallTopArea/TopZoneRight/LblTopRight
+
+@onready var slots_container: VBoxContainer = get_node_or_null("ModalControl/Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox/SlotsContainer")
+@onready var btn_slot_0: Button = get_node_or_null("ModalControl/Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox/SlotsContainer/BtnSlot0")
+@onready var btn_slot_1: Button = get_node_or_null("ModalControl/Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox/SlotsContainer/BtnSlot1")
+@onready var btn_slot_2: Button = get_node_or_null("ModalControl/Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox/SlotsContainer/BtnSlot2")
+
+var ram_installed_states: Array[bool] = [false, false, false]
 
 # Mochila y pestañas
 @onready var backpack_items_box: VBoxContainer = $ModalControl/Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox/ItemsContainer
@@ -114,38 +133,52 @@ func _ready() -> void:
 	
 	GameManager.backpack_updated.connect(_on_backpack_changed)
 	
-	if is_tutorial_mode:
+	if btn_slot_0: btn_slot_0.pressed.connect(func(): _on_slot_button_clicked(0))
+	if btn_slot_1: btn_slot_1.pressed.connect(func(): _on_slot_button_clicked(1))
+	if btn_slot_2: btn_slot_2.pressed.connect(func(): _on_slot_button_clicked(2))
+	
+	if is_instance_valid(btn_tab_quitar) and is_instance_valid(btn_tab_quitar.get_parent()):
+		btn_tab_quitar.get_parent().visible = false
+	if is_instance_valid(btn_tab_quitar):
 		btn_tab_quitar.pressed.connect(func(): _select_guide_tab(0))
+	if is_instance_valid(btn_tab_poner):
 		btn_tab_poner.pressed.connect(func(): _select_guide_tab(1))
-	else:
-		var tabs = btn_tab_quitar.get_parent()
-		if tabs:
-			tabs.queue_free()
+	
+	if target_ram_count > 1 and is_instance_valid(slots_container):
+		slots_container.visible = true
+		_update_slots_ui()
 	
 	_init_base_position.call_deferred()
 	
-	if start_as_empty_slot:
+	if initial_installed_count > 0:
+		for k in range(min(initial_installed_count, ram_installed_states.size())):
+			ram_installed_states[k] = true
+		current_ram_index = initial_installed_count
+		if current_ram_index < target_ram_count:
+			_prepare_next_ram_slot()
+	elif start_as_empty_slot:
 		_set_socket_open(true)
 		var ram_item = _get_first_unbroken_ram()
 		if not ram_item.is_empty():
 			set_ram_type(ram_item.get("ram_type", current_ram_type))
 		else:
 			_update_ram_texture()
+		_select_guide_tab(1)
 		_start_install_drag_phase()
+		if is_instance_valid(guide_text):
+			var has_spare = not ram_item.is_empty()
+			var detect_msg = "✓ Repuesto de RAM detectado en inventario.\n\n" if has_spare else "⚠️ Repuesto de RAM requerido.\n\n"
+			guide_text.text = detect_msg + GUIDE_INSTALL
 	else:
 		_set_socket_open(false)
+		_select_guide_tab(0)
 		if is_instance_valid(guide_text):
-			guide_text.text = GUIDE_REMOVE
-		if is_tutorial_mode:
-			_select_guide_tab(0)
+			guide_text.text = GUIDE_INSTALL
 		_update_ram_texture()
 		ram_stick.visible = true
 		empty_slot_label.visible = false
 		install_top_area.visible = false
 		current_state = State.EXTRACT_SIDES
-		
-	_update_ui_state()
-	_refresh_backpack_ui()
 		
 	_update_ui_state()
 	_refresh_backpack_ui()
@@ -249,15 +282,18 @@ func _setup_quitar_phase() -> void:
 
 func _init_base_position() -> void:
 	await get_tree().process_frame
-	if ram_stick != null:
+	if socket_base != null and socket_base.position.y > 0.0:
+		default_socket_pos = socket_base.position
+		# Alinear la RAM para que quede a la MISMA ALTURA exacta que el soporte (pines encajados en la ranura)
+		default_seated_pos = Vector2(socket_base.position.x + 18.0, socket_base.position.y - 70.0)
+		default_seated_y = default_seated_pos.y
+		if not start_as_empty_slot and ram_stick != null:
+			ram_stick.position = default_seated_pos
+			is_ram_at_support_height = true
+	elif ram_stick != null:
 		if ram_stick.position.y > 0.0:
 			default_seated_y = ram_stick.position.y
 			default_seated_pos = ram_stick.position
-		elif socket_base != null and socket_base.position.y > 0.0:
-			default_seated_pos = Vector2(socket_base.position.x + 18.0, socket_base.position.y - 49.0)
-			default_seated_y = default_seated_pos.y
-	if socket_base != null:
-		default_socket_pos = socket_base.position
 
 func _on_backpack_changed(_items: Array) -> void:
 	_refresh_backpack_ui()
@@ -641,12 +677,13 @@ func _latch_ram_into_socket() -> void:
 	ram_stick.modulate = Color(1, 1, 1, 0.0)
 	if default_seated_pos == Vector2.ZERO or default_seated_y <= 0.0:
 		if is_instance_valid(socket_base) and socket_base.position != Vector2.ZERO:
-			default_seated_pos = Vector2(socket_base.position.x + 18.0, socket_base.position.y - 49.0)
+			default_seated_pos = Vector2(socket_base.position.x + 18.0, socket_base.position.y - 70.0)
 			default_seated_y = default_seated_pos.y
 		else:
 			default_seated_pos = ram_stick.position
 			default_seated_y = ram_stick.position.y
 	ram_stick.position = Vector2(default_seated_pos.x, default_seated_y - 40.0)
+	is_ram_at_support_height = true
 	
 	# Desvanecer las flechas superiores
 	var tw_top = create_tween()
@@ -672,51 +709,19 @@ func _latch_ram_into_socket() -> void:
 	lbl_right.text = "●"
 	lbl_right.modulate = COLOR_GREEN
 	
+	ram_installed_states[current_ram_index] = true
 	current_ram_index += 1
 	
 	if current_ram_index < target_ram_count:
 		_show_floating_feedback("✓ ¡MÓDULO RAM #%d/%d ENGANCHADO! Preparando siguiente banco..." % [current_ram_index, target_ram_count], COLOR_GREEN)
-		status_label.text = "✓ MÓDULO RAM #%d ASEGURADO · PREPARANDO BANCO RAM #%d..." % [current_ram_index, current_ram_index + 1]
+		status_label.text = "✓ BANCO #%d ENGANCHADO · PREPARANDO BANCO #%d..." % [current_ram_index, current_ram_index + 1]
 		status_label.modulate = Color(0.0, 0.95, 1.0)
-		
-		await get_tree().create_timer(0.75).timeout
-		
-		# Asegurar existencia de repuesto en mochila
-		var has_ram = false
-		for it in GameManager.backpack:
-			if it.get("name") == "RAM" and not it.get("broken", true):
-				has_ram = true
-				break
-		if not has_ram:
-			GameManager.add_item_to_backpack({"name": "RAM", "type": "RAM", "ram_type": current_ram_type, "broken": false})
-			
-		# Reiniciar el slot limpiamente para el siguiente banco (como el disco duro)
-		ram_stick.visible = false
-		_set_socket_open(true)
-		empty_slot_label.visible = true
-		empty_slot_label.text = "[ ZÓCALO %s VACÍO · BANCO RAM #%d ]" % [current_ram_type.to_upper(), current_ram_index + 1]
-		install_top_area.visible = true
-		install_top_area.modulate.a = 1.0
-		
-		top_left_done = false
-		top_right_done = false
-		top_center_done = false
-		lbl_top_left.position.y = 0.0
-		lbl_top_right.position.y = 0.0
-		lbl_top_center.position.y = 0.0
-		lbl_left.text = "▲"
-		lbl_left.modulate = Color(1, 0.2, 0.25, 1)
-		lbl_right.text = "▲"
-		lbl_right.modulate = Color(1, 0.2, 0.25, 1)
-		lbl_center.text = "▲"
-		lbl_center.modulate = Color(1, 0.2, 0.25, 1)
-		
-		current_state = State.INSTALL_DRAG
-		status_label.text = "BANCO RAM #%d DE %d · Arrastra las flechas rojas hacia ABAJO para montar la nueva RAM" % [current_ram_index + 1, target_ram_count]
-		status_label.modulate = Color(1.0, 0.85, 0.2, 1)
-		_refresh_backpack_ui()
+		_update_slots_ui()
+		await get_tree().create_timer(0.6).timeout
+		_prepare_next_ram_slot()
 	else:
 		current_state = State.COMPLETED
+		_update_slots_ui()
 		var victory_msg = ("¡RAM %s NUEVA INSTALADA Y ENGANCHADA CON TOTAL ÉXITO!" % current_ram_type.to_upper()) if target_ram_count <= 1 else ("¡LOS %d MÓDULOS RAM ECC ENGANCHADOS CON ÉXITO!" % target_ram_count)
 		_show_floating_feedback("✓ ¡CLICK! " + victory_msg, COLOR_GREEN)
 		status_label.text = victory_msg
@@ -724,6 +729,92 @@ func _latch_ram_into_socket() -> void:
 		
 		await get_tree().create_timer(1.0).timeout
 		_finish_minigame_with_slide(true)
+
+func _on_slot_button_clicked(idx: int) -> void:
+	if idx == current_ram_index and current_ram_index < target_ram_count and not ram_installed_states[idx]:
+		_prepare_next_ram_slot()
+
+func _prepare_next_ram_slot() -> void:
+	# Comprobar si hay repuesto en la mochila sin regalar items
+	var has_ram = false
+	for it in GameManager.backpack:
+		if it.get("name") == "RAM" and not it.get("broken", true):
+			has_ram = true
+			break
+		
+	# Reiniciar el slot limpiamente para el siguiente banco
+	ram_stick.visible = false
+	_set_socket_open(true)
+	empty_slot_label.visible = true
+	empty_slot_label.text = "[ ZÓCALO %s VACÍO · BANCO RAM #%d ]" % [current_ram_type.to_upper(), current_ram_index + 1]
+	install_top_area.visible = true
+	install_top_area.modulate.a = 1.0
+	
+	top_left_done = false
+	top_right_done = false
+	top_center_done = false
+	
+	# Encender flechas rojas brillantes
+	lbl_top_left.text = "▼\n●"
+	lbl_top_left.modulate = COLOR_RED
+	lbl_top_left.position.y = 0.0
+	
+	lbl_top_right.text = "▼\n●"
+	lbl_top_right.modulate = COLOR_RED
+	lbl_top_right.position.y = 0.0
+	
+	lbl_top_center.text = "▼\n●"
+	lbl_top_center.modulate = COLOR_RED
+	lbl_top_center.position.y = 0.0
+	
+	lbl_left.text = "▲"
+	lbl_left.modulate = Color(1, 0.2, 0.25, 1)
+	lbl_right.text = "▲"
+	lbl_right.modulate = Color(1, 0.2, 0.25, 1)
+	lbl_center.text = "▲"
+	lbl_center.modulate = Color(1, 0.2, 0.25, 1)
+	
+	current_state = State.INSTALL_DRAG
+	if has_ram:
+		status_label.text = "BANCO RAM #%d DE %d · Arrastra las flechas rojas hacia ABAJO para montar la nueva RAM" % [current_ram_index + 1, target_ram_count]
+		status_label.modulate = Color(1.0, 0.85, 0.2, 1)
+	else:
+		status_label.text = "⚠️ FALTA MÓDULO RAM EN MOCHILA · SAL [ESC] PARA RECOGERLO EN EL DATACENTER (PROGRESO GUARDADO)"
+		status_label.modulate = Color(1.0, 0.4, 0.4, 1)
+		_show_floating_feedback("⚠️ No tienes más módulos RAM en la mochila. Puedes salir [ESC] para recogerlos y continuarás desde aquí.", Color(1.0, 0.4, 0.4))
+		
+	_update_slots_ui()
+	_refresh_backpack_ui()
+
+func _update_slots_ui() -> void:
+	if target_ram_count <= 1 or not is_instance_valid(slots_container):
+		return
+	var buttons = [btn_slot_0, btn_slot_1, btn_slot_2]
+	for i in range(buttons.size()):
+		var btn = buttons[i]
+		if not is_instance_valid(btn):
+			continue
+		if i >= target_ram_count:
+			btn.visible = false
+			continue
+		btn.visible = true
+		if ram_installed_states[i]:
+			btn.text = "✓ BANCO RAM #%d [INSTALADO]" % (i + 1)
+			btn.modulate = COLOR_GREEN
+			btn.disabled = false
+		elif i == current_ram_index:
+			if current_state == State.INSTALL_DRAG and not ram_stick.visible:
+				btn.text = "➔ BANCO RAM #%d (EN MONTAJE)" % (i + 1)
+				btn.modulate = Color(0.0, 0.95, 1.0)
+				btn.disabled = false
+			else:
+				btn.text = "➔ CLIC PARA MONTAR BANCO #%d" % (i + 1)
+				btn.modulate = Color(1.0, 0.85, 0.2)
+				btn.disabled = false
+		else:
+			btn.text = "🔒 BANCO RAM #%d [PENDIENTE]" % (i + 1)
+			btn.modulate = Color(0.55, 0.6, 0.7, 0.6)
+			btn.disabled = true
 
 func _finish_minigame_with_slide(success: bool) -> void:
 	if is_instance_valid(modal_control):

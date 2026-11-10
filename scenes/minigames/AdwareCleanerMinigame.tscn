@@ -77,15 +77,16 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -480.0
+offset_left = -540.0
 offset_top = -290.0
-offset_right = 480.0
+offset_right = 540.0
 offset_bottom = 290.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxEmpty_frame")
 
 [node name="CyberBackgroundFrame" parent="ModalControl/Panel" instance=ExtResource("5_bg_frame")]
+modulate = Color(0.09, 0.58, 0.82, 1)
 layout_mode = 2
 
 [node name="VBox" type="VBoxContainer" parent="ModalControl/Panel"]
@@ -98,10 +99,10 @@ theme_override_constants/separation = 6
 
 [node name="Titulo" type="Label" parent="ModalControl/Panel/VBox/Header"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1.0, 0.2, 0.45, 1)
+theme_override_colors/font_color = Color(0.1, 0.85, 1, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 8
-theme_override_colors/font_shadow_color = Color(0.8, 0.05, 0.35, 0.8)
+theme_override_colors/font_shadow_color = Color(0.05, 0.5, 0.8, 0.8)
 theme_override_constants/shadow_outline_size = 8
 theme_override_fonts/font = ExtResource("4_title_font")
 theme_override_font_sizes/font_size = 18
@@ -138,13 +139,18 @@ theme_override_colors/font_color = Color(1.0, 0.25, 0.3, 1)
 theme_override_font_sizes/font_size = 12
 text = "USO DE CPU: 95%"
 
-[node name="DesktopArea" type="Control" parent="ModalControl/Panel/VBox"]
-clip_contents = true
-custom_minimum_size = Vector2(880, 410)
+[node name="ContentHBox" type="HBoxContainer" parent="ModalControl/Panel/VBox"]
 layout_mode = 2
 size_flags_vertical = 3
+theme_override_constants/separation = 14
 
-[node name="DesktopBg" type="Panel" parent="ModalControl/Panel/VBox/DesktopArea"]
+[node name="DesktopArea" type="Control" parent="ModalControl/Panel/VBox/ContentHBox"]
+clip_contents = true
+custom_minimum_size = Vector2(760, 410)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="DesktopBg" type="Panel" parent="ModalControl/Panel/VBox/ContentHBox/DesktopArea"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -153,7 +159,7 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_desktop")
 
-[node name="DesktopIcons" type="VBoxContainer" parent="ModalControl/Panel/VBox/DesktopArea"]
+[node name="DesktopIcons" type="VBoxContainer" parent="ModalControl/Panel/VBox/ContentHBox/DesktopArea"]
 layout_mode = 0
 offset_left = 18.0
 offset_top = 18.0
@@ -161,28 +167,28 @@ offset_right = 90.0
 offset_bottom = 220.0
 theme_override_constants/separation = 14
 
-[node name="Icon1" type="Label" parent="ModalControl/Panel/VBox/DesktopArea/DesktopIcons"]
+[node name="Icon1" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/DesktopArea/DesktopIcons"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.65, 0.8, 1, 0.7)
 theme_override_font_sizes/font_size = 10
 text = "💻\nMi Equipo"
 horizontal_alignment = 1
 
-[node name="Icon2" type="Label" parent="ModalControl/Panel/VBox/DesktopArea/DesktopIcons"]
+[node name="Icon2" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/DesktopArea/DesktopIcons"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.65, 0.8, 1, 0.7)
 theme_override_font_sizes/font_size = 10
 text = "🌐\nNavegador"
 horizontal_alignment = 1
 
-[node name="Icon3" type="Label" parent="ModalControl/Panel/VBox/DesktopArea/DesktopIcons"]
+[node name="Icon3" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/DesktopArea/DesktopIcons"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.65, 0.8, 1, 0.7)
 theme_override_font_sizes/font_size = 10
 text = "🗑️\nPapelera"
 horizontal_alignment = 1
 
-[node name="VictoryBanner" type="PanelContainer" parent="ModalControl/Panel/VBox/DesktopArea"]
+[node name="VictoryBanner" type="PanelContainer" parent="ModalControl/Panel/VBox/ContentHBox/DesktopArea"]
 visible = false
 layout_mode = 1
 anchors_preset = 8
@@ -198,12 +204,12 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_victory")
 
-[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/DesktopArea/VictoryBanner"]
+[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/ContentHBox/DesktopArea/VictoryBanner"]
 layout_mode = 2
 theme_override_constants/separation = 8
 alignment = 1
 
-[node name="Title" type="Label" parent="ModalControl/Panel/VBox/DesktopArea/VictoryBanner/VBox"]
+[node name="Title" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/DesktopArea/VictoryBanner/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 1.0, 0.5, 1)
 theme_override_fonts/font = ExtResource("4_title_font")
@@ -211,14 +217,14 @@ theme_override_font_sizes/font_size = 16
 text = "✓ ¡SISTEMA DESINFECTADO!"
 horizontal_alignment = 1
 
-[node name="Desc" type="Label" parent="ModalControl/Panel/VBox/DesktopArea/VictoryBanner/VBox"]
+[node name="Desc" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/DesktopArea/VictoryBanner/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9, 0.95, 1, 1)
 theme_override_font_sizes/font_size = 12
 text = "Todos los anuncios y scripts espías han sido erradicados.\nConsumo de CPU estabilizado en 4%."
 horizontal_alignment = 1
 
-[node name="NotificationToast" type="Label" parent="ModalControl/Panel/VBox/DesktopArea"]
+[node name="NotificationToast" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/DesktopArea"]
 visible = false
 layout_mode = 1
 anchors_preset = 7
@@ -238,6 +244,67 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_toast")
 text = "Notificación de seguridad"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="RightGuidePanel" type="PanelContainer" parent="ModalControl/Panel/VBox/ContentHBox"]
+custom_minimum_size = Vector2(280, 410)
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/ContentHBox/RightGuidePanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/ContentHBox/RightGuidePanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/RightGuidePanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.1, 0.85, 1, 1)
+theme_override_fonts/font = ExtResource("4_title_font")
+theme_override_font_sizes/font_size = 12
+text = "GUÍA PASO A PASO"
+horizontal_alignment = 1
+
+[node name="Step1Box" type="VBoxContainer" parent="ModalControl/Panel/VBox/ContentHBox/RightGuidePanel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="Header" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/RightGuidePanel/Margin/VBox/Step1Box"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.1, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 11
+text = "1. CERRAR POPUPS FALSOS"
+
+[node name="Desc" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/RightGuidePanel/Margin/VBox/Step1Box"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.9, 0.95, 0.85)
+theme_override_font_sizes/font_size = 10
+text = "• Haz clic en la pequeña [X] roja superior de cada anuncio.
+• ¡Cuidado con botones trampa como 'Aceptar' o 'Cerrar falso'!"
+autowrap_mode = 2
+
+[node name="HSep1" type="HSeparator" parent="ModalControl/Panel/VBox/ContentHBox/RightGuidePanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="Step2Box" type="VBoxContainer" parent="ModalControl/Panel/VBox/ContentHBox/RightGuidePanel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="Header" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/RightGuidePanel/Margin/VBox/Step2Box"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.1, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 11
+text = "2. ACTIVAR AD-BLOCKER"
+
+[node name="Desc" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/RightGuidePanel/Margin/VBox/Step2Box"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.9, 0.95, 0.85)
+theme_override_font_sizes/font_size = 10
+text = "• Al cerrar todas las ventanas, presiona 'ESCUDO AD-BLOCKER' abajo para erradicar scripts espías."
+autowrap_mode = 2
 
 [node name="Footer" type="HBoxContainer" parent="ModalControl/Panel/VBox"]
 layout_mode = 2

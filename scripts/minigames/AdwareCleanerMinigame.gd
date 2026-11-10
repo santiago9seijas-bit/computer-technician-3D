@@ -14,13 +14,13 @@ signal minigame_finished(success: bool)
 # Nodos principales
 @onready var status_label: Label = $ModalControl/Panel/VBox/Header/StatusLabel
 @onready var btn_cancel: Button = $ModalControl/Panel/VBox/Footer/BtnCancel
-@onready var desktop_area: Control = $ModalControl/Panel/VBox/DesktopArea
+@onready var desktop_area: Control = $ModalControl/Panel/VBox/ContentHBox/DesktopArea
 @onready var progress_bar: ProgressBar = $ModalControl/Panel/VBox/Header/Metrics/ProgressBar
 @onready var lbl_ads_count: Label = $ModalControl/Panel/VBox/Header/Metrics/LblAdsCount
 @onready var lbl_cpu_load: Label = $ModalControl/Panel/VBox/Header/Metrics/LblCPULoad
 @onready var btn_adblock: Button = $ModalControl/Panel/VBox/Footer/BtnAdBlock
-@onready var victory_banner: PanelContainer = $ModalControl/Panel/VBox/DesktopArea/VictoryBanner
-@onready var notification_toast: Label = $ModalControl/Panel/VBox/DesktopArea/NotificationToast
+@onready var victory_banner: PanelContainer = $ModalControl/Panel/VBox/ContentHBox/DesktopArea/VictoryBanner
+@onready var notification_toast: Label = $ModalControl/Panel/VBox/ContentHBox/DesktopArea/NotificationToast
 
 var total_ads_target: int = 8
 var closed_ads: int = 0
@@ -32,58 +32,58 @@ var active_popups: Array[PanelContainer] = []
 const POPUP_DATA = [
 	{
 		"title": "🎉 ¡PREMIO EXCLUSIVO!",
-		"text": "¡Has sido seleccionado como el visitante #1.000.000!\nReclama un procesador Quantum Core gratis.",
+		"text": "¡Has sido seleccionado como visitante #1.000.000!\nReclama un procesador Quantum Core gratis.",
 		"type": "standard",
-		"pos": Vector2(60, 40),
+		"pos": Vector2(18, 16),
 		"color": Color(0.95, 0.2, 0.4)
 	},
 	{
-		"title": "⚠️ ALERTA DE SEGURIDAD FALSA",
-		"text": "¡Se detectaron 43 virus en tu tarjeta madre!\nNo hagas clic en el botón verde gigante.",
+		"title": "⚠️ ALERTA DE SEGURIDAD",
+		"text": "¡Se detectaron 43 virus en tu tarjeta madre!\nNo hagas clic en el botón gigante verde.",
 		"type": "deceptive",
-		"pos": Vector2(360, 25),
+		"pos": Vector2(230, 20),
 		"color": Color(1.0, 0.5, 0.1)
 	},
 	{
-		"title": "⚡ DESCARGA MÁS MEMORIA RAM",
-		"text": "Aumenta la memoria RAM de tu equipo a 128 GB\ncon un solo clic en la nube sin coste.",
+		"title": "⚡ DESCARGA MÁS RAM",
+		"text": "Aumenta la memoria de tu equipo a 128 GB\ncon un clic en la nube sin costo alguno.",
 		"type": "evasive",
-		"pos": Vector2(160, 160),
+		"pos": Vector2(440, 16),
 		"color": Color(0.2, 0.8, 1.0)
 	},
 	{
-		"title": "📦 ACTUALIZADOR DE CÓDECS",
+		"title": "📦 ACTUALIZADOR CÓDECS",
 		"text": "Instalación de paquetes multimedia 2026.\nDesmarca las casillas trampa antes de aceptar.",
 		"type": "checkbox",
-		"pos": Vector2(460, 150),
+		"pos": Vector2(20, 140),
 		"color": Color(0.85, 0.25, 0.9)
 	},
 	{
-		"title": "💰 CRIPTO-MINERÍA AUTOMÁTICA",
-		"text": "Multiplica tus créditos usando el 99% de tu GPU.\nMonetiza tus núcleos mientras juegas.",
+		"title": "💰 CRIPTO-MINERÍA GPU",
+		"text": "Multiplica créditos usando el 99% de tu GPU.\nMonetiza núcleos en segundo plano.",
 		"type": "standard",
-		"pos": Vector2(100, 260),
+		"pos": Vector2(235, 136),
 		"color": Color(0.9, 0.85, 0.15)
 	},
 	{
-		"title": "🚀 DUPLICADOR DE ANCHO DE BANDA",
+		"title": "🚀 ACELERADOR DE RED",
 		"text": "Tu proveedor limita tu red a 50 Mbps.\nDesbloquea 10 Gbps con nuestro acelerador.",
 		"type": "evasive",
-		"pos": Vector2(380, 265),
+		"pos": Vector2(445, 140),
 		"color": Color(0.1, 0.9, 0.5)
 	},
 	{
-		"title": "💬 MENSAJE DE SOPORTE FALSO",
-		"text": "Técnico en línea: 'Tu licencia de Windows expira hoy.\nPermite el control remoto inmediato.'",
+		"title": "💬 SOPORTE FALSO",
+		"text": "Técnico: 'Licencia de Windows expirada hoy.\nPermite el control remoto inmediato.'",
 		"type": "deceptive",
-		"pos": Vector2(240, 90),
+		"pos": Vector2(90, 255),
 		"color": Color(0.9, 0.1, 0.3)
 	},
 	{
-		"title": "🍪 AVISO DE RASTREADORES",
-		"text": "¿Aceptas compartir tu historial y pulsaciones\nde teclado con 480 empresas de publicidad?",
+		"title": "🍪 RASTREADORES WEB",
+		"text": "¿Aceptas compartir tus pulsaciones\nde teclado con 480 empresas de publicidad?",
 		"type": "checkbox",
-		"pos": Vector2(520, 80),
+		"pos": Vector2(350, 255),
 		"color": Color(0.65, 0.3, 0.95)
 	}
 ]
@@ -98,13 +98,13 @@ func _ready() -> void:
 	notification_toast.visible = false
 	
 	_spawn_all_popups()
+	_update_metrics()
+	_update_status("Cierra las ventanas emergentes falsas con [X]. ¡Cuidado con los botones trampa!")
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel") or (event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE):
 		get_viewport().set_input_as_handled()
 		_on_cancel_pressed()
-	_update_metrics()
-	_update_status("Cierra las ventanas emergentes falsas con [X]. ¡Cuidado con los botones trampa!")
 
 func _spawn_all_popups() -> void:
 	var index = 0
@@ -124,8 +124,16 @@ func _spawn_all_popups() -> void:
 func _create_popup_node(data: Dictionary, index: int) -> PanelContainer:
 	var p = PanelContainer.new()
 	p.name = "AdPopup_%d" % index
-	p.position = data["pos"]
-	p.custom_minimum_size = Vector2(290, 145)
+	p.custom_minimum_size = Vector2(255, 125)
+	
+	# Clamp positions safely within DesktopArea boundaries
+	var max_x = maxf(10.0, desktop_area.size.x - 260.0)
+	var max_y = maxf(10.0, desktop_area.size.y - 130.0)
+	if max_x < 100.0:
+		max_x = 445.0
+	if max_y < 100.0:
+		max_y = 260.0
+	p.position = Vector2(clampf(data["pos"].x, 10.0, max_x), clampf(data["pos"].y, 10.0, max_y))
 	
 	# Estilo Cyberpunk Ventana Emergente
 	var style = StyleBoxFlat.new()
@@ -155,16 +163,16 @@ func _create_popup_node(data: Dictionary, index: int) -> PanelContainer:
 	var title_lbl = Label.new()
 	title_lbl.text = data["title"]
 	title_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	title_lbl.add_theme_font_size_override("font_size", 11)
+	title_lbl.add_theme_font_size_override("font_size", 10)
 	title_lbl.add_theme_color_override("font_color", Color(1, 1, 1, 0.95))
 	header.add_child(title_lbl)
 	
 	var close_btn = Button.new()
-	close_btn.text = " ✕ "
-	close_btn.custom_minimum_size = Vector2(26, 20)
-	close_btn.flat = true
-	close_btn.add_theme_font_size_override("font_size", 12)
-	close_btn.add_theme_color_override("font_color", Color(1.0, 0.3, 0.3))
+	close_btn.text = " [✕ CERRAR] "
+	close_btn.custom_minimum_size = Vector2(75, 24)
+	close_btn.flat = false
+	close_btn.add_theme_font_size_override("font_size", 10)
+	close_btn.add_theme_color_override("font_color", Color(1.0, 0.3, 0.35))
 	close_btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	
 	close_btn.pressed.connect(func(): _close_popup(p, false))

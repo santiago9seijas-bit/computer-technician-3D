@@ -68,9 +68,14 @@ var voltimeter_minigame_scene = preload("res://scenes/minigames/VoltimeterMiniga
 @onready var btn_slide_psu: Button = $ModalControl/Panel/VBox/WorkArea/BtnSlidePSU
 @onready var warning_label: Label = $ModalControl/Panel/VBox/WorkArea/WarningLabel
 
-@onready var btn_tab_quitar: Button = $ModalControl/Panel/VBox/Header/GuidePanel/VBoxGuide/TabsBox/BtnTabQuitar
-@onready var btn_tab_poner: Button = $ModalControl/Panel/VBox/Header/GuidePanel/VBoxGuide/TabsBox/BtnTabPoner
-@onready var guide_text: Label = $ModalControl/Panel/VBox/Header/GuidePanel/VBoxGuide/GuideText
+@onready var btn_tab_quitar: Button = $ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide/TabsBox/BtnTabQuitar
+@onready var btn_tab_poner: Button = $ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide/TabsBox/BtnTabPoner
+@onready var guide_text: Label = $ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide/GuideText
+
+@onready var chk_atx: Label = $ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide/ChecklistContainer/ChkATX
+@onready var chk_eps: Label = $ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide/ChecklistContainer/ChkEPS
+@onready var chk_screws: Label = $ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide/ChecklistContainer/ChkScrews
+@onready var chk_slide: Label = $ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide/ChecklistContainer/ChkSlide
 
 var screw_buttons: Array[Button] = []
 var screw_icons: Array[TextureRect] = []
@@ -82,13 +87,12 @@ func _ready() -> void:
 	_setup_ui()
 	_update_tool_buttons()
 	
-	if is_tutorial_mode:
+	if is_instance_valid(btn_tab_quitar) and is_instance_valid(btn_tab_quitar.get_parent()):
+		btn_tab_quitar.get_parent().visible = false
+	if is_instance_valid(btn_tab_quitar):
 		btn_tab_quitar.pressed.connect(func(): _select_guide_tab(0))
+	if is_instance_valid(btn_tab_poner):
 		btn_tab_poner.pressed.connect(func(): _select_guide_tab(1))
-	else:
-		var tabs = btn_tab_quitar.get_parent()
-		if tabs:
-			tabs.queue_free()
 	
 	if start_as_empty_slot:
 		current_state = State.EMPTY_TUNNEL
@@ -129,14 +133,13 @@ func _select_guide_tab(idx: int) -> void:
 			btn_tab_quitar.modulate = Color(0.7, 0.7, 0.7, 0.7)
 			btn_tab_poner.modulate = Color(0.2, 1.0, 0.5, 1.0)
 			
-	if idx == 0:
-		guide_text.text = "PASOS DE DESMONTAJE (QUITAR): 1. Desconectar ATX 24P · 2. Desconectar EPS 8P · 3. Retirar 4 tornillos chasis con [1]/[2] · 4. Deslizar fuente"
-		if is_tutorial_mode and (is_install_phase() or current_state == State.EMPTY_TUNNEL):
-			_setup_quitar_phase()
-	else:
-		guide_text.text = "PASOS DE MONTAJE (CÓMO PONER AL REVÉS): 1. Deslizar fuente nueva en el túnel · 2. Ajustar 4 tornillos y conectar EPS 8P y ATX 24P (cualquier orden)"
-		if is_tutorial_mode and (not is_install_phase() and current_state != State.EMPTY_TUNNEL):
-			_setup_empty_tunnel_phase()
+	var has_psu = false
+	for it in GameManager.backpack:
+		if it.get("name") == "Fuente" and not it.get("broken", true):
+			has_psu = true
+			break
+	var spare_msg = "✓ Fuente nueva detectada en inventario.\n\n" if has_psu else "⚠️ Preparado para montar fuente.\n\n"
+	guide_text.text = "INSTRUCCIONES DE MONTAJE:\n\n" + spare_msg + "1. Desliza la fuente en el túnel del chasis.\n2. Coloca y aprieta los 4 tornillos con destornillador.\n3. Conecta el cable ATX de 24 pines.\n4. Conecta el cable auxiliar EPS de 8 pines."
 
 func _setup_quitar_phase() -> void:
 	current_state = State.DISCONNECT_ATX24
@@ -610,3 +613,37 @@ func _update_status() -> void:
 		State.COMPLETED:
 			status_label.text = "¡OPERACIÓN COMPLETADA! Fuente instalada y testeada con éxito."
 			status_label.modulate = Color(0.2, 1.0, 0.4)
+	
+	_update_checklist()
+
+func _update_checklist() -> void:
+	if not is_instance_valid(chk_atx) or not is_instance_valid(chk_eps):
+		return
+	var is_install: bool = is_install_phase() or current_state == State.EMPTY_TUNNEL
+	if not is_install:
+		_format_check_item(chk_atx, is_atx24_disconnected, "1. Cable ATX 24P", current_state == State.DISCONNECT_ATX24)
+		_format_check_item(chk_eps, is_eps8_disconnected, "2. Cable EPS 8P", current_state == State.DISCONNECT_EPS8)
+		var s_rem: int = 0
+		for r in screws_removed:
+			if r: s_rem += 1
+		_format_check_item(chk_screws, s_rem == 4, "3. Tornillos chasis (%d/4)" % s_rem, current_state == State.UNSCREW_CHASSIS)
+		_format_check_item(chk_slide, is_psu_slid_out, "4. Deslizar fuente fuera", current_state == State.SLIDE_OUT_PSU)
+	else:
+		_format_check_item(chk_slide, current_state != State.EMPTY_TUNNEL, "1. Deslizar fuente al túnel", current_state == State.EMPTY_TUNNEL)
+		var s_fastened: int = 0
+		for r in screws_removed:
+			if not r: s_fastened += 1
+		_format_check_item(chk_screws, s_fastened == 4, "2. Fijar 4 tornillos (%d/4)" % s_fastened, not (s_fastened == 4))
+		_format_check_item(chk_eps, not is_eps8_disconnected, "3. Cable EPS 8P", is_eps8_disconnected)
+		_format_check_item(chk_atx, not is_atx24_disconnected, "4. Cable ATX 24P", is_atx24_disconnected)
+
+func _format_check_item(lbl: Label, done: bool, text: String, active: bool = false) -> void:
+	if done:
+		lbl.text = "✓ " + text
+		lbl.modulate = Color(0.2, 1.0, 0.5, 0.95)
+	elif active:
+		lbl.text = "➔ " + text
+		lbl.modulate = Color(1.0, 0.85, 0.2, 1.0)
+	else:
+		lbl.text = "○ " + text
+		lbl.modulate = Color(0.7, 0.75, 0.85, 0.6)

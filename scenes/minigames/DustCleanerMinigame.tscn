@@ -61,16 +61,16 @@ grow_vertical = 2
 color = Color(0.02, 0.04, 0.08, 0.95)
 
 [node name="Panel" type="PanelContainer" parent="ModalControl"]
-custom_minimum_size = Vector2(920, 640)
+custom_minimum_size = Vector2(1120, 640)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -460.0
+offset_left = -560.0
 offset_top = -320.0
-offset_right = 460.0
+offset_right = 560.0
 offset_bottom = 320.0
 grow_horizontal = 2
 grow_vertical = 2
@@ -119,7 +119,7 @@ layout_mode = 2
 size_flags_horizontal = 4
 
 [node name="WorkArea" type="Control" parent="ModalControl/Panel/VBox"]
-custom_minimum_size = Vector2(860, 400)
+custom_minimum_size = Vector2(1060, 400)
 layout_mode = 2
 size_flags_vertical = 3
 
@@ -130,9 +130,9 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -390.0
+offset_left = -500.0
 offset_top = -185.0
-offset_right = 390.0
+offset_right = 160.0
 offset_bottom = 185.0
 grow_horizontal = 2
 grow_vertical = 2
@@ -147,6 +147,73 @@ theme_override_constants/margin_bottom = 16
 
 [node name="HeatsinkArea" type="Control" parent="ModalControl/Panel/VBox/WorkArea/HeatsinkFrame/Margin"]
 layout_mode = 2
+
+[node name="RightGuidePanel" type="PanelContainer" parent="ModalControl/Panel/VBox/WorkArea"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -330.0
+offset_top = -180.0
+offset_right = -10.0
+offset_bottom = 180.0
+grow_horizontal = 0
+grow_vertical = 2
+
+[node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/WorkArea/RightGuidePanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 10
+
+[node name="VBoxGuide" type="VBoxContainer" parent="ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="GuideTitle" type="Label" parent="ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.95, 0.7, 1)
+theme_override_font_sizes/font_size = 13
+text = "GUÍA DE LIMPIEZA"
+horizontal_alignment = 1
+
+[node name="GuideText" type="Label" parent="ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.9, 1, 0.9)
+theme_override_font_sizes/font_size = 10
+text = "La pelusa compacta entre las aletas bloquea la salida de aire caliente del disipador."
+autowrap_mode = 2
+
+[node name="HSeparator" type="HSeparator" parent="ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide"]
+layout_mode = 2
+
+[node name="ChecklistTitle" type="Label" parent="ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 11
+text = "PASO A PASO:"
+
+[node name="ChecklistContainer" type="VBoxContainer" parent="ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Step1" type="Label" parent="ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide/ChecklistContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "1. Pasa el cursor o haz clic en las manchas de polvo gris."
+
+[node name="Step2" type="Label" parent="ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide/ChecklistContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "2. Limpia los 12 cúmulos acumulados en las rejillas."
+
+[node name="Step3" type="Label" parent="ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide/ChecklistContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "3. El flujo térmico quedará 100% restablecido."
 
 [node name="WarningLabel" type="Label" parent="ModalControl/Panel/VBox"]
 layout_mode = 2

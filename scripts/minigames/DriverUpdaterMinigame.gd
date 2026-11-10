@@ -162,11 +162,16 @@ func _build_packages_list(data: Dictionary) -> void:
 		packages_vbox.add_child(lbl)
 		return
 		
+	var correct_idx = -1
 	for i in range(data["packages"].size()):
 		var pkg = data["packages"][i]
 		var btn = Button.new()
 		btn.custom_minimum_size = Vector2(0, 36)
-		btn.text = " 📦 %s" % pkg["name"]
+		if pkg["is_correct"]:
+			btn.text = " 📦 [✓ RECOMENDADO WHQL] %s" % pkg["name"]
+			correct_idx = i
+		else:
+			btn.text = " 📦 %s" % pkg["name"]
 		btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		btn.add_theme_font_size_override("font_size", 10)
 		btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
@@ -175,6 +180,9 @@ func _build_packages_list(data: Dictionary) -> void:
 		btn.pressed.connect(func(): _select_package(p_idx))
 		packages_vbox.add_child(btn)
 		package_buttons.append(btn)
+		
+	if correct_idx != -1:
+		_select_package(correct_idx)
 
 func _select_package(p_idx: int) -> void:
 	if is_installing:
@@ -222,11 +230,22 @@ func _on_apply_update_pressed() -> void:
 	
 	_show_toast("✓ ¡Instalación exitosa! %s" % pkg_data["reason"])
 	_style_device_button(device_buttons[selected_device_idx], dev_data)
-	_select_device(selected_device_idx)
 	_update_metrics()
 	
 	if updated_devices_count >= DEVICES_DATA.size():
+		_select_device(selected_device_idx)
 		_on_all_devices_updated()
+	else:
+		var next_idx = -1
+		for i in range(DEVICES_DATA.size()):
+			if not DEVICES_DATA[i]["is_updated"]:
+				next_idx = i
+				break
+		if next_idx != -1:
+			await get_tree().create_timer(0.4).timeout
+			_select_device(next_idx)
+		else:
+			_select_device(selected_device_idx)
 
 func _on_all_devices_updated() -> void:
 	if is_completed:

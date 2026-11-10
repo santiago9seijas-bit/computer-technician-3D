@@ -1,4 +1,4 @@
-[gd_scene format=3 load_steps=19]
+[gd_scene format=3 load_steps=20]
 
 [ext_resource type="Script" path="res://scripts/gameplay/LevelServer1.gd" id="1_srvlvl"]
 [ext_resource type="PackedScene" path="res://scenes/player/Player.tscn" id="2_player"]
@@ -8,6 +8,8 @@
 [ext_resource type="PackedScene" uid="uid://b2h1pmid7pek2" path="res://modelos_3d/escenario_3d/torre de servidor.glb" id="6_torre"]
 [ext_resource type="PackedScene" path="res://scenes/components/SparesBox.tscn" id="7_spares"]
 [ext_resource type="PackedScene" uid="uid://cidts6etijohr" path="res://modelos_3d/escenario_3d/piso.glb" id="8_piso"]
+[ext_resource type="PackedScene" path="res://scenes/components/WallDispenser.tscn" id="9_disp"]
+[ext_resource type="PackedScene" path="res://scenes/components/TrashBin.tscn" id="10_trash"]
 
 [sub_resource type="Environment" id="Environment_srv"]
 background_mode = 1
@@ -113,13 +115,49 @@ light_color = Color(0, 0.9, 1, 1)
 light_energy = 1.6
 omni_range = 8.0
 
+[node name="SparesLight" type="OmniLight3D" parent="Room"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.8, 3.2)
+light_color = Color(0.2, 0.9, 1, 1)
+light_energy = 2.0
+omni_range = 6.0
+
 [node name="ServerRackCase" parent="." instance=ExtResource("5_rack")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.0, -2.5)
 server_id = 1
 
+[node name="TrashBin" parent="." instance=ExtResource("10_trash")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5, 0.0, 3.2)
+
+[node name="SparesMOBO" parent="." instance=ExtResource("7_spares")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.5, 0.1, 3.2)
+spare_type = "Placa Madre"
+
+[node name="SparesRAM" parent="." instance=ExtResource("7_spares")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.5, 0.1, 3.2)
+spare_type = "RAM"
+
+[node name="SparesHDD" parent="." instance=ExtResource("7_spares")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, 0.1, 3.2)
+spare_type = "Disco Duro"
+
 [node name="SparesLiquid" parent="." instance=ExtResource("7_spares")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.8, 0.1, -0.8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 0.1, 3.2)
 spare_type = "Refrigeracion Liquida"
+
+[node name="SparesCPU" parent="." instance=ExtResource("7_spares")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 0.1, 3.2)
+spare_type = "CPU"
+
+[node name="SparesCooler" parent="." instance=ExtResource("7_spares")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5, 0.1, 3.2)
+spare_type = "Fan Cooler"
+
+[node name="SparesGPU" parent="." instance=ExtResource("7_spares")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, 0.1, 3.2)
+spare_type = "Grafica"
+
+[node name="WallDispenser" parent="." instance=ExtResource("9_disp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.5, 1.2, 3.2)
 
 [node name="Player" parent="." instance=ExtResource("2_player")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 1.2)

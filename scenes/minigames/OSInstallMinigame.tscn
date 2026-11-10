@@ -77,15 +77,16 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -480.0
+offset_left = -550.0
 offset_top = -290.0
-offset_right = 480.0
+offset_right = 550.0
 offset_bottom = 290.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxEmpty_frame")
 
 [node name="CyberBackgroundFrame" parent="ModalControl/Panel" instance=ExtResource("5_bg_frame")]
+modulate = Color(0.09, 0.58, 0.82, 1)
 layout_mode = 2
 
 [node name="VBox" type="VBoxContainer" parent="ModalControl/Panel"]
@@ -122,11 +123,17 @@ theme_override_font_sizes/font_size = 11
 text = "Selecciona el esquema de partición para la unidad NVMe SSD de 512 GB."
 horizontal_alignment = 1
 
-[node name="WorkArea" type="Control" parent="ModalControl/Panel/VBox"]
+[node name="ContentHBox" type="HBoxContainer" parent="ModalControl/Panel/VBox"]
 layout_mode = 2
 size_flags_vertical = 3
+theme_override_constants/separation = 14
 
-[node name="Step1_PartitionTable" type="Control" parent="ModalControl/Panel/VBox/WorkArea"]
+[node name="WorkArea" type="Control" parent="ModalControl/Panel/VBox/ContentHBox"]
+custom_minimum_size = Vector2(740, 360)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Step1_PartitionTable" type="Control" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -134,7 +141,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="HBox" type="HBoxContainer" parent="ModalControl/Panel/VBox/WorkArea/Step1_PartitionTable"]
+[node name="HBox" type="HBoxContainer" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/Step1_PartitionTable"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -150,7 +157,7 @@ grow_vertical = 2
 theme_override_constants/separation = 28
 alignment = 1
 
-[node name="BtnMBR" type="Button" parent="ModalControl/Panel/VBox/WorkArea/Step1_PartitionTable/HBox"]
+[node name="BtnMBR" type="Button" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/Step1_PartitionTable/HBox"]
 custom_minimum_size = Vector2(340, 180)
 layout_mode = 2
 text = "🔴 ESQUEMA MBR (LEGACY)
@@ -163,7 +170,7 @@ flat = true
 script = ExtResource("2_cbtn")
 slant = 14.0
 
-[node name="BtnGPT" type="Button" parent="ModalControl/Panel/VBox/WorkArea/Step1_PartitionTable/HBox"]
+[node name="BtnGPT" type="Button" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/Step1_PartitionTable/HBox"]
 custom_minimum_size = Vector2(340, 180)
 layout_mode = 2
 text = "🟢 ESQUEMA GPT (RECOMENDADO)
@@ -176,7 +183,7 @@ flat = true
 script = ExtResource("2_cbtn")
 slant = 14.0
 
-[node name="Step2_Partitions" type="Control" parent="ModalControl/Panel/VBox/WorkArea"]
+[node name="Step2_Partitions" type="Control" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea"]
 visible = false
 layout_mode = 1
 anchors_preset = 15
@@ -185,7 +192,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/WorkArea/Step2_Partitions"]
+[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/Step2_Partitions"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -194,13 +201,13 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 16
 
-[node name="DiskInfo" type="Label" parent="ModalControl/Panel/VBox/WorkArea/Step2_Partitions/VBox"]
+[node name="DiskInfo" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/Step2_Partitions/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.8, 0.9, 1.0, 1)
 theme_override_font_sizes/font_size = 12
 text = "UNIDAD SELECCIONADA: /dev/nvme0n1 (Samsung 980 NVMe SSD - 512 GB) [GPT]"
 
-[node name="DiskBarContainer" type="PanelContainer" parent="ModalControl/Panel/VBox/WorkArea/Step2_Partitions"]
+[node name="DiskBarContainer" type="PanelContainer" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/Step2_Partitions"]
 layout_mode = 0
 offset_left = 20.0
 offset_top = 40.0
@@ -208,11 +215,11 @@ offset_right = 896.0
 offset_bottom = 110.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_disk_container")
 
-[node name="DiskVisualBar" type="HBoxContainer" parent="ModalControl/Panel/VBox/WorkArea/Step2_Partitions/DiskBarContainer"]
+[node name="DiskVisualBar" type="HBoxContainer" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/Step2_Partitions/DiskBarContainer"]
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="ButtonsHBox" type="HBoxContainer" parent="ModalControl/Panel/VBox/WorkArea/Step2_Partitions"]
+[node name="ButtonsHBox" type="HBoxContainer" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/Step2_Partitions"]
 layout_mode = 0
 offset_left = 20.0
 offset_top = 135.0
@@ -221,7 +228,7 @@ offset_bottom = 185.0
 theme_override_constants/separation = 14
 alignment = 1
 
-[node name="BtnAddEFI" type="Button" parent="ModalControl/Panel/VBox/WorkArea/Step2_Partitions/ButtonsHBox"]
+[node name="BtnAddEFI" type="Button" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/Step2_Partitions/ButtonsHBox"]
 custom_minimum_size = Vector2(240, 42)
 layout_mode = 2
 text = "+ CREAR PARTICIÓN EFI (512 MB)"
@@ -229,7 +236,7 @@ flat = true
 script = ExtResource("2_cbtn")
 slant = 12.0
 
-[node name="BtnAddRoot" type="Button" parent="ModalControl/Panel/VBox/WorkArea/Step2_Partitions/ButtonsHBox"]
+[node name="BtnAddRoot" type="Button" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/Step2_Partitions/ButtonsHBox"]
 custom_minimum_size = Vector2(240, 42)
 layout_mode = 2
 text = "+ CREAR PARTICIÓN RAÍZ / (480 GB)"
@@ -237,7 +244,7 @@ flat = true
 script = ExtResource("2_cbtn")
 slant = 12.0
 
-[node name="BtnAddSwap" type="Button" parent="ModalControl/Panel/VBox/WorkArea/Step2_Partitions/ButtonsHBox"]
+[node name="BtnAddSwap" type="Button" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/Step2_Partitions/ButtonsHBox"]
 custom_minimum_size = Vector2(240, 42)
 layout_mode = 2
 text = "+ CREAR ÁREA SWAP (16 GB)"
@@ -245,7 +252,7 @@ flat = true
 script = ExtResource("2_cbtn")
 slant = 12.0
 
-[node name="BtnNextToInstall" type="Button" parent="ModalControl/Panel/VBox/WorkArea/Step2_Partitions"]
+[node name="BtnNextToInstall" type="Button" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/Step2_Partitions"]
 custom_minimum_size = Vector2(320, 42)
 layout_mode = 0
 offset_left = 290.0
@@ -257,7 +264,7 @@ flat = true
 script = ExtResource("2_cbtn")
 slant = 14.0
 
-[node name="Step3_Deployment" type="Control" parent="ModalControl/Panel/VBox/WorkArea"]
+[node name="Step3_Deployment" type="Control" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea"]
 visible = false
 layout_mode = 1
 anchors_preset = 15
@@ -266,7 +273,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="ProgressBar" type="ProgressBar" parent="ModalControl/Panel/VBox/WorkArea/Step3_Deployment"]
+[node name="ProgressBar" type="ProgressBar" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/Step3_Deployment"]
 custom_minimum_size = Vector2(0, 18)
 layout_mode = 0
 offset_left = 20.0
@@ -275,7 +282,7 @@ offset_right = 896.0
 offset_bottom = 28.0
 step = 1.0
 
-[node name="LogConsole" type="Label" parent="ModalControl/Panel/VBox/WorkArea/Step3_Deployment"]
+[node name="LogConsole" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/Step3_Deployment"]
 layout_mode = 0
 offset_left = 20.0
 offset_top = 40.0
@@ -286,19 +293,19 @@ theme_override_font_sizes/font_size = 11
 theme_override_styles/normal = SubResource("StyleBoxFlat_terminal")
 text = "Terminal de instalación preparada. Presiona el botón para iniciar."
 
-[node name="BtnStartInstall" type="Button" parent="ModalControl/Panel/VBox/WorkArea/Step3_Deployment"]
+[node name="BtnStartInstall" type="Button" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/Step3_Deployment"]
 custom_minimum_size = Vector2(360, 42)
 layout_mode = 0
 offset_left = 270.0
 offset_top = 245.0
 offset_right = 630.0
 offset_bottom = 287.0
-text = "🚀 INICIAR DESPLIEGUE DE CYBER-OS"
+text = "🚀 INICIAR DESPLIEGUE DE ANDROMEDA-OS"
 flat = true
 script = ExtResource("2_cbtn")
 slant = 14.0
 
-[node name="VictoryBanner" type="PanelContainer" parent="ModalControl/Panel/VBox/WorkArea/Step3_Deployment"]
+[node name="VictoryBanner" type="PanelContainer" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/Step3_Deployment"]
 visible = false
 layout_mode = 0
 offset_left = 240.0
@@ -307,12 +314,12 @@ offset_right = 660.0
 offset_bottom = 180.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_victory")
 
-[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/WorkArea/Step3_Deployment/VictoryBanner"]
+[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/Step3_Deployment/VictoryBanner"]
 layout_mode = 2
 theme_override_constants/separation = 6
 alignment = 1
 
-[node name="Title" type="Label" parent="ModalControl/Panel/VBox/WorkArea/Step3_Deployment/VictoryBanner/VBox"]
+[node name="Title" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/Step3_Deployment/VictoryBanner/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 1.0, 0.5, 1)
 theme_override_fonts/font = ExtResource("4_title_font")
@@ -320,12 +327,112 @@ theme_override_font_sizes/font_size = 15
 text = "✓ ¡SISTEMA OPERATIVO INSTALADO!"
 horizontal_alignment = 1
 
-[node name="Desc" type="Label" parent="ModalControl/Panel/VBox/WorkArea/Step3_Deployment/VictoryBanner/VBox"]
+[node name="Desc" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/Step3_Deployment/VictoryBanner/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9, 0.95, 1, 1)
 theme_override_font_sizes/font_size = 11
 text = "La partición EFI y el kernel fueron configurados.\nPrimer booteo listo sin dependencias rotas."
 horizontal_alignment = 1
+
+[node name="RightGuidePanel" type="PanelContainer" parent="ModalControl/Panel/VBox/ContentHBox"]
+custom_minimum_size = Vector2(310, 360)
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/ContentHBox/RightGuidePanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 10
+
+[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/ContentHBox/RightGuidePanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/RightGuidePanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.08, 0.45, 1)
+theme_override_font_sizes/font_size = 14
+text = "GUÍA PASO A PASO"
+horizontal_alignment = 1
+
+[node name="Step1Box" type="VBoxContainer" parent="ModalControl/Panel/VBox/ContentHBox/RightGuidePanel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="Header" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/RightGuidePanel/Margin/VBox/Step1Box"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.1, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 11
+text = "1. TABLA DE PARTICIONES"
+
+[node name="Desc" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/RightGuidePanel/Margin/VBox/Step1Box"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.9, 0.95, 0.85)
+theme_override_font_sizes/font_size = 10
+text = "• GPT: Estándar moderno UEFI (Recomendado).
+• MBR: BIOS Legacy antiguo (máx 2 TB)."
+autowrap_mode = 2
+
+[node name="Status" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/RightGuidePanel/Margin/VBox/Step1Box"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 10
+text = "➔ EN CURSO"
+
+[node name="HSep1" type="HSeparator" parent="ModalControl/Panel/VBox/ContentHBox/RightGuidePanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="Step2Box" type="VBoxContainer" parent="ModalControl/Panel/VBox/ContentHBox/RightGuidePanel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="Header" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/RightGuidePanel/Margin/VBox/Step2Box"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.1, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 11
+text = "2. ASIGNAR PARTICIONES"
+
+[node name="Desc" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/RightGuidePanel/Margin/VBox/Step2Box"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.9, 0.95, 0.85)
+theme_override_font_sizes/font_size = 10
+text = "• EFI (512 MB): Arranque UEFI obligatorio.
+• Raíz / (480 GB): Archivos del sistema.
+• Swap (16 GB): Memoria virtual de apoyo."
+autowrap_mode = 2
+
+[node name="Status" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/RightGuidePanel/Margin/VBox/Step2Box"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.65, 0.7, 0.7)
+theme_override_font_sizes/font_size = 10
+text = "🔒 PENDIENTE"
+
+[node name="HSep2" type="HSeparator" parent="ModalControl/Panel/VBox/ContentHBox/RightGuidePanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="Step3Box" type="VBoxContainer" parent="ModalControl/Panel/VBox/ContentHBox/RightGuidePanel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="Header" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/RightGuidePanel/Margin/VBox/Step3Box"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.1, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 11
+text = "3. INSTALAR ANDROMEDA-OS"
+
+[node name="Desc" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/RightGuidePanel/Margin/VBox/Step3Box"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.9, 0.95, 0.85)
+theme_override_font_sizes/font_size = 10
+text = "• Presiona 'Instalar Sistema Operativo' para desempaquetar paquetes y configurar GRUB."
+autowrap_mode = 2
+
+[node name="Status" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/RightGuidePanel/Margin/VBox/Step3Box"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.65, 0.7, 0.7)
+theme_override_font_sizes/font_size = 10
+text = "🔒 PENDIENTE"
 
 [node name="ToastLabel" type="Label" parent="ModalControl/Panel/VBox"]
 visible = false

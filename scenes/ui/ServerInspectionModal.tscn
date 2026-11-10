@@ -1,16 +1,79 @@
-[gd_scene format=3 load_steps=7]
+[gd_scene format=3 load_steps=12]
 
 [ext_resource type="Script" path="res://scripts/ui/ServerInspectionModal.gd" id="1_server_modal"]
 [ext_resource type="Script" path="res://scripts/menus/CyberButton.gd" id="2_cbtn"]
 [ext_resource type="Theme" path="res://styles/cyberpunk_theme.tres" id="3_theme"]
 [ext_resource type="FontFile" uid="uid://dbcug8887dro7" path="res://assets/fonts/Bungee-Regular.ttf" id="4_title_font"]
 [ext_resource type="PackedScene" path="res://scenes/ui/CyberBackgroundFrame.tscn" id="5_bg_frame"]
+[ext_resource type="Script" path="res://scripts/ui/ServerDatacenterBackground.gd" id="6_server_bg"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_frame"]
-content_margin_left = 24.0
-content_margin_top = 20.0
-content_margin_right = 24.0
-content_margin_bottom = 20.0
+content_margin_left = 18.0
+content_margin_top = 14.0
+content_margin_right = 18.0
+content_margin_bottom = 14.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tier_card"]
+bg_color = Color(0.06, 0.04, 0.02, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.55, 0.1, 0.8)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_blue_card"]
+bg_color = Color(0.02, 0.05, 0.1, 0.96)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.09, 0.58, 0.82, 0.85)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tab_active_orange"]
+bg_color = Color(0.18, 0.09, 0.02, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.6, 0.1, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tab_active_blue"]
+bg_color = Color(0.04, 0.12, 0.22, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.1, 0.85, 1, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_liquid_cooling"]
+bg_color = Color(0.02, 0.07, 0.16, 0.98)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.05, 0.95, 1, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+shadow_color = Color(0, 0.8, 1, 0.45)
+shadow_size = 18
 
 [node name="ServerInspectionModal" type="CanvasLayer"]
 layer = 10
@@ -32,232 +95,599 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.01, 0.03, 0.07, 0.94)
+color = Color(0.01, 0.02, 0.04, 0.94)
 
 [node name="Panel" type="PanelContainer" parent="ModalControl"]
-custom_minimum_size = Vector2(1100, 680)
+custom_minimum_size = Vector2(1180, 710)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -550.0
-offset_top = -340.0
-offset_right = 550.0
-offset_bottom = 340.0
+offset_left = -590.0
+offset_top = -355.0
+offset_right = 590.0
+offset_bottom = 355.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxEmpty_frame")
 
 [node name="CyberBackgroundFrame" parent="ModalControl/Panel" instance=ExtResource("5_bg_frame")]
+modulate = Color(1, 0.55, 0.1, 1)
 layout_mode = 2
+
+[node name="ServerDatacenterBackground" type="Control" parent="ModalControl/Panel"]
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("6_server_bg")
 
 [node name="VBox" type="VBoxContainer" parent="ModalControl/Panel"]
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 6
 
 [node name="Header" type="VBoxContainer" parent="ModalControl/Panel/VBox"]
 layout_mode = 2
-theme_override_constants/separation = 4
+theme_override_constants/separation = 2
 
 [node name="TitleLabel" type="Label" parent="ModalControl/Panel/VBox/Header"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.15, 0.4, 1)
+theme_override_colors/font_color = Color(1, 0.65, 0.2, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 8
-theme_override_colors/font_shadow_color = Color(0.85, 0.05, 0.25, 0.85)
-theme_override_constants/shadow_outline_size = 8
+theme_override_constants/outline_size = 6
 theme_override_fonts/font = ExtResource("4_title_font")
-theme_override_font_sizes/font_size = 18
-text = "TORRE DE SERVIDOR // RACK EMPRESARIAL #1 (ÁREA DE SERVIDORES)"
+theme_override_font_sizes/font_size = 17
+text = "TORRE DE SERVIDOR // RACK EMPRESARIAL 19 PULGADAS (DATACENTER)"
 horizontal_alignment = 1
 
 [node name="StatusSummary" type="Label" parent="ModalControl/Panel/VBox/Header"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
-theme_override_font_sizes/font_size = 12
-text = "MONTAJE DE SUBSISTEMAS: Solo colocación e inserción de componentes nuevos (3 Discos SAS y 3 Bancos RAM)."
+theme_override_colors/font_color = Color(1, 0.85, 0.6, 1)
+theme_override_font_sizes/font_size = 11
+text = "MONTAJE DE SUBSISTEMAS: Colocación de componentes nuevos en las bahías del bastidor rack."
 horizontal_alignment = 1
 
 [node name="BadgeLabel" type="Label" parent="ModalControl/Panel/VBox/Header"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.2, 1, 0.5, 1)
-theme_override_font_sizes/font_size = 12
-text = "ESTADO: EN MONTAJE TÉCNICO (0/9 COMPLETADAS)"
+theme_override_colors/font_color = Color(1, 0.55, 0.1, 1)
+theme_override_font_sizes/font_size = 11
+text = "ESTADO: EN MONTAJE TÉCNICO (0/6 COMPONENTES)"
 horizontal_alignment = 1
+
+[node name="TabsHBox" type="HBoxContainer" parent="ModalControl/Panel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="BtnTabHardware" type="Button" parent="ModalControl/Panel/VBox/TabsHBox"]
+custom_minimum_size = Vector2(340, 36)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.75, 0.2, 1)
+theme_override_font_sizes/font_size = 12
+text = "🛠️ ENSAMBLE DE HARDWARE (RACK)"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 10.0
+
+[node name="BtnTabSystems" type="Button" parent="ModalControl/Panel/VBox/TabsHBox"]
+custom_minimum_size = Vector2(340, 36)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.85, 1, 1)
+theme_override_font_sizes/font_size = 12
+text = "󰣇 SISTEMAS ANDROMEDA LINUX [🔒]"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 10.0
 
 [node name="Divider" type="ColorRect" parent="ModalControl/Panel/VBox"]
 custom_minimum_size = Vector2(0, 2)
 layout_mode = 2
-color = Color(1, 0.15, 0.4, 0.45)
+color = Color(1, 0.55, 0.1, 0.45)
 
-[node name="GridContainer" type="GridContainer" parent="ModalControl/Panel/VBox"]
+[node name="HardwareContainer" type="VBoxContainer" parent="ModalControl/Panel/VBox"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/h_separation = 12
-theme_override_constants/v_separation = 8
-columns = 3
+theme_override_constants/separation = 6
 
-[node name="BtnLvl1" type="Button" parent="ModalControl/Panel/VBox/GridContainer"]
-custom_minimum_size = Vector2(320, 80)
+[node name="Tier1_Header" type="Label" parent="ModalControl/Panel/VBox/HardwareContainer"]
 layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_font_sizes/font_size = 11
-text = "⚡ BASTIDORES & RIELES 2U
-[MONTAJE CHASIS 19\" EN RACK]"
-script = ExtResource("2_cbtn")
-slant = 10.0
-
-[node name="BtnLvl2" type="Button" parent="ModalControl/Panel/VBox/GridContainer"]
-custom_minimum_size = Vector2(320, 80)
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_font_sizes/font_size = 11
-text = "⚡ FUENTES 1+1 HOT-SWAP
-[INSTALAR FUENTE 1200W PLATINUM]"
-script = ExtResource("2_cbtn")
-slant = 10.0
-
-[node name="BtnLvl3" type="Button" parent="ModalControl/Panel/VBox/GridContainer"]
-custom_minimum_size = Vector2(320, 80)
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_font_sizes/font_size = 11
-text = "⚡ CADDIES SAS & RAID (3 DISCOS)
-[MONTAR 3 DISCOS SAS EN CALIENTE]"
-script = ExtResource("2_cbtn")
-slant = 10.0
-
-[node name="BtnLvl4" type="Button" parent="ModalControl/Panel/VBox/GridContainer"]
-custom_minimum_size = Vector2(320, 80)
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_font_sizes/font_size = 11
-text = "⚡ FAN WALL DE TURBINAS
-[INSTALAR MÓDULO EN TÚNEL DE AIRE]"
-script = ExtResource("2_cbtn")
-slant = 10.0
-
-[node name="BtnLvl5" type="Button" parent="ModalControl/Panel/VBox/GridContainer"]
-custom_minimum_size = Vector2(320, 80)
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_font_sizes/font_size = 11
-text = "⚡ LOOP LÍQUIDO RACK
-[INSTALAR TUBOS & REFRIGERANTE]"
-script = ExtResource("2_cbtn")
-slant = 10.0
-
-[node name="BtnLvl6" type="Button" parent="ModalControl/Panel/VBox/GridContainer"]
-custom_minimum_size = Vector2(320, 80)
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_font_sizes/font_size = 11
-text = "⚡ BANCOS RAM ECC (3 MÓDULOS)
-[COLOCAR 3 BANCOS RAM DDR5]"
-script = ExtResource("2_cbtn")
-slant = 10.0
-
-[node name="BtnLvl7" type="Button" parent="ModalControl/Panel/VBox/GridContainer"]
-custom_minimum_size = Vector2(320, 80)
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_font_sizes/font_size = 11
-text = "⚡ DUAL CPU ENTERPRISE
-[COLOCAR CPU EN SOCKET INDUSTRIAL]"
-script = ExtResource("2_cbtn")
-slant = 10.0
-
-[node name="BtnLvl8" type="Button" parent="ModalControl/Panel/VBox/GridContainer"]
-custom_minimum_size = Vector2(320, 80)
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_font_sizes/font_size = 11
-text = "⚡ RISER PCIE / SMARTNIC
-[INSTALAR TARJETA DE RED 100GBE]"
-script = ExtResource("2_cbtn")
-slant = 10.0
-
-[node name="BtnLvl9" type="Button" parent="ModalControl/Panel/VBox/GridContainer"]
-custom_minimum_size = Vector2(320, 80)
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_font_sizes/font_size = 11
-text = "⚡ TERMINAL & SCRIPTING
-[DEPURAR SCRIPTS DE RED Y FIREWALL]"
-script = ExtResource("2_cbtn")
-slant = 10.0
-
-[node name="FeedbackLabel" type="Label" parent="ModalControl/Panel/VBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.2, 1, 0.4, 1)
-theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(1, 0.75, 0.4, 0.9)
+theme_override_font_sizes/font_size = 9
+text = "─── BANDEJA SUPERIOR: RED & ACELERACIÓN PCIE (1U) ───"
 horizontal_alignment = 1
 
-[node name="BackpackSection" type="VBoxContainer" parent="ModalControl/Panel/VBox"]
+[node name="Tier1_HBox" type="HBoxContainer" parent="ModalControl/Panel/VBox/HardwareContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="CardGPU" type="PanelContainer" parent="ModalControl/Panel/VBox/HardwareContainer/Tier1_HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_tier_card")
+
+[node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/HardwareContainer/Tier1_HBox/CardGPU"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 4
+
+[node name="HBox" type="HBoxContainer" parent="ModalControl/Panel/VBox/HardwareContainer/Tier1_HBox/CardGPU/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/HardwareContainer/Tier1_HBox/CardGPU/Margin/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+
+[node name="Title" type="Label" parent="ModalControl/Panel/VBox/HardwareContainer/Tier1_HBox/CardGPU/Margin/HBox/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.75, 0.2, 1)
+theme_override_font_sizes/font_size = 11
+text = "🌐 [U6] RISER PCIE / ACELERADOR GPU"
+
+[node name="Sub" type="Label" parent="ModalControl/Panel/VBox/HardwareContainer/Tier1_HBox/CardGPU/Margin/HBox/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.85, 0.8, 0.8)
+theme_override_font_sizes/font_size = 9
+text = "Acelerador Gráfico y Cómputo de Red"
+
+[node name="BtnGPU" type="Button" parent="ModalControl/Panel/VBox/HardwareContainer/Tier1_HBox/CardGPU/Margin/HBox"]
+custom_minimum_size = Vector2(160, 32)
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "MONTAR"
+script = ExtResource("2_cbtn")
+slant = 5.0
+
+[node name="Tier2_Header" type="Label" parent="ModalControl/Panel/VBox/HardwareContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.75, 0.4, 0.9)
+theme_override_font_sizes/font_size = 9
+text = "─── BANDEJA MEDIA: CÓMPUTO DUAL & REFRIGERACIÓN (2U) ───"
+horizontal_alignment = 1
+
+[node name="Tier2_HBox" type="HBoxContainer" parent="ModalControl/Panel/VBox/HardwareContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="CardCPU" type="PanelContainer" parent="ModalControl/Panel/VBox/HardwareContainer/Tier2_HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_tier_card")
+
+[node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/HardwareContainer/Tier2_HBox/CardCPU"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 4
+
+[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/HardwareContainer/Tier2_HBox/CardCPU/Margin"]
 layout_mode = 2
 theme_override_constants/separation = 4
+alignment = 1
 
-[node name="BackpackTitle" type="Label" parent="ModalControl/Panel/VBox/BackpackSection"]
+[node name="Title" type="Label" parent="ModalControl/Panel/VBox/HardwareContainer/Tier2_HBox/CardCPU/Margin/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0, 0.95, 1, 1)
+theme_override_colors/font_color = Color(1, 0.75, 0.2, 1)
 theme_override_font_sizes/font_size = 11
-text = "🎒 MOCHILA TÉCNICA · Arrastra el Kit de Refrigeración Líquida sobre el cuadro vacío para montar:"
+text = "⚙️ [U4] DUAL CPU ENTERPRISE"
+
+[node name="Sub" type="Label" parent="ModalControl/Panel/VBox/HardwareContainer/Tier2_HBox/CardCPU/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.85, 0.8, 0.8)
+theme_override_font_sizes/font_size = 9
+text = "2x Procesadores Xeon / Epyc"
+
+[node name="BtnCPU" type="Button" parent="ModalControl/Panel/VBox/HardwareContainer/Tier2_HBox/CardCPU/Margin/VBox"]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "MONTAR"
+script = ExtResource("2_cbtn")
+slant = 5.0
+
+[node name="CardRAM" type="PanelContainer" parent="ModalControl/Panel/VBox/HardwareContainer/Tier2_HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_tier_card")
+
+[node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/HardwareContainer/Tier2_HBox/CardRAM"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 4
+
+[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/HardwareContainer/Tier2_HBox/CardRAM/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 4
+alignment = 1
+
+[node name="Title" type="Label" parent="ModalControl/Panel/VBox/HardwareContainer/Tier2_HBox/CardRAM/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.75, 0.2, 1)
+theme_override_font_sizes/font_size = 11
+text = "🧠 [U2] BANCOS RAM ECC (3x)"
+
+[node name="Sub" type="Label" parent="ModalControl/Panel/VBox/HardwareContainer/Tier2_HBox/CardRAM/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.85, 0.8, 0.8)
+theme_override_font_sizes/font_size = 9
+text = "3x Módulos DDR5 Reg ECC"
+
+[node name="BtnRAM" type="Button" parent="ModalControl/Panel/VBox/HardwareContainer/Tier2_HBox/CardRAM/Margin/VBox"]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "MONTAR"
+script = ExtResource("2_cbtn")
+slant = 5.0
+
+[node name="CardCooler" type="PanelContainer" parent="ModalControl/Panel/VBox/HardwareContainer/Tier2_HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_tier_card")
+
+[node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/HardwareContainer/Tier2_HBox/CardCooler"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 4
+
+[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/HardwareContainer/Tier2_HBox/CardCooler/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 4
+alignment = 1
+
+[node name="Title" type="Label" parent="ModalControl/Panel/VBox/HardwareContainer/Tier2_HBox/CardCooler/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.75, 0.2, 1)
+theme_override_font_sizes/font_size = 11
+text = "💨 [U5] FAN WALL DE TURBINAS"
+
+[node name="Sub" type="Label" parent="ModalControl/Panel/VBox/HardwareContainer/Tier2_HBox/CardCooler/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.85, 0.8, 0.8)
+theme_override_font_sizes/font_size = 9
+text = "6x Turbinas PWM Redundantes"
+
+[node name="BtnCooler" type="Button" parent="ModalControl/Panel/VBox/HardwareContainer/Tier2_HBox/CardCooler/Margin/VBox"]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "MONTAR"
+script = ExtResource("2_cbtn")
+slant = 5.0
+
+[node name="Tier3_Header" type="Label" parent="ModalControl/Panel/VBox/HardwareContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.75, 0.4, 0.9)
+theme_override_font_sizes/font_size = 9
+text = "─── BANDEJA INFERIOR: ALMACENAMIENTO & BASE PRINCIPAL (2U) ───"
 horizontal_alignment = 1
 
-[node name="BackpackSlots" type="HBoxContainer" parent="ModalControl/Panel/VBox/BackpackSection"]
-custom_minimum_size = Vector2(0, 42)
+[node name="Tier3_HBox" type="HBoxContainer" parent="ModalControl/Panel/VBox/HardwareContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="CardSSD" type="PanelContainer" parent="ModalControl/Panel/VBox/HardwareContainer/Tier3_HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_tier_card")
+
+[node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/HardwareContainer/Tier3_HBox/CardSSD"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 4
+
+[node name="HBox" type="HBoxContainer" parent="ModalControl/Panel/VBox/HardwareContainer/Tier3_HBox/CardSSD/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/HardwareContainer/Tier3_HBox/CardSSD/Margin/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+
+[node name="Title" type="Label" parent="ModalControl/Panel/VBox/HardwareContainer/Tier3_HBox/CardSSD/Margin/HBox/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.75, 0.2, 1)
+theme_override_font_sizes/font_size = 11
+text = "💾 [U3] CADDIES SSD RAID (3x)"
+
+[node name="Sub" type="Label" parent="ModalControl/Panel/VBox/HardwareContainer/Tier3_HBox/CardSSD/Margin/HBox/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.85, 0.8, 0.8)
+theme_override_font_sizes/font_size = 9
+text = "3x Discos NVMe / SAS RAID"
+
+[node name="BtnSSD" type="Button" parent="ModalControl/Panel/VBox/HardwareContainer/Tier3_HBox/CardSSD/Margin/HBox"]
+custom_minimum_size = Vector2(160, 32)
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "MONTAR"
+script = ExtResource("2_cbtn")
+slant = 5.0
+
+[node name="CardMobo" type="PanelContainer" parent="ModalControl/Panel/VBox/HardwareContainer/Tier3_HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_tier_card")
+
+[node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/HardwareContainer/Tier3_HBox/CardMobo"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 4
+
+[node name="HBox" type="HBoxContainer" parent="ModalControl/Panel/VBox/HardwareContainer/Tier3_HBox/CardMobo/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/HardwareContainer/Tier3_HBox/CardMobo/Margin/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+
+[node name="Title" type="Label" parent="ModalControl/Panel/VBox/HardwareContainer/Tier3_HBox/CardMobo/Margin/HBox/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.75, 0.2, 1)
+theme_override_font_sizes/font_size = 11
+text = "🗄️ [U1] PLACA MADRE // TRAY Y RIELES (BASE)"
+
+[node name="Sub" type="Label" parent="ModalControl/Panel/VBox/HardwareContainer/Tier3_HBox/CardMobo/Margin/HBox/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.85, 0.8, 0.8)
+theme_override_font_sizes/font_size = 9
+text = "Bandeja principal · ¡Requerida primero para desbloquear los demás!"
+
+[node name="BtnMobo" type="Button" parent="ModalControl/Panel/VBox/HardwareContainer/Tier3_HBox/CardMobo/Margin/HBox"]
+custom_minimum_size = Vector2(160, 32)
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "MONTAR PLACA"
+script = ExtResource("2_cbtn")
+slant = 5.0
+
+[node name="BackpackSection" type="VBoxContainer" parent="ModalControl/Panel/VBox/HardwareContainer"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="Label" type="Label" parent="ModalControl/Panel/VBox/HardwareContainer/BackpackSection"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.75, 0.3, 0.9)
+theme_override_font_sizes/font_size = 10
+text = "🎒 MOCHILA TÉCNICA · REPUESTOS EN INVENTARIO:"
+horizontal_alignment = 1
+
+[node name="BackpackSlots" type="HBoxContainer" parent="ModalControl/Panel/VBox/HardwareContainer/BackpackSection"]
 layout_mode = 2
 theme_override_constants/separation = 12
 alignment = 1
 
-[node name="Slot0" type="Button" parent="ModalControl/Panel/VBox/BackpackSection/BackpackSlots"]
-custom_minimum_size = Vector2(240, 40)
+[node name="Slot0" type="Button" parent="ModalControl/Panel/VBox/HardwareContainer/BackpackSection/BackpackSlots"]
+custom_minimum_size = Vector2(200, 28)
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 10
 text = "[ VACÍO ]"
 flat = true
 script = ExtResource("2_cbtn")
-slant = 8.0
+slant = 6.0
 
-[node name="Slot1" type="Button" parent="ModalControl/Panel/VBox/BackpackSection/BackpackSlots"]
-custom_minimum_size = Vector2(240, 40)
+[node name="Slot1" type="Button" parent="ModalControl/Panel/VBox/HardwareContainer/BackpackSection/BackpackSlots"]
+custom_minimum_size = Vector2(200, 28)
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 10
 text = "[ VACÍO ]"
 flat = true
 script = ExtResource("2_cbtn")
-slant = 8.0
+slant = 6.0
 
-[node name="Slot2" type="Button" parent="ModalControl/Panel/VBox/BackpackSection/BackpackSlots"]
-custom_minimum_size = Vector2(240, 40)
+[node name="Slot2" type="Button" parent="ModalControl/Panel/VBox/HardwareContainer/BackpackSection/BackpackSlots"]
+custom_minimum_size = Vector2(200, 28)
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 10
 text = "[ VACÍO ]"
 flat = true
 script = ExtResource("2_cbtn")
-slant = 8.0
+slant = 6.0
+
+[node name="SystemsContainer" type="VBoxContainer" parent="ModalControl/Panel/VBox"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="LockedPanel" type="PanelContainer" parent="ModalControl/Panel/VBox/SystemsContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_blue_card")
+
+[node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/SystemsContainer/LockedPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 30
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 30
+theme_override_constants/margin_bottom = 20
+
+[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/SystemsContainer/LockedPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 14
+alignment = 1
+
+[node name="LockIcon" type="Label" parent="ModalControl/Panel/VBox/SystemsContainer/LockedPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.4, 0.2, 1)
+theme_override_fonts/font = ExtResource("4_title_font")
+theme_override_font_sizes/font_size = 32
+text = "🔒"
+horizontal_alignment = 1
+
+[node name="LockTitle" type="Label" parent="ModalControl/Panel/VBox/SystemsContainer/LockedPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.45, 0.25, 1)
+theme_override_fonts/font = ExtResource("4_title_font")
+theme_override_font_sizes/font_size = 16
+text = "TERMINAL DE SISTEMAS BLOQUEADA"
+horizontal_alignment = 1
+
+[node name="LockDesc" type="Label" parent="ModalControl/Panel/VBox/SystemsContainer/LockedPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.9, 0.95, 0.9)
+theme_override_font_sizes/font_size = 12
+text = "El servidor no tiene energía ni subsistemas físicos completos. Debes ensamblar los 6 componentes de hardware para habilitar la instalación de Andromeda Linux:\n\n1. Placa Madre  ·  2. RAM ECC (3x)  ·  3. SSD RAID (3x)  ·  4. Multi CPU (3x)  ·  5. Fan Wall (3x)  ·  6. Gráfica (3x)"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="BtnGoHardware" type="Button" parent="ModalControl/Panel/VBox/SystemsContainer/LockedPanel/Margin/VBox"]
+custom_minimum_size = Vector2(280, 38)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_colors/font_color = Color(1, 0.8, 0.2, 1)
+theme_override_font_sizes/font_size = 11
+text = "◀ IR A ENSAMBLAR HARDWARE"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 10.0
+
+[node name="UnlockedPanel" type="PanelContainer" parent="ModalControl/Panel/VBox/SystemsContainer"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_blue_card")
+
+[node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/SystemsContainer/UnlockedPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 30
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 30
+theme_override_constants/margin_bottom = 20
+
+[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/SystemsContainer/UnlockedPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 14
+alignment = 1
+
+[node name="LogoLabel" type="Label" parent="ModalControl/Panel/VBox/SystemsContainer/UnlockedPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.1, 0.85, 1, 1)
+theme_override_fonts/font = ExtResource("4_title_font")
+theme_override_font_sizes/font_size = 28
+text = "󰣇"
+horizontal_alignment = 1
+
+[node name="UnlockTitle" type="Label" parent="ModalControl/Panel/VBox/SystemsContainer/UnlockedPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.1, 0.85, 1, 1)
+theme_override_fonts/font = ExtResource("4_title_font")
+theme_override_font_sizes/font_size = 16
+text = "CLÚSTER ANDROMEDA LINUX ENTERPRISE // INSTALADOR CLI"
+horizontal_alignment = 1
+
+[node name="UnlockDesc" type="Label" parent="ModalControl/Panel/VBox/SystemsContainer/UnlockedPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.95, 1, 0.9)
+theme_override_font_sizes/font_size = 12
+text = "¡Hardware 100% ensamblado y alimentado! La torre está lista para el despliegue del sistema operativo corporativo Andromeda Linux.\n\n⌨️ MODO CONSOLA PURA: Control exclusivo por teclado sin ratón. Sigue los pasos interactivos para crear la tabla GPT, formatear los volúmenes NVMe y arrancar el servidor."
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="BtnLaunchCli" type="Button" parent="ModalControl/Panel/VBox/SystemsContainer/UnlockedPanel/Margin/VBox"]
+custom_minimum_size = Vector2(380, 42)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_colors/font_color = Color(0.1, 1, 0.7, 1)
+theme_override_font_sizes/font_size = 12
+text = "⌨️ INICIAR INSTALACIÓN DE ANDROMEDA LINUX (CLI)"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 12.0
+
+[node name="FeedbackLabel" type="Label" parent="ModalControl/Panel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 11
+horizontal_alignment = 1
 
 [node name="Footer" type="HBoxContainer" parent="ModalControl/Panel/VBox"]
 layout_mode = 2
 alignment = 1
 
 [node name="BtnVolver" type="Button" parent="ModalControl/Panel/VBox/Footer"]
-custom_minimum_size = Vector2(280, 40)
+custom_minimum_size = Vector2(260, 34)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 11
+text = "◀ VOLVER AL DATACENTER [ESC]"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 8.0
+
+[node name="CuadroAzulRefrigeracion" type="PanelContainer" parent="ModalControl"]
+visible = false
+custom_minimum_size = Vector2(760, 270)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -380.0
+offset_top = -135.0
+offset_right = 380.0
+offset_bottom = 135.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_liquid_cooling")
+
+[node name="Margin" type="MarginContainer" parent="ModalControl/CuadroAzulRefrigeracion"]
+layout_mode = 2
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 22
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 22
+
+[node name="VBox" type="VBoxContainer" parent="ModalControl/CuadroAzulRefrigeracion/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="IconTitle" type="Label" parent="ModalControl/CuadroAzulRefrigeracion/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.1, 0.95, 1, 1)
+theme_override_fonts/font = ExtResource("4_title_font")
+theme_override_font_sizes/font_size = 20
+text = "🌊 [ CUADRO AZUL: INSTALACIÓN DE REFRIGERACIÓN LÍQUIDA ]"
+horizontal_alignment = 1
+
+[node name="DescLabel" type="Label" parent="ModalControl/CuadroAzulRefrigeracion/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.95, 1, 0.92)
 theme_override_font_sizes/font_size = 12
-text = "◀ VOLVER AL DATACENTER"
+text = "✓ ¡Hardware y Andromeda Linux listos! Arrastra o acopla la Refrigeración Líquida para desplegar el circuito cerrado custom loop (Bomba D5, racores, tubos rígidos y radiador 360mm)."
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="BtnAcoplarLiquid" type="Button" parent="ModalControl/CuadroAzulRefrigeracion/Margin/VBox"]
+custom_minimum_size = Vector2(440, 50)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_colors/font_color = Color(0.05, 1, 0.85, 1)
+theme_override_font_sizes/font_size = 13
+text = "💧 [ INSTALAR REFRIGERACIÓN LÍQUIDA (CLIC O ARRASTRA AQUÍ) ]"
 flat = true
 script = ExtResource("2_cbtn")
 slant = 12.0

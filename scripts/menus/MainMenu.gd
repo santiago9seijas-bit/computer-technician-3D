@@ -41,6 +41,8 @@ var arcade_scene: PackedScene = preload("res://scenes/minigames/MalwareInvadersM
 
 const KONAMI_CODE: Array[String] = ["up", "up", "down", "down", "left", "right", "left", "right", "b", "a"]
 var konami_buffer: Array[String] = []
+var secret_click_count: int = 0
+var konami_feedback_label: Label = null
 
 var is_transitioning: bool = false
 var active_panel: Control = null
@@ -58,6 +60,15 @@ func _ready() -> void:
 	if version_label:
 		var cfg_ver = ProjectSettings.get_setting("application/config/version", "0.0.9")
 		version_label.text = "Version %s Alpha" % cfg_ver
+		version_label.mouse_filter = Control.MOUSE_FILTER_STOP
+		version_label.gui_input.connect(func(ev: InputEvent):
+			if ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT:
+				secret_click_count += 1
+				_show_konami_step("👾 EASTER EGG: %d/5 CLICS" % secret_click_count)
+				if secret_click_count >= 5:
+					secret_click_count = 0
+					_launch_arcade_easter_egg()
+		)
 	header_orig_x = header_container.position.x
 	buttons_orig_x = vbox_container.position.x
 	deco_orig_x = decoracion.position.x
@@ -93,18 +104,22 @@ func _input(event: InputEvent) -> void:
 	var input_key = ""
 	if event is InputEventKey and event.pressed and not event.echo:
 		var k = event.keycode if event.keycode != 0 else event.physical_keycode
-		match k:
-			KEY_UP:
-				input_key = "up"
-			KEY_DOWN:
-				input_key = "down"
-			KEY_LEFT:
+		if k == KEY_UP or k == KEY_W or k == KEY_KP_8:
+			input_key = "up"
+		elif k == KEY_DOWN or k == KEY_S or k == KEY_KP_2:
+			input_key = "down"
+		elif k == KEY_LEFT or k == KEY_KP_4:
+			input_key = "left"
+		elif k == KEY_RIGHT or k == KEY_D or k == KEY_KP_6:
+			input_key = "right"
+		elif k == KEY_B:
+			input_key = "b"
+		elif k == KEY_A:
+			# Si en el buffer toca "left" (WASD), reconocerlo como tal
+			var next_idx = konami_buffer.size()
+			if next_idx < KONAMI_CODE.size() and KONAMI_CODE[next_idx] == "left":
 				input_key = "left"
-			KEY_RIGHT:
-				input_key = "right"
-			KEY_B:
-				input_key = "b"
-			KEY_A:
+			else:
 				input_key = "a"
 	elif event is InputEventJoypadButton and event.pressed:
 		match event.button_index:
@@ -122,14 +137,61 @@ func _input(event: InputEvent) -> void:
 				input_key = "a"
 				
 	if input_key != "":
-		konami_buffer.append(input_key)
-		if konami_buffer.size() > KONAMI_CODE.size():
-			konami_buffer.pop_front()
-			
-		if konami_buffer == KONAMI_CODE:
+		var next_idx = konami_buffer.size()
+		if next_idx < KONAMI_CODE.size() and input_key == KONAMI_CODE[next_idx]:
+			konami_buffer.append(input_key)
+			_show_konami_step(_get_konami_display())
+			if konami_buffer.size() == KONAMI_CODE.size():
+				konami_buffer.clear()
+				get_viewport().set_input_as_handled()
+				_launch_arcade_easter_egg()
+		elif input_key == "up":
+			# Reiniciar secuencia comenzando con este "up"
+			konami_buffer = ["up"]
+			_show_konami_step(_get_konami_display())
+		else:
 			konami_buffer.clear()
-			get_viewport().set_input_as_handled()
-			_launch_arcade_easter_egg()
+
+func _get_konami_display() -> String:
+	var icons = {
+		"up": "▲",
+		"down": "▼",
+		"left": "◄",
+		"right": "►",
+		"b": "B",
+		"a": "A"
+	}
+	var out = "[ "
+	for i in range(KONAMI_CODE.size()):
+		var key = KONAMI_CODE[i]
+		var sym = icons.get(key, key)
+		if i < konami_buffer.size():
+			out += sym + " "
+		else:
+			out += "· "
+	out += "]"
+	return out
+
+func _show_konami_step(msg: String) -> void:
+	if not is_instance_valid(konami_feedback_label):
+		konami_feedback_label = Label.new()
+		konami_feedback_label.name = "KonamiFeedbackLabel"
+		konami_feedback_label.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
+		konami_feedback_label.offset_top = -65.0
+		konami_feedback_label.offset_bottom = -25.0
+		konami_feedback_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		konami_feedback_label.add_theme_font_size_override("font_size", 16)
+		konami_feedback_label.add_theme_color_override("font_color", Color(0.0, 1.0, 0.85, 1.0))
+		konami_feedback_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
+		konami_feedback_label.add_theme_constant_override("outline_size", 6)
+		konami_feedback_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		add_child(konami_feedback_label)
+		
+	konami_feedback_label.text = msg
+	konami_feedback_label.modulate.a = 1.0
+	var tw = create_tween()
+	tw.tween_interval(1.8)
+	tw.tween_property(konami_feedback_label, "modulate:a", 0.0, 0.4)
 
 func _launch_arcade_easter_egg() -> void:
 	if get_tree().root.has_node("MalwareInvadersMinigame"):

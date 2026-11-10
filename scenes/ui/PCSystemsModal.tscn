@@ -1,16 +1,53 @@
-[gd_scene format=3 load_steps=7]
+[gd_scene format=3 load_steps=11]
 
 [ext_resource type="Script" path="res://scripts/ui/PCSystemsModal.gd" id="1_modal"]
 [ext_resource type="Script" path="res://scripts/menus/CyberButton.gd" id="2_cbtn"]
 [ext_resource type="Theme" path="res://styles/cyberpunk_theme.tres" id="3_theme"]
 [ext_resource type="FontFile" uid="uid://dbcug8887dro7" path="res://assets/fonts/Bungee-Regular.ttf" id="4_title_font"]
 [ext_resource type="PackedScene" path="res://scenes/ui/CyberBackgroundFrame.tscn" id="5_bg_frame"]
+[ext_resource type="Script" path="res://scripts/ui/BinaryRainBackground.gd" id="6_rain_bg"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_frame"]
-content_margin_left = 24.0
-content_margin_top = 20.0
-content_margin_right = 24.0
-content_margin_bottom = 20.0
+content_margin_left = 20.0
+content_margin_top = 16.0
+content_margin_right = 20.0
+content_margin_bottom = 16.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_polybar"]
+bg_color = Color(0.05, 0.09, 0.14, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 2
+border_color = Color(0.09, 0.58, 0.82, 0.8)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_andromeda_terminal"]
+bg_color = Color(0.04, 0.07, 0.11, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.09, 0.58, 0.82, 0.7)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_telemetry"]
+bg_color = Color(0.03, 0.06, 0.1, 0.92)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.12, 0.65, 0.92, 0.65)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
 
 [node name="PCSystemsModal" type="CanvasLayer"]
 layer = 10
@@ -32,160 +69,309 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.02, 0.04, 0.08, 0.94)
+color = Color(0.02, 0.04, 0.07, 0.94)
 
 [node name="Panel" type="PanelContainer" parent="ModalControl"]
+custom_minimum_size = Vector2(1180, 700)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -540.0
-offset_top = -330.0
-offset_right = 540.0
-offset_bottom = 330.0
+offset_left = -590.0
+offset_top = -350.0
+offset_right = 590.0
+offset_bottom = 350.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxEmpty_frame")
 
 [node name="CyberBackgroundFrame" parent="ModalControl/Panel" instance=ExtResource("5_bg_frame")]
+modulate = Color(0.09, 0.58, 0.82, 1)
 layout_mode = 2
+
+[node name="BinaryRainBackground" type="Control" parent="ModalControl/Panel"]
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("6_rain_bg")
 
 [node name="VBox" type="VBoxContainer" parent="ModalControl/Panel"]
 layout_mode = 2
-theme_override_constants/separation = 10
+theme_override_constants/separation = 8
+
+[node name="PolybarTop" type="PanelContainer" parent="ModalControl/Panel/VBox"]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_polybar")
+
+[node name="HBox" type="HBoxContainer" parent="ModalControl/Panel/VBox/PolybarTop"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="ArchTag" type="Label" parent="ModalControl/Panel/VBox/PolybarTop/HBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.15, 0.75, 1, 1)
+theme_override_fonts/font = ExtResource("4_title_font")
+theme_override_font_sizes/font_size = 11
+text = "  󰣇 ANDROMEDA LINUX"
+
+[node name="Workspaces" type="Label" parent="ModalControl/Panel/VBox/PolybarTop/HBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.8, 1, 0.8)
+theme_override_font_sizes/font_size = 10
+text = "[1:sys] [2:net] [3:sec]"
+
+[node name="CenterStatus" type="Label" parent="ModalControl/Panel/VBox/PolybarTop/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.8, 0.95, 1, 0.9)
+theme_override_font_sizes/font_size = 11
+text = "andromeda-os · 6.9.1-arch1-zen · bspwm/kitty · terminal workstation"
+horizontal_alignment = 1
+
+[node name="StatsRight" type="Label" parent="ModalControl/Panel/VBox/PolybarTop/HBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 1, 0.7, 1)
+theme_override_font_sizes/font_size = 10
+text = "CPU: 12% | RAM: 3.4/32GB | PING: <1ms  "
 
 [node name="Header" type="VBoxContainer" parent="ModalControl/Panel/VBox"]
 layout_mode = 2
-theme_override_constants/separation = 4
+theme_override_constants/separation = 2
 
 [node name="TitleLabel" type="Label" parent="ModalControl/Panel/VBox/Header"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0, 0.95, 1, 1)
+theme_override_colors/font_color = Color(0.15, 0.75, 1, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 8
-theme_override_colors/font_shadow_color = Color(0.05, 0.35, 0.85, 0.85)
-theme_override_constants/shadow_outline_size = 8
+theme_override_constants/outline_size = 6
 theme_override_fonts/font = ExtResource("4_title_font")
-theme_override_font_sizes/font_size = 20
-text = "TERMINAL DE SISTEMAS & SOFTWARE // WORKSTATION #1"
+theme_override_font_sizes/font_size = 17
+text = "ESTACIÓN DE SISTEMAS // CONSOLA ANDROMEDA LINUX BSPWM"
 horizontal_alignment = 1
 
 [node name="StatusSummary" type="Label" parent="ModalControl/Panel/VBox/Header"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
-theme_override_font_sizes/font_size = 13
-text = "Haz clic en cualquiera de los módulos para iniciar el diagnóstico y reparación de software."
+theme_override_colors/font_color = Color(0.6, 0.85, 1, 1)
+theme_override_font_sizes/font_size = 11
+text = "Tiling Window Manager: Selecciona una ventana para ejecutar la herramienta de diagnóstico."
 horizontal_alignment = 1
 
 [node name="BadgeLabel" type="Label" parent="ModalControl/Panel/VBox/Header"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.2, 1, 0.5, 1)
-theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.15, 1, 0.75, 1)
+theme_override_font_sizes/font_size = 11
 text = "ESTADO: INCIDENCIAS PENDIENTES (0/7 COMPLETADAS)"
 horizontal_alignment = 1
 
 [node name="Divider" type="ColorRect" parent="ModalControl/Panel/VBox"]
 custom_minimum_size = Vector2(0, 2)
 layout_mode = 2
-color = Color(0, 0.85, 1, 0.35)
+color = Color(0.09, 0.58, 0.82, 0.5)
 
-[node name="GridContainer" type="GridContainer" parent="ModalControl/Panel/VBox"]
+[node name="MainContentHBox" type="HBoxContainer" parent="ModalControl/Panel/VBox"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/h_separation = 16
-theme_override_constants/v_separation = 14
-columns = 4
+theme_override_constants/separation = 14
 
-[node name="BtnOS" type="Button" parent="ModalControl/Panel/VBox/GridContainer"]
-custom_minimum_size = Vector2(235, 105)
+[node name="NeofetchPanel" type="PanelContainer" parent="ModalControl/Panel/VBox/MainContentHBox"]
+custom_minimum_size = Vector2(330, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_andromeda_terminal")
+
+[node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/MainContentHBox/NeofetchPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/MainContentHBox/NeofetchPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="KittyHeader" type="HBoxContainer" parent="ModalControl/Panel/VBox/MainContentHBox/NeofetchPanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="Dots" type="Label" parent="ModalControl/Panel/VBox/MainContentHBox/NeofetchPanel/Margin/VBox/KittyHeader"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.4, 0.4, 1)
+theme_override_font_sizes/font_size = 10
+text = "● ● ● "
+
+[node name="Title" type="Label" parent="ModalControl/Panel/VBox/MainContentHBox/NeofetchPanel/Margin/VBox/KittyHeader"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.8, 1, 0.9)
+theme_override_font_sizes/font_size = 10
+text = "kitty: tech@andromeda-core ~ (neofetch)"
+
+[node name="AndromedaPhotoSlot" type="PanelContainer" parent="ModalControl/Panel/VBox/MainContentHBox/NeofetchPanel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 90)
+layout_mode = 2
+
+[node name="PhotoRect" type="TextureRect" parent="ModalControl/Panel/VBox/MainContentHBox/NeofetchPanel/Margin/VBox/AndromedaPhotoSlot"]
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="PhotoPlaceholderLabel" type="Label" parent="ModalControl/Panel/VBox/MainContentHBox/NeofetchPanel/Margin/VBox/AndromedaPhotoSlot"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.85, 1, 0.95)
+theme_override_font_sizes/font_size = 9
+text = "🪐 [ ANDROMEDA LINUX LOGO ]
+(Ranura reservada para foto del sistema)"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="NeofetchSpecs" type="Label" parent="ModalControl/Panel/VBox/MainContentHBox/NeofetchPanel/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.85, 0.92, 1, 0.95)
+theme_override_font_sizes/font_size = 10
+text = "tech@andromeda-core
+--------------------
+OS: Andromeda Linux x86_64
+Host: Workstation #1
+Kernel: 6.9.1-arch1-zen
+Uptime: 1h 45m
+Packages: 7 (pacman)
+Shell: zsh 5.9
+WM: bspwm (tiling)
+Terminal: kitty
+Memory: 3412MiB / 32150MiB
+Security: Firewall active"
+
+[node name="AndromedaTip" type="Label" parent="ModalControl/Panel/VBox/MainContentHBox/NeofetchPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 1, 0.65, 0.95)
+theme_override_font_sizes/font_size = 9
+text = "❯ Selecciona un mosaico de terminal a la derecha para iniciar la reparación."
+autowrap_mode = 2
+
+[node name="TilingGrid" type="GridContainer" parent="ModalControl/Panel/VBox/MainContentHBox"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_font_sizes/font_size = 11
-text = "SISTEMA OPERATIVO
-CYBER-OS UEFI & GPT
-[ PENDIENTE ]"
-script = ExtResource("2_cbtn")
-slant = 10.0
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 10
+columns = 2
 
-[node name="BtnDrivers" type="Button" parent="ModalControl/Panel/VBox/GridContainer"]
-custom_minimum_size = Vector2(235, 105)
+[node name="BtnOS" type="Button" parent="ModalControl/Panel/VBox/MainContentHBox/TilingGrid"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_font_sizes/font_size = 11
-text = "CONTROLADORES
-DRIVERS WHQL
+theme_override_font_sizes/font_size = 10
+text = "❯ pacman -S andromeda-os-uefi
+Instalación UEFI & GPT · Bootloader
 [ PENDIENTE ]"
 script = ExtResource("2_cbtn")
-slant = 10.0
+slant = 6.0
 
-[node name="BtnMalware" type="Button" parent="ModalControl/Panel/VBox/GridContainer"]
-custom_minimum_size = Vector2(235, 105)
+[node name="BtnDrivers" type="Button" parent="ModalControl/Panel/VBox/MainContentHBox/TilingGrid"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_font_sizes/font_size = 11
-text = "ESCÁNER ANTIMALWARE
-HEURÍSTICA & FIRMAS
+theme_override_font_sizes/font_size = 10
+text = "❯ mhwd -a pci nonfree 0300
+Drivers WHQL & Chipset Kernel
 [ PENDIENTE ]"
 script = ExtResource("2_cbtn")
-slant = 10.0
+slant = 6.0
 
-[node name="BtnAdware" type="Button" parent="ModalControl/Panel/VBox/GridContainer"]
-custom_minimum_size = Vector2(235, 105)
+[node name="BtnMalware" type="Button" parent="ModalControl/Panel/VBox/MainContentHBox/TilingGrid"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_font_sizes/font_size = 11
-text = "LIMPIEZA DE ADWARE
-BLOQUEADOR DE POP-UPS
+theme_override_font_sizes/font_size = 10
+text = "❯ freshclam && clamscan -r /
+Escaneo Heurístico SHA256 & Rootkits
 [ PENDIENTE ]"
 script = ExtResource("2_cbtn")
-slant = 10.0
+slant = 6.0
 
-[node name="BtnDebugger" type="Button" parent="ModalControl/Panel/VBox/GridContainer"]
-custom_minimum_size = Vector2(235, 105)
+[node name="BtnAdware" type="Button" parent="ModalControl/Panel/VBox/MainContentHBox/TilingGrid"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_font_sizes/font_size = 11
-text = "TERMINAL & DEBUGGER
-CORRECCIÓN DE BUGS
+theme_override_font_sizes/font_size = 10
+text = "❯ ublock --purge-adware-cache
+Limpieza de Pop-ups & Bloqueador
 [ PENDIENTE ]"
 script = ExtResource("2_cbtn")
-slant = 10.0
+slant = 6.0
 
-[node name="BtnUSB" type="Button" parent="ModalControl/Panel/VBox/GridContainer"]
-custom_minimum_size = Vector2(235, 105)
+[node name="BtnDebugger" type="Button" parent="ModalControl/Panel/VBox/MainContentHBox/TilingGrid"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_font_sizes/font_size = 11
-text = "HERRAMIENTA USB
-RESPALDO & BOOTABLE
+theme_override_font_sizes/font_size = 10
+text = "❯ gdb -q ./security_daemon
+Depuración de Sintaxis & Unit Tests
 [ PENDIENTE ]"
 script = ExtResource("2_cbtn")
-slant = 10.0
+slant = 6.0
 
-[node name="BtnArcade" type="Button" parent="ModalControl/Panel/VBox/GridContainer"]
-custom_minimum_size = Vector2(235, 105)
+[node name="BtnUSB" type="Button" parent="ModalControl/Panel/VBox/MainContentHBox/TilingGrid"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_font_sizes/font_size = 11
-text = "ARCADE CIBERDEFENSA
-MALWARE INVADERS
+theme_override_font_sizes/font_size = 10
+text = "❯ dd if=andromeda.iso of=/dev/sdb
+Medio Booteable de Rescate FAT32
 [ PENDIENTE ]"
 script = ExtResource("2_cbtn")
-slant = 10.0
+slant = 6.0
+
+[node name="BtnArcade" type="Button" parent="ModalControl/Panel/VBox/MainContentHBox/TilingGrid"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 10
+text = "❯ ./malware_invaders.sh
+Ciberdefensa del Núcleo del Kernel
+[ PENDIENTE ]"
+script = ExtResource("2_cbtn")
+slant = 6.0
+
+[node name="TelemetryBox" type="PanelContainer" parent="ModalControl/Panel/VBox/MainContentHBox/TilingGrid"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_telemetry")
+
+[node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/MainContentHBox/TilingGrid/TelemetryBox"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 6
+
+[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/MainContentHBox/TilingGrid/TelemetryBox/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 2
+alignment = 1
+
+[node name="Title" type="Label" parent="ModalControl/Panel/VBox/MainContentHBox/TilingGrid/TelemetryBox/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.15, 0.75, 1, 1)
+theme_override_font_sizes/font_size = 10
+text = "🌐 RED & FIREWALL (iftop)"
+horizontal_alignment = 1
+
+[node name="Desc" type="Label" parent="ModalControl/Panel/VBox/MainContentHBox/TilingGrid/TelemetryBox/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.9, 1, 0.9)
+theme_override_font_sizes/font_size = 9
+text = "❯ ip link: eth0 UP · 10 Gbps Fibra
+❯ nftables: ACTIVO · DROP no autorizados
+❯ Latencia LAN: < 1 ms (ÓPTIMO)"
+horizontal_alignment = 1
 
 [node name="FeedbackLabel" type="Label" parent="ModalControl/Panel/VBox"]
+custom_minimum_size = Vector2(0, 18)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 1, 0.4, 1)
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 11
 horizontal_alignment = 1
 
 [node name="Footer" type="HBoxContainer" parent="ModalControl/Panel/VBox"]
@@ -193,11 +379,10 @@ layout_mode = 2
 alignment = 1
 
 [node name="BtnVolver" type="Button" parent="ModalControl/Panel/VBox/Footer"]
-custom_minimum_size = Vector2(260, 40)
+custom_minimum_size = Vector2(280, 36)
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
-theme_override_font_sizes/font_size = 12
-text = "◀ VOLVER A LA ESTACIÓN"
+theme_override_font_sizes/font_size = 11
+text = "◀ CERRAR SESIÓN ANDROMEDA LINUX"
 flat = true
 script = ExtResource("2_cbtn")
-slant = 12.0
+slant = 8.0

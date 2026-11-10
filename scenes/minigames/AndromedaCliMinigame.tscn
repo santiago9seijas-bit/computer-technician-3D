@@ -1,0 +1,222 @@
+[gd_scene format=3 load_steps=9]
+
+[ext_resource type="Script" path="res://scripts/minigames/AndromedaCliMinigame.gd" id="1_cli"]
+[ext_resource type="Script" path="res://scripts/menus/CyberButton.gd" id="2_cbtn"]
+[ext_resource type="Theme" path="res://styles/cyberpunk_theme.tres" id="3_theme"]
+[ext_resource type="FontFile" uid="uid://dbcug8887dro7" path="res://assets/fonts/Bungee-Regular.ttf" id="4_title_font"]
+[ext_resource type="PackedScene" path="res://scenes/ui/CyberBackgroundFrame.tscn" id="5_bg_frame"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_frame"]
+content_margin_left = 20.0
+content_margin_top = 16.0
+content_margin_right = 20.0
+content_margin_bottom = 16.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_guide"]
+bg_color = Color(0.04, 0.08, 0.14, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.09, 0.58, 0.82, 0.8)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_term"]
+bg_color = Color(0.02, 0.04, 0.08, 0.98)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.12, 0.65, 0.92, 0.75)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[node name="AndromedaCliMinigame" type="CanvasLayer"]
+layer = 12
+script = ExtResource("1_cli")
+
+[node name="ModalControl" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("3_theme")
+
+[node name="DimOverlay" type="ColorRect" parent="ModalControl"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.01, 0.02, 0.05, 0.95)
+
+[node name="Panel" type="PanelContainer" parent="ModalControl"]
+custom_minimum_size = Vector2(1080, 660)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -540.0
+offset_top = -330.0
+offset_right = 540.0
+offset_bottom = 330.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_frame")
+
+[node name="CyberBackgroundFrame" parent="ModalControl/Panel" instance=ExtResource("5_bg_frame")]
+modulate = Color(0.09, 0.58, 0.82, 1)
+layout_mode = 2
+
+[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Header" type="VBoxContainer" parent="ModalControl/Panel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Title" type="Label" parent="ModalControl/Panel/VBox/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.1, 0.85, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 8
+theme_override_colors/font_shadow_color = Color(0.05, 0.5, 0.8, 0.8)
+theme_override_constants/shadow_outline_size = 8
+theme_override_fonts/font = ExtResource("4_title_font")
+theme_override_font_sizes/font_size = 17
+text = "󰣇 ANDROMEDA LINUX ENTERPRISE // INSTALADOR DE CLÚSTER POR TECLADO"
+horizontal_alignment = 1
+
+[node name="Metrics" type="HBoxContainer" parent="ModalControl/Panel/VBox/Header"]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="StepCounter" type="Label" parent="ModalControl/Panel/VBox/Header/Metrics"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.85, 1, 1)
+theme_override_font_sizes/font_size = 12
+text = "PASO 1 / 8"
+
+[node name="ProgressBar" type="ProgressBar" parent="ModalControl/Panel/VBox/Header/Metrics"]
+custom_minimum_size = Vector2(340, 14)
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="GuidePanel" type="PanelContainer" parent="ModalControl/Panel/VBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_guide")
+
+[node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/GuidePanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/GuidePanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="StepTitle" type="Label" parent="ModalControl/Panel/VBox/GuidePanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.25, 1)
+theme_override_font_sizes/font_size = 12
+text = "PASO 1 / 8: TABLA DE PARTICIONES GPT"
+
+[node name="StepDesc" type="Label" parent="ModalControl/Panel/VBox/GuidePanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.9, 0.95, 0.9)
+theme_override_font_sizes/font_size = 11
+text = "Crea la tabla GPT en el arreglo NVMe con particiones EFI y Root."
+
+[node name="TargetCmd" type="Label" parent="ModalControl/Panel/VBox/GuidePanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.15, 1, 0.6, 1)
+theme_override_font_sizes/font_size = 12
+text = "$ fdisk /dev/nvme0n1"
+
+[node name="TermPanel" type="PanelContainer" parent="ModalControl/Panel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_term")
+
+[node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/TermPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 10
+
+[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/TermPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="TermScroll" type="ScrollContainer" parent="ModalControl/Panel/VBox/TermPanel/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="TerminalText" type="RichTextLabel" parent="ModalControl/Panel/VBox/TermPanel/Margin/VBox/TermScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_colors/default_color = Color(0.8, 0.9, 0.95, 1)
+theme_override_font_sizes/normal_font_size = 12
+bbcode_enabled = true
+text = "Iniciando terminal Andromeda..."
+scroll_following = true
+
+[node name="PromptHBox" type="HBoxContainer" parent="ModalControl/Panel/VBox/TermPanel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="PromptLabel" type="Label" parent="ModalControl/Panel/VBox/TermPanel/Margin/VBox/PromptHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.09, 0.85, 1, 1)
+theme_override_font_sizes/font_size = 12
+text = "root@andromeda-iso ~ # "
+
+[node name="InputLabel" type="Label" parent="ModalControl/Panel/VBox/TermPanel/Margin/VBox/PromptHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 12
+text = ""
+
+[node name="CursorRect" type="ColorRect" parent="ModalControl/Panel/VBox/TermPanel/Margin/VBox/PromptHBox"]
+custom_minimum_size = Vector2(8, 16)
+layout_mode = 2
+size_flags_vertical = 4
+color = Color(0.15, 0.9, 1, 1)
+
+[node name="Footer" type="HBoxContainer" parent="ModalControl/Panel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 20
+alignment = 1
+
+[node name="KeyboardHint" type="Label" parent="ModalControl/Panel/VBox/Footer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.7, 0.85, 0.95, 0.75)
+theme_override_font_sizes/font_size = 10
+text = "⌨️ CONTROL EXCLUSIVO POR TECLADO: Escribe con tu teclado, pulsa [TAB] para autocompletar y [ENTER] para ejecutar el comando."
+
+[node name="BtnCancel" type="Button" parent="ModalControl/Panel/VBox/Footer"]
+custom_minimum_size = Vector2(160, 34)
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "SALIR [ESC]"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 10.0

@@ -99,11 +99,34 @@ func _draw() -> void:
 	# RENDERIZADO DEL TEXTO (SOPORTE MULTILÍNEA COMPLETO Y CENTRADO ÓPTICO)
 	if text != "" and font != null:
 		var f_size = custom_font_size
-		var usable_width = w - effective_slant
+		if has_theme_font_size_override("font_size"):
+			f_size = get_theme_font_size("font_size")
+			
+		var usable_width = max(10.0, w - effective_slant - 12.0)
 		var lines = text.split("\n")
-		var line_gap = 4.0
+		
+		# Auto-ajuste de tamaño de fuente para que NUNCA se salga del cuadro (ancho y alto)
+		var max_line_w = 0.0
+		for line in lines:
+			var sz = font.get_string_size(line, HORIZONTAL_ALIGNMENT_CENTER, -1, f_size)
+			if sz.x > max_line_w:
+				max_line_w = sz.x
+		
+		var line_gap = 2.5
 		var line_h = f_size + line_gap
 		var total_text_h = lines.size() * line_h - line_gap
+		
+		if max_line_w > usable_width and max_line_w > 0.0:
+			var scale_factor = usable_width / max_line_w
+			f_size = max(7, int(f_size * scale_factor))
+		line_h = f_size + line_gap
+		total_text_h = lines.size() * line_h - line_gap
+		if total_text_h > (h - 8.0) and total_text_h > 0.0:
+			var scale_factor = (h - 8.0) / total_text_h
+			f_size = max(7, int(f_size * scale_factor))
+			line_h = f_size + line_gap
+			total_text_h = lines.size() * line_h - line_gap
+
 		var start_y = (h - total_text_h) * 0.5 + f_size - 1.0
 		
 		var shadow_col = Color(1.0, 0.08, 0.45, 0.7).lerp(Color(0.0, 0.8, 1.0, 0.8), hover_t)
@@ -114,7 +137,7 @@ func _draw() -> void:
 			if line == "":
 				continue
 			var string_size = font.get_string_size(line, HORIZONTAL_ALIGNMENT_CENTER, -1, f_size)
-			var text_x = (usable_width - string_size.x) * 0.5
+			var text_x = max(6.0, (usable_width - string_size.x) * 0.5 + 6.0)
 			var text_y = start_y + idx * line_h
 			
 			if button_pressed:
@@ -124,8 +147,8 @@ func _draw() -> void:
 			var text_pos = Vector2(text_x, text_y)
 			
 			# Contorno negro para legibilidad
-			draw_string_outline(font, text_pos, line, HORIZONTAL_ALIGNMENT_LEFT, -1, f_size, 4, Color(0.02, 0.01, 0.05, 0.95))
+			draw_string_outline(font, text_pos, line, HORIZONTAL_ALIGNMENT_LEFT, -1, f_size, 3, Color(0.02, 0.01, 0.05, 0.95))
 			# Sombra neón
-			draw_string(font, text_pos + Vector2(1.5, 1.5), line, HORIZONTAL_ALIGNMENT_LEFT, -1, f_size, shadow_col)
+			draw_string(font, text_pos + Vector2(1.0, 1.0), line, HORIZONTAL_ALIGNMENT_LEFT, -1, f_size, shadow_col)
 			# Texto frontal
 			draw_string(font, text_pos, line, HORIZONTAL_ALIGNMENT_LEFT, -1, f_size, text_col)

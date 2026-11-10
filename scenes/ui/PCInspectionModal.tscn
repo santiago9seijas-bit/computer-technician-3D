@@ -1,4 +1,4 @@
-[gd_scene format=3 load_steps=24]
+[gd_scene format=3 load_steps=27]
 
 [ext_resource type="Script" path="res://scripts/ui/PCInspectionModal.gd" id="1_modal"]
 [ext_resource type="Script" path="res://scripts/menus/CyberButton.gd" id="2_cbtn"]
@@ -11,24 +11,51 @@
 [ext_resource type="Texture2D" uid="uid://cv6ghw3qgaue3" path="res://pixel art menus/decoracion/emoticono de rayo.png" id="9_ico_rayo"]
 [ext_resource type="Texture2D" uid="uid://c4cxur3v6xicp" path="res://pixel art menus/decoracion/emoticono de limpiezakra.png" id="10_ico_limpieza"]
 [ext_resource type="Texture2D" uid="uid://boc84emlym0d" path="res://pixel art menus/decoracion/emoticon de lupa.png" id="11_ico_lupa"]
+[ext_resource type="Script" path="res://scripts/ui/CircuitBackground.gd" id="12_circuit_bg"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_frame"]
-content_margin_left = 20.0
-content_margin_top = 16.0
-content_margin_right = 20.0
-content_margin_bottom = 16.0
+content_margin_left = 18.0
+content_margin_top = 14.0
+content_margin_right = 18.0
+content_margin_bottom = 14.0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_question_panel"]
-bg_color = Color(0.03, 0.07, 0.16, 0.95)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0, 0.92, 1, 0.85)
+bg_color = Color(0.04, 0.08, 0.18, 0.96)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.78, 0.15, 0.95)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+content_margin_left = 16.0
+content_margin_top = 6.0
+content_margin_right = 16.0
+content_margin_bottom = 6.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_exam_panel"]
+bg_color = Color(0.03, 0.07, 0.14, 0.94)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.85, 0.2, 0.85)
 corner_radius_top_left = 6
 corner_radius_top_right = 6
 corner_radius_bottom_right = 6
 corner_radius_bottom_left = 6
+content_margin_left = 14.0
+content_margin_top = 4.0
+content_margin_right = 14.0
+content_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_tools_dock"]
+content_margin_left = 6.0
+content_margin_top = 10.0
+content_margin_right = 6.0
+content_margin_bottom = 10.0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_badge_panel"]
 bg_color = Color(0.02, 0.08, 0.16, 0.95)
@@ -179,27 +206,33 @@ grow_vertical = 2
 color = Color(0.04, 0.01, 0.08, 0.94)
 
 [node name="Panel" type="PanelContainer" parent="ModalControl"]
-custom_minimum_size = Vector2(1080, 680)
+custom_minimum_size = Vector2(1080, 696)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -540.0
-offset_top = -340.0
-offset_right = 540.0
-offset_bottom = 340.0
+offset_left = -620.0
+offset_top = -348.0
+offset_right = 460.0
+offset_bottom = 348.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxEmpty_frame")
 
 [node name="CyberBackgroundFrame" parent="ModalControl/Panel" instance=ExtResource("5_bg_frame")]
+modulate = Color(1, 0.72, 0.22, 1)
 layout_mode = 2
+
+[node name="CircuitBackground" type="Control" parent="ModalControl/Panel"]
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("12_circuit_bg")
 
 [node name="VBox" type="VBoxContainer" parent="ModalControl/Panel"]
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 7
 
 [node name="Header" type="VBoxContainer" parent="ModalControl/Panel/VBox"]
 layout_mode = 2
@@ -207,14 +240,14 @@ theme_override_constants/separation = 3
 
 [node name="TitleLabel" type="Label" parent="ModalControl/Panel/VBox/Header"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.12, 0.25, 1)
+theme_override_colors/font_color = Color(1, 0.75, 0.2, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 8
-theme_override_colors/font_shadow_color = Color(0.65, 0.02, 0.85, 0.85)
+theme_override_colors/font_shadow_color = Color(0.85, 0.35, 0.05, 0.85)
 theme_override_constants/shadow_outline_size = 8
 theme_override_fonts/font = ExtResource("4_title_font")
-theme_override_font_sizes/font_size = 20
-text = "DIAGNÓSTICO TÉCNICO: COMPUTADORA #1"
+theme_override_font_sizes/font_size = 19
+text = "BANCO DE REPARACIÓN Y DIAGNÓSTICO // HARDWARE PC"
 horizontal_alignment = 1
 
 [node name="QuestionPanel" type="PanelContainer" parent="ModalControl/Panel/VBox/Header"]
@@ -223,10 +256,10 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_question_panel")
 
 [node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/Header/QuestionPanel"]
 layout_mode = 2
-theme_override_constants/margin_left = 12
-theme_override_constants/margin_top = 4
-theme_override_constants/margin_right = 12
-theme_override_constants/margin_bottom = 4
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 6
 
 [node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/Header/QuestionPanel/Margin"]
 layout_mode = 2
@@ -235,23 +268,23 @@ theme_override_constants/separation = 2
 [node name="QuestionHeader" type="Label" parent="ModalControl/Panel/VBox/Header/QuestionPanel/Margin/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
-theme_override_font_sizes/font_size = 11
-text = "❓ REPORTE DE FALLA DEL CLIENTE / PREGUNTA:"
+theme_override_font_sizes/font_size = 13
+text = "⚠️ REPORTE TÉCNICO DE FALLA DEL CLIENTE // DIAGNÓSTICO:"
 horizontal_alignment = 1
 
 [node name="QuestionText" type="Label" parent="ModalControl/Panel/VBox/Header/QuestionPanel/Margin/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.92, 0.96, 1, 1)
-theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.95, 0.98, 1, 1)
+theme_override_font_sizes/font_size = 15
 text = "¿El equipo enciende los ventiladores pero no da video y la placa emite 3 pitidos largos continuos de alerta de memoria? ¿Qué pieza está fallando?"
 horizontal_alignment = 1
 autowrap_mode = 2
 
 [node name="StatusSummary" type="Label" parent="ModalControl/Panel/VBox/Header"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
-theme_override_font_sizes/font_size = 13
-text = "Selecciona 'SACAR' para desmontar piezas o arrastra repuestos de tu mochila."
+theme_override_colors/font_color = Color(0.8, 0.9, 1, 0.9)
+theme_override_font_sizes/font_size = 12
+text = "Usa tus Puntos de Examinación [🔍] para diagnosticar componentes o arrastra repuestos de tu mochila."
 horizontal_alignment = 1
 autowrap_mode = 2
 
@@ -266,7 +299,153 @@ theme_override_constants/separation = 10
 [node name="RowTop" type="HBoxContainer" parent="ModalControl/Panel/VBox/ComponentsContainer"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/separation = 10
+theme_override_constants/separation = 12
+
+[node name="CardCPU" type="PanelContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+
+[node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardCPU"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 6
+
+[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardCPU/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="Title" type="Label" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardCPU/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 11
+text = "🔲 SOCKET PROCESADOR (CPU)"
+horizontal_alignment = 1
+
+[node name="Status" type="Label" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardCPU/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "LGA 1700 OCTA-CORE\n[ INSTALADO ]"
+horizontal_alignment = 1
+
+[node name="Spacer" type="Control" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardCPU/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="CPUButtons" type="VBoxContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardCPU/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="HBoxMain" type="HBoxContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardCPU/Margin/VBox/CPUButtons"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="BtnSacar" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardCPU/Margin/VBox/CPUButtons/HBoxMain"]
+custom_minimum_size = Vector2(0, 26)
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_default_cursor_shape = 2
+theme_override_font_sizes/font_size = 10
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_sacar_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_sacar_hover")
+text = "⬇ SACAR"
+
+[node name="BtnExaminar" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardCPU/Margin/VBox/CPUButtons/HBoxMain"]
+custom_minimum_size = Vector2(0, 26)
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_default_cursor_shape = 2
+theme_override_font_sizes/font_size = 10
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_examinar_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_examinar_hover")
+text = "🔍 EXAMINAR"
+
+[node name="HBoxExtra" type="HBoxContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardCPU/Margin/VBox/CPUButtons"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="BtnLimpiar" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardCPU/Margin/VBox/CPUButtons/HBoxExtra"]
+visible = false
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_default_cursor_shape = 2
+theme_override_font_sizes/font_size = 10
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_limpiar_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_limpiar_hover")
+text = "🧼 LIMPIAR [5]"
+
+[node name="BtnPines" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardCPU/Margin/VBox/CPUButtons/HBoxExtra"]
+visible = false
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_default_cursor_shape = 2
+theme_override_font_sizes/font_size = 10
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_pines_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_pines_hover")
+text = "📍 PINES [3]"
+
+[node name="CardCooler" type="PanelContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+
+[node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardCooler"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 6
+
+[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardCooler/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="Title" type="Label" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardCooler/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 11
+text = "🌀 DISIPADOR / COOLER"
+horizontal_alignment = 1
+
+[node name="Status" type="Label" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardCooler/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "FAN TOWER PWM\n[ INSTALADO ]"
+horizontal_alignment = 1
+
+[node name="Spacer" type="Control" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardCooler/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="HBoxBtns" type="HBoxContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardCooler/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="BtnSacar" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardCooler/Margin/VBox/HBoxBtns"]
+custom_minimum_size = Vector2(0, 26)
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_default_cursor_shape = 2
+theme_override_font_sizes/font_size = 10
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_sacar_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_sacar_hover")
+text = "⬇ SACAR"
+
+[node name="BtnExaminar" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardCooler/Margin/VBox/HBoxBtns"]
+custom_minimum_size = Vector2(0, 26)
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_default_cursor_shape = 2
+theme_override_font_sizes/font_size = 10
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_examinar_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_examinar_hover")
+text = "🔍 EXAMINAR"
 
 [node name="CardRAM" type="PanelContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop"]
 layout_mode = 2
@@ -277,205 +456,173 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_card")
 [node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardRAM"]
 layout_mode = 2
 theme_override_constants/margin_left = 8
-theme_override_constants/margin_top = 8
+theme_override_constants/margin_top = 6
 theme_override_constants/margin_right = 8
-theme_override_constants/margin_bottom = 8
+theme_override_constants/margin_bottom = 6
 
 [node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardRAM/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 4
+theme_override_constants/separation = 3
 
 [node name="Title" type="Label" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardRAM/Margin/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0.95, 1, 1)
-theme_override_font_sizes/font_size = 12
-text = "MEMORIA RAM"
+theme_override_font_sizes/font_size = 11
+text = "🧠 BANCOS RAM DDR5"
 horizontal_alignment = 1
 
 [node name="Status" type="Label" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardRAM/Margin/VBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 10
-text = "DDR5 16GB
-[ INSTALADA ]"
+text = "DDR5 16GB\n[ INSTALADA ]"
 horizontal_alignment = 1
 
 [node name="Spacer" type="Control" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardRAM/Margin/VBox"]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="BtnSacar" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardRAM/Margin/VBox"]
+[node name="HBoxBtns" type="HBoxContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardRAM/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="BtnSacar" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardRAM/Margin/VBox/HBoxBtns"]
 custom_minimum_size = Vector2(0, 26)
 layout_mode = 2
+size_flags_horizontal = 3
 mouse_default_cursor_shape = 2
-theme_override_font_sizes/font_size = 11
+theme_override_font_sizes/font_size = 10
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_sacar_normal")
 theme_override_styles/hover = SubResource("StyleBoxFlat_btn_sacar_hover")
 text = "⬇ SACAR"
 
-[node name="BtnExaminar" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardRAM/Margin/VBox"]
+[node name="BtnExaminar" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardRAM/Margin/VBox/HBoxBtns"]
 custom_minimum_size = Vector2(0, 26)
 layout_mode = 2
+size_flags_horizontal = 3
 mouse_default_cursor_shape = 2
-theme_override_font_sizes/font_size = 11
+theme_override_font_sizes/font_size = 10
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_examinar_normal")
 theme_override_styles/hover = SubResource("StyleBoxFlat_btn_examinar_hover")
 text = "🔍 EXAMINAR"
 
-[node name="CardHDD" type="PanelContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop"]
+[node name="RowMiddle" type="HBoxContainer" parent="ModalControl/Panel/VBox/ComponentsContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="CardGPU" type="PanelContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowMiddle"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 1.45
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+
+[node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowMiddle/CardGPU"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 6
+
+[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowMiddle/CardGPU/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="Title" type="Label" parent="ModalControl/Panel/VBox/ComponentsContainer/RowMiddle/CardGPU/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 11
+text = "🎮 RANURA PCIE 16X · TARJETA GRÁFICA"
+horizontal_alignment = 1
+
+[node name="Status" type="Label" parent="ModalControl/Panel/VBox/ComponentsContainer/RowMiddle/CardGPU/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "RTX 4070 OC 12GB\n[ INSTALADA ]"
+horizontal_alignment = 1
+
+[node name="Spacer" type="Control" parent="ModalControl/Panel/VBox/ComponentsContainer/RowMiddle/CardGPU/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="HBoxBtns" type="HBoxContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowMiddle/CardGPU/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="BtnSacar" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowMiddle/CardGPU/Margin/VBox/HBoxBtns"]
+custom_minimum_size = Vector2(0, 26)
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_default_cursor_shape = 2
+theme_override_font_sizes/font_size = 10
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_sacar_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_sacar_hover")
+text = "⬇ SACAR"
+
+[node name="BtnExaminar" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowMiddle/CardGPU/Margin/VBox/HBoxBtns"]
+custom_minimum_size = Vector2(0, 26)
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_default_cursor_shape = 2
+theme_override_font_sizes/font_size = 10
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_examinar_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_examinar_hover")
+text = "🔍 EXAMINAR"
+
+[node name="CardHDD" type="PanelContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowMiddle"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_card")
 
-[node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardHDD"]
+[node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowMiddle/CardHDD"]
 layout_mode = 2
 theme_override_constants/margin_left = 8
-theme_override_constants/margin_top = 8
+theme_override_constants/margin_top = 6
 theme_override_constants/margin_right = 8
-theme_override_constants/margin_bottom = 8
+theme_override_constants/margin_bottom = 6
 
-[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardHDD/Margin"]
+[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowMiddle/CardHDD/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 4
+theme_override_constants/separation = 3
 
-[node name="Title" type="Label" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardHDD/Margin/VBox"]
+[node name="Title" type="Label" parent="ModalControl/Panel/VBox/ComponentsContainer/RowMiddle/CardHDD/Margin/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0.95, 1, 1)
-theme_override_font_sizes/font_size = 12
-text = "DISCO DURO"
+theme_override_font_sizes/font_size = 11
+text = "💾 ALMACENAMIENTO M.2/SATA"
 horizontal_alignment = 1
 
-[node name="Status" type="Label" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardHDD/Margin/VBox"]
+[node name="Status" type="Label" parent="ModalControl/Panel/VBox/ComponentsContainer/RowMiddle/CardHDD/Margin/VBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 10
-text = "SATA SSD 1TB
-[ INSTALADO ]"
+text = "SATA SSD 1TB\n[ INSTALADO ]"
 horizontal_alignment = 1
 
-[node name="Spacer" type="Control" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardHDD/Margin/VBox"]
+[node name="Spacer" type="Control" parent="ModalControl/Panel/VBox/ComponentsContainer/RowMiddle/CardHDD/Margin/VBox"]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="BtnSacar" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardHDD/Margin/VBox"]
-custom_minimum_size = Vector2(0, 26)
+[node name="HBoxBtns" type="HBoxContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowMiddle/CardHDD/Margin/VBox"]
 layout_mode = 2
-mouse_default_cursor_shape = 2
-theme_override_font_sizes/font_size = 11
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_sacar_normal")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_sacar_hover")
-text = "⬇ SACAR"
+theme_override_constants/separation = 6
 
-[node name="BtnExaminar" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardHDD/Margin/VBox"]
+[node name="BtnSacar" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowMiddle/CardHDD/Margin/VBox/HBoxBtns"]
 custom_minimum_size = Vector2(0, 26)
-layout_mode = 2
-mouse_default_cursor_shape = 2
-theme_override_font_sizes/font_size = 11
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_examinar_normal")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_examinar_hover")
-text = "🔍 EXAMINAR"
-
-[node name="CardGPU" type="PanelContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop"]
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_card")
-
-[node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardGPU"]
-layout_mode = 2
-theme_override_constants/margin_left = 8
-theme_override_constants/margin_top = 8
-theme_override_constants/margin_right = 8
-theme_override_constants/margin_bottom = 8
-
-[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardGPU/Margin"]
-layout_mode = 2
-theme_override_constants/separation = 4
-
-[node name="Title" type="Label" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardGPU/Margin/VBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0, 0.95, 1, 1)
-theme_override_font_sizes/font_size = 12
-text = "TARJETA GRÁFICA"
-horizontal_alignment = 1
-
-[node name="Status" type="Label" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardGPU/Margin/VBox"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 10
-text = "RTX 4070 OC
-[ INSTALADA ]"
-horizontal_alignment = 1
-
-[node name="Spacer" type="Control" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardGPU/Margin/VBox"]
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="BtnSacar" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardGPU/Margin/VBox"]
-custom_minimum_size = Vector2(0, 26)
-layout_mode = 2
 mouse_default_cursor_shape = 2
-theme_override_font_sizes/font_size = 11
+theme_override_font_sizes/font_size = 10
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_sacar_normal")
 theme_override_styles/hover = SubResource("StyleBoxFlat_btn_sacar_hover")
 text = "⬇ SACAR"
 
-[node name="BtnExaminar" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardGPU/Margin/VBox"]
+[node name="BtnExaminar" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowMiddle/CardHDD/Margin/VBox/HBoxBtns"]
 custom_minimum_size = Vector2(0, 26)
-layout_mode = 2
-mouse_default_cursor_shape = 2
-theme_override_font_sizes/font_size = 11
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_examinar_normal")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_examinar_hover")
-text = "🔍 EXAMINAR"
-
-[node name="CardPSU" type="PanelContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop"]
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_card")
-
-[node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardPSU"]
-layout_mode = 2
-theme_override_constants/margin_left = 8
-theme_override_constants/margin_top = 8
-theme_override_constants/margin_right = 8
-theme_override_constants/margin_bottom = 8
-
-[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardPSU/Margin"]
-layout_mode = 2
-theme_override_constants/separation = 4
-
-[node name="Title" type="Label" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardPSU/Margin/VBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0, 0.95, 1, 1)
-theme_override_font_sizes/font_size = 12
-text = "FUENTE DE PODER"
-horizontal_alignment = 1
-
-[node name="Status" type="Label" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardPSU/Margin/VBox"]
-layout_mode = 2
+mouse_default_cursor_shape = 2
 theme_override_font_sizes/font_size = 10
-text = "850W GOLD
-[ INSTALADA ]"
-horizontal_alignment = 1
-
-[node name="Spacer" type="Control" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardPSU/Margin/VBox"]
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="BtnSacar" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardPSU/Margin/VBox"]
-custom_minimum_size = Vector2(0, 26)
-layout_mode = 2
-mouse_default_cursor_shape = 2
-theme_override_font_sizes/font_size = 11
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_sacar_normal")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_sacar_hover")
-text = "⬇ SACAR"
-
-[node name="BtnExaminar" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardPSU/Margin/VBox"]
-custom_minimum_size = Vector2(0, 26)
-layout_mode = 2
-mouse_default_cursor_shape = 2
-theme_override_font_sizes/font_size = 11
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_examinar_normal")
 theme_override_styles/hover = SubResource("StyleBoxFlat_btn_examinar_hover")
 text = "🔍 EXAMINAR"
@@ -483,190 +630,124 @@ text = "🔍 EXAMINAR"
 [node name="RowBottom" type="HBoxContainer" parent="ModalControl/Panel/VBox/ComponentsContainer"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/separation = 10
+theme_override_constants/separation = 12
 
 [node name="CardMOBO" type="PanelContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+size_flags_stretch_ratio = 1.45
 theme_override_styles/panel = SubResource("StyleBoxFlat_card")
 
 [node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardMOBO"]
-layout_mode = 2
-theme_override_constants/margin_left = 8
-theme_override_constants/margin_top = 8
-theme_override_constants/margin_right = 8
-theme_override_constants/margin_bottom = 8
-
-[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardMOBO/Margin"]
-layout_mode = 2
-theme_override_constants/separation = 4
-
-[node name="Title" type="Label" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardMOBO/Margin/VBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0, 0.95, 1, 1)
-theme_override_font_sizes/font_size = 12
-text = "PLACA MADRE"
-horizontal_alignment = 1
-
-[node name="Status" type="Label" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardMOBO/Margin/VBox"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 10
-text = "CHIPSET Z790
-[ INSTALADA ]"
-horizontal_alignment = 1
-
-[node name="Spacer" type="Control" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardMOBO/Margin/VBox"]
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="BtnSacar" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardMOBO/Margin/VBox"]
-custom_minimum_size = Vector2(0, 26)
-layout_mode = 2
-mouse_default_cursor_shape = 2
-theme_override_font_sizes/font_size = 11
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_sacar_normal")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_sacar_hover")
-text = "⬇ SACAR"
-
-[node name="BtnExaminar" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardMOBO/Margin/VBox"]
-custom_minimum_size = Vector2(0, 26)
-layout_mode = 2
-mouse_default_cursor_shape = 2
-theme_override_font_sizes/font_size = 11
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_examinar_normal")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_examinar_hover")
-text = "🔍 EXAMINAR"
-
-[node name="CardCooler" type="PanelContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_card")
-
-[node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCooler"]
-layout_mode = 2
-theme_override_constants/margin_left = 8
-theme_override_constants/margin_top = 8
-theme_override_constants/margin_right = 8
-theme_override_constants/margin_bottom = 8
-
-[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCooler/Margin"]
-layout_mode = 2
-theme_override_constants/separation = 4
-
-[node name="Title" type="Label" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCooler/Margin/VBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0, 0.95, 1, 1)
-theme_override_font_sizes/font_size = 12
-text = "FAN COOLER (CPU)"
-horizontal_alignment = 1
-
-[node name="Status" type="Label" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCooler/Margin/VBox"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 10
-text = "DISIPADOR PWM
-[ INSTALADO ]"
-horizontal_alignment = 1
-
-[node name="Spacer" type="Control" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCooler/Margin/VBox"]
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="BtnSacar" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCooler/Margin/VBox"]
-custom_minimum_size = Vector2(0, 26)
-layout_mode = 2
-mouse_default_cursor_shape = 2
-theme_override_font_sizes/font_size = 11
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_sacar_normal")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_sacar_hover")
-text = "⬇ SACAR"
-
-[node name="BtnExaminar" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCooler/Margin/VBox"]
-custom_minimum_size = Vector2(0, 26)
-layout_mode = 2
-mouse_default_cursor_shape = 2
-theme_override_font_sizes/font_size = 11
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_examinar_normal")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_examinar_hover")
-text = "🔍 EXAMINAR"
-
-[node name="CardCPU" type="PanelContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_card")
-
-[node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCPU"]
 layout_mode = 2
 theme_override_constants/margin_left = 8
 theme_override_constants/margin_top = 6
 theme_override_constants/margin_right = 8
 theme_override_constants/margin_bottom = 6
 
-[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCPU/Margin"]
+[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardMOBO/Margin"]
 layout_mode = 2
 theme_override_constants/separation = 3
 
-[node name="Title" type="Label" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCPU/Margin/VBox"]
+[node name="Title" type="Label" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardMOBO/Margin/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0.95, 1, 1)
-theme_override_font_sizes/font_size = 12
-text = "PROCESADOR (CPU)"
+theme_override_font_sizes/font_size = 11
+text = "⚡ PLACA BASE · CHIPSET & VRM"
 horizontal_alignment = 1
 
-[node name="Status" type="Label" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCPU/Margin/VBox"]
+[node name="Status" type="Label" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardMOBO/Margin/VBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 10
-text = "LGA 1700 OCTA-CORE
-[ INSTALADO ]"
+text = "CHIPSET Z790\n[ INSTALADA ]"
 horizontal_alignment = 1
 
-[node name="Spacer" type="Control" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCPU/Margin/VBox"]
+[node name="Spacer" type="Control" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardMOBO/Margin/VBox"]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="CPUButtons" type="VBoxContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCPU/Margin/VBox"]
+[node name="HBoxBtns" type="HBoxContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardMOBO/Margin/VBox"]
 layout_mode = 2
-theme_override_constants/separation = 4
+theme_override_constants/separation = 6
 
-[node name="BtnSacar" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCPU/Margin/VBox/CPUButtons"]
+[node name="BtnSacar" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardMOBO/Margin/VBox/HBoxBtns"]
 custom_minimum_size = Vector2(0, 26)
 layout_mode = 2
+size_flags_horizontal = 3
 mouse_default_cursor_shape = 2
-theme_override_font_sizes/font_size = 11
+theme_override_font_sizes/font_size = 10
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_sacar_normal")
 theme_override_styles/hover = SubResource("StyleBoxFlat_btn_sacar_hover")
 text = "⬇ SACAR"
 
-[node name="BtnExaminar" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCPU/Margin/VBox/CPUButtons"]
+[node name="BtnExaminar" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardMOBO/Margin/VBox/HBoxBtns"]
 custom_minimum_size = Vector2(0, 26)
 layout_mode = 2
+size_flags_horizontal = 3
 mouse_default_cursor_shape = 2
-theme_override_font_sizes/font_size = 11
+theme_override_font_sizes/font_size = 10
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_examinar_normal")
 theme_override_styles/hover = SubResource("StyleBoxFlat_btn_examinar_hover")
 text = "🔍 EXAMINAR"
 
-[node name="BtnLimpiar" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCPU/Margin/VBox/CPUButtons"]
-visible = false
-custom_minimum_size = Vector2(0, 30)
+[node name="CardPSU" type="PanelContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom"]
 layout_mode = 2
-mouse_default_cursor_shape = 2
-theme_override_font_sizes/font_size = 11
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_limpiar_normal")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_limpiar_hover")
-text = "🧼 LIMPIAR PASTA (LIMPIADOR [5])"
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
 
-[node name="BtnPines" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCPU/Margin/VBox/CPUButtons"]
-visible = false
-custom_minimum_size = Vector2(0, 30)
+[node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardPSU"]
 layout_mode = 2
-mouse_default_cursor_shape = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 6
+
+[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardPSU/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="Title" type="Label" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardPSU/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.95, 1, 1)
 theme_override_font_sizes/font_size = 11
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_pines_normal")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_pines_hover")
-text = "🔍 ALINEAR PINES (LUPA [3])"
+text = "🔌 BAHÍA FUENTE DE PODER (PSU)"
+horizontal_alignment = 1
+
+[node name="Status" type="Label" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardPSU/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "850W ATX GOLD\n[ INSTALADA ]"
+horizontal_alignment = 1
+
+[node name="Spacer" type="Control" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardPSU/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="HBoxBtns" type="HBoxContainer" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardPSU/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="BtnSacar" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardPSU/Margin/VBox/HBoxBtns"]
+custom_minimum_size = Vector2(0, 26)
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_default_cursor_shape = 2
+theme_override_font_sizes/font_size = 10
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_sacar_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_sacar_hover")
+text = "⬇ SACAR"
+
+[node name="BtnExaminar" type="Button" parent="ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardPSU/Margin/VBox/HBoxBtns"]
+custom_minimum_size = Vector2(0, 26)
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_default_cursor_shape = 2
+theme_override_font_sizes/font_size = 10
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_examinar_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_examinar_hover")
+text = "🔍 EXAMINAR"
 
 [node name="HSeparator2" type="HSeparator" parent="ModalControl/Panel/VBox"]
 layout_mode = 2
@@ -696,13 +777,13 @@ text = "🎒 TU MOCHILA (3 SLOTS) · Arrastra o selecciona el repuesto para inst
 horizontal_alignment = 1
 
 [node name="BackpackSlots" type="HBoxContainer" parent="ModalControl/Panel/VBox/BackpackSection"]
-custom_minimum_size = Vector2(0, 52)
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 theme_override_constants/separation = 12
 alignment = 1
 
 [node name="Slot0" type="Button" parent="ModalControl/Panel/VBox/BackpackSection/BackpackSlots"]
-custom_minimum_size = Vector2(280, 50)
+custom_minimum_size = Vector2(260, 42)
 layout_mode = 2
 size_flags_horizontal = 3
 text = "[ VACÍO ]"
@@ -712,7 +793,7 @@ slant = 8.0
 custom_font_size = 12
 
 [node name="Slot1" type="Button" parent="ModalControl/Panel/VBox/BackpackSection/BackpackSlots"]
-custom_minimum_size = Vector2(280, 50)
+custom_minimum_size = Vector2(260, 42)
 layout_mode = 2
 size_flags_horizontal = 3
 text = "[ VACÍO ]"
@@ -722,7 +803,7 @@ slant = 8.0
 custom_font_size = 12
 
 [node name="Slot2" type="Button" parent="ModalControl/Panel/VBox/BackpackSection/BackpackSlots"]
-custom_minimum_size = Vector2(280, 50)
+custom_minimum_size = Vector2(260, 42)
 layout_mode = 2
 size_flags_horizontal = 3
 text = "[ VACÍO ]"
@@ -731,78 +812,81 @@ script = ExtResource("2_cbtn")
 slant = 8.0
 custom_font_size = 12
 
-[node name="ToolsSection" type="HBoxContainer" parent="ModalControl/Panel/VBox"]
-custom_minimum_size = Vector2(0, 118)
+[node name="ExaminationSection" type="PanelContainer" parent="ModalControl/Panel/VBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_exam_panel")
+
+[node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/ExaminationSection"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 4
+
+[node name="HBox" type="HBoxContainer" parent="ModalControl/Panel/VBox/ExaminationSection/Margin"]
 layout_mode = 2
 theme_override_constants/separation = 12
 alignment = 1
 
-[node name="ToolsLabel" type="Label" parent="ModalControl/Panel/VBox/ToolsSection"]
+[node name="ExamTitle" type="Label" parent="ModalControl/Panel/VBox/ExaminationSection/Margin/HBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0, 0.95, 1, 1)
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_fonts/font = ExtResource("4_title_font")
 theme_override_font_sizes/font_size = 11
-text = "🛠️ HERRAMIENTAS [1-5]:"
+text = "🔍 PUNTOS DE EXAMINACIÓN:"
 
-[node name="BtnTool1" type="Button" parent="ModalControl/Panel/VBox/ToolsSection"]
-custom_minimum_size = Vector2(104, 118)
+[node name="CirclesContainer" type="HBoxContainer" parent="ModalControl/Panel/VBox/ExaminationSection/Margin/HBox"]
 layout_mode = 2
-flat = true
-script = ExtResource("6_circle_btn")
-tool_id = 1
-tool_name = "Cruz ★"
-key_shortcut = "[ 1 ]"
-icon_texture = ExtResource("8_ico_reparacion")
-icon_modulate = Color(1, 0.35, 0.45, 1)
-circle_texture = ExtResource("7_circulo_obj")
+theme_override_constants/separation = 8
+alignment = 1
 
-[node name="BtnTool2" type="Button" parent="ModalControl/Panel/VBox/ToolsSection"]
-custom_minimum_size = Vector2(104, 118)
+[node name="Circle0" type="TextureRect" parent="ModalControl/Panel/VBox/ExaminationSection/Margin/HBox/CirclesContainer"]
+custom_minimum_size = Vector2(34, 28)
 layout_mode = 2
-flat = true
-script = ExtResource("6_circle_btn")
-tool_id = 2
-tool_name = "Pala ▬"
-key_shortcut = "[ 2 ]"
-icon_texture = ExtResource("8_ico_reparacion")
-icon_modulate = Color(0.2, 0.9, 1, 1)
-icon_flip_h = true
-circle_texture = ExtResource("7_circulo_obj")
+texture = ExtResource("7_circulo_obj")
+expand_mode = 1
+stretch_mode = 5
+modulate = Color(1, 0.88, 0.15, 1)
 
-[node name="BtnTool3" type="Button" parent="ModalControl/Panel/VBox/ToolsSection"]
-custom_minimum_size = Vector2(104, 118)
+[node name="Circle1" type="TextureRect" parent="ModalControl/Panel/VBox/ExaminationSection/Margin/HBox/CirclesContainer"]
+custom_minimum_size = Vector2(34, 28)
 layout_mode = 2
-flat = true
-script = ExtResource("6_circle_btn")
-tool_id = 3
-tool_name = "Lupa"
-key_shortcut = "[ 3 ]"
-icon_texture = ExtResource("11_ico_lupa")
-icon_modulate = Color(1, 0.5, 0.2, 1)
-circle_texture = ExtResource("7_circulo_obj")
+texture = ExtResource("7_circulo_obj")
+expand_mode = 1
+stretch_mode = 5
+modulate = Color(1, 0.88, 0.15, 1)
 
-[node name="BtnTool4" type="Button" parent="ModalControl/Panel/VBox/ToolsSection"]
-custom_minimum_size = Vector2(104, 118)
+[node name="Circle2" type="TextureRect" parent="ModalControl/Panel/VBox/ExaminationSection/Margin/HBox/CirclesContainer"]
+custom_minimum_size = Vector2(34, 28)
 layout_mode = 2
-flat = true
-script = ExtResource("6_circle_btn")
-tool_id = 4
-tool_name = "Multímetro"
-key_shortcut = "[ 4 ]"
-icon_texture = ExtResource("9_ico_rayo")
-icon_modulate = Color(0.2, 1, 0.7, 1)
-circle_texture = ExtResource("7_circulo_obj")
+texture = ExtResource("7_circulo_obj")
+expand_mode = 1
+stretch_mode = 5
+modulate = Color(1, 0.88, 0.15, 1)
 
-[node name="BtnTool5" type="Button" parent="ModalControl/Panel/VBox/ToolsSection"]
-custom_minimum_size = Vector2(104, 118)
+[node name="Circle3" type="TextureRect" parent="ModalControl/Panel/VBox/ExaminationSection/Margin/HBox/CirclesContainer"]
+custom_minimum_size = Vector2(34, 28)
 layout_mode = 2
-flat = true
-script = ExtResource("6_circle_btn")
-tool_id = 5
-tool_name = "Limpiador"
-key_shortcut = "[ 5 ]"
-icon_texture = ExtResource("10_ico_limpieza")
-icon_modulate = Color(0.3, 0.85, 1, 1)
-circle_texture = ExtResource("7_circulo_obj")
+texture = ExtResource("7_circulo_obj")
+expand_mode = 1
+stretch_mode = 5
+modulate = Color(1, 0.88, 0.15, 1)
+
+[node name="ExamCountLabel" type="Label" parent="ModalControl/Panel/VBox/ExaminationSection/Margin/HBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.88, 0.15, 1)
+theme_override_font_sizes/font_size = 12
+text = "[ 4 / 4 DISPONIBLES ]"
+
+[node name="Spacer" type="Control" parent="ModalControl/Panel/VBox/ExaminationSection/Margin/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ExamRechargeLabel" type="Label" parent="ModalControl/Panel/VBox/ExaminationSection/Margin/HBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 1, 0.65, 1)
+theme_override_font_sizes/font_size = 11
+text = "⚡ Recarga: +1 cada 2 piezas reparadas (0/2)"
 
 [node name="Footer" type="HBoxContainer" parent="ModalControl/Panel/VBox"]
 layout_mode = 2
@@ -815,3 +899,121 @@ text = "◄ SALIR AL TALLER (CAMINAR / BUSCAR REPUESTOS)"
 flat = true
 script = ExtResource("2_cbtn")
 slant = 18.0
+
+[node name="ToolsDock" type="PanelContainer" parent="ModalControl"]
+custom_minimum_size = Vector2(144, 696)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 476.0
+offset_top = -348.0
+offset_right = 620.0
+offset_bottom = 348.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_tools_dock")
+
+[node name="CyberBackgroundFrame" parent="ModalControl/ToolsDock" instance=ExtResource("5_bg_frame")]
+modulate = Color(0.2, 0.85, 1, 1)
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="ModalControl/ToolsDock"]
+layout_mode = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="ModalControl/ToolsDock/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="ToolsDockTitle" type="Label" parent="ModalControl/ToolsDock/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.82, 0.2, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_fonts/font = ExtResource("4_title_font")
+theme_override_font_sizes/font_size = 11
+text = "🛠️ TOOLS"
+horizontal_alignment = 1
+
+[node name="ToolsDockSub" type="Label" parent="ModalControl/ToolsDock/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 10
+text = "[ 1 - 5 ]"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="ModalControl/ToolsDock/Margin/VBox"]
+layout_mode = 2
+
+[node name="BtnTool1" type="Button" parent="ModalControl/ToolsDock/Margin/VBox"]
+custom_minimum_size = Vector2(104, 110)
+layout_mode = 2
+size_flags_horizontal = 4
+flat = true
+script = ExtResource("6_circle_btn")
+tool_id = 1
+tool_name = "Cruz ★"
+key_shortcut = "[ 1 ]"
+icon_texture = ExtResource("8_ico_reparacion")
+icon_modulate = Color(1, 0.35, 0.45, 1)
+circle_texture = ExtResource("7_circulo_obj")
+
+[node name="BtnTool2" type="Button" parent="ModalControl/ToolsDock/Margin/VBox"]
+custom_minimum_size = Vector2(104, 110)
+layout_mode = 2
+size_flags_horizontal = 4
+flat = true
+script = ExtResource("6_circle_btn")
+tool_id = 2
+tool_name = "Pala ▬"
+key_shortcut = "[ 2 ]"
+icon_texture = ExtResource("8_ico_reparacion")
+icon_modulate = Color(0.2, 0.9, 1, 1)
+icon_flip_h = true
+circle_texture = ExtResource("7_circulo_obj")
+
+[node name="BtnTool3" type="Button" parent="ModalControl/ToolsDock/Margin/VBox"]
+custom_minimum_size = Vector2(104, 110)
+layout_mode = 2
+size_flags_horizontal = 4
+flat = true
+script = ExtResource("6_circle_btn")
+tool_id = 3
+tool_name = "Lupa"
+key_shortcut = "[ 3 ]"
+icon_texture = ExtResource("11_ico_lupa")
+icon_modulate = Color(1, 0.5, 0.2, 1)
+circle_texture = ExtResource("7_circulo_obj")
+
+[node name="BtnTool4" type="Button" parent="ModalControl/ToolsDock/Margin/VBox"]
+custom_minimum_size = Vector2(104, 110)
+layout_mode = 2
+size_flags_horizontal = 4
+flat = true
+script = ExtResource("6_circle_btn")
+tool_id = 4
+tool_name = "Multímetro"
+key_shortcut = "[ 4 ]"
+icon_texture = ExtResource("9_ico_rayo")
+icon_modulate = Color(0.2, 1, 0.7, 1)
+circle_texture = ExtResource("7_circulo_obj")
+
+[node name="BtnTool5" type="Button" parent="ModalControl/ToolsDock/Margin/VBox"]
+custom_minimum_size = Vector2(104, 110)
+layout_mode = 2
+size_flags_horizontal = 4
+flat = true
+script = ExtResource("6_circle_btn")
+tool_id = 5
+tool_name = "Limpiador"
+key_shortcut = "[ 5 ]"
+icon_texture = ExtResource("10_ico_limpieza")
+icon_modulate = Color(0.3, 0.85, 1, 1)
+circle_texture = ExtResource("7_circulo_obj")

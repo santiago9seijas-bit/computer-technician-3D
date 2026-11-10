@@ -11,6 +11,7 @@ signal level_completed(stars: int, final_score: int)
 signal spares_repopulated()
 signal pause_state_changed(is_paused: bool)
 signal difficulty_changed(new_difficulty: String)
+signal examination_points_updated(current_pts: int, max_pts: int, recharge_progress: int)
 
 # Sistema de Dificultad: "brutal" (10 min), "dificil" (15 min), "normal" (20 min), "facil" (25 min)
 const DIFFICULTY_TIMES: Dictionary = {
@@ -62,19 +63,43 @@ var equipped_tool: int = 0
 
 # Stock de repuestos disponible en la caja
 var spares_stock: Dictionary = {
-	"RAM": 3,
-	"Disco Duro": 3,
-	"Fan Cooler": 3,
-	"Fuente": 2,
-	"Grafica": 2,
-	"Placa Madre": 2,
-	"CPU": 2,
-	"Refrigeracion Liquida": 3
+	"RAM": 6,
+	"Disco Duro": 6,
+	"Fan Cooler": 4,
+	"Fuente": 4,
+	"Grafica": 4,
+	"Placa Madre": 4,
+	"CPU": 4,
+	"Refrigeracion Liquida": 4
 }
 
 # Estado de pausa y configuración
 var is_game_paused: bool = false
 var mouse_sensitivity_multiplier: float = 1.0
+
+# Sistema de Puntos de Examinación (Diagnóstico de Hardware)
+const MAX_EXAMINATION_POINTS: int = 4
+var examination_points: int = 4
+var pieces_repaired_since_recharge: int = 0
+
+func can_examine() -> bool:
+	return examination_points > 0
+
+func consume_examination_point() -> bool:
+	if examination_points > 0:
+		examination_points -= 1
+		examination_points_updated.emit(examination_points, MAX_EXAMINATION_POINTS, pieces_repaired_since_recharge)
+		return true
+	return false
+
+func notify_piece_repaired(custom_pos: Vector2 = Vector2.ZERO) -> void:
+	pieces_repaired_since_recharge += 1
+	if pieces_repaired_since_recharge >= 2:
+		pieces_repaired_since_recharge = 0
+		if examination_points < MAX_EXAMINATION_POINTS:
+			examination_points += 1
+			spawn_floating_text("🔍 +1 PUNTO DE EXAMINACIÓN", true, custom_pos)
+	examination_points_updated.emit(examination_points, MAX_EXAMINATION_POINTS, pieces_repaired_since_recharge)
 
 var feedback_canvas_layer: CanvasLayer = null
 var feedback_container: Control = null
@@ -156,16 +181,18 @@ func start_level(initial_time: float = -1.0) -> void:
 	is_game_paused = false
 	is_game_over = false
 	timer_active = true
+	examination_points = 4
+	pieces_repaired_since_recharge = 0
 	
 	spares_stock = {
-		"RAM": 3,
-		"Disco Duro": 3,
-		"Fan Cooler": 3,
-		"Fuente": 2,
-		"Grafica": 2,
-		"Placa Madre": 2,
-		"CPU": 2,
-		"Refrigeracion Liquida": 3
+		"RAM": 6,
+		"Disco Duro": 6,
+		"Fan Cooler": 4,
+		"Fuente": 4,
+		"Grafica": 4,
+		"Placa Madre": 4,
+		"CPU": 4,
+		"Refrigeracion Liquida": 4
 	}
 	
 	score_updated.emit(score, 0)
@@ -173,6 +200,7 @@ func start_level(initial_time: float = -1.0) -> void:
 	error_occurred.emit(errors, 0)
 	backpack_updated.emit(backpack)
 	tool_selected.emit(equipped_tool)
+	examination_points_updated.emit(examination_points, MAX_EXAMINATION_POINTS, pieces_repaired_since_recharge)
 
 func register_repair(points: int = 100, time_bonus: float = 10.0, custom_pos: Vector2 = Vector2.ZERO) -> void:
 	score += points
@@ -180,6 +208,7 @@ func register_repair(points: int = 100, time_bonus: float = 10.0, custom_pos: Ve
 		time_left += time_bonus
 		time_updated.emit(time_left, time_bonus)
 	score_updated.emit(score, points)
+	notify_piece_repaired(custom_pos)
 	
 	var txt = "+%d PTS" % points
 	if time_bonus > 0.0 and timer_active:
@@ -319,14 +348,14 @@ func trash_selected_item() -> bool:
 
 func request_spares_refill() -> void:
 	spares_stock = {
-		"RAM": 3,
-		"Disco Duro": 3,
-		"Fan Cooler": 3,
-		"Fuente": 2,
-		"Grafica": 2,
-		"Placa Madre": 2,
-		"CPU": 2,
-		"Refrigeracion Liquida": 3
+		"RAM": 6,
+		"Disco Duro": 6,
+		"Fan Cooler": 4,
+		"Fuente": 4,
+		"Grafica": 4,
+		"Placa Madre": 4,
+		"CPU": 4,
+		"Refrigeracion Liquida": 4
 	}
 	spares_repopulated.emit()
 

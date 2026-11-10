@@ -372,7 +372,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="BackpackPanel" type="PanelContainer" parent="ModalControl/Panel/VBox/ContentHBox"]
-custom_minimum_size = Vector2(250, 270)
+custom_minimum_size = Vector2(300, 290)
 layout_mode = 2
 
 [node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/ContentHBox/BackpackPanel"]
@@ -413,6 +413,36 @@ theme_override_colors/font_color = Color(0.85, 0.9, 1.0, 0.9)
 theme_override_font_sizes/font_size = 11
 text = "FASE 1: Arrastra hacia arriba lados izq/der y luego centro para extraer."
 autowrap_mode = 2
+
+[node name="SlotsContainer" type="VBoxContainer" parent="ModalControl/Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="SlotsTitle" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox/SlotsContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.1, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 12
+text = "BANCOS DE MEMORIA RAM:"
+horizontal_alignment = 1
+
+[node name="BtnSlot0" type="Button" parent="ModalControl/Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox/SlotsContainer"]
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "BANCO RAM #1"
+
+[node name="BtnSlot1" type="Button" parent="ModalControl/Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox/SlotsContainer"]
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "BANCO RAM #2"
+
+[node name="BtnSlot2" type="Button" parent="ModalControl/Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox/SlotsContainer"]
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "BANCO RAM #3"
 
 [node name="HSep" type="HSeparator" parent="ModalControl/Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox"]
 layout_mode = 2

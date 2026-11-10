@@ -31,61 +31,48 @@ signal minigame_finished(success: bool)
 
 var selected_bug_id: int = -1
 var resolved_bugs_count: int = 0
-const TOTAL_BUGS: int = 4
+const TOTAL_BUGS: int = 3
 var is_compiled: bool = false
 
-# Definición del script y los 4 bugs
+# Definición del script y los 3 bugs simplificados, intuitivos y educativos
 var BUGS_DATA: Array[Dictionary] = [
 	{
 		"line_num": 4,
-		"title": "Error de Sintaxis en Línea 4",
-		"bad_text": "4  func audit_network(target_ip: String)   # ❌ Error de sintaxis",
+		"title": "Error de Sintaxis (Falta ':')",
+		"concept": "💡 Pista: En GDScript/Python, las funciones terminan con ':' para abrir el bloque.",
+		"bad_text": "4  func audit_network(target_ip: String)   # ❌ Falta ':' al final",
 		"fixed_text": "4  func audit_network(target_ip: String):  # ✓ Cabecera corregida",
-		"desc": "La declaración de la función 'audit_network' carece del carácter de terminación ':' de bloque.",
+		"desc": "La función 'audit_network' necesita los dos puntos ':' al final para abrir su bloque.",
 		"is_fixed": false,
 		"options": [
-			{"code": "func audit_network(target_ip: String)", "is_correct": false, "msg": "Sigue faltando el carácter ':' al final."},
-			{"code": "func audit_network(target_ip: String):", "is_correct": true, "msg": "¡Correcto! En GDScript/Python los bloques de función terminan con ':'."},
-			{"code": "function audit_network()", "is_correct": false, "msg": "'function' no es una palabra reservada válida aquí."}
+			{"code": "func audit_network(target_ip: String):  [✓ AGREGAR ':']", "is_correct": true, "msg": "¡Correcto! Los dos puntos ':' abren el bloque de la función."},
+			{"code": "func audit_network(target_ip: String)   [❌ DEJAR IGUAL]", "is_correct": false, "msg": "Sigue faltando el carácter ':' al final de la línea."}
 		]
 	},
 	{
 		"line_num": 9,
-		"title": "Variable no Definida en Línea 9",
-		"bad_text": "9      for port in opne_ports:             # ❌ Typo en variable",
-		"fixed_text": "9      for port in open_ports:             # ✓ Variable válida",
-		"desc": "El identificador 'opne_ports' no existe en este ámbito. Arriba se declaró 'open_ports'.",
+		"title": "Variable con Typo (Letras Cambiadas)",
+		"concept": "💡 Pista: La lista de la línea 6 se llama 'open_ports', no 'opne_ports'.",
+		"bad_text": "9      for port in opne_ports:             # ❌ Typo 'opne_ports'",
+		"fixed_text": "9      for port in open_ports:             # ✓ Variable corregida",
+		"desc": "La variable fue escrita como 'opne_ports' por error tipográfico.",
 		"is_fixed": false,
 		"options": [
-			{"code": "for port in opne_ports:", "is_correct": false, "msg": "El error tipográfico 'opne' sigue presente."},
-			{"code": "for port in open_ports:", "is_correct": true, "msg": "¡Excelente! La variable coincide con la lista declarada en la línea 6."},
-			{"code": "for port in 80:", "is_correct": false, "msg": "Un entero no es un objeto iterable."}
+			{"code": "for port in open_ports:  [✓ CORREGIR A 'open_ports']", "is_correct": true, "msg": "¡Excelente! 'open_ports' coincide exactamente con la lista."},
+			{"code": "for port in opne_ports:  [❌ DEJAR 'opne_ports']", "is_correct": false, "msg": "Aún contiene el error tipográfico 'opne'."}
 		]
 	},
 	{
-		"line_num": 14,
-		"title": "Bucle Infinito en Línea 14",
-		"bad_text": "14     while retries < 3:                  # ❌ Bucle infinito",
-		"fixed_text": "14     while retries < 3:\n15         retries += 1                    # ✓ Contador incrementado",
-		"desc": "La condición 'while retries < 3' nunca cambia porque 'retries' no se incrementa, congelando el hilo.",
+		"line_num": 16,
+		"title": "Resultado del Test (Retorno)",
+		"concept": "💡 Pista: El validador espera que la función devuelva 'true' para confirmar éxito.",
+		"bad_text": "16     return false                        # ❌ Retorna fallo",
+		"fixed_text": "16     return true                         # ✓ Auditoría exitosa",
+		"desc": "Al retornar 'false', el sistema cree que falló. Debe retornar 'true'.",
 		"is_fixed": false,
 		"options": [
-			{"code": "while retries < 3: (sin incremento)", "is_correct": false, "msg": "El bucle seguirá ejecutándose eternamente sin salir."},
-			{"code": "while retries < 3:\n        retries += 1", "is_correct": true, "msg": "¡Perfecto! Incrementar la variable de control garantiza la terminación del bucle."},
-			{"code": "while true:", "is_correct": false, "msg": "Un bucle 'while true' sin break incondicional agrava el problema."}
-		]
-	},
-	{
-		"line_num": 19,
-		"title": "Retorno Erróneo en Línea 19",
-		"bad_text": "19     return false                        # ❌ Falla unit tests",
-		"fixed_text": "19     return true                         # ✓ Conexión verificada",
-		"desc": "La función retorna un valor 'false' predeterminado que hace fallar los tests de validación del firewall.",
-		"is_fixed": false,
-		"options": [
-			{"code": "return false", "is_correct": false, "msg": "El test unitario espera que la auditoría devuelva true al finalizar."},
-			{"code": "return true", "is_correct": true, "msg": "¡Muy bien! Indica al llamador que la auditoría de red concluyó con éxito."},
-			{"code": "return null", "is_correct": false, "msg": "Null provoca error de desempaquetado en el cliente."}
+			{"code": "return true  [✓ APROBAR TEST]", "is_correct": true, "msg": "¡Muy bien! 'return true' aprueba la verificación."},
+			{"code": "return false [❌ RECHAZAR TEST]", "is_correct": false, "msg": "Devolver 'false' hace que las pruebas fallen."}
 		]
 	}
 ]
@@ -96,11 +83,6 @@ func _ready() -> void:
 	layer = 12
 	btn_cancel.pressed.connect(func(): minigame_finished.emit(false))
 	btn_compile.pressed.connect(_on_compile_pressed)
-
-func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("ui_cancel") or (event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE):
-		get_viewport().set_input_as_handled()
-		minigame_finished.emit(false)
 	btn_compile.disabled = true
 	toast_label.visible = false
 	victory_banner.visible = false
@@ -109,6 +91,11 @@ func _unhandled_input(event: InputEvent) -> void:
 	_update_metrics()
 	_update_status("Haz clic en las líneas con errores marcadas en rojo para desplegar el menú de corrección.")
 	_select_bug(0)
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel") or (event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE):
+		get_viewport().set_input_as_handled()
+		minigame_finished.emit(false)
 
 func _render_code_editor() -> void:
 	for child in code_lines_vbox.get_children():
@@ -127,13 +114,11 @@ func _render_code_editor() -> void:
 		{"num": 9, "text": "", "is_bug": true, "bug_idx": 1},
 		{"num": 10, "text": "10         log_packet_stream(target_ip, port)", "is_bug": false},
 		{"num": 11, "text": "11     ", "is_bug": false},
-		{"num": 12, "text": "12     # Reintentos de conexión segura", "is_bug": false},
-		{"num": 13, "text": "13     var retries = 0", "is_bug": false},
-		{"num": 14, "text": "", "is_bug": true, "bug_idx": 2},
-		{"num": 16, "text": "16         var success = handshake(target_ip)", "is_bug": false},
-		{"num": 17, "text": "17         if success: break", "is_bug": false},
-		{"num": 18, "text": "18     ", "is_bug": false},
-		{"num": 19, "text": "", "is_bug": true, "bug_idx": 3}
+		{"num": 12, "text": "12     # Verificación final de integridad", "is_bug": false},
+		{"num": 13, "text": "13     var is_valid = check_encryption()", "is_bug": false},
+		{"num": 14, "text": "14     if is_valid:", "is_bug": false},
+		{"num": 15, "text": "15         log_status(\"Auditoría exitosa\")", "is_bug": false},
+		{"num": 16, "text": "", "is_bug": true, "bug_idx": 2}
 	]
 	
 	for line in all_lines:
@@ -157,27 +142,37 @@ func _render_code_editor() -> void:
 
 func _update_bug_button_display(btn: Button, b_data: Dictionary) -> void:
 	if b_data["is_fixed"]:
-		btn.text = b_data["fixed_text"]
+		btn.text = "✓ " + b_data["fixed_text"]
 		btn.add_theme_color_override("font_color", Color(0.2, 1.0, 0.5))
 	else:
-		btn.text = b_data["bad_text"]
-		btn.add_theme_color_override("font_color", Color(1.0, 0.3, 0.35))
+		btn.text = "🐛 " + b_data["bad_text"]
+		btn.add_theme_color_override("font_color", Color(1.0, 0.4, 0.45))
 
 func _select_bug(idx: int) -> void:
 	selected_bug_id = idx
 	var b_data = BUGS_DATA[idx]
 	
-	lbl_bug_title.text = "%s (Línea %d)" % [b_data["title"], b_data["line_num"]]
-	lbl_bug_desc.text = b_data["desc"]
+	lbl_bug_title.text = "🔍 %s (Línea %d)" % [b_data["title"], b_data["line_num"]]
+	var concept_text = b_data.get("concept", "")
+	lbl_bug_desc.text = "%s\n\n%s" % [b_data["desc"], concept_text]
+	
+	# Resaltar la línea activa en el editor
+	for b_i in line_buttons.keys():
+		var b_btn = line_buttons[b_i]
+		if is_instance_valid(b_btn):
+			if b_i == idx:
+				b_btn.modulate = Color(1.3, 1.3, 1.0)
+			else:
+				b_btn.modulate = Color(1.0, 1.0, 1.0)
 	
 	for child in patches_vbox.get_children():
 		child.queue_free()
 		
 	if b_data["is_fixed"]:
 		var lbl = Label.new()
-		lbl.text = "✓ Esta línea ya fue corregida satisfactoriamente."
+		lbl.text = "✓ ¡Esta línea ya fue corregida satisfactoriamente!"
 		lbl.add_theme_color_override("font_color", Color(0.2, 1.0, 0.5))
-		lbl.add_theme_font_size_override("font_size", 11)
+		lbl.add_theme_font_size_override("font_size", 12)
 		patches_vbox.add_child(lbl)
 		return
 		
@@ -185,8 +180,8 @@ func _select_bug(idx: int) -> void:
 		var btn = Button.new()
 		btn.text = " 🛠️ " + opt["code"]
 		btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		btn.custom_minimum_size = Vector2(0, 36)
-		btn.add_theme_font_size_override("font_size", 10)
+		btn.custom_minimum_size = Vector2(0, 38)
+		btn.add_theme_font_size_override("font_size", 11)
 		btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		
 		var o_copy = opt
@@ -206,13 +201,28 @@ func _apply_patch(b_data: Dictionary, option: Dictionary) -> void:
 		_update_bug_button_display(line_buttons[selected_bug_id], b_data)
 		
 	_update_metrics()
-	_select_bug(selected_bug_id)
 	
 	if resolved_bugs_count >= TOTAL_BUGS:
 		btn_compile.disabled = false
-		btn_compile.text = "🚀 COMPILAR Y EJECUTAR TESTS UNITARIOS"
+		btn_compile.text = "🚀 ¡TODOS LOS BUGS RESUELTOS! CLIC PARA COMPILAR Y TESTEAR"
 		btn_compile.modulate = Color(0.2, 1.0, 0.5)
 		_update_status("¡Todos los bugs corregidos! Presiona 'COMPILAR' para verificar los tests del sistema.")
+		_select_bug(selected_bug_id)
+	else:
+		# Auto-avanzar al siguiente bug no resuelto suavemente
+		var next_idx = -1
+		for i in range(TOTAL_BUGS):
+			var check_i = (selected_bug_id + 1 + i) % TOTAL_BUGS
+			if not BUGS_DATA[check_i]["is_fixed"]:
+				next_idx = check_i
+				break
+		if next_idx != -1:
+			_select_bug(selected_bug_id)
+			await get_tree().create_timer(0.35).timeout
+			if is_instance_valid(self):
+				_select_bug(next_idx)
+		else:
+			_select_bug(selected_bug_id)
 
 func _on_compile_pressed() -> void:
 	if is_compiled:
@@ -221,17 +231,13 @@ func _on_compile_pressed() -> void:
 	btn_compile.disabled = true
 	
 	terminal_console.text = "$ gdscript-lint --strict --check CyberSecurityAudit.gd\n"
-	await get_tree().create_timer(0.35).timeout
-	terminal_console.text += "✓ Analizando árbol sintáctico (AST)... [OK: 0 errores]\n"
 	await get_tree().create_timer(0.3).timeout
-	terminal_console.text += "✓ Ejecutando test_syntax_header()........... [PASSED]\n"
+	terminal_console.text += "✓ Analizando árbol sintáctico (AST)... [OK: Cabecera ':' verificada]\n"
 	await get_tree().create_timer(0.25).timeout
-	terminal_console.text += "✓ Ejecutando test_variable_resolution()..... [PASSED]\n"
+	terminal_console.text += "✓ Verificando referencias a variables... [OK: 'open_ports' resuelta]\n"
 	await get_tree().create_timer(0.25).timeout
-	terminal_console.text += "✓ Ejecutando test_loop_termination()........ [PASSED]\n"
-	await get_tree().create_timer(0.25).timeout
-	terminal_console.text += "✓ Ejecutando test_firewall_return_state()... [PASSED]\n"
-	terminal_console.text += "\n🎉 ¡4/4 TESTS SUPERADOS! 0 WARNINGS, 0 ERRORS."
+	terminal_console.text += "✓ Ejecutando test_security_return()... [PASSED: true]\n"
+	terminal_console.text += "\n🎉 ¡3/3 TESTS SUPERADOS! 0 WARNINGS, 0 ERRORS."
 	
 	_on_debugging_completed()
 

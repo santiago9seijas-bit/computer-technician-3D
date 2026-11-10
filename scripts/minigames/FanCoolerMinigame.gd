@@ -22,6 +22,16 @@ var start_as_empty_slot: bool = false
 var is_tutorial_mode: bool = false
 var is_cable_disconnected: bool = false
 var screws_fastened: Array[bool] = [false, false, false, false]
+@export var target_cooler_count: int = 1 # Servidor requiere 3 turbinas
+@export var initial_installed_count: int = 0
+var current_cooler_index: int = 0
+var is_cooler_lowered_to_socket: bool = false # Detecta si el cooler bajó completamente al zócalo
+
+func get_installed_count() -> int:
+	return current_cooler_index
+
+func is_cooler_correctly_lowered() -> bool:
+	return is_cooler_lowered_to_socket
 
 # Herramienta requerida para cada tornillo (puede ser cruz o pala)
 # Tornillos: 0: Top-Left, 1: Top-Right, 2: Bottom-Left, 3: Bottom-Right
@@ -115,15 +125,18 @@ func _ready() -> void:
 	
 	GameManager.backpack_updated.connect(_on_backpack_changed)
 	
-	if is_tutorial_mode:
+	if is_instance_valid(btn_tab_quitar) and is_instance_valid(btn_tab_quitar.get_parent()):
+		btn_tab_quitar.get_parent().visible = false
+	if is_instance_valid(btn_tab_quitar):
 		btn_tab_quitar.pressed.connect(func(): _select_tab(0))
+	if is_instance_valid(btn_tab_poner):
 		btn_tab_poner.pressed.connect(func(): _select_tab(1))
-	else:
-		var tabs = btn_tab_quitar.get_parent()
-		if tabs:
-			tabs.queue_free()
 	
-	if start_as_empty_slot:
+	if initial_installed_count > 0:
+		current_cooler_index = initial_installed_count
+		if current_cooler_index < target_cooler_count:
+			_prepare_next_cooler_socket()
+	elif start_as_empty_slot:
 		current_state = State.EMPTY_SOCKET
 		_setup_empty_socket_visual()
 		_select_tab(1)
@@ -135,6 +148,9 @@ func _ready() -> void:
 	_update_status()
 
 func _process(delta: float) -> void:
+	if is_instance_valid(cooler_sprite) and default_cooler_pos != Vector2.ZERO:
+		cooler_sprite.position.x = default_cooler_pos.x
+		
 	if not is_spinning:
 		return
 		
@@ -188,7 +204,7 @@ func _on_cooler_sprite_gui_input(event: InputEvent) -> void:
 						tw.tween_property(cooler_sprite, "position", default_cooler_pos, 0.2)
 		elif event is InputEventMouseMotion and is_dragging_cooler:
 			var pull = clamp(drag_start_y - event.global_position.y, 0.0, 90.0)
-			cooler_sprite.position = default_cooler_pos + Vector2(0, -pull)
+			cooler_sprite.position = Vector2(default_cooler_pos.x, default_cooler_pos.y - pull)
 		return
 
 	if current_state != State.EMPTY_SOCKET:
@@ -202,16 +218,22 @@ func _on_cooler_sprite_gui_input(event: InputEvent) -> void:
 			if is_dragging_cooler:
 				is_dragging_cooler = false
 				var diff_y = event.global_position.y - drag_start_y
-				if diff_y >= 30.0 or cooler_sprite.position.distance_to(default_cooler_pos) < 60.0:
+				# Permitir calce por arrastre hacia abajo o clic directo
+				if diff_y >= 45.0 or abs(diff_y) < 12.0 or cooler_sprite.position.distance_to(default_cooler_pos) < 30.0:
 					_seat_cooler_into_socket()
 				else:
+					is_cooler_lowered_to_socket = false
 					var tw = create_tween()
-					tw.tween_property(cooler_sprite, "position", default_cooler_pos + Vector2(0, -90.0), 0.2)
+					tw.tween_property(cooler_sprite, "position", Vector2(default_cooler_pos.x, default_cooler_pos.y - 90.0), 0.2)
+					_show_floating_feedback("⚠️ Debes bajar el disipador hasta el zócalo.", Color(1.0, 0.4, 0.4))
 	elif event is InputEventMouseMotion and is_dragging_cooler:
+		# Bloqueado estrictamente en X: no se puede arrastrar a los lados, solo hacia abajo
 		var push = clamp(event.global_position.y - drag_start_y, 0.0, 110.0)
-		cooler_sprite.position = default_cooler_pos + Vector2(0, -90.0 + push)
+		cooler_sprite.position = Vector2(default_cooler_pos.x, default_cooler_pos.y - 90.0 + push)
+		is_cooler_lowered_to_socket = (push >= 65.0)
 
 func _seat_cooler_into_socket() -> void:
+	is_cooler_lowered_to_socket = true
 	# Retirar repuesto de la mochila si existe
 	for i in range(GameManager.backpack.size()):
 		var it = GameManager.backpack[i]
@@ -259,17 +281,18 @@ func _select_tab(idx: int) -> void:
 			btn_tab_quitar.modulate = Color(0.7, 0.7, 0.7, 0.7)
 			btn_tab_poner.modulate = Color(0.2, 1.0, 0.5, 1.0)
 			
-	if idx == 0:
-		instructions_text.text = "• FASE 1: DESMONTAJE (QUITAR)\n\n1. Desconecta el cable PWM (el ventilador frenará suavemente por inercia).\n2. Identifica la cabeza de cada tornillo: Cruz [1] o Pala [2].\n3. Retira los 4 tornillos de sujeción.\n4. Al quedar libre y detenido, presiona 'EXTRAER DISIPADOR'."
-		if is_tutorial_mode and (current_state == State.EMPTY_SOCKET or current_state == State.FASTEN_SCREWS or current_state == State.CONNECT_CABLE):
-			_setup_quitar_phase()
-	else:
-		instructions_text.text = "• FASE 2: MONTAJE INVERSO (PONER)\n\n1. Arrastra el Fan Cooler nuevo hacia el zócalo.\n2. Ajusta los 4 tornillos con Cruz [1] o Pala [2].\n3. Conecta el cable PWM (tornillos y cable en cualquier orden)."
-		if is_tutorial_mode and (current_state != State.EMPTY_SOCKET and current_state != State.FASTEN_SCREWS and current_state != State.CONNECT_CABLE):
-			current_state = State.EMPTY_SOCKET
-			_setup_empty_socket_visual()
-			_update_status()
-			_refresh_backpack_ui()
+	var has_cooler = false
+	for it in GameManager.backpack:
+		if (it.get("name") == "Fan Cooler" or it.get("name") == "Refrigeracion Liquida" or it.get("name") == "Kit Refrigeracion") and not it.get("broken", true):
+			has_cooler = true
+			break
+	var spare_msg = "✓ Disipador / Turbina detectado en inventario.\n\n" if has_cooler else "⚠️ Preparado para montar disipador.\n\n"
+	instructions_text.text = "INSTRUCCIONES DE MONTAJE:\n\n" + spare_msg + "1. Arrastra el Fan Cooler hacia abajo hasta asentarlo sobre el zócalo.\n2. Coloca y aprieta los 4 tornillos con destornillador.\n3. Conecta el cable de alimentación PWM de 4 pines."
+	if is_tutorial_mode and (current_state != State.EMPTY_SOCKET and current_state != State.FASTEN_SCREWS and current_state != State.CONNECT_CABLE):
+		current_state = State.EMPTY_SOCKET
+		_setup_empty_socket_visual()
+		_update_status()
+		_refresh_backpack_ui()
 
 func _setup_quitar_phase() -> void:
 	current_state = State.IN_PROGRESS
@@ -537,11 +560,39 @@ func _check_install_completed() -> void:
 			all_screws = false
 			break
 	if all_screws and not is_cable_disconnected:
-		current_state = State.COMPLETED
-		_update_status()
-		_show_victory_panel()
+		current_cooler_index += 1
+		if current_cooler_index < target_cooler_count:
+			_show_floating_feedback("✓ ¡TURBINA #%d/%d MONTADA! Preparando siguiente turbina..." % [current_cooler_index, target_cooler_count], Color(0.2, 1.0, 0.5))
+			await get_tree().create_timer(0.8).timeout
+			_prepare_next_cooler_socket()
+		else:
+			current_state = State.COMPLETED
+			_update_status()
+			_show_victory_panel()
 	else:
 		_update_status()
+
+func _prepare_next_cooler_socket() -> void:
+	is_cooler_lowered_to_socket = false
+	current_state = State.EMPTY_SOCKET
+	_setup_empty_socket_visual()
+	
+	var has_cooler = false
+	for it in GameManager.backpack:
+		if it.get("name") == "Fan Cooler" and not it.get("broken", true):
+			has_cooler = true
+			break
+			
+	if has_cooler:
+		status_label.text = "FAN WALL: Turbina #%d de %d · Arrastra hacia abajo (o haz clic) para asentar" % [current_cooler_index + 1, target_cooler_count]
+		status_label.modulate = Color(1.0, 0.85, 0.2)
+	else:
+		status_label.text = "⚠️ FALTA FAN COOLER EN MOCHILA · SAL [ESC] PARA RECOGERLO (PROGRESO: %d/%d)" % [current_cooler_index, target_cooler_count]
+		status_label.modulate = Color(1.0, 0.4, 0.4)
+		_show_floating_feedback("⚠️ No tienes más turbinas en la mochila. Sal [ESC] para recogerlas y continuarás desde aquí.", Color(1.0, 0.4, 0.4))
+		
+	_update_status()
+	_refresh_backpack_ui()
 
 func _check_readiness() -> void:
 	var remaining_screws = 0

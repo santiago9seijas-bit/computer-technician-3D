@@ -3,15 +3,25 @@ extends StaticBody3D
 @export var server_id: int = 1
 
 var components: Dictionary = {
-	"Bastidores & Rieles 2U": "broken",
-	"Fuentes 1+1 Hot-Swap": "broken",
-	"Caddies SAS & RAID (3 Discos)": "broken",
-	"Fan Wall de Turbinas": "broken",
-	"Loop Líquido Rack": "broken",
+	"Placa Madre": "broken",
 	"Bancos RAM ECC (3 Módulos)": "broken",
-	"Dual CPU Enterprise": "broken",
-	"Riser PCIe / SmartNIC": "broken",
-	"Terminal & Scripting": "broken"
+	"Caddies SSD RAID (3 Discos)": "broken",
+	"Multi CPU Enterprise (3 Procesadores)": "broken",
+	"Fan Wall de Turbinas": "broken",
+	"Riser PCIe / Tarjeta Grafica": "broken",
+	"Sistemas Andromeda Linux": "broken",
+	"Refrigeracion Liquida Custom Loop": "broken"
+}
+
+var components_installed_counts: Dictionary = {
+	"Placa Madre": 0,
+	"Bancos RAM ECC (3 Módulos)": 0,
+	"Caddies SSD RAID (3 Discos)": 0,
+	"Multi CPU Enterprise (3 Procesadores)": 0,
+	"Fan Wall de Turbinas": 0,
+	"Riser PCIe / Tarjeta Grafica": 0,
+	"Sistemas Andromeda Linux": 0,
+	"Refrigeracion Liquida Custom Loop": 0
 }
 
 var is_completed: bool = false
@@ -73,6 +83,12 @@ func _process(_delta: float) -> void:
 		inner_amber.light_energy = (base_energy + sin(t * 2.8 + 1.0) * 0.3) * pulse
 	if status_light:
 		status_light.light_energy = 1.3 * pulse
+
+func is_hardware_completed() -> bool:
+	for comp in ["Placa Madre", "Bancos RAM ECC (3 Módulos)", "Caddies SSD RAID (3 Discos)", "Multi CPU Enterprise (3 Procesadores)", "Fan Wall de Turbinas", "Riser PCIe / Tarjeta Grafica"]:
+		if components.get(comp, "broken") == "broken":
+			return false
+	return true
 
 func is_fully_repaired() -> bool:
 	for comp in components.keys():

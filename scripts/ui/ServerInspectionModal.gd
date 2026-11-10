@@ -4,84 +4,164 @@ signal inspection_closed()
 
 var current_server = null
 
-# Preloads de los 9 minijuegos de montaje de servidor
+# Preloads de los minijuegos de ensamble de servidor y CLI de Andromeda
 var mobo_minigame_scene: PackedScene = preload("res://scenes/minigames/MotherboardMinigame.tscn")
-var psu_minigame_scene: PackedScene = preload("res://scenes/minigames/PSUMinigame.tscn")
-var hdd_minigame_scene: PackedScene = preload("res://scenes/minigames/HDDMinigame.tscn")
-var cooler_minigame_scene: PackedScene = preload("res://scenes/minigames/FanCoolerMinigame.tscn")
-var liquid_minigame_scene: PackedScene = preload("res://scenes/minigames/LiquidCoolingMinigame.tscn")
 var ram_minigame_scene: PackedScene = preload("res://scenes/minigames/RAMMinigame.tscn")
+var hdd_minigame_scene: PackedScene = preload("res://scenes/minigames/HDDMinigame.tscn")
 var cpu_minigame_scene: PackedScene = preload("res://scenes/minigames/CPUMinigame.tscn")
+var cooler_minigame_scene: PackedScene = preload("res://scenes/minigames/FanCoolerMinigame.tscn")
 var gpu_minigame_scene: PackedScene = preload("res://scenes/minigames/GPUMinigame.tscn")
-var debugger_minigame_scene: PackedScene = preload("res://scenes/minigames/CodeDebuggerMinigame.tscn")
+var andromeda_cli_scene: PackedScene = preload("res://scenes/minigames/AndromedaCliMinigame.tscn")
+var liquid_minigame_scene: PackedScene = preload("res://scenes/minigames/LiquidCoolingMinigame.tscn")
 
 @onready var modal_control: Control = $ModalControl
+@onready var bg_frame: NinePatchRect = $ModalControl/Panel/CyberBackgroundFrame
 @onready var title_label: Label = $ModalControl/Panel/VBox/Header/TitleLabel
 @onready var status_summary: Label = $ModalControl/Panel/VBox/Header/StatusSummary
-@onready var server_state_badge: Label = $ModalControl/Panel/VBox/Header/BadgeLabel
+@onready var badge_label: Label = $ModalControl/Panel/VBox/Header/BadgeLabel
+@onready var divider: ColorRect = $ModalControl/Panel/VBox/Divider
 
-# Botones de los 9 componentes de servidor (Grid 3x3)
-@onready var btn_lvl_1: Button = $ModalControl/Panel/VBox/GridContainer/BtnLvl1
-@onready var btn_lvl_2: Button = $ModalControl/Panel/VBox/GridContainer/BtnLvl2
-@onready var btn_lvl_3: Button = $ModalControl/Panel/VBox/GridContainer/BtnLvl3
-@onready var btn_lvl_4: Button = $ModalControl/Panel/VBox/GridContainer/BtnLvl4
-@onready var btn_lvl_5: Button = $ModalControl/Panel/VBox/GridContainer/BtnLvl5
-@onready var btn_lvl_6: Button = $ModalControl/Panel/VBox/GridContainer/BtnLvl6
-@onready var btn_lvl_7: Button = $ModalControl/Panel/VBox/GridContainer/BtnLvl7
-@onready var btn_lvl_8: Button = $ModalControl/Panel/VBox/GridContainer/BtnLvl8
-@onready var btn_lvl_9: Button = $ModalControl/Panel/VBox/GridContainer/BtnLvl9
+# Cuadro Azul de Refrigeración Líquida
+@onready var cuadro_azul: PanelContainer = get_node_or_null("ModalControl/CuadroAzulRefrigeracion")
+@onready var btn_acoplar_liquid: Button = get_node_or_null("ModalControl/CuadroAzulRefrigeracion/Margin/VBox/BtnAcoplarLiquid")
+@onready var desc_liquid: Label = get_node_or_null("ModalControl/CuadroAzulRefrigeracion/Margin/VBox/DescLabel")
+
+# Pestañas
+@onready var btn_tab_hardware: Button = $ModalControl/Panel/VBox/TabsHBox/BtnTabHardware
+@onready var btn_tab_systems: Button = $ModalControl/Panel/VBox/TabsHBox/BtnTabSystems
+@onready var hardware_container: VBoxContainer = $ModalControl/Panel/VBox/HardwareContainer
+@onready var systems_container: VBoxContainer = $ModalControl/Panel/VBox/SystemsContainer
+
+# Tier 1 (Red / Riser GPU)
+@onready var card_gpu: PanelContainer = $ModalControl/Panel/VBox/HardwareContainer/Tier1_HBox/CardGPU
+@onready var btn_gpu: Button = $ModalControl/Panel/VBox/HardwareContainer/Tier1_HBox/CardGPU/Margin/HBox/BtnGPU
+
+# Tier 2 (Cómputo / CPU, RAM, Fan Wall)
+@onready var card_cpu: PanelContainer = $ModalControl/Panel/VBox/HardwareContainer/Tier2_HBox/CardCPU
+@onready var btn_cpu: Button = $ModalControl/Panel/VBox/HardwareContainer/Tier2_HBox/CardCPU/Margin/VBox/BtnCPU
+
+@onready var card_ram: PanelContainer = $ModalControl/Panel/VBox/HardwareContainer/Tier2_HBox/CardRAM
+@onready var btn_ram: Button = $ModalControl/Panel/VBox/HardwareContainer/Tier2_HBox/CardRAM/Margin/VBox/BtnRAM
+
+@onready var card_cooler: PanelContainer = $ModalControl/Panel/VBox/HardwareContainer/Tier2_HBox/CardCooler
+@onready var btn_cooler: Button = $ModalControl/Panel/VBox/HardwareContainer/Tier2_HBox/CardCooler/Margin/VBox/BtnCooler
+
+# Tier 3 (Almacenamiento / SSD RAID y Base Placa Madre)
+@onready var card_ssd: PanelContainer = $ModalControl/Panel/VBox/HardwareContainer/Tier3_HBox/CardSSD
+@onready var btn_ssd: Button = $ModalControl/Panel/VBox/HardwareContainer/Tier3_HBox/CardSSD/Margin/HBox/BtnSSD
+
+@onready var card_mobo: PanelContainer = $ModalControl/Panel/VBox/HardwareContainer/Tier3_HBox/CardMobo
+@onready var btn_mobo: Button = $ModalControl/Panel/VBox/HardwareContainer/Tier3_HBox/CardMobo/Margin/HBox/BtnMobo
 
 # Mochila técnica
-@onready var slot_0: Button = $ModalControl/Panel/VBox/BackpackSection/BackpackSlots/Slot0
-@onready var slot_1: Button = $ModalControl/Panel/VBox/BackpackSection/BackpackSlots/Slot1
-@onready var slot_2: Button = $ModalControl/Panel/VBox/BackpackSection/BackpackSlots/Slot2
+@onready var slot_0: Button = $ModalControl/Panel/VBox/HardwareContainer/BackpackSection/BackpackSlots/Slot0
+@onready var slot_1: Button = $ModalControl/Panel/VBox/HardwareContainer/BackpackSection/BackpackSlots/Slot1
+@onready var slot_2: Button = $ModalControl/Panel/VBox/HardwareContainer/BackpackSection/BackpackSlots/Slot2
 
-@onready var btn_volver: Button = $ModalControl/Panel/VBox/Footer/BtnVolver
+# Pestaña de Sistemas (Locked / Unlocked)
+@onready var locked_panel: PanelContainer = $ModalControl/Panel/VBox/SystemsContainer/LockedPanel
+@onready var lock_desc: Label = $ModalControl/Panel/VBox/SystemsContainer/LockedPanel/Margin/VBox/LockDesc
+@onready var btn_go_hardware: Button = $ModalControl/Panel/VBox/SystemsContainer/LockedPanel/Margin/VBox/BtnGoHardware
+
+@onready var unlocked_panel: PanelContainer = $ModalControl/Panel/VBox/SystemsContainer/UnlockedPanel
+@onready var btn_launch_cli: Button = $ModalControl/Panel/VBox/SystemsContainer/UnlockedPanel/Margin/VBox/BtnLaunchCli
+
 @onready var feedback_label: Label = $ModalControl/Panel/VBox/FeedbackLabel
+@onready var btn_volver: Button = $ModalControl/Panel/VBox/Footer/BtnVolver
 
-var slot_buttons: Array[Button] = []
-var selected_backpack_idx: int = -1
-var is_dragging_part: bool = false
-var dragged_backpack_idx: int = -1
-var drag_preview: PanelContainer = null
-
+var active_tab: int = 0 # 0 = Hardware, 1 = Sistemas
 var current_minigame_instance: Node = null
 var active_repair_component: String = ""
 
-const TOTAL_RAMS_REQUIRED: int = 3
-const TOTAL_HDDS_REQUIRED: int = 3
+# Componentes de hardware
+const HARDWARE_COMPONENTS = [
+	{
+		"key": "Placa Madre",
+		"item_name": "Placa Madre",
+		"btn_node": "btn_mobo",
+		"card_node": "card_mobo",
+		"title": "🗄️ [U1] PLACA MADRE // TRAY Y RIELES",
+		"scene": "mobo_minigame_scene",
+		"is_base": true
+	},
+	{
+		"key": "Bancos RAM ECC (3 Módulos)",
+		"item_name": "RAM",
+		"btn_node": "btn_ram",
+		"card_node": "card_ram",
+		"title": "🧠 [U2] BANCOS RAM ECC (3x)",
+		"scene": "ram_minigame_scene",
+		"target_count": 3
+	},
+	{
+		"key": "Caddies SSD RAID (3 Discos)",
+		"item_name": "Disco Duro",
+		"btn_node": "btn_ssd",
+		"card_node": "card_ssd",
+		"title": "💾 [U3] CADDIES SSD RAID (3x)",
+		"scene": "hdd_minigame_scene",
+		"target_count": 3
+	},
+	{
+		"key": "Multi CPU Enterprise (3 Procesadores)",
+		"item_name": "CPU",
+		"btn_node": "btn_cpu",
+		"card_node": "card_cpu",
+		"title": "⚙️ [U4] MULTI CPU ENTERPRISE (3x)",
+		"scene": "cpu_minigame_scene",
+		"target_count": 3
+	},
+	{
+		"key": "Fan Wall de Turbinas",
+		"item_name": "Fan Cooler",
+		"btn_node": "btn_cooler",
+		"card_node": "card_cooler",
+		"title": "💨 [U5] FAN WALL DE TURBINAS (3x)",
+		"scene": "cooler_minigame_scene",
+		"target_count": 3
+	},
+	{
+		"key": "Riser PCIe / Tarjeta Grafica",
+		"item_name": "Grafica",
+		"btn_node": "btn_gpu",
+		"card_node": "card_gpu",
+		"title": "🌐 [U6] RISER PCIE / ACELERADORES GPU (3x)",
+		"scene": "gpu_minigame_scene",
+		"target_count": 3
+	}
+]
 
 func _ready() -> void:
 	layer = 10
 	btn_volver.pressed.connect(_on_volver_pressed)
+	btn_tab_hardware.pressed.connect(func(): _switch_tab(0))
+	btn_tab_systems.pressed.connect(func(): _switch_tab(1))
+	btn_go_hardware.pressed.connect(func(): _switch_tab(0))
 	
-	btn_lvl_1.pressed.connect(func(): _launch_single_mounting("Bastidores & Rieles 2U", mobo_minigame_scene))
-	btn_lvl_2.pressed.connect(func(): _launch_single_mounting("Fuentes 1+1 Hot-Swap", psu_minigame_scene))
-	btn_lvl_3.pressed.connect(_on_hdd_level_pressed)
-	btn_lvl_4.pressed.connect(func(): _launch_single_mounting("Fan Wall de Turbinas", cooler_minigame_scene))
-	btn_lvl_5.pressed.connect(_on_liquid_cooling_pressed)
-	btn_lvl_6.pressed.connect(_on_ram_level_pressed)
-	btn_lvl_7.pressed.connect(_on_server_cpu_pressed)
-	btn_lvl_8.pressed.connect(func(): _launch_single_mounting("Riser PCIe / SmartNIC", gpu_minigame_scene))
-	btn_lvl_9.pressed.connect(func(): _launch_single_mounting("Terminal & Scripting", debugger_minigame_scene))
+	btn_mobo.pressed.connect(func(): _on_component_clicked(0))
+	btn_ram.pressed.connect(func(): _on_component_clicked(1))
+	btn_ssd.pressed.connect(func(): _on_component_clicked(2))
+	btn_cpu.pressed.connect(func(): _on_component_clicked(3))
+	btn_cooler.pressed.connect(func(): _on_component_clicked(4))
+	btn_gpu.pressed.connect(func(): _on_component_clicked(5))
 	
-	slot_buttons = [slot_0, slot_1, slot_2]
-	for i in range(slot_buttons.size()):
-		var slot_btn = slot_buttons[i]
-		slot_btn.gui_input.connect(func(event): _on_slot_gui_input(i, event))
-		slot_btn.pressed.connect(func(): _on_slot_clicked(i))
+	btn_launch_cli.pressed.connect(_launch_andromeda_cli)
+	
+	if btn_acoplar_liquid:
+		btn_acoplar_liquid.pressed.connect(_launch_liquid_cooling)
 		
+	# Clic o arrastre en los slots de la mochila
+	var backpack_slot_nodes = [slot_0, slot_1, slot_2]
+	for idx in range(backpack_slot_nodes.size()):
+		var slot_btn = backpack_slot_nodes[idx]
+		if is_instance_valid(slot_btn):
+			slot_btn.pressed.connect(func(): _on_backpack_slot_pressed(idx))
+	
 	GameManager.backpack_updated.connect(func(_b): _refresh_ui())
 	
+	_switch_tab(0)
 	if current_server != null:
 		_refresh_ui()
-
-func _input(event: InputEvent) -> void:
-	if is_dragging_part:
-		if event is InputEventMouseMotion:
-			_update_drag_preview_pos(event.global_position)
-		elif event is InputEventMouseButton and not event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-			_finish_drag(event.global_position)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not modal_control or not modal_control.visible:
@@ -92,291 +172,349 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func setup_server(server_ref) -> void:
 	current_server = server_ref
-	if is_inside_tree() and server_state_badge != null:
+	if is_inside_tree():
 		_refresh_ui()
 
-func _refresh_ui() -> void:
-	if not is_inside_tree() or current_server == null or server_state_badge == null:
-		return
+func _switch_tab(tab_idx: int) -> void:
+	active_tab = tab_idx
+	if active_tab == 0:
+		# Pestaña Hardware -> Colores Naranjas
+		bg_frame.modulate = Color(1.0, 0.55, 0.1, 1.0)
+		divider.color = Color(1.0, 0.55, 0.1, 0.55)
+		hardware_container.visible = true
+		systems_container.visible = false
+		btn_tab_hardware.modulate = Color(1.3, 1.1, 0.3, 1.0)
+		btn_tab_systems.modulate = Color(0.7, 0.7, 0.7, 0.7)
+	else:
+		# Pestaña Sistemas -> Colores Azules Andromeda
+		bg_frame.modulate = Color(0.09, 0.58, 0.82, 1.0)
+		divider.color = Color(0.09, 0.58, 0.82, 0.55)
+		hardware_container.visible = false
+		systems_container.visible = true
+		btn_tab_hardware.modulate = Color(0.7, 0.7, 0.7, 0.7)
+		btn_tab_systems.modulate = Color(0.2, 0.95, 1.0, 1.0)
 		
-	if title_label and current_server:
-		title_label.text = "TORRE DE SERVIDOR // RACK EMPRESARIAL #%d (ÁREA DE SERVIDORES)" % current_server.server_id
-		
-	# Comprobar si el jugador tiene el kit de refrigeración líquida en la mochila
-	var has_liquid_kit = false
+	_refresh_ui()
+
+func _has_item_in_backpack(item_name: String) -> bool:
 	for it in GameManager.backpack:
 		var n = it.get("name", "")
-		if (n == "Refrigeracion Liquida" or n == "Kit Refrigeracion") and not it.get("broken", true):
-			has_liquid_kit = true
+		if not it.get("broken", true):
+			if n == item_name:
+				return true
+			if item_name == "CPU" and (n == "Procesador" or n == "CPU"):
+				return true
+			if item_name == "Grafica" and (n == "Tarjeta Grafica" or n == "Grafica" or n == "GPU"):
+				return true
+			if item_name == "Disco Duro" and (n == "Disco Duro" or n == "SSD" or n == "M.2"):
+				return true
+			if item_name == "Fan Cooler" and (n == "Fan Cooler" or n == "Cooler"):
+				return true
+			if item_name == "Refrigeracion Liquida" and ("Refrigeracion" in n or "Liquid" in n):
+				return true
+	return false
+
+func _consume_item_from_backpack(item_name: String) -> void:
+	for i in range(GameManager.backpack.size()):
+		var it = GameManager.backpack[i]
+		var n = it.get("name", "")
+		var matches = (n == item_name)
+		if not matches:
+			if item_name == "CPU" and (n == "Procesador" or n == "CPU"): matches = true
+			elif item_name == "Grafica" and (n == "Tarjeta Grafica" or n == "Grafica" or n == "GPU"): matches = true
+			elif item_name == "Disco Duro" and (n == "Disco Duro" or n == "SSD" or n == "M.2"): matches = true
+			elif item_name == "Fan Cooler" and (n == "Fan Cooler" or n == "Cooler"): matches = true
+			elif item_name == "Refrigeracion Liquida" and ("Refrigeracion" in n or "Liquid" in n): matches = true
+		if matches and not it.get("broken", true):
+			GameManager.remove_item_from_backpack(i)
 			break
+
+func _refresh_ui() -> void:
+	if not is_inside_tree() or current_server == null:
+		return
 		
-	var st1 = current_server.components.get("Bastidores & Rieles 2U", "broken")
-	var st2 = current_server.components.get("Fuentes 1+1 Hot-Swap", "broken")
-	var st3 = current_server.components.get("Caddies SAS & RAID (3 Discos)", "broken")
-	var st4 = current_server.components.get("Fan Wall de Turbinas", "broken")
-	var st5 = current_server.components.get("Loop Líquido Rack", "broken")
-	var st6 = current_server.components.get("Bancos RAM ECC (3 Módulos)", "broken")
-	var st7 = current_server.components.get("Dual CPU Enterprise", "broken")
-	var st8 = current_server.components.get("Riser PCIe / SmartNIC", "broken")
-	var st9 = current_server.components.get("Terminal & Scripting", "broken")
+	if title_label:
+		title_label.text = "TORRE DE SERVIDOR #%d // RACK EMPRESARIAL 19 PULGADAS" % current_server.server_id
+		
+	var is_mobo_fixed = (current_server.components.get("Placa Madre", "broken") == "fixed")
+	var hw_fixed_count = 0
+	var missing_names: Array[String] = []
+	var buttons = [btn_mobo, btn_ram, btn_ssd, btn_cpu, btn_cooler, btn_gpu]
+	var cards = [card_mobo, card_ram, card_ssd, card_cpu, card_cooler, card_gpu]
 	
-	_update_btn_style(btn_lvl_1, "BASTIDORES & RIELES 2U", "MONTAJE CHASIS 19\" EN RACK", st1)
-	_update_btn_style(btn_lvl_2, "FUENTES 1+1 HOT-SWAP", "INSTALAR FUENTE 1200W PLATINUM", st2)
-	_update_btn_style(btn_lvl_3, "CADDIES SAS & RAID (3 DISCOS)", "MONTAR 3 DISCOS SAS EN CALIENTE", st3)
-	_update_btn_style(btn_lvl_4, "FAN WALL DE TURBINAS", "INSTALAR MÓDULO EN TÚNEL DE AIRE", st4)
-	
-	# El cuadro de refrigeración líquida solo aparece si el jugador tiene el kit o si ya está instalado
-	if st5 == "fixed":
-		btn_lvl_5.visible = true
-		_update_btn_style(btn_lvl_5, "LOOP LÍQUIDO RACK", "INSTALADO & OPERATIVO", "fixed")
-	else:
-		btn_lvl_5.visible = has_liquid_kit
-		if has_liquid_kit:
-			btn_lvl_5.text = "⚡ LOOP LÍQUIDO RACK [CUADRO VACÍO]\n[ARRASTRA EL KIT DE REFRIGERACIÓN AQUÍ]"
-			btn_lvl_5.modulate = Color(0.1, 1.0, 0.7, 1.0)
-			
-	_update_btn_style(btn_lvl_6, "BANCOS RAM ECC (3 MÓDULOS)", "COLOCAR 3 BANCOS RAM DDR5", st6)
-	_update_btn_style(btn_lvl_7, "DUAL CPU ENTERPRISE", "COLOCAR CPU EN SOCKET INDUSTRIAL", st7)
-	_update_btn_style(btn_lvl_8, "RISER PCIE / SMARTNIC", "INSTALAR TARJETA DE RED 100GBE", st8)
-	_update_btn_style(btn_lvl_9, "TERMINAL & SCRIPTING", "DEPURAR SCRIPTS DE RED Y FIREWALL", st9)
-	
-	# Actualizar slots de mochila
-	for i in range(slot_buttons.size()):
-		var slot_btn = slot_buttons[i]
+	for i in range(HARDWARE_COMPONENTS.size()):
+		var data = HARDWARE_COMPONENTS[i]
+		var btn: Button = buttons[i]
+		var card: PanelContainer = cards[i]
+		var key = data["key"]
+		var item_name = data["item_name"]
+		var is_base = data.get("is_base", false)
+		var status = current_server.components.get(key, "broken")
+		
+		if status == "fixed":
+			hw_fixed_count += 1
+			card.modulate = Color(1.0, 1.0, 1.0, 1.0)
+			btn.disabled = false
+			btn.text = "✓ OPERATIVO [INSTALADO]"
+			btn.modulate = Color(0.2, 1.0, 0.5)
+		else:
+			missing_names.append(item_name)
+			if not is_base and not is_mobo_fixed:
+				# BLOQUEADO HASTA QUE SE INSTALE LA PLACA MADRE
+				card.modulate = Color(0.65, 0.65, 0.7, 0.5)
+				btn.disabled = true
+				btn.text = "🔒 [BLOQUEADO: Instala primero la Placa Madre]"
+				btn.modulate = Color(0.4, 0.4, 0.45, 0.5)
+			else:
+				# Desbloqueado: detectar si el jugador tiene la pieza
+				card.modulate = Color(1.0, 1.0, 1.0, 1.0)
+				btn.disabled = false
+				var target_count = data.get("target_count", 1)
+				var installed = current_server.components_installed_counts.get(key, 0) if current_server and "components_installed_counts" in current_server else 0
+				var count_in_backpack = 0
+				for it in GameManager.backpack:
+					if it is Dictionary and (it.get("name") == item_name or it.get("type") == item_name) and not it.get("broken", true):
+						count_in_backpack += 1
+				
+				if count_in_backpack > 0:
+					if target_count > 1 and installed > 0:
+						btn.text = "⚡ %d EN MOCHILA · CONTINUAR (%d/%d MONTADOS)" % [count_in_backpack, installed, target_count]
+					elif target_count > 1:
+						btn.text = "⚡ %d EN MOCHILA · INICIAR MONTAJE (0/%d)" % [count_in_backpack, target_count]
+					else:
+						btn.text = "⚡ REPUESTO DETECTADO EN INVENTARIO · CLIC PARA INTERVENIR"
+					btn.modulate = Color(1.0, 0.65, 0.15)
+				else:
+					if target_count > 1 and installed > 0:
+						btn.text = "⚠️ PAUSADO (%d/%d MONTADOS) · BÚSCA REPUESTO EN EL DATACENTER" % [installed, target_count]
+					else:
+						btn.text = "⚠️ FALTA [%s] · BÚSCALO EN EL DATACENTER" % item_name.to_upper()
+					btn.modulate = Color(0.65, 0.65, 0.7, 0.65)
+					
+	# Mochila
+	var slots = [slot_0, slot_1, slot_2]
+	for i in range(slots.size()):
+		var s = slots[i]
 		if i < GameManager.backpack.size():
 			var it = GameManager.backpack[i]
-			var item_name = it.get("name", "")
-			var is_selected = (i == selected_backpack_idx)
-			if is_selected:
-				slot_btn.text = "Slot %d: [ SELECCIONADO ]\n⚡ %s" % [i + 1, item_name]
-				slot_btn.modulate = Color(1.5, 1.4, 0.2, 1.0)
-			else:
-				slot_btn.text = "Slot %d: 📦 %s\n(Arrastra al cuadro)" % [i + 1, item_name]
-				slot_btn.modulate = Color(0.2, 0.95, 1.0, 1.0)
+			s.text = "Slot %d: 📦 %s" % [i + 1, it.get("name", "Item")]
+			s.modulate = Color(1.0, 0.8, 0.25)
 		else:
-			slot_btn.text = "Slot %d: [ VACÍO ]" % [i + 1]
-			slot_btn.modulate = Color(0.5, 0.5, 0.6, 0.6)
-	
-	var fixed_count = 0
-	for k in current_server.components.keys():
-		if current_server.components[k] == "fixed":
-			fixed_count += 1
+			s.text = "Slot %d: [ VACÍO ]" % [i + 1]
+			s.modulate = Color(0.5, 0.5, 0.55, 0.5)
 			
-	if current_server.is_fully_repaired():
-		server_state_badge.text = "¡TORRE DE SERVIDOR 100% OPERATIVA · TODOS LOS SUBSISTEMAS MONTADOS! ✓"
-		server_state_badge.modulate = Color(0.2, 1.0, 0.4)
-		status_summary.text = "TELEMETRÍA ÓPTIMA · 3 DISCOS SAS Y 3 BANCOS RAM OPERATIVOS · SIN ERRORES"
-		status_summary.modulate = Color(0.2, 1.0, 0.4)
+	var is_hw_complete = (hw_fixed_count >= HARDWARE_COMPONENTS.size())
+	
+	# Pestaña Sistemas
+	if is_hw_complete:
+		btn_tab_systems.text = "󰣇 SISTEMAS ANDROMEDA LINUX [✓ DESBLOQUEADO]"
+		btn_tab_systems.add_theme_color_override("font_color", Color(0.1, 0.9, 1.0))
 	else:
-		server_state_badge.text = "ESTADO: EN MONTAJE TÉCNICO (%d/9 SUBSISTEMAS MONTADOS)" % fixed_count
-		server_state_badge.modulate = Color(1.0, 0.3, 0.45)
+		btn_tab_systems.text = "󰣇 SISTEMAS ANDROMEDA LINUX [🔒]"
+		btn_tab_systems.add_theme_color_override("font_color", Color(0.8, 0.4, 0.3))
 		
-		if st5 != "fixed" and not has_liquid_kit:
-			status_summary.text = "⚠️ EL CUADRO DE REFRIGERACIÓN LÍQUIDA ESTÁ OCULTO: Sal al datacenter y recoge el Kit de la caja con [E] para habilitar el cuadro vacío."
-			status_summary.modulate = Color(1.0, 0.85, 0.2, 1.0)
-		elif st5 != "fixed" and has_liquid_kit:
-			status_summary.text = "✓ ¡Kit de Refrigeración listo en mochila! Arrastra el kit sobre el cuadro vacío para montar el loop."
-			status_summary.modulate = Color(0.2, 1.0, 0.5, 1.0)
-		else:
-			status_summary.text = "TODOS LOS MINIJUEGOS SON EXCLUSIVOS DE MONTAJE (SOLO PONER PIEZAS NUEVAS · 3 RAMS Y 3 DISCOS)"
-			status_summary.modulate = Color(0.85, 0.85, 0.9)
-
-func _update_btn_style(btn: Button, main_title: String, subtitle: String, status: String) -> void:
-	if btn == null:
-		return
-	if status == "fixed":
-		btn.text = "✓ %s\n[%s · INSTALADO]" % [main_title, subtitle]
-		btn.modulate = Color(0.3, 1.0, 0.5)
+	var is_sys_done = (current_server.components.get("Sistemas Andromeda Linux", "broken") == "fixed")
+	
+	if not is_hw_complete:
+		locked_panel.visible = true
+		unlocked_panel.visible = false
+		lock_desc.text = "El servidor no tiene energía ni subsistemas físicos completos. Debes ensamblar los 6 componentes de hardware para habilitar la instalación de Andromeda Linux:\n\nPiezas pendientes: " + ", ".join(missing_names)
 	else:
-		btn.text = "⚡ %s\n[%s · PONER PIEZA]" % [main_title, subtitle]
-		btn.modulate = Color(1.0, 0.92, 0.92)
-
-# =============================================================================
-# ARRASTRE DE REPUESTOS DESDE LA MOCHILA AL CUADRO
-# =============================================================================
-func _on_slot_gui_input(idx: int, event: InputEvent) -> void:
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
-		if event.pressed:
-			if idx < GameManager.backpack.size():
-				var it = GameManager.backpack[idx]
-				if not it.get("broken", false):
-					is_dragging_part = true
-					dragged_backpack_idx = idx
-					_create_drag_preview(it.get("name", ""))
-					_update_drag_preview_pos(event.global_position)
+		locked_panel.visible = false
+		unlocked_panel.visible = true
+		if is_sys_done:
+			btn_launch_cli.text = "✓ SISTEMA ANDROMEDA LINUX OPERATIVO · [REPETIR INSTALACIÓN]"
+			btn_launch_cli.modulate = Color(0.2, 1.0, 0.55)
 		else:
-			if is_dragging_part:
-				_finish_drag(event.global_position)
-
-func _on_slot_clicked(idx: int) -> void:
-	if idx >= GameManager.backpack.size():
-		selected_backpack_idx = -1
-		_show_feedback("Este slot de la mochila está vacío.", Color(0.7, 0.7, 0.7))
-		_refresh_ui()
-		return
-		
-	var it = GameManager.backpack[idx]
-	selected_backpack_idx = idx
-	_show_feedback("👉 Repuesto [%s] seleccionado. Arrástralo hacia su cuadro para montarlo." % it.get("name", ""), Color(0.2, 1.0, 0.5))
-	_refresh_ui()
-
-func _create_drag_preview(item_name: String) -> void:
-	if is_instance_valid(drag_preview):
-		drag_preview.queue_free()
-		
-	drag_preview = PanelContainer.new()
-	drag_preview.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	drag_preview.z_index = 100
+			btn_launch_cli.text = "⌨️ INICIAR INSTALACIÓN DE ANDROMEDA LINUX (CLI)"
+			btn_launch_cli.modulate = Color(0.1, 1.0, 0.8)
+			
+	var is_liquid_done = (current_server.components.get("Refrigeracion Liquida Custom Loop", "broken") == "fixed")
+	var has_liquid = _has_item_in_backpack("Refrigeracion Liquida")
 	
-	var lbl = Label.new()
-	lbl.text = "📦 REPUESTO: " + item_name + "\n(Suelta sobre el cuadro vacío para montar)"
-	lbl.add_theme_color_override("font_color", Color(0, 1, 0.6))
-	lbl.add_theme_font_size_override("font_size", 12)
-	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	
-	var sb = StyleBoxFlat.new()
-	sb.bg_color = Color(0.04, 0.08, 0.16, 0.95)
-	sb.border_color = Color(0, 0.95, 1, 1)
-	sb.set_border_width_all(2)
-	sb.set_corner_radius_all(6)
-	sb.content_margin_left = 12
-	sb.content_margin_right = 12
-	sb.content_margin_top = 8
-	sb.content_margin_bottom = 8
-	drag_preview.add_theme_stylebox_override("panel", sb)
-	
-	drag_preview.add_child(lbl)
-	modal_control.add_child(drag_preview)
-
-func _update_drag_preview_pos(global_pos: Vector2) -> void:
-	if is_instance_valid(drag_preview):
-		drag_preview.global_position = global_pos + Vector2(16, 16)
-
-func _finish_drag(drop_pos: Vector2) -> void:
-	var item_idx = dragged_backpack_idx
-	is_dragging_part = false
-	dragged_backpack_idx = -1
-	
-	if is_instance_valid(drag_preview):
-		drag_preview.queue_free()
-		drag_preview = null
-		
-	if item_idx >= 0 and item_idx < GameManager.backpack.size():
-		var item = GameManager.backpack[item_idx]
-		var item_name = item.get("name", "")
-		if btn_lvl_5.visible and btn_lvl_5.get_global_rect().has_point(drop_pos):
-			if item_name == "Refrigeracion Liquida" or item_name == "Kit Refrigeracion":
-				_on_liquid_cooling_pressed()
-				return
+	# Control de visibilidad del Cuadro Azul de Refrigeración Líquida
+	if is_sys_done and not is_liquid_done:
+		if is_instance_valid(cuadro_azul):
+			cuadro_azul.visible = true
+			if has_liquid:
+				desc_liquid.text = "✓ Refrigeración Líquida detectada en inventario.\n¡Haz clic aquí o arrastra para acoplar el bloque y montar los tubos del servidor!"
+				btn_acoplar_liquid.text = "💧 [ INSTALAR REFRIGERACIÓN LÍQUIDA (CLIC O ARRASTRA AQUÍ) ]"
+				btn_acoplar_liquid.modulate = Color(0.1, 1.0, 0.9)
 			else:
-				_show_feedback("❌ Solo puedes colocar el Kit de Refrigeración Líquida en este cuadro.", Color(1.0, 0.35, 0.35))
-				return
-				
-	_refresh_ui()
+				desc_liquid.text = "🔒 FASE FINAL PENDIENTE: Ve a la caja de Refrigeración Líquida en la sala de servidores (frente a la torre) y recógela con [E]."
+				btn_acoplar_liquid.text = "⚠️ FALTA REFRIGERACIÓN LÍQUIDA EN INVENTARIO"
+				btn_acoplar_liquid.modulate = Color(1.0, 0.6, 0.2)
+	else:
+		if is_instance_valid(cuadro_azul):
+			cuadro_azul.visible = false
+			
+	# Cabecera de estado
+	if current_server.is_fully_repaired():
+		badge_label.text = "¡TORRE DE SERVIDOR 100% OPERATIVA · CLÚSTER ANDROMEDA ONLINE! ✓"
+		badge_label.modulate = Color(0.2, 1.0, 0.4)
+		status_summary.text = "TELEMETRÍA ÓPTIMA · HARDWARE, ANDROMEDA LINUX Y REFRIGERACIÓN LÍQUIDA DESPLEGADOS"
+		status_summary.modulate = Color(0.2, 1.0, 0.4)
+	elif is_sys_done and not is_liquid_done:
+		badge_label.text = "SISTEMA OPERATIVO INSTALADO · PENDIENTE: REFRIGERACIÓN LÍQUIDA"
+		badge_label.modulate = Color(0.1, 0.95, 1.0)
+		status_summary.text = "Recoge la Refrigeración Líquida de la sala y acóplala en el Cuadro Azul central para cerrar el circuito térmico."
+		status_summary.modulate = Color(0.1, 0.95, 1.0)
+	elif not is_mobo_fixed:
+		badge_label.text = "ESTADO: BLOQUEO DE SEGURIDAD · MONTA LA PLACA MADRE PRIMERO"
+		badge_label.modulate = Color(1.0, 0.5, 0.2)
+		status_summary.text = "⚠️ PRIMER PASO: Monta la Placa Madre base en la bandeja inferior [U1] para desbloquear los demás zócalos."
+		status_summary.modulate = Color(1.0, 0.85, 0.2)
+	elif is_hw_complete:
+		badge_label.text = "HARDWARE 100% ENSAMBLADO (6/6) · PENDIENTE: INSTALAR ANDROMEDA LINUX"
+		badge_label.modulate = Color(0.2, 0.85, 1.0)
+		status_summary.text = "Ve a la pestaña [󰣇 SISTEMAS ANDROMEDA LINUX] para instalar el sistema operativo por teclado."
+		status_summary.modulate = Color(0.2, 0.85, 1.0)
+	else:
+		badge_label.text = "ESTADO: EN MONTAJE DE HARDWARE (%d/6 COMPONENTES MONTADOS)" % hw_fixed_count
+		badge_label.modulate = Color(1.0, 0.65, 0.2)
+		status_summary.text = "✓ ¡Placa Madre instalada! Todas las bahías desbloqueadas. Recoge los repuestos de la sala para montar cada componente."
+		status_summary.modulate = Color(0.2, 1.0, 0.5)
 
-# =============================================================================
-# LANZADORES DE MINIJUEGOS (SOLO PONER / MONTAJE DIRECTO SIN QUITAR)
-# =============================================================================
+func _apply_server_orange_theme(minigame: Node) -> void:
+	var bg = minigame.find_child("CyberBackgroundFrame", true, false)
+	if bg:
+		bg.modulate = Color(1.0, 0.55, 0.1, 1.0)
+	var tit = minigame.find_child("Titulo", true, false)
+	if tit and tit is Label:
+		tit.add_theme_color_override("font_color", Color(1.0, 0.75, 0.2))
+	var st = minigame.find_child("StatusLabel", true, false)
+	if st and st is Label:
+		st.modulate = Color(1.0, 0.85, 0.3)
+	var hdr = minigame.find_child("Header", true, false)
+	if hdr:
+		hdr.modulate = Color(1.05, 0.95, 0.85)
 
-func _launch_single_mounting(comp_name: String, scene_to_launch: PackedScene) -> void:
+func _on_backpack_slot_pressed(idx: int) -> void:
+	if idx < 0 or idx >= GameManager.backpack.size():
+		return
+	var item = GameManager.backpack[idx]
+	var item_name = item.get("name", "")
+	if item_name == "Refrigeracion Liquida":
+		var is_sys_done = (current_server and current_server.components.get("Sistemas Andromeda Linux", "broken") == "fixed")
+		if is_sys_done:
+			if is_instance_valid(cuadro_azul):
+				cuadro_azul.visible = true
+			_launch_liquid_cooling()
+		else:
+			_show_feedback("⚠️ Instala primero el sistema operativo Andromeda Linux antes de acoplar la refrigeración líquida.", Color(1.0, 0.6, 0.2))
+
+func _on_component_clicked(comp_idx: int) -> void:
+	if comp_idx < 0 or comp_idx >= HARDWARE_COMPONENTS.size():
+		return
+	var data = HARDWARE_COMPONENTS[comp_idx]
+	var key = data["key"]
+	var item_name = data["item_name"]
+	var is_base = data.get("is_base", false)
+	
+	if current_server and current_server.components.get(key, "") == "fixed":
+		_show_feedback("✓ %s ya está montado y asegurado." % data["title"], Color(0.2, 1.0, 0.5))
+		return
+		
+	# Si no es la placa madre y la placa aún no está fija, bloquear
+	var is_mobo_fixed = (current_server.components.get("Placa Madre", "broken") == "fixed")
+	if not is_base and not is_mobo_fixed:
+		_show_feedback("🔒 BLOQUEADO: Debes montar primero la Placa Madre en la bahía [U1].", Color(1.0, 0.4, 0.2))
+		return
+		
+	# Comprobar si el jugador tiene la pieza en la mochila
+	if not _has_item_in_backpack(item_name):
+		_show_feedback("⚠️ No tienes [%s] en tu mochila. Sal de la torre y recógela de la sala con [E]." % item_name, Color(1.0, 0.35, 0.35))
+		return
+		
+	active_repair_component = key
+	var scene_to_launch: PackedScene = get(data["scene"])
 	if not scene_to_launch:
 		return
 		
-	if current_server and current_server.components.get(comp_name, "") == "fixed":
-		_show_feedback("✓ %s ya está montado y asegurado." % comp_name, Color(0.2, 1.0, 0.4))
-		return
-		
-	active_repair_component = comp_name
+	var minigame = scene_to_launch.instantiate()
+	minigame.start_as_empty_slot = true
+	_apply_server_orange_theme(minigame)
 	
-	# Asegurar destornillador de Cruz [1] por defecto para facilitar el armado
+	if data.has("target_count"):
+		if "target_ram_count" in minigame:
+			minigame.target_ram_count = data["target_count"]
+		if "target_hdd_count" in minigame:
+			minigame.target_hdd_count = data["target_count"]
+		if "target_cpu_count" in minigame:
+			minigame.target_cpu_count = data["target_count"]
+			minigame.require_screws_sequence = true
+		if "target_cooler_count" in minigame:
+			minigame.target_cooler_count = data["target_count"]
+		if "target_gpu_count" in minigame:
+			minigame.target_gpu_count = data["target_count"]
+			
+	var current_done = 0
+	if current_server and "components_installed_counts" in current_server:
+		current_done = current_server.components_installed_counts.get(key, 0)
+	if "initial_installed_count" in minigame:
+		minigame.initial_installed_count = current_done
+			
 	var gm = get_node_or_null("/root/GameManager")
 	if gm and gm.has_method("select_tool"):
 		gm.select_tool(1)
-		
-	var minigame = scene_to_launch.instantiate()
-	# Forzar modo de SOLO PONER pieza (start_as_empty_slot)
-	if "start_as_empty_slot" in minigame:
-		minigame.start_as_empty_slot = true
 		
 	current_minigame_instance = minigame
 	modal_control.visible = false
 	add_child(minigame)
 	
-	if minigame.has_signal("minigame_finished"):
-		minigame.minigame_finished.connect(_on_single_mounting_finished)
-	elif minigame.has_signal("tree_exited"):
-		minigame.tree_exited.connect(func(): _on_single_mounting_finished(true))
+	minigame.minigame_finished.connect(func(success: bool):
+		_on_hardware_minigame_finished(success, item_name, key)
+	)
 
-func _on_single_mounting_finished(success: bool) -> void:
+func _on_hardware_minigame_finished(success: bool, item_name: String, key: String) -> void:
+	var installed_count = 0
 	if is_instance_valid(current_minigame_instance):
+		if current_minigame_instance.has_method("get_installed_count"):
+			installed_count = current_minigame_instance.get_installed_count()
 		current_minigame_instance.queue_free()
 		current_minigame_instance = null
 		
 	modal_control.visible = true
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	
-	if success:
-		if active_repair_component == "Loop Líquido Rack":
-			for i in range(GameManager.backpack.size()):
-				var n = GameManager.backpack[i].get("name", "")
-				if n == "Refrigeracion Liquida" or n == "Kit Refrigeracion":
-					GameManager.remove_item_from_backpack(i)
-					break
-					
-		if current_server and active_repair_component != "":
-			current_server.components[active_repair_component] = "fixed"
-			current_server.update_3d_state()
+	var target_count = 1
+	for comp in HARDWARE_COMPONENTS:
+		if comp["key"] == key:
+			target_count = comp.get("target_count", 1)
+			break
 			
+	if current_server and "components_installed_counts" in current_server:
+		if success:
+			current_server.components_installed_counts[key] = target_count
+		elif installed_count > 0:
+			current_server.components_installed_counts[key] = max(current_server.components_installed_counts.get(key, 0), installed_count)
+	
+	if success:
+		if target_count == 1:
+			_consume_item_from_backpack(item_name)
+		if current_server:
+			current_server.components[key] = "fixed"
+			current_server.update_3d_state()
 		var gm = get_node_or_null("/root/GameManager")
 		if gm and gm.has_method("add_score"):
-			gm.add_score(150, 5.0)
-			
-		_show_feedback("✓ %s MONTADO Y ASEGURADO CON ÉXITO (+150 PTS)" % active_repair_component, Color(0.2, 1.0, 0.4))
+			gm.add_score(150, 10.0)
+		_show_feedback("✓ ¡%s MONTADO Y ASEGURADO CON ÉXITO! (+150 PTS)" % key.to_upper(), Color(0.2, 1.0, 0.5))
 	else:
-		var gm = get_node_or_null("/root/GameManager")
-		if gm and gm.has_method("register_error"):
-			gm.register_error(3.0)
-		_show_feedback("⚠️ ERROR DE MONTAJE EN %s (-3s)" % active_repair_component, Color(1.0, 0.25, 0.35))
+		var cur_installed = current_server.components_installed_counts.get(key, 0) if current_server and "components_installed_counts" in current_server else 0
+		if cur_installed > 0 and cur_installed < target_count:
+			_show_feedback("Progreso guardado: %d de %d piezas montadas. Ve al datacenter por los repuestos restantes." % [cur_installed, target_count], Color(1.0, 0.85, 0.2))
+		else:
+			_show_feedback("⚠️ Montaje de %s pausado." % key, Color(1.0, 0.65, 0.2))
 		
 	_refresh_ui()
 
-# =============================================================================
-# REFRIGERACIÓN LÍQUIDA: ARRASTRAR O CLIC AL KIT SOBRE EL CUADRO VACÍO
-# =============================================================================
-func _on_liquid_cooling_pressed() -> void:
-	if current_server and current_server.components.get("Loop Líquido Rack", "") == "fixed":
-		_show_feedback("✓ El Loop Líquido del rack ya se encuentra completamente purgado y operativo.", Color(0.2, 1.0, 0.4))
+func _launch_andromeda_cli() -> void:
+	if not current_server or not current_server.is_hardware_completed():
+		_show_feedback("⚠️ Debes ensamblar los 6 componentes de hardware antes de instalar el sistema.", Color(1.0, 0.35, 0.35))
 		return
 		
-	var has_kit = false
-	for it in GameManager.backpack:
-		var n = it.get("name", "")
-		if (n == "Refrigeracion Liquida" or n == "Kit Refrigeracion") and not it.get("broken", true):
-			has_kit = true
-			break
-			
-	if not has_kit:
-		_show_feedback("⚠️ REQUIERES EL KIT DE REFRIGERACIÓN: Sal de la torre y recógelo de la caja de repuestos en la sala (presiona [E]).", Color(1.0, 0.35, 0.35))
-		return
-		
-	_launch_single_mounting("Loop Líquido Rack", liquid_minigame_scene)
-
-# =============================================================================
-# MONTAJE ESPECIAL: 3 MÓDULOS DE RAM ECC EN EL MISMO MINIJUEGO
-# =============================================================================
-func _on_ram_level_pressed() -> void:
-	if current_server and current_server.components.get("Bancos RAM ECC (3 Módulos)", "") == "fixed":
-		_show_feedback("✓ Los 3 Bancos de RAM ECC ya están montados y funcionando.", Color(0.2, 1.0, 0.4))
-		return
-		
-	active_repair_component = "Bancos RAM ECC (3 Módulos)"
-	_ensure_backpack_item("RAM")
-	
-	var minigame = ram_minigame_scene.instantiate()
-	minigame.start_as_empty_slot = true
-	minigame.target_ram_count = 3
+	var minigame = andromeda_cli_scene.instantiate()
 	current_minigame_instance = minigame
-	
 	modal_control.visible = false
 	add_child(minigame)
 	
@@ -390,41 +528,25 @@ func _on_ram_level_pressed() -> void:
 		
 		if success:
 			if current_server:
-				current_server.components["Bancos RAM ECC (3 Módulos)"] = "fixed"
+				current_server.components["Sistemas Andromeda Linux"] = "fixed"
 				current_server.update_3d_state()
 			var gm = get_node_or_null("/root/GameManager")
 			if gm and gm.has_method("add_score"):
-				gm.add_score(150, 15.0)
-			_show_feedback("✓ ¡LOS 3 MÓDULOS DE RAM ECC QUEDARON COMPLETAMENTE MONTADOS! (+150 PTS)", Color(0.2, 1.0, 0.4))
+				gm.add_score(300, 20.0)
+			_show_feedback("✓ ¡ANDROMEDA LINUX ENTERPRISE INSTALADO! ¡SERVIDOR 100% ONLINE! (+300 PTS)", Color(0.2, 1.0, 0.5))
 		else:
-			var gm = get_node_or_null("/root/GameManager")
-			if gm and gm.has_method("register_error"):
-				gm.register_error(3.0)
-			_show_feedback("⚠️ Montaje de RAM cancelado.", Color(1.0, 0.35, 0.35))
+			_show_feedback("⚠️ Instalación de Andromeda Linux pausada.", Color(1.0, 0.85, 0.2))
 			
 		_refresh_ui()
 	)
 
-# =============================================================================
-# MONTAJE ESPECIAL: 3 DISCOS DUROS SAS CADDIES EN EL MISMO MINIJUEGO
-# =============================================================================
-func _on_hdd_level_pressed() -> void:
-	if current_server and current_server.components.get("Caddies SAS & RAID (3 Discos)", "") == "fixed":
-		_show_feedback("✓ Los 3 Discos SAS Caddies ya están montados en el arreglo RAID.", Color(0.2, 1.0, 0.4))
+func _launch_liquid_cooling() -> void:
+	if not _has_item_in_backpack("Refrigeracion Liquida"):
+		_show_feedback("⚠️ No tienes [Refrigeracion Liquida] en tu mochila. Sal y recógela de la sala.", Color(1.0, 0.35, 0.35))
 		return
 		
-	active_repair_component = "Caddies SAS & RAID (3 Discos)"
-	_ensure_backpack_item("Disco Duro")
-	
-	var gm = get_node_or_null("/root/GameManager")
-	if gm and gm.has_method("select_tool"):
-		gm.select_tool(1)
-		
-	var minigame = hdd_minigame_scene.instantiate()
-	minigame.start_as_empty_slot = true
-	minigame.target_hdd_count = 3
+	var minigame = liquid_minigame_scene.instantiate()
 	current_minigame_instance = minigame
-	
 	modal_control.visible = false
 	add_child(minigame)
 	
@@ -437,76 +559,30 @@ func _on_hdd_level_pressed() -> void:
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 		
 		if success:
+			_consume_item_from_backpack("Refrigeracion Liquida")
 			if current_server:
-				current_server.components["Caddies SAS & RAID (3 Discos)"] = "fixed"
+				current_server.components["Refrigeracion Liquida Custom Loop"] = "fixed"
 				current_server.update_3d_state()
-			var gm_s = get_node_or_null("/root/GameManager")
-			if gm_s and gm_s.has_method("add_score"):
-				gm_s.add_score(150, 15.0)
-			_show_feedback("✓ ¡LOS 3 DISCOS SAS QUEDARON MONTADOS Y FIJADOS EN RAID! (+150 PTS)", Color(0.2, 1.0, 0.4))
+			var gm = get_node_or_null("/root/GameManager")
+			if gm and gm.has_method("add_score"):
+				gm.add_score(500, 30.0)
+			if gm and gm.has_method("complete_level"):
+				gm.complete_level()
+			_show_feedback("✓ ¡REFRIGERACIÓN LÍQUIDA INSTALADA! ¡TORRE DE SERVIDOR 100% OPERATIVA! (+500 PTS)", Color(0.2, 1.0, 0.5))
 		else:
-			var gm_e = get_node_or_null("/root/GameManager")
-			if gm_e and gm_e.has_method("register_error"):
-				gm_e.register_error(3.0)
-			_show_feedback("⚠️ Montaje de Discos SAS cancelado.", Color(1.0, 0.35, 0.35))
+			_show_feedback("⚠️ Montaje de refrigeración líquida pausado.", Color(1.0, 0.85, 0.2))
 			
 		_refresh_ui()
 	)
 
-# =============================================================================
-# MONTAJE ESPECIAL: DUAL CPU ENTERPRISE CON SECUENCIA DE TORNILLOS (3 -> 1 -> 2)
-# =============================================================================
-func _on_server_cpu_pressed() -> void:
-	if current_server and current_server.components.get("Dual CPU Enterprise", "") == "fixed":
-		_show_feedback("✓ Dual CPU Enterprise ya está montado y asegurado.", Color(0.2, 1.0, 0.4))
-		return
-		
-	active_repair_component = "Dual CPU Enterprise"
-	_ensure_backpack_item("CPU")
-	
-	var gm = get_node_or_null("/root/GameManager")
-	if gm and gm.has_method("select_tool"):
-		gm.select_tool(1)
-		
-	var minigame = cpu_minigame_scene.instantiate()
-	minigame.start_as_empty_slot = true
-	minigame.require_screws_sequence = true
-	current_minigame_instance = minigame
-	
-	modal_control.visible = false
-	add_child(minigame)
-	
-	minigame.minigame_finished.connect(_on_single_mounting_finished)
-
-# Asegura que haya repuestos funcionales en la mochila para montaje directo
-func _ensure_backpack_item(item_name: String) -> void:
-	var gm = get_node_or_null("/root/GameManager")
-	if not gm:
-		return
-	var found = false
-	for it in gm.backpack:
-		if (it.get("name") == item_name or it.get("type") == item_name) and not it.get("broken", true):
-			found = true
-			break
-	if not found:
-		if gm.backpack.size() >= gm.MAX_BACKPACK_SLOTS:
-			gm.backpack.pop_back()
-		gm.backpack.append({"name": item_name, "type": item_name, "broken": false, "functional": true})
-		gm.backpack_updated.emit(gm.backpack)
-
 func _show_feedback(msg: String, col: Color) -> void:
-	if feedback_label:
-		feedback_label.text = msg
-		feedback_label.modulate = col
-		var tw = create_tween()
-		tw.tween_property(feedback_label, "modulate:a", 1.0, 0.1)
-		tw.tween_interval(3.0)
-		tw.tween_property(feedback_label, "modulate:a", 0.0, 0.6)
+	feedback_label.text = msg
+	feedback_label.modulate = col
+	feedback_label.visible = true
+	var tw = create_tween()
+	tw.tween_property(feedback_label, "modulate:a", 1.0, 0.2)
+	tw.tween_property(feedback_label, "modulate:a", 0.0, 2.8).set_delay(1.5)
 
 func _on_volver_pressed() -> void:
-	if current_server and current_server.get("is_completed"):
-		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-	else:
-		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	inspection_closed.emit()
 	queue_free()

@@ -87,10 +87,10 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -490.0
-offset_top = -300.0
-offset_right = 490.0
-offset_bottom = 300.0
+offset_left = -580.0
+offset_top = -320.0
+offset_right = 580.0
+offset_bottom = 320.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxEmpty_frame")
@@ -146,37 +146,8 @@ theme_override_font_sizes/font_size = 14
 text = "PASO 1: Presiona el clip de seguridad y desconecta el cable PCIe de 8 pines."
 horizontal_alignment = 1
 
-[node name="GuidePanel" type="PanelContainer" parent="ModalControl/Panel/VBox/Header"]
-layout_mode = 2
-
-[node name="VBoxGuide" type="VBoxContainer" parent="ModalControl/Panel/VBox/Header/GuidePanel"]
-layout_mode = 2
-theme_override_constants/separation = 4
-
-[node name="TabsBox" type="HBoxContainer" parent="ModalControl/Panel/VBox/Header/GuidePanel/VBoxGuide"]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="BtnTabQuitar" type="Button" parent="ModalControl/Panel/VBox/Header/GuidePanel/VBoxGuide/TabsBox"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "🔻 FASE 1: CÓMO QUITAR"
-
-[node name="BtnTabPoner" type="Button" parent="ModalControl/Panel/VBox/Header/GuidePanel/VBoxGuide/TabsBox"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "🔺 FASE 2: CÓMO PONER (MONTAJE INVERSO)"
-
-[node name="GuideText" type="Label" parent="ModalControl/Panel/VBox/Header/GuidePanel/VBoxGuide"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.85, 0.9, 1.0, 0.9)
-theme_override_font_sizes/font_size = 11
-autowrap_mode = 2
-text = "PASOS DE DESMONTAJE: 1. Desconectar PCIe 8-pin · 2. Retirar 2 tornillos bracket · 3. Abrir pestillo PCIe · 4. Extraer GPU"
-horizontal_alignment = 1
-
 [node name="WorkArea" type="Control" parent="ModalControl/Panel/VBox"]
-custom_minimum_size = Vector2(850, 360)
+custom_minimum_size = Vector2(1100, 390)
 layout_mode = 2
 
 [node name="PCIeSlot" type="Panel" parent="ModalControl/Panel/VBox/WorkArea"]
@@ -186,9 +157,9 @@ anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -310.0
+offset_left = -480.0
 offset_top = -42.0
-offset_right = 310.0
+offset_right = 140.0
 offset_bottom = -6.0
 grow_horizontal = 2
 grow_vertical = 0
@@ -250,9 +221,9 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -340.0
+offset_left = -510.0
 offset_top = -120.0
-offset_right = 280.0
+offset_right = 110.0
 offset_bottom = 120.0
 grow_horizontal = 2
 grow_vertical = 2
@@ -375,17 +346,11 @@ grow_vertical = 0
 color = Color(0.9, 0.75, 0.2, 1)
 
 [node name="CableContainer" type="Panel" parent="ModalControl/Panel/VBox/WorkArea"]
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_top = 0.0
-anchor_right = 1.0
-anchor_bottom = 0.0
-offset_left = -210.0
+layout_mode = 0
+offset_left = 460.0
 offset_top = 15.0
-offset_right = -15.0
+offset_right = 655.0
 offset_bottom = 85.0
-grow_horizontal = 0
 theme_override_styles/panel = SubResource("StyleBoxFlat_cable")
 
 [node name="BtnCableClip" type="Button" parent="ModalControl/Panel/VBox/WorkArea/CableContainer"]
@@ -424,9 +389,9 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -140.0
+offset_left = -310.0
 offset_top = -22.0
-offset_right = 140.0
+offset_right = -30.0
 offset_bottom = 22.0
 grow_horizontal = 2
 grow_vertical = 2
@@ -437,6 +402,94 @@ text = "⬆ EXTRAER TARJETA GRÁFICA"
 flat = true
 script = ExtResource("2_cbtn")
 slant = 14.0
+
+[node name="RightGuidePanel" type="PanelContainer" parent="ModalControl/Panel/VBox/WorkArea"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -315.0
+offset_top = -180.0
+offset_right = -5.0
+offset_bottom = 180.0
+grow_horizontal = 0
+grow_vertical = 2
+
+[node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/WorkArea/RightGuidePanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 10
+
+[node name="VBoxGuide" type="VBoxContainer" parent="ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="GuideTitle" type="Label" parent="ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.15, 0.45, 1)
+theme_override_font_sizes/font_size = 13
+text = "GUÍA DE PROCEDIMIENTO"
+horizontal_alignment = 1
+
+[node name="TabsBox" type="HBoxContainer" parent="ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="BtnTabQuitar" type="Button" parent="ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide/TabsBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 11
+text = "🔻 QUITAR"
+
+[node name="BtnTabPoner" type="Button" parent="ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide/TabsBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 11
+text = "🔺 PONER"
+
+[node name="GuideText" type="Label" parent="ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.9, 1, 0.9)
+theme_override_font_sizes/font_size = 10
+text = "PASOS: 1. Cable PCIe · 2. Tornillos bracket · 3. Pestillo PCIe · 4. Extraer GPU"
+autowrap_mode = 2
+
+[node name="HSeparator" type="HSeparator" parent="ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide"]
+layout_mode = 2
+
+[node name="ChecklistTitle" type="Label" parent="ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 11
+text = "CHECKLIST DE ESTADO:"
+
+[node name="ChecklistContainer" type="VBoxContainer" parent="ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="ChkPower" type="Label" parent="ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide/ChecklistContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "○ 1. Cable PCIe 8-Pines"
+
+[node name="ChkBracket" type="Label" parent="ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide/ChecklistContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "○ 2. Tornillos Bracket (0/2)"
+
+[node name="ChkLatch" type="Label" parent="ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide/ChecklistContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "○ 3. Pestillo Slot PCIe"
+
+[node name="ChkExtract" type="Label" parent="ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide/ChecklistContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "○ 4. Extraer Tarjeta Gráfica"
 
 [node name="WarningLabel" type="Label" parent="ModalControl/Panel/VBox/WorkArea"]
 layout_mode = 1

@@ -27,6 +27,12 @@ enum State {
 var current_state: State = State.DISCONNECT_POWER
 var start_as_empty_slot: bool = false
 var is_tutorial_mode: bool = false
+@export var target_gpu_count: int = 1 # Servidor requiere 3 aceleradores
+@export var initial_installed_count: int = 0
+var current_gpu_index: int = 0
+
+func get_installed_count() -> int:
+	return current_gpu_index
 
 # Estado de los tornillos del bracket (2 tornillos)
 var screw_types: Array[String] = ["cruz", "cruz"]
@@ -71,9 +77,14 @@ var tex_screw_pala = preload("res://pixel art minijuegos/tornillos/tornillo de p
 @onready var btn_extract: Button = $ModalControl/Panel/VBox/WorkArea/BtnExtractGPU
 @onready var warning_label: Label = $ModalControl/Panel/VBox/WorkArea/WarningLabel
 
-@onready var btn_tab_quitar: Button = $ModalControl/Panel/VBox/Header/GuidePanel/VBoxGuide/TabsBox/BtnTabQuitar
-@onready var btn_tab_poner: Button = $ModalControl/Panel/VBox/Header/GuidePanel/VBoxGuide/TabsBox/BtnTabPoner
-@onready var guide_text: Label = $ModalControl/Panel/VBox/Header/GuidePanel/VBoxGuide/GuideText
+@onready var btn_tab_quitar: Button = $ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide/TabsBox/BtnTabQuitar
+@onready var btn_tab_poner: Button = $ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide/TabsBox/BtnTabPoner
+@onready var guide_text: Label = $ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide/GuideText
+
+@onready var chk_power: Label = $ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide/ChecklistContainer/ChkPower
+@onready var chk_bracket: Label = $ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide/ChecklistContainer/ChkBracket
+@onready var chk_latch: Label = $ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide/ChecklistContainer/ChkLatch
+@onready var chk_extract: Label = $ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide/ChecklistContainer/ChkExtract
 
 func _ready() -> void:
 	layer = 12
@@ -81,17 +92,20 @@ func _ready() -> void:
 	_setup_ui()
 	_update_tool_buttons()
 	
-	if is_tutorial_mode:
+	if is_instance_valid(btn_tab_quitar) and is_instance_valid(btn_tab_quitar.get_parent()):
+		btn_tab_quitar.get_parent().visible = false
+	if is_instance_valid(btn_tab_quitar):
 		btn_tab_quitar.pressed.connect(func(): _select_guide_tab(0))
+	if is_instance_valid(btn_tab_poner):
 		btn_tab_poner.pressed.connect(func(): _select_guide_tab(1))
-	else:
-		var tabs = btn_tab_quitar.get_parent()
-		if tabs:
-			tabs.queue_free()
 	
 	pcie_latch_btn.pivot_offset = Vector2(35, 14)
 	
-	if start_as_empty_slot:
+	if initial_installed_count > 0:
+		current_gpu_index = initial_installed_count
+		_prepare_next_gpu_slot()
+		_select_guide_tab(1)
+	elif start_as_empty_slot:
 		current_state = State.EMPTY_SLOT
 		gpu_container.visible = true
 		gpu_container.position.y = -100.0
@@ -133,14 +147,13 @@ func _select_guide_tab(idx: int) -> void:
 			btn_tab_quitar.modulate = Color(0.7, 0.7, 0.7, 0.7)
 			btn_tab_poner.modulate = Color(0.2, 1.0, 0.5, 1.0)
 			
-	if idx == 0:
-		guide_text.text = "PASOS DE DESMONTAJE (QUITAR): 1. Desconecta cable PCIe 8P · 2. Retira 2 tornillos de bracket con [1]/[2] · 3. Abre pestillo PCIe · 4. Extrae GPU."
-		if is_tutorial_mode and (is_install_phase() or current_state == State.EMPTY_SLOT):
-			_setup_quitar_phase()
-	else:
-		guide_text.text = "PASOS DE MONTAJE (CÓMO PONER AL REVÉS): 1. Monta la GPU nueva en el slot PCIe · 2. Cierra pestillo, atornilla bracket y conecta cable (cualquier orden)."
-		if is_tutorial_mode and (not is_install_phase() and current_state != State.EMPTY_SLOT):
-			_setup_empty_slot_phase()
+	var has_gpu = false
+	for it in GameManager.backpack:
+		if it.get("name") == "Grafica" and not it.get("broken", true):
+			has_gpu = true
+			break
+	var spare_msg = "✓ Tarjeta Gráfica de repuesto detectada en inventario.\n\n" if has_gpu else "⚠️ Preparado para montar repuesto.\n\n"
+	guide_text.text = "INSTRUCCIONES DE MONTAJE:\n\n" + spare_msg + "1. Monta la GPU nueva en el slot PCIe.\n2. Cierra el pestillo de retención.\n3. Atornilla el bracket metálico con destornillador.\n4. Conecta el cable PCIe 8-pin."
 
 func _setup_quitar_phase() -> void:
 	current_state = State.DISCONNECT_POWER
@@ -210,8 +223,12 @@ func _seat_new_gpu() -> void:
 		if it.get("name") == "Grafica" and not it.get("broken", true):
 			found_idx = i
 			break
-	if found_idx != -1:
-		GameManager.remove_item_from_backpack(found_idx)
+	if found_idx == -1:
+		_show_warning("⚠️ No tienes Tarjetas Gráficas de repuesto en la mochila. Sal [ESC] para recogerlas.", Color(1.0, 0.4, 0.4))
+		status_label.text = "⚠️ FALTA GPU EN MOCHILA · SAL [ESC] PARA BUSCARLA (PROGRESO: %d/%d)" % [current_gpu_index, target_gpu_count]
+		status_label.modulate = Color(1.0, 0.4, 0.4)
+		return
+	GameManager.remove_item_from_backpack(found_idx)
 		
 	gpu_container.visible = true
 	var tw = create_tween().set_parallel(true)
@@ -282,7 +299,7 @@ func _on_gpu_container_gui_input(event: InputEvent) -> void:
 				if is_dragging_gpu:
 					is_dragging_gpu = false
 					var diff = event.global_position.y - drag_start_y
-					if diff >= 30.0:
+					if diff >= 20.0 or abs(diff) < 5.0: # Arrastre hacia abajo o clic directo
 						_seat_new_gpu()
 					else:
 						var tw = create_tween()
@@ -351,10 +368,64 @@ func _check_gpu_install_completed() -> void:
 	var latch_done = not is_pcie_latch_unlocked
 	var cable_done = not is_power_disconnected
 	if screws_done and latch_done and cable_done:
-		current_state = State.COMPLETED
-		_show_success_flow()
+		current_gpu_index += 1
+		if current_gpu_index < target_gpu_count:
+			_show_warning("✓ ¡TARJETA GPU #%d/%d MONTADA! Preparando siguiente ranura..." % [current_gpu_index, target_gpu_count], Color(0.2, 1.0, 0.4))
+			await get_tree().create_timer(0.8).timeout
+			_prepare_next_gpu_slot()
+		else:
+			current_state = State.COMPLETED
+			_show_success_flow()
 	else:
 		_update_status()
+
+func _prepare_next_gpu_slot() -> void:
+	var has_gpu = false
+	for it in GameManager.backpack:
+		if it.get("name") == "Grafica" and not it.get("broken", true):
+			has_gpu = true
+			break
+
+	current_state = State.EMPTY_SLOT
+	gpu_container.visible = true
+	gpu_container.position.y = -100.0
+	gpu_container.modulate = Color(0.3, 0.9, 1.0, 0.65)
+	
+	btn_extract.visible = true
+	btn_extract.disabled = false
+	btn_extract.text = "⇪ INSTALAR GPU #%d (CLIC O ARRASTRA)" % (current_gpu_index + 1)
+	if btn_extract.pressed.is_connected(_on_extract_pressed):
+		btn_extract.pressed.disconnect(_on_extract_pressed)
+	if not btn_extract.pressed.is_connected(_seat_new_gpu):
+		btn_extract.pressed.connect(_seat_new_gpu)
+		
+	btn_screw_1.visible = false
+	btn_screw_2.visible = false
+	cable_container.visible = false
+	cable_container.position.y = CABLE_Y_DISCONNECTED
+	is_power_disconnected = true
+	is_pcie_latch_unlocked = true
+	pcie_latch_btn.rotation_degrees = 45.0
+	pcie_latch_btn.text = "ABIERTO"
+	pcie_latch_btn.modulate = Color(1.0, 0.8, 0.2)
+	latch_status_label.text = "PESTILLO PCIE: ABIERTO"
+	screws_removed = [true, true]
+	
+	_setup_screws()
+	screws_removed = [true, true]
+	if is_instance_valid(icon_screw_1):
+		icon_screw_1.texture = tex_screw_cruz if screw_types[0] == "cruz" else tex_screw_pala
+	if is_instance_valid(icon_screw_2):
+		icon_screw_2.texture = tex_screw_cruz if screw_types[1] == "cruz" else tex_screw_pala
+		
+	if not has_gpu:
+		status_label.text = "⚠️ FALTA GPU EN MOCHILA · SAL [ESC] PARA RECOGERLA (PROGRESO: %d/%d)" % [current_gpu_index, target_gpu_count]
+		status_label.modulate = Color(1.0, 0.4, 0.4)
+		_show_warning("⚠️ No tienes más GPUs en la mochila. Sal [ESC] para buscarlas.", Color(1.0, 0.4, 0.4))
+	else:
+		status_label.text = "RISER PCIE: Ranura #%d de %d · Asienta la nueva GPU (Clic o Arrastra)" % [current_gpu_index + 1, target_gpu_count]
+		status_label.modulate = Color(1.0, 0.85, 0.2)
+	_update_status()
 
 func _on_cable_pressed() -> void:
 	if is_install_phase():
@@ -544,7 +615,7 @@ func _on_extract_pressed() -> void:
 	if not btn_extract.pressed.is_connected(_seat_new_gpu):
 		btn_extract.pressed.connect(_seat_new_gpu)
 	
-	_show_warning("✓ FASE 1 (QUITAR) SUPERADA ➔ AHORA FASE 2: MONTAJE DEL REPUESTO (INVERSO)", Color(0.2, 1.0, 0.5))
+	_show_warning("✓ Espacio despejado ➔ AHORA: MONTAJE DEL REPUESTO", Color(0.2, 1.0, 0.5))
 	_update_status()
 
 func _show_warning(msg: String, col: Color) -> void:
@@ -583,6 +654,36 @@ func _update_status() -> void:
 		State.COMPLETED:
 			status_label.text = "¡OPERACIÓN COMPLETADA! GPU instalada y testeada con éxito."
 			status_label.modulate = Color(0.2, 1.0, 0.4)
+	
+	_update_checklist()
+
+func _update_checklist() -> void:
+	if not is_instance_valid(chk_power) or not is_instance_valid(chk_bracket):
+		return
+	var is_install: bool = is_install_phase() or current_state == State.EMPTY_SLOT
+	if not is_install:
+		_format_check_item(chk_power, is_power_disconnected, "1. Cable PCIe 8-Pines", current_state == State.DISCONNECT_POWER)
+		var s_rem = (1 if screws_removed[0] else 0) + (1 if screws_removed[1] else 0)
+		_format_check_item(chk_bracket, s_rem == 2, "2. Tornillos bracket (%d/2)" % s_rem, current_state == State.UNSCREW_BRACKET)
+		_format_check_item(chk_latch, is_pcie_latch_unlocked, "3. Pestillo Slot PCIe", current_state == State.RELEASE_LATCH)
+		_format_check_item(chk_extract, is_extracted, "4. Extraer Tarjeta Gráfica", current_state == State.EXTRACT_GPU)
+	else:
+		_format_check_item(chk_extract, current_state != State.EMPTY_SLOT, "1. Calzar GPU en zócalo", current_state == State.EMPTY_SLOT)
+		_format_check_item(chk_latch, not is_pcie_latch_unlocked, "2. Trabar pestillo PCIe", is_pcie_latch_unlocked)
+		var s_fast = (0 if screws_removed[0] else 1) + (0 if screws_removed[1] else 1)
+		_format_check_item(chk_bracket, s_fast == 2, "3. Tornillos bracket (%d/2)" % s_fast, s_fast < 2)
+		_format_check_item(chk_power, not is_power_disconnected, "4. Cable PCIe 8-Pines", is_power_disconnected)
+
+func _format_check_item(lbl: Label, done: bool, text: String, active: bool = false) -> void:
+	if done:
+		lbl.text = "✓ " + text
+		lbl.modulate = Color(0.2, 1.0, 0.5, 0.95)
+	elif active:
+		lbl.text = "➔ " + text
+		lbl.modulate = Color(1.0, 0.85, 0.2, 1.0)
+	else:
+		lbl.text = "○ " + text
+		lbl.modulate = Color(0.7, 0.75, 0.85, 0.6)
 
 func _show_success_flow() -> void:
 	current_state = State.COMPLETED

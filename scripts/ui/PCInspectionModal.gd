@@ -22,53 +22,61 @@ var liquid_cooling_scene: PackedScene = preload("res://scenes/minigames/LiquidCo
 @onready var pc_state_badge: Label = $ModalControl/Panel/VBox/BadgeLabel
 @onready var question_text: Label = $ModalControl/Panel/VBox/Header/QuestionPanel/Margin/VBox/QuestionText
 
-# Cards (cuadros de componentes)
+# Cards (arquitectura física de una placa madre / chasis PC)
+@onready var card_cpu: PanelContainer = $ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardCPU
+@onready var card_cooler: PanelContainer = $ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardCooler
 @onready var card_ram: PanelContainer = $ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardRAM
-@onready var card_hdd: PanelContainer = $ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardHDD
-@onready var card_gpu: PanelContainer = $ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardGPU
-@onready var card_psu: PanelContainer = $ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardPSU
+@onready var card_gpu: PanelContainer = $ModalControl/Panel/VBox/ComponentsContainer/RowMiddle/CardGPU
+@onready var card_hdd: PanelContainer = $ModalControl/Panel/VBox/ComponentsContainer/RowMiddle/CardHDD
 @onready var card_mobo: PanelContainer = $ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardMOBO
-@onready var card_cooler: PanelContainer = $ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCooler
-@onready var card_cpu: PanelContainer = $ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCPU
+@onready var card_psu: PanelContainer = $ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardPSU
 @onready var row_bottom: Container = $ModalControl/Panel/VBox/ComponentsContainer/RowBottom
 
 # Etiquetas de estado
+@onready var lbl_status_cpu: Label = $ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardCPU/Margin/VBox/Status
+@onready var lbl_status_cooler: Label = $ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardCooler/Margin/VBox/Status
 @onready var lbl_status_ram: Label = $ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardRAM/Margin/VBox/Status
-@onready var lbl_status_hdd: Label = $ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardHDD/Margin/VBox/Status
-@onready var lbl_status_gpu: Label = $ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardGPU/Margin/VBox/Status
-@onready var lbl_status_psu: Label = $ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardPSU/Margin/VBox/Status
+@onready var lbl_status_gpu: Label = $ModalControl/Panel/VBox/ComponentsContainer/RowMiddle/CardGPU/Margin/VBox/Status
+@onready var lbl_status_hdd: Label = $ModalControl/Panel/VBox/ComponentsContainer/RowMiddle/CardHDD/Margin/VBox/Status
 @onready var lbl_status_mobo: Label = $ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardMOBO/Margin/VBox/Status
-@onready var lbl_status_cooler: Label = $ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCooler/Margin/VBox/Status
-@onready var lbl_status_cpu: Label = $ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCPU/Margin/VBox/Status
+@onready var lbl_status_psu: Label = $ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardPSU/Margin/VBox/Status
 
 # Botones de sacar pieza
-@onready var btn_sacar_ram: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardRAM/Margin/VBox/BtnSacar
-@onready var btn_sacar_hdd: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardHDD/Margin/VBox/BtnSacar
-@onready var btn_sacar_gpu: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardGPU/Margin/VBox/BtnSacar
-@onready var btn_sacar_psu: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardPSU/Margin/VBox/BtnSacar
-@onready var btn_sacar_mobo: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardMOBO/Margin/VBox/BtnSacar
-@onready var btn_sacar_cooler: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCooler/Margin/VBox/BtnSacar
-@onready var btn_sacar_cpu: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCPU/Margin/VBox/CPUButtons/BtnSacar
+@onready var btn_sacar_cpu: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardCPU/Margin/VBox/CPUButtons/HBoxMain/BtnSacar
+@onready var btn_sacar_cooler: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardCooler/Margin/VBox/HBoxBtns/BtnSacar
+@onready var btn_sacar_ram: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardRAM/Margin/VBox/HBoxBtns/BtnSacar
+@onready var btn_sacar_gpu: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowMiddle/CardGPU/Margin/VBox/HBoxBtns/BtnSacar
+@onready var btn_sacar_hdd: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowMiddle/CardHDD/Margin/VBox/HBoxBtns/BtnSacar
+@onready var btn_sacar_mobo: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardMOBO/Margin/VBox/HBoxBtns/BtnSacar
+@onready var btn_sacar_psu: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardPSU/Margin/VBox/HBoxBtns/BtnSacar
 
 # Botones de examinar pieza
-@onready var btn_examinar_ram: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardRAM/Margin/VBox/BtnExaminar
-@onready var btn_examinar_hdd: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardHDD/Margin/VBox/BtnExaminar
-@onready var btn_examinar_gpu: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardGPU/Margin/VBox/BtnExaminar
-@onready var btn_examinar_psu: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardPSU/Margin/VBox/BtnExaminar
-@onready var btn_examinar_mobo: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardMOBO/Margin/VBox/BtnExaminar
-@onready var btn_examinar_cooler: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCooler/Margin/VBox/BtnExaminar
-@onready var btn_examinar_cpu: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCPU/Margin/VBox/CPUButtons/BtnExaminar
+@onready var btn_examinar_cpu: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardCPU/Margin/VBox/CPUButtons/HBoxMain/BtnExaminar
+@onready var btn_examinar_cooler: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardCooler/Margin/VBox/HBoxBtns/BtnExaminar
+@onready var btn_examinar_ram: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardRAM/Margin/VBox/HBoxBtns/BtnExaminar
+@onready var btn_examinar_gpu: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowMiddle/CardGPU/Margin/VBox/HBoxBtns/BtnExaminar
+@onready var btn_examinar_hdd: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowMiddle/CardHDD/Margin/VBox/HBoxBtns/BtnExaminar
+@onready var btn_examinar_mobo: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardMOBO/Margin/VBox/HBoxBtns/BtnExaminar
+@onready var btn_examinar_psu: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardPSU/Margin/VBox/HBoxBtns/BtnExaminar
 
 # Botones extra del CPU
-@onready var btn_cpu_limpiar: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCPU/Margin/VBox/CPUButtons/BtnLimpiar
-@onready var btn_cpu_pines: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardCPU/Margin/VBox/CPUButtons/BtnPines
+@onready var btn_cpu_limpiar: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardCPU/Margin/VBox/CPUButtons/HBoxExtra/BtnLimpiar
+@onready var btn_cpu_pines: Button = $ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardCPU/Margin/VBox/CPUButtons/HBoxExtra/BtnPines
 
-# Botones de herramientas en la modal
-@onready var btn_tool_1: Button = $ModalControl/Panel/VBox/ToolsSection/BtnTool1
-@onready var btn_tool_2: Button = $ModalControl/Panel/VBox/ToolsSection/BtnTool2
-@onready var btn_tool_3: Button = $ModalControl/Panel/VBox/ToolsSection/BtnTool3
-@onready var btn_tool_4: Button = $ModalControl/Panel/VBox/ToolsSection/BtnTool4
-@onready var btn_tool_5: Button = $ModalControl/Panel/VBox/ToolsSection/BtnTool5
+# Botones de herramientas en la barra lateral derecha
+@onready var btn_tool_1: Button = $ModalControl/ToolsDock/Margin/VBox/BtnTool1
+@onready var btn_tool_2: Button = $ModalControl/ToolsDock/Margin/VBox/BtnTool2
+@onready var btn_tool_3: Button = $ModalControl/ToolsDock/Margin/VBox/BtnTool3
+@onready var btn_tool_4: Button = $ModalControl/ToolsDock/Margin/VBox/BtnTool4
+@onready var btn_tool_5: Button = $ModalControl/ToolsDock/Margin/VBox/BtnTool5
+
+# Puntos de examinación (4 círculos amarillos)
+@onready var exam_circle_0: TextureRect = $ModalControl/Panel/VBox/ExaminationSection/Margin/HBox/CirclesContainer/Circle0
+@onready var exam_circle_1: TextureRect = $ModalControl/Panel/VBox/ExaminationSection/Margin/HBox/CirclesContainer/Circle1
+@onready var exam_circle_2: TextureRect = $ModalControl/Panel/VBox/ExaminationSection/Margin/HBox/CirclesContainer/Circle2
+@onready var exam_circle_3: TextureRect = $ModalControl/Panel/VBox/ExaminationSection/Margin/HBox/CirclesContainer/Circle3
+@onready var exam_count_label: Label = $ModalControl/Panel/VBox/ExaminationSection/Margin/HBox/ExamCountLabel
+@onready var exam_recharge_label: Label = $ModalControl/Panel/VBox/ExaminationSection/Margin/HBox/ExamRechargeLabel
 
 # Mochila
 @onready var slot_0: Button = $ModalControl/Panel/VBox/BackpackSection/BackpackSlots/Slot0
@@ -160,13 +168,13 @@ func _ready() -> void:
 		"CPU": lbl_status_cpu
 	}
 	
-	# Inicializar StyleBoxes únicos para cada cuadro (todos en azul cyberpunk)
+	# Inicializar StyleBoxes únicos para cada cuadro (estética ámbar / hardware cyberpunk)
 	for comp_name in comp_cards.keys():
 		var card: PanelContainer = comp_cards[comp_name]
 		var sb: StyleBoxFlat = StyleBoxFlat.new()
-		sb.bg_color = Color(0.04, 0.08, 0.18, 0.94)
+		sb.bg_color = Color(0.08, 0.06, 0.02, 0.94)
 		sb.set_border_width_all(2)
-		sb.border_color = Color(0.15, 0.85, 1.0, 0.9)
+		sb.border_color = Color(1.0, 0.72, 0.22, 0.9)
 		sb.set_corner_radius_all(6)
 		sb.shadow_size = 6
 		sb.shadow_color = Color(0, 0, 0, 0.35)
@@ -184,110 +192,9 @@ func _ready() -> void:
 		# Permitir también hacer clic en el cuadro para interactuar/instalar
 		card.gui_input.connect(func(event): _on_card_gui_input(comp_name, event))
 	
-	# Registrar botones del CPU
-	btn_cpu_limpiar.pressed.connect(func(): _on_limpiar_pressed("CPU"))
-	btn_cpu_pines.pressed.connect(func(): _on_pines_pressed("CPU"))
-	comp_limpiar_btns["CPU"] = btn_cpu_limpiar
-	comp_pines_btns["CPU"] = btn_cpu_pines
-	
-	# Estilos para botones de herramientas en las demás piezas
-	var style_limpiar_normal = btn_cpu_limpiar.get_theme_stylebox("normal")
-	var style_limpiar_hover = btn_cpu_limpiar.get_theme_stylebox("hover")
-	var style_pines_normal = btn_cpu_pines.get_theme_stylebox("normal")
-	var style_pines_hover = btn_cpu_pines.get_theme_stylebox("hover")
-	
-	var comp_limpiar_labels = {
-		"RAM": "🧼 LIMPIAR CONTACTOS [5]",
-		"Disco Duro": "🧼 LIMPIAR PUERTOS SATA [5]",
-		"Grafica": "🧼 LIMPIAR DISIPADOR & FANS [5]",
-		"Fuente": "🧼 LIMPIAR FILTRO / POLVO [5]",
-		"Placa Madre": "🧼 LIMPIAR CHIPSET / PISTAS [5]",
-		"Fan Cooler": "🧼 LIMPIAR ALETAS & ASPAS [5]"
-	}
-
-	var comp_pines_labels = {
-		"RAM": "🔍 ALINEAR PINES (LUPA [3])",
-		"Disco Duro": "📍 SOLDAR PINES SATA [3]",
-		"Grafica": "📍 SOLDAR PINES PCIE [3]",
-		"Fuente": "📍 SOLDAR CABLES / PINES [3]",
-		"Placa Madre": "📍 SOLDAR SOCKET / PISTAS [3]",
-		"Fan Cooler": "📍 SOLDAR CONECTOR PWM [3]"
-	}
-	
-	for comp_name in comp_cards.keys():
-		if comp_name == "CPU":
-			continue
-		var btn_sacar = comp_sacar_btns[comp_name]
-		var parent_vbox = btn_sacar.get_parent()
-		
-		# Botón Limpiar [5]
-		var btn_limpiar = Button.new()
-		btn_limpiar.custom_minimum_size = Vector2(0, 30)
-		btn_limpiar.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-		btn_limpiar.add_theme_font_size_override("font_size", 11)
-		if style_limpiar_normal:
-			btn_limpiar.add_theme_stylebox_override("normal", style_limpiar_normal)
-		if style_limpiar_hover:
-			btn_limpiar.add_theme_stylebox_override("hover", style_limpiar_hover)
-		btn_limpiar.text = comp_limpiar_labels.get(comp_name, "🧼 LIMPIAR [5]")
-		btn_limpiar.visible = false
-		btn_limpiar.pressed.connect(func(): _on_limpiar_pressed(comp_name))
-		parent_vbox.add_child(btn_limpiar)
-		comp_limpiar_btns[comp_name] = btn_limpiar
-		
-		# Botón Pines / Soldar [3]
-		var btn_pines = Button.new()
-		btn_pines.custom_minimum_size = Vector2(0, 30)
-		btn_pines.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-		btn_pines.add_theme_font_size_override("font_size", 11)
-		if style_pines_normal:
-			btn_pines.add_theme_stylebox_override("normal", style_pines_normal)
-		if style_pines_hover:
-			btn_pines.add_theme_stylebox_override("hover", style_pines_hover)
-		btn_pines.text = comp_pines_labels.get(comp_name, "📍 SOLDAR / PINES [3]")
-		btn_pines.visible = false
-		btn_pines.pressed.connect(func(): _on_pines_pressed(comp_name))
-		parent_vbox.add_child(btn_pines)
-		comp_pines_btns[comp_name] = btn_pines
-	
-	# Botones de Multímetro [4] para las áreas de RAM, Fuente de Poder y Fan Cooler
-	var comp_volti_labels = {
-		"RAM": "⚡ MEDIR VOLTAJE RAM [4]",
-		"Fuente": "⚡ MEDIR RIELES PSU [4]",
-		"Fan Cooler": "⚡ MEDIR VOLTAJE PWM [4]"
-	}
-	var style_volti_normal = StyleBoxFlat.new()
-	style_volti_normal.bg_color = Color(0.08, 0.12, 0.18, 0.95)
-	style_volti_normal.border_width_left = 2
-	style_volti_normal.border_width_top = 2
-	style_volti_normal.border_width_right = 2
-	style_volti_normal.border_width_bottom = 2
-	style_volti_normal.border_color = Color(1.0, 0.85, 0.15, 0.9)
-	style_volti_normal.corner_radius_top_left = 4
-	style_volti_normal.corner_radius_top_right = 4
-	style_volti_normal.corner_radius_bottom_right = 4
-	style_volti_normal.corner_radius_bottom_left = 4
-
-	var style_volti_hover = style_volti_normal.duplicate()
-	style_volti_hover.bg_color = Color(0.12, 0.22, 0.32, 1.0)
-	style_volti_hover.border_color = Color(0.2, 0.95, 1.0, 1.0)
-
-	for comp_name in ["RAM", "Fuente", "Fan Cooler"]:
-		var btn_sacar = comp_sacar_btns[comp_name]
-		var parent_vbox = btn_sacar.get_parent()
-		var btn_volti = Button.new()
-		btn_volti.custom_minimum_size = Vector2(0, 30)
-		btn_volti.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-		btn_volti.add_theme_font_size_override("font_size", 11)
-		btn_volti.add_theme_stylebox_override("normal", style_volti_normal)
-		btn_volti.add_theme_stylebox_override("hover", style_volti_hover)
-		btn_volti.add_theme_color_override("font_color", Color(1.0, 0.9, 0.3))
-		btn_volti.add_theme_color_override("font_hover_color", Color(0.2, 1.0, 0.9))
-		btn_volti.text = comp_volti_labels[comp_name]
-		btn_volti.visible = false
-		btn_volti.pressed.connect(func(): _on_voltimeter_pressed(comp_name))
-		parent_vbox.add_child(btn_volti)
-		comp_voltimeter_btns[comp_name] = btn_volti
+	# Registrar botones del CPU (ocultos por defecto para mantener diseño limpio y chill)
+	btn_cpu_limpiar.visible = false
+	btn_cpu_pines.visible = false
 	
 	# Botones de selección rápida de herramientas
 	btn_tool_1.pressed.connect(func(): GameManager.select_tool(1))
@@ -305,6 +212,8 @@ func _ready() -> void:
 		
 	GameManager.backpack_updated.connect(func(_b): _refresh_ui())
 	GameManager.tool_selected.connect(func(_tool_id): _refresh_ui())
+	GameManager.examination_points_updated.connect(func(_pts, _max_pts, _prog): _update_examination_points_ui())
+	_update_examination_points_ui()
 
 func setup_pc(pc_node) -> void:
 	current_pc = pc_node
@@ -358,6 +267,8 @@ func _on_card_gui_input(comp_name: String, event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		if selected_backpack_idx >= 0 and selected_backpack_idx < GameManager.backpack.size():
 			_try_install_spare(selected_backpack_idx, comp_name)
+		else:
+			_on_sacar_pressed(comp_name)
 
 func _on_slot_gui_input(idx: int, event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
@@ -534,8 +445,20 @@ func _try_install_spare(backpack_idx: int, target_comp: String) -> void:
 	else:
 		_open_minigame_by_name(target_comp, true)
 
+func _find_spare_in_backpack(comp_name: String) -> int:
+	for i in range(GameManager.backpack.size()):
+		var it = GameManager.backpack[i]
+		if it.get("broken", false):
+			continue
+		var n = it.get("name", "")
+		if n == comp_name:
+			return i
+		if comp_name == "Fan Cooler" and (n == "Refrigeracion Liquida" or n == "Kit Refrigeracion"):
+			return i
+	return -1
+
 # =============================================================================
-# ACCIÓN DEL BOTÓN SACAR (DESMONTAJE) Y EXAMINAR
+# ACCIÓN DEL BOTÓN SACAR (DESMONTAJE O MONTAJE SEGÚN DETECCIÓN) Y EXAMINAR
 # =============================================================================
 func _on_sacar_pressed(comp_name: String) -> void:
 	if current_pc == null:
@@ -544,14 +467,60 @@ func _on_sacar_pressed(comp_name: String) -> void:
 		return
 		
 	var status = current_pc.components.get(comp_name, "ok")
+	
+	# Acción contextual de herramienta especial si la pieza está presente
+	if status != "empty":
+		if GameManager.is_cleaning_tool_equipped():
+			_on_limpiar_pressed(comp_name)
+			return
+		elif GameManager.is_voltimeter_equipped() and (comp_name in ["RAM", "Fuente", "Fan Cooler"]):
+			_on_voltimeter_pressed(comp_name)
+			return
+		elif GameManager.is_soldering_tool_equipped() and (comp_name in ["CPU", "RAM"]):
+			_on_pines_pressed(comp_name)
+			return
+
 	if status == "empty":
-		_show_feedback("🎒 El slot de [%s] está vacío. Arrastra el repuesto nuevo desde tu mochila aquí para montarlo." % comp_name, false)
+		var spare_idx = _find_spare_in_backpack(comp_name)
+		if spare_idx != -1:
+			_try_install_spare(spare_idx, comp_name)
+		else:
+			_show_feedback("🎒 El zócalo de [%s] está vacío. No tienes un repuesto compatible en la mochila. Búscalo en las cajas del taller." % comp_name, false)
 		return
 		
 	if comp_name == "CPU":
 		_open_cpu_minigame(false)
 	else:
 		_open_minigame_by_name(comp_name, false)
+
+var exam_circles: Array[TextureRect] = []
+
+func _update_examination_points_ui() -> void:
+	if exam_circles.is_empty():
+		exam_circles = [exam_circle_0, exam_circle_1, exam_circle_2, exam_circle_3]
+		
+	var current_pts = GameManager.examination_points
+	var max_pts = GameManager.MAX_EXAMINATION_POINTS
+	var progress = GameManager.pieces_repaired_since_recharge
+	
+	for i in range(exam_circles.size()):
+		var circle = exam_circles[i]
+		if circle == null:
+			continue
+		if i < current_pts:
+			circle.modulate = Color(1.0, 0.88, 0.15, 1.0) # Amarillo brillante
+		else:
+			circle.modulate = Color(0.25, 0.25, 0.3, 0.35) # Consumido / apagado
+			
+	if exam_count_label:
+		exam_count_label.text = "[ %d / %d DISPONIBLES ]" % [current_pts, max_pts]
+		if current_pts == 0:
+			exam_count_label.modulate = Color(1.0, 0.35, 0.35)
+		else:
+			exam_count_label.modulate = Color(1.0, 0.88, 0.15)
+			
+	if exam_recharge_label:
+		exam_recharge_label.text = "⚡ Recarga: +1 cada 2 piezas reparadas (%d/2)" % progress
 
 func _on_examinar_pressed(comp_name: String) -> void:
 	if is_examining or current_pc == null:
@@ -562,21 +531,36 @@ func _on_examinar_pressed(comp_name: String) -> void:
 		_show_feedback("🔍 El slot de [%s] está vacío. No hay componente para examinar." % comp_name, false)
 		return
 
+	# Si ya fue examinado este componente, no gastar puntos de nuevo y mostrar resultado
+	var examined_st = get_examined_status(comp_name)
+	if examined_st != "":
+		_show_feedback("🔍 [%s] ya fue diagnosticado previamente: %s." % [comp_name, "DEFECTUOSO ❌" if examined_st == "broken" else "OPERATIVO ✓"], true)
+		return
+
+	# Comprobar puntos de examinación
+	if not GameManager.can_examine():
+		_show_feedback("⚠️ ¡Sin puntos de examinación! Repara 2 piezas para recargar 1 punto de diagnóstico.", false)
+		GameManager.spawn_floating_text("⚠️ ¡Sin Puntos de Examinación!", false)
+		return
+
+	GameManager.consume_examination_point()
+	_update_examination_points_ui()
+
 	is_examining = true
 	var btn_ex: Button = comp_examinar_btns.get(comp_name)
 	if btn_ex:
 		btn_ex.text = "⏳ ANALIZANDO..."
 		btn_ex.disabled = true
 	
-	_show_feedback("🔍 Analizando circuitos e integridad de [%s]... (Diagnóstico en curso)" % comp_name, true)
+	_show_feedback("🔍 Analizando circuitos e integridad de [%s] (-1 Punto)..." % comp_name, true)
 	
 	# Indicador visual temporal en la tarjeta (parpadeo amarillo durante análisis)
 	var sb: StyleBoxFlat = card_styleboxes.get(comp_name)
 	if sb:
 		sb.border_color = Color(1.0, 0.9, 0.2, 1.0)
 	
-	# Demora breve de 1.2 segundos (instantáneo pero con feedback claro)
-	await get_tree().create_timer(1.2).timeout
+	# Demora breve de 1.0 segundos (instantáneo pero con feedback claro)
+	await get_tree().create_timer(1.0).timeout
 	
 	if not is_instance_valid(self) or current_pc == null:
 		return
@@ -775,8 +759,13 @@ func _open_voltimeter(comp_name: String) -> void:
 # =============================================================================
 func _apply_card_border_color(sb: StyleBoxFlat, status: String, comp_name: String = "") -> void:
 	if status == "empty":
-		sb.border_color = Color(1.0, 0.8, 0.1, 0.9)
-		sb.bg_color = Color(0.04, 0.08, 0.18, 0.94)
+		var spare_idx = _find_spare_in_backpack(comp_name)
+		if spare_idx != -1:
+			sb.border_color = Color(0.2, 1.0, 0.65, 0.95)
+			sb.bg_color = Color(0.02, 0.12, 0.07, 0.95)
+		else:
+			sb.border_color = Color(1.0, 0.72, 0.22, 0.9)
+			sb.bg_color = Color(0.08, 0.06, 0.02, 0.94)
 		return
 		
 	var examined_st = get_examined_status(comp_name) if comp_name != "" else ""
@@ -789,27 +778,51 @@ func _apply_card_border_color(sb: StyleBoxFlat, status: String, comp_name: Strin
 		sb.border_color = Color(0.0, 1.0, 0.55, 0.95)
 		sb.bg_color = Color(0.02, 0.14, 0.08, 0.95)
 	else:
-		# Antes de examinar todos los cuadros se muestran en azul
-		sb.border_color = Color(0.15, 0.85, 1.0, 0.9)
-		sb.bg_color = Color(0.04, 0.08, 0.18, 0.94)
+		# Antes de examinar se muestran en ámbar cyberpunk
+		sb.border_color = Color(1.0, 0.72, 0.22, 0.9)
+		sb.bg_color = Color(0.08, 0.06, 0.02, 0.94)
+
+func _apply_contextual_action_button(btn: Button, comp_name: String, _status: String, examined_st: String) -> void:
+	if not is_instance_valid(btn):
+		return
+	if GameManager.is_cleaning_tool_equipped():
+		btn.text = "🧼 LIMPIAR [5]"
+		btn.disabled = false
+		btn.modulate = Color(0.2, 1.0, 0.85, 1.0)
+	elif GameManager.is_voltimeter_equipped() and (comp_name in ["RAM", "Fuente", "Fan Cooler"]):
+		btn.text = "⚡ MEDIR [4]"
+		btn.disabled = false
+		btn.modulate = Color(1.0, 0.85, 0.2, 1.0)
+	elif GameManager.is_soldering_tool_equipped() and (comp_name in ["CPU", "RAM"]):
+		btn.text = "📍 PINES [3]"
+		btn.disabled = false
+		btn.modulate = Color(1.0, 0.6, 0.2, 1.0)
+	else:
+		btn.text = "⬇ EXTRAER"
+		btn.disabled = false
+		if examined_st == "broken":
+			btn.modulate = Color(1.0, 0.35, 0.35, 1.0)
+		else:
+			btn.modulate = Color(1.0, 1.0, 1.0, 1.0)
 
 func _refresh_ui() -> void:
+	_update_examination_points_ui()
 	if current_pc == null:
 		return
 	var comps_dict: Dictionary = current_pc.get("components") if current_pc.get("components") != null else {}
 	if comps_dict.is_empty():
 		return
 		
-	var ram_spec = ("%s 16GB" % current_pc.ram_type.to_upper()) if (current_pc and "ram_type" in current_pc) else "DDR5 16GB"
-	var drive_spec = ("SSD M.2 NVMe" if current_pc.get("drive_type") == "m2" else "SSD SATA 2.5\"") if (current_pc and "drive_type" in current_pc) else "SSD / M.2"
-	var cpu_spec = ("AMD RYZEN 3" if (current_pc and current_pc.get("cpu_brand") == "amd") else "INTEL CORE I5") if (current_pc and "cpu_brand" in current_pc) else "INTEL CORE I5"
+	var ram_spec = ("%s 16GB · 1.35V · DIMM_A2" % current_pc.ram_type.to_upper()) if (current_pc and "ram_type" in current_pc) else "DDR5 16GB · 1.35V · DIMM_A2"
+	var drive_spec = ("NVMe PCIe 4.0 x4 · M2_0" if current_pc.get("drive_type") == "m2" else "SATA 6Gbps · PORT_0") if (current_pc and "drive_type" in current_pc) else "NVMe PCIe 4.0 x4 · M2_0"
+	var cpu_spec = ("AMD RYZEN 3 · AM4 · 65W TDP" if (current_pc and current_pc.get("cpu_brand") == "amd") else "INTEL CORE I5 · LGA1700 · 125W TDP") if (current_pc and "cpu_brand" in current_pc) else "INTEL CORE I5 · LGA1700 · 125W TDP"
 	var comp_subtitles = {
 		"RAM": ram_spec,
 		"Disco Duro": drive_spec,
-		"Grafica": "RTX 4070 OC",
-		"Fuente": "850W GOLD",
-		"Placa Madre": "CHIPSET Z790",
-		"Fan Cooler": "DISIPADOR PWM",
+		"Grafica": "RTX 4070 · PCIe 4.0 x16 · 12VHPWR",
+		"Fuente": "850W ATX 3.0 · +12V Single Rail · 80+ Gold",
+		"Placa Madre": "Chipset Z790 · PCIe Gen5 · BIOS 2.8",
+		"Fan Cooler": "PWM 4-Pin · 1850 RPM · Dual Tower",
 		"CPU": cpu_spec
 	}
 	
@@ -831,6 +844,9 @@ func _refresh_ui() -> void:
 		var btn_sacar: Button = comp_sacar_btns[comp_name]
 		var examined_st = get_examined_status(comp_name)
 		
+		# Sin botones de poner ni quitar: el cuadro explica y al hacer clic interactúa
+		btn_sacar.visible = false
+		
 		# Si es el cuadro de refrigeración líquida y está vacío para instalar el kit, solo aparece si el jugador tiene el kit
 		if comp_name == "Fan Cooler":
 			if status == "empty":
@@ -840,41 +856,32 @@ func _refresh_ui() -> void:
 
 		match status:
 			"empty":
-				if comp_name == "Fan Cooler":
-					lbl.text = "%s\n[ CUADRO VACÍO: ARRASTRA EL KIT AQUÍ ]" % sub
-					lbl.modulate = Color(0.2, 1.0, 0.6, 1.0)
-					btn_sacar.text = "ARRASTRA KIT AQUÍ"
+				var spare_idx = _find_spare_in_backpack(comp_name)
+				if spare_idx != -1:
+					var spare_item = GameManager.backpack[spare_idx]
+					var spare_name = spare_item.get("name", comp_name)
+					lbl.text = "%s\n[ ⚡ REPUESTO DETECTADO EN MOCHILA ]\n(Haz clic en este cuadro para instalar)" % sub
+					lbl.modulate = Color(0.2, 1.0, 0.65, 1.0)
 				else:
-					lbl.text = "%s\n[ SLOT VACÍO ]" % sub
-					lbl.modulate = Color(1.0, 0.8, 0.1, 1.0)
-					btn_sacar.text = "ARRASTRA REPUESTO"
-				btn_sacar.disabled = true
-				btn_sacar.modulate = Color(0.6, 0.6, 0.6, 0.5)
+					if comp_name == "Fan Cooler":
+						lbl.text = "%s\n[ ⚠️ ZÓCALO VACÍO ]\n(Requiere Kit de Líquida o Cooler del taller)" % sub
+						lbl.modulate = Color(1.0, 0.72, 0.22, 1.0)
+					else:
+						lbl.text = "%s\n[ ⚠️ ZÓCALO VACÍO ]\n(Consigue el repuesto en las cajas del taller)" % sub
+						lbl.modulate = Color(1.0, 0.72, 0.22, 1.0)
 			"fixed":
-				lbl.text = "%s\n[ REPARADO ✓ ]" % sub
+				lbl.text = "%s\n[ ✓ COMPONENTE OPERATIVO AL 100%% ]" % sub
 				lbl.modulate = Color(0.0, 1.0, 0.55, 1.0)
-				btn_sacar.text = "⬇ SACAR"
-				btn_sacar.disabled = false
-				btn_sacar.modulate = Color(1.0, 1.0, 1.0, 1.0)
 			_:
 				if examined_st == "broken":
-					lbl.text = "%s\n[ ⚠️ DEFECTUOSO ]" % sub
+					lbl.text = "%s\n[ ❌ DEFECTUOSO // FALLA DETECTADA ]\n(Haz clic en este cuadro para intervenir)" % sub
 					lbl.modulate = Color(1.0, 0.3, 0.3, 1.0)
-					btn_sacar.text = "⬇ SACAR"
-					btn_sacar.disabled = false
-					btn_sacar.modulate = Color(1.0, 0.35, 0.35, 1.0)
 				elif examined_st == "ok":
-					lbl.text = "%s\n[ OPERATIVO ✓ ]" % sub
+					lbl.text = "%s\n[ ✓ VERIFICADO EN BUEN ESTADO ]" % sub
 					lbl.modulate = Color(0.0, 1.0, 0.55, 1.0)
-					btn_sacar.text = "⬇ SACAR"
-					btn_sacar.disabled = false
-					btn_sacar.modulate = Color(1.0, 1.0, 1.0, 1.0)
 				else:
-					lbl.text = "%s\n[ INSTALADO ]" % sub
-					lbl.modulate = Color(0.15, 0.85, 1.0, 1.0)
-					btn_sacar.text = "⬇ SACAR"
-					btn_sacar.disabled = false
-					btn_sacar.modulate = Color(1.0, 1.0, 1.0, 1.0)
+					lbl.text = "%s\n[ 🔧 COMPONENTE INSTALADO ]\n(Haz clic para intervenir o examina con 🔍)" % sub
+					lbl.modulate = Color(1.0, 0.75, 0.2, 1.0)
 
 		# Bloqueo visual progresivo exclusivo para el tutorial
 		if current_pc and current_pc.get_meta("is_tutorial_pc", false):
@@ -890,22 +897,9 @@ func _refresh_ui() -> void:
 					s_btn.modulate = Color(0.5, 0.5, 0.5, 0.6)
 				
 		if comp_name == "CPU":
-			match status:
-				"empty":
-					btn_sacar_cpu.disabled = true
-					btn_sacar_cpu.text = "ARRASTRA CPU"
-					btn_sacar_cpu.modulate = Color(0.6, 0.6, 0.6, 0.5)
-				"fixed":
-					btn_sacar_cpu.disabled = false
-					btn_sacar_cpu.text = "⬇ SACAR"
-					btn_sacar_cpu.modulate = Color(1.0, 1.0, 1.0, 1.0)
-				_:
-					btn_sacar_cpu.disabled = false
-					btn_sacar_cpu.text = "⬇ SACAR"
-					if examined_st == "broken":
-						btn_sacar_cpu.modulate = Color(1.0, 0.35, 0.35, 1.0)
-					else:
-						btn_sacar_cpu.modulate = Color(1.0, 1.0, 1.0, 1.0)
+			btn_cpu_limpiar.visible = false
+			btn_cpu_pines.visible = false
+			btn_sacar_cpu.visible = false
 
 		# Estado de botón EXAMINAR en cada cuadro
 		if comp_examinar_btns.has(comp_name):
@@ -926,43 +920,6 @@ func _refresh_ui() -> void:
 					btn_ex.text = "🔍 EXAMINAR"
 					btn_ex.modulate = Color(1.0, 1.0, 1.0, 1.0)
 
-	# REGLA OBLIGATORIA PARA TODAS LAS PIEZAS:
-	# Los botones de Cautín [3], Multímetro [4] y Limpiador [5] solo son visibles con su herramienta activa
-	var is_cautin_equipped: bool = GameManager.is_soldering_tool_equipped()
-	var is_voltimeter_equipped: bool = GameManager.is_voltimeter_equipped()
-	var is_cleaner_equipped: bool = GameManager.is_cleaning_tool_equipped()
-
-	for comp_name in comp_cards.keys():
-		var status = comps_dict.get(comp_name, "ok")
-		var is_empty = (status == "empty")
-		
-		if comp_limpiar_btns.has(comp_name):
-			var btn_l: Button = comp_limpiar_btns[comp_name]
-			btn_l.visible = is_cleaner_equipped
-			btn_l.disabled = is_empty
-			if is_empty:
-				btn_l.modulate = Color(0.6, 0.6, 0.6, 0.5)
-			else:
-				btn_l.modulate = Color(1.0, 1.0, 1.0, 1.0)
-				
-		if comp_pines_btns.has(comp_name):
-			var btn_p: Button = comp_pines_btns[comp_name]
-			btn_p.visible = is_cautin_equipped and (comp_name == "CPU" or comp_name == "RAM")
-			btn_p.disabled = is_empty
-			if is_empty:
-				btn_p.modulate = Color(0.6, 0.6, 0.6, 0.5)
-			else:
-				btn_p.modulate = Color(1.0, 1.0, 1.0, 1.0)
-
-		if comp_voltimeter_btns.has(comp_name):
-			var btn_v: Button = comp_voltimeter_btns[comp_name]
-			btn_v.visible = is_voltimeter_equipped
-			btn_v.disabled = is_empty
-			if is_empty:
-				btn_v.modulate = Color(0.6, 0.6, 0.6, 0.5)
-			else:
-				btn_v.modulate = Color(1.0, 1.0, 1.0, 1.0)
-	
 	# En el tutorial solo se muestra RAM, Fuente de Poder y Almacenamiento (SSD/HDD)
 	var is_tut_pc: bool = (current_pc and current_pc.has_meta("is_tutorial_pc") and current_pc.get_meta("is_tutorial_pc")) or (get_tree().current_scene and "LevelTutorial" in get_tree().current_scene.name)
 	if is_tut_pc:
@@ -1035,27 +992,41 @@ func _refresh_ui() -> void:
 			elif comps_dict.get(comp) == "empty":
 				empty_count += 1
 		if empty_count > 0:
-			pc_state_badge.text = "MONTAJE PENDIENTE · INSTALA EL REPUESTO NUEVO DESDE TU MOCHILA"
-			pc_state_badge.modulate = Color(1.0, 0.85, 0.2, 1.0)
-			if badge_sb is StyleBoxFlat:
-				badge_sb.border_color = Color(1.0, 0.85, 0.2, 0.9)
-				badge_sb.bg_color = Color(0.12, 0.08, 0.02, 0.95)
+			var empty_with_spare = 0
+			for comp_k in comps_dict.keys():
+				if comps_dict.get(comp_k) == "empty" and _find_spare_in_backpack(comp_k) != -1:
+					empty_with_spare += 1
+			if empty_with_spare > 0:
+				pc_state_badge.text = "🎒 REPUESTO DETECTADO EN MOCHILA · HAZ CLIC EN [MONTAR] PARA INSTALAR"
+				pc_state_badge.modulate = Color(0.2, 1.0, 0.65, 1.0)
+				if badge_sb is StyleBoxFlat:
+					badge_sb.border_color = Color(0.2, 1.0, 0.65, 0.95)
+					badge_sb.bg_color = Color(0.02, 0.12, 0.08, 0.95)
+			else:
+				pc_state_badge.text = "MONTAJE PENDIENTE · CONSIGUE EL REPUESTO EN LAS CAJAS DEL TALLER"
+				pc_state_badge.modulate = Color(1.0, 0.85, 0.2, 1.0)
+				if badge_sb is StyleBoxFlat:
+					badge_sb.border_color = Color(1.0, 0.85, 0.2, 0.9)
+					badge_sb.bg_color = Color(0.12, 0.08, 0.02, 0.95)
 		else:
 			pc_state_badge.text = "DIAGNÓSTICO EN CURSO · RESPONDE LA PREGUNTA Y LOCALIZA LA AVERÍA"
-			pc_state_badge.modulate = Color(0.2, 0.9, 1.0, 1.0)
+			pc_state_badge.modulate = Color(1.0, 0.75, 0.2, 1.0)
 			if badge_sb is StyleBoxFlat:
-				badge_sb.border_color = Color(0.0, 0.9, 1.0, 0.8)
-				badge_sb.bg_color = Color(0.02, 0.08, 0.16, 0.95)
+				badge_sb.border_color = Color(1.0, 0.72, 0.22, 0.9)
+				badge_sb.bg_color = Color(0.08, 0.06, 0.02, 0.95)
 		if selected_backpack_idx < 0 and not is_examining:
 			if comps_dict.get("Fan Cooler") == "empty" and not has_liquid_kit:
 				status_summary.text = "⚠️ EL CUADRO DE REFRIGERACIÓN ESTÁ OCULTO: Ve a la sala y recoge el Kit de Refrigeración con [E] para habilitar el cuadro vacío."
 				status_summary.modulate = Color(1.0, 0.85, 0.2, 1.0)
 			elif comps_dict.get("Fan Cooler") == "empty" and has_liquid_kit:
-				status_summary.text = "✓ ¡Kit de Refrigeración disponible! Arrastra el kit sobre el cuadro vacío para montar el loop."
+				status_summary.text = "✓ ¡Kit de Refrigeración disponible! Haz clic en [⬆ MONTAR KIT] o arrástralo sobre el cuadro vacío."
 				status_summary.modulate = Color(0.2, 1.0, 0.5, 1.0)
+			elif empty_count > 0:
+				status_summary.text = "Detectando zócalo vacío. Si tienes el repuesto listo, haz clic en [⬆ MONTAR REPUESTO] en el cuadro."
+				status_summary.modulate = Color(0.2, 1.0, 0.65, 1.0)
 			else:
 				status_summary.text = "Lee la pregunta arriba, presiona 'EXAMINAR' para corroborar la pieza y 'SACAR' para reemplazarla."
-				status_summary.modulate = Color(0.2, 0.9, 1.0, 1.0)
+				status_summary.modulate = Color(1.0, 0.85, 0.2, 1.0)
 
 # =============================================================================
 # LANZAMIENTO DE MINIJUEGOS (DESMONTAJE O MONTAJE)

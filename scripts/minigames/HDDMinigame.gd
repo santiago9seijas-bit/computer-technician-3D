@@ -28,7 +28,14 @@ var level_phase: LevelPhase = LevelPhase.REMOVE_SCREW
 var start_as_empty_slot: bool = false
 var is_tutorial_mode: bool = false
 @export var target_hdd_count: int = 1
+@export var initial_installed_count: int = 0
 var current_hdd_index: int = 0
+
+func get_installed_count() -> int:
+	var cnt = 0
+	for s in hdd_installed_states:
+		if s: cnt += 1
+	return cnt
 
 var screw_type: String = "cruz"
 var required_tool_id: int = 1
@@ -44,6 +51,10 @@ var current_drive_type: String = "m2" # "m2" o "ssd"
 var is_dragging_level_drive: bool = false
 var drag_level_start_x: float = 0.0
 var is_pins_open: bool = false
+var is_ssd_in_pins: bool = false # Detecta si el SSD/M.2 está correctamente insertado en sus pines
+
+func is_ssd_correctly_seated_in_pins() -> bool:
+	return is_ssd_in_pins
 
 # Texturas oficiales de memoria y soporte
 const TEX_PLACA = preload("res://pixel art minijuegos/memoriastipos/soporte para ssd/placa.png")
@@ -89,6 +100,13 @@ const MEMORY_DRIVE_Y: float = -17.75
 var arrow_tween: Tween = null
 var pin_pulse_tween: Tween = null
 
+@onready var slots_container: VBoxContainer = get_node_or_null("ModalControl/Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox/SlotsContainer")
+@onready var btn_slot_0: Button = get_node_or_null("ModalControl/Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox/SlotsContainer/BtnSlot0")
+@onready var btn_slot_1: Button = get_node_or_null("ModalControl/Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox/SlotsContainer/BtnSlot1")
+@onready var btn_slot_2: Button = get_node_or_null("ModalControl/Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox/SlotsContainer/BtnSlot2")
+
+var hdd_installed_states: Array[bool] = [false, false, false]
+
 # Mochila y guía
 @onready var backpack_items_box: VBoxContainer = $ModalControl/Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox/ItemsContainer
 @onready var backpack_hint: Label = $ModalControl/Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox/BackpackHint
@@ -116,6 +134,22 @@ func _ready() -> void:
 	btn_screw.text = icon
 	lbl_screw_type.text = desc
 	
+	if btn_slot_0: btn_slot_0.pressed.connect(func(): _on_slot_button_clicked(0))
+	if btn_slot_1: btn_slot_1.pressed.connect(func(): _on_slot_button_clicked(1))
+	if btn_slot_2: btn_slot_2.pressed.connect(func(): _on_slot_button_clicked(2))
+	
+	if is_instance_valid(btn_tab_quitar) and is_instance_valid(btn_tab_quitar.get_parent()):
+		btn_tab_quitar.get_parent().visible = false
+		
+	if target_hdd_count > 1 and is_instance_valid(slots_container):
+		slots_container.visible = true
+		_update_slots_ui()
+	
+	if initial_installed_count > 0:
+		for k in range(min(initial_installed_count, hdd_installed_states.size())):
+			hdd_installed_states[k] = true
+		current_hdd_index = initial_installed_count
+
 	if is_tutorial_mode:
 		# MODO TUTORIAL (original)
 		bay_base.visible = true
@@ -127,7 +161,7 @@ func _ready() -> void:
 		btn_tab_quitar.pressed.connect(func(): _select_guide_tab(0))
 		btn_tab_poner.pressed.connect(func(): _select_guide_tab(1))
 		
-		if start_as_empty_slot:
+		if start_as_empty_slot or current_hdd_index > 0:
 			disk_panel.visible = false
 			empty_bay_label.visible = true
 			current_state = State.EMPTY_BAY
@@ -140,9 +174,8 @@ func _ready() -> void:
 		_refresh_backpack_ui()
 	else:
 		# MODO NIVEL (Nuevo sistema con sprites de placa, memoria M.2 / SSD y pines superpuestos)
-		var tabs = btn_tab_quitar.get_parent()
-		if tabs:
-			tabs.queue_free()
+		btn_tab_quitar.pressed.connect(func(): _select_guide_tab(0))
+		btn_tab_poner.pressed.connect(func(): _select_guide_tab(1))
 		bay_base.visible = false
 		disk_panel.visible = false
 		level_drive_area.visible = true
@@ -157,7 +190,12 @@ func _ready() -> void:
 				set_drive_type(next_type)
 			)
 		
-		_setup_level_drive_mode()
+		if current_hdd_index > 0:
+			_setup_level_empty_slot_phase()
+			_update_level_ui_state()
+			_update_slots_ui()
+		else:
+			_setup_level_drive_mode()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel") or (event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE):
@@ -184,8 +222,10 @@ func _setup_level_drive_mode() -> void:
 	
 	if start_as_empty_slot:
 		_setup_level_empty_slot_phase()
+		_select_guide_tab(1)
 	else:
 		_setup_level_removal_phase()
+		_select_guide_tab(0)
 		
 	_update_tool_buttons(GameManager.equipped_tool)
 	_refresh_backpack_ui()
@@ -297,22 +337,23 @@ func _stop_pin_pulse() -> void:
 func _update_level_ui_state() -> void:
 	var drive_name = "SSD M.2 NVMe" if current_drive_type == "m2" else "SSD SATA 2.5\""
 	var tool_name = "Cruz ★ [Tecla 1]" if screw_type == "cruz" else "Pala ▬ [Tecla 2]"
+	var prefix = ("BAHÍA SSD #%d DE %d · " % [current_hdd_index + 1, target_hdd_count]) if target_hdd_count > 1 else ""
 	
 	match level_phase:
 		LevelPhase.REMOVE_SCREW:
-			status_label.text = "Paso 1: Quita el tornillo trasero de la [%s] con Destornillador de %s." % [drive_name, tool_name]
+			status_label.text = prefix + "Paso 1: Quita el tornillo trasero de la [%s] con Destornillador de %s." % [drive_name, tool_name]
 			status_label.modulate = Color(1.0, 0.85, 0.2, 1)
 			_stop_pin_pulse()
 			if is_instance_valid(drag_arrow_indicator): drag_arrow_indicator.visible = false
 			if is_instance_valid(btn_toggle_model): btn_toggle_model.visible = false
 		LevelPhase.OPEN_PINS:
-			status_label.text = "Paso 2: Haz clic en los PINES del zócalo (recuadro resaltado a la izquierda) para abrir la traba del puerto."
+			status_label.text = prefix + "Paso 2: Haz clic en los PINES del zócalo (recuadro resaltado a la izquierda) para abrir la traba del puerto."
 			status_label.modulate = Color(0.0, 0.95, 1.0, 1)
 			_start_pin_pulse()
 			if is_instance_valid(drag_arrow_indicator): drag_arrow_indicator.visible = false
 			if is_instance_valid(btn_toggle_model): btn_toggle_model.visible = false
 		LevelPhase.EXTRACT_DRIVE:
-			status_label.text = "Paso 3: Arrastra la [%s] hacia la DERECHA para desconectarla del soporte." % drive_name
+			status_label.text = prefix + "Paso 3: Arrastra la [%s] hacia la DERECHA para desconectarla del soporte." % drive_name
 			status_label.modulate = Color(0.2, 1.0, 0.5, 1)
 			_stop_pin_pulse()
 			if is_instance_valid(arrow_label):
@@ -321,13 +362,13 @@ func _update_level_ui_state() -> void:
 			_start_arrow_pulse(true)
 			if is_instance_valid(btn_toggle_model): btn_toggle_model.visible = false
 		LevelPhase.EMPTY_SLOT:
-			status_label.text = "Soporte vacío. Arrastra el repuesto nuevo hacia la izquierda."
+			status_label.text = prefix + "Soporte vacío. Arrastra el repuesto nuevo hacia la izquierda."
 			status_label.modulate = Color(1.0, 0.85, 0.2, 1)
 			_stop_pin_pulse()
 			if is_instance_valid(drag_arrow_indicator): drag_arrow_indicator.visible = false
 			if is_instance_valid(btn_toggle_model): btn_toggle_model.visible = false
 		LevelPhase.INSERT_DRAG_LEFT:
-			status_label.text = "Paso 1: Arrastra la [%s] hacia la IZQUIERDA para calzarla en el conector." % drive_name
+			status_label.text = prefix + "Paso 1: Arrastra la [%s] hacia la IZQUIERDA para calzarla en el conector." % drive_name
 			status_label.modulate = Color(0.0, 0.9, 1.0, 1)
 			_stop_pin_pulse()
 			if is_instance_valid(arrow_label):
@@ -338,7 +379,7 @@ func _update_level_ui_state() -> void:
 				btn_toggle_model.visible = true
 				btn_toggle_model.text = "🔀 CAMBIAR MODELO: M.2 NVMe ⇄ SSD SATA (Actual: %s)" % ("M.2" if current_drive_type == "m2" else "SSD")
 		LevelPhase.CLOSE_PINS:
-			status_label.text = "Paso 2: Haz clic en los PINES del zócalo (recuadro resaltado a la izquierda) para trabar y fijar la unidad."
+			status_label.text = prefix + "Paso 2: Haz clic en los PINES del zócalo (recuadro resaltado a la izquierda) para trabar y fijar la unidad."
 			status_label.modulate = Color(1.0, 0.85, 0.2, 1)
 			_start_pin_pulse()
 			if is_instance_valid(drag_arrow_indicator): drag_arrow_indicator.visible = false
@@ -387,10 +428,21 @@ func _on_level_rear_screw_pressed() -> void:
 		tw.tween_property(rear_screw_btn, "modulate", Color(0.2, 1.3, 0.5, 1.0), 0.2)
 		tw.chain().tween_callback(func():
 			_consume_replacement_from_backpack()
-			level_phase = LevelPhase.COMPLETED
-			_update_level_ui_state()
-			await get_tree().create_timer(0.6).timeout
-			minigame_finished.emit(true)
+			if current_hdd_index < hdd_installed_states.size():
+				hdd_installed_states[current_hdd_index] = true
+			current_hdd_index += 1
+			_update_slots_ui()
+			
+			if current_hdd_index < target_hdd_count:
+				status_label.text = "✓ ¡SSD/M.2 #%d INSTALADO! Preparando siguiente bahía..." % current_hdd_index
+				status_label.modulate = Color(0.2, 1.0, 0.4)
+				await get_tree().create_timer(0.6).timeout
+				_prepare_next_level_drive_slot()
+			else:
+				level_phase = LevelPhase.COMPLETED
+				_update_level_ui_state()
+				await get_tree().create_timer(0.6).timeout
+				minigame_finished.emit(true)
 		)
 
 func _on_level_pins_pressed() -> void:
@@ -504,6 +556,7 @@ func _complete_level_drive_extraction() -> void:
 	)
 
 func _seat_level_drive() -> void:
+	is_ssd_in_pins = true
 	var tw = create_tween()
 	tw.tween_property(memory_drive, "position", Vector2(0.0, MEMORY_DRIVE_Y), 0.18).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	tw.tween_callback(func():
@@ -536,14 +589,23 @@ func _select_guide_tab(idx: int) -> void:
 			btn_tab_quitar.modulate = Color(0.7, 0.7, 0.7, 0.7)
 			btn_tab_poner.modulate = Color(0.2, 1.0, 0.5, 1.0)
 			
-	if idx == 0:
-		guide_text.text = "FASE 1 (QUITAR): Retira el tornillo de bahía con [1] Cruz o [2] Pala y arrastra el disco hacia arriba."
-		if is_tutorial_mode and (current_state == State.EMPTY_BAY or current_state == State.INSERT_DRAG_DOWN or current_state == State.SCREW_BACK):
-			_setup_quitar_phase()
-	else:
-		guide_text.text = "FASE 2 (PONER AL REVÉS): Coloca el disco nuevo en la bahía, arrástralo hacia abajo y ajusta el tornillo."
-		if is_tutorial_mode and (current_state == State.UNSCREW or current_state == State.EXTRACT_DRAG_UP):
+	if initial_installed_count > 0:
+		for k in range(min(initial_installed_count, hdd_installed_states.size())):
+			hdd_installed_states[k] = true
+		current_hdd_index = initial_installed_count
+		
+	if is_tutorial_mode:
+		guide_text.text = "INSTRUCCIONES DE MONTAJE:\n1. Coloca el disco nuevo en la bahía.\n2. Arrástralo hacia abajo hasta calzar.\n3. Ajusta el tornillo de sujeción."
+		if current_state == State.UNSCREW or current_state == State.EXTRACT_DRAG_UP:
 			_setup_empty_bay_phase()
+	else:
+		var has_hdd = false
+		for it in GameManager.backpack:
+			if it.get("name") == "Disco Duro" and not it.get("broken", true):
+				has_hdd = true
+				break
+		var spare_msg = "✓ Unidad SSD / M.2 detectada en inventario.\n\n" if has_hdd else "⚠️ Listo para montar repuesto.\n\n"
+		guide_text.text = "INSTRUCCIONES DE MONTAJE:\n\n" + spare_msg + "1. Arrastra la memoria hacia el puerto hasta calzar en los pines.\n2. Clic en los pines para asegurar.\n3. Coloca el tornillo de fijación trasero."
 
 func _setup_quitar_phase() -> void:
 	current_state = State.UNSCREW
@@ -731,41 +793,103 @@ func _on_screw_pressed() -> void:
 	elif current_state == State.SCREW_BACK:
 		btn_screw.modulate = Color(0, 1, 0.5, 1)
 		btn_screw.disabled = true
+		hdd_installed_states[current_hdd_index] = true
 		current_hdd_index += 1
 		
 		if current_hdd_index < target_hdd_count:
-			status_label.text = "✓ ¡DISCO SAS CADDY #%d ATORNILLADO Y FIJADO! Preparando Bahía #%d..." % [current_hdd_index, current_hdd_index + 1]
+			status_label.text = "✓ ¡DISCO SAS CADDY #%d ATORNILLADO Y FIJADO! Preparando siguiente bahía..." % current_hdd_index
 			status_label.modulate = Color(0.2, 1.0, 0.4)
-			var tw = create_tween()
-			tw.tween_interval(0.8)
-			tw.tween_callback(func():
-				var has_hdd = false
-				for it in GameManager.backpack:
-					if it.get("name") == "Disco Duro" and not it.get("broken", true):
-						has_hdd = true
-						break
-				if not has_hdd:
-					GameManager.add_item_to_backpack({"name": "Disco Duro", "broken": false})
-				
-				disk_panel.visible = false
-				empty_bay_label.visible = true
-				screw_container.visible = false
-				btn_screw.visible = false
-				btn_screw.disabled = false
-				btn_screw.rotation_degrees = 0.0
-				btn_screw.modulate = Color(1, 1, 1, 1)
-				current_state = State.EMPTY_BAY
-				_update_ui_state()
-				_refresh_backpack_ui()
+			_update_slots_ui()
+			var tween = create_tween()
+			tween.tween_interval(0.6)
+			tween.tween_callback(func():
+				_prepare_next_hdd_bay()
 			)
 		else:
 			current_state = State.COMPLETED
 			_update_ui_state()
+			_update_slots_ui()
 			var tween = create_tween()
-			tween.tween_interval(0.5)
+			tween.tween_interval(0.8)
 			tween.tween_callback(func():
 				minigame_finished.emit(true)
 			)
+
+func _on_slot_button_clicked(idx: int) -> void:
+	if idx == current_hdd_index and current_hdd_index < target_hdd_count and not hdd_installed_states[idx]:
+		if is_tutorial_mode:
+			_prepare_next_hdd_bay()
+		else:
+			_prepare_next_level_drive_slot()
+
+func _prepare_next_level_drive_slot() -> void:
+	var has_hdd = false
+	for it in GameManager.backpack:
+		if it.get("name") == "Disco Duro" and not it.get("broken", true):
+			has_hdd = true
+			break
+	_setup_level_empty_slot_phase()
+	_update_level_ui_state()
+	_update_slots_ui()
+	_refresh_backpack_ui()
+	if not has_hdd:
+		status_label.text = "⚠️ FALTA DISCO SSD EN MOCHILA · SAL [ESC] PARA RECOGERLO (PROGRESO: %d/%d)" % [current_hdd_index, target_hdd_count]
+		status_label.modulate = Color(1.0, 0.4, 0.4)
+
+func _prepare_next_hdd_bay() -> void:
+	var has_hdd = false
+	for it in GameManager.backpack:
+		if it.get("name") == "Disco Duro" and not it.get("broken", true):
+			has_hdd = true
+			break
+	
+	disk_panel.visible = false
+	empty_bay_label.visible = true
+	screw_container.visible = false
+	btn_screw.visible = false
+	btn_screw.disabled = false
+	btn_screw.rotation_degrees = 0.0
+	btn_screw.modulate = Color(1, 1, 1, 1)
+	current_state = State.EMPTY_BAY
+	_update_ui_state()
+	_update_slots_ui()
+	_refresh_backpack_ui()
+	if not has_hdd:
+		status_label.text = "⚠️ FALTA DISCO SSD EN MOCHILA · SAL [ESC] PARA RECOGERLO (PROGRESO: %d/%d)" % [current_hdd_index, target_hdd_count]
+		status_label.modulate = Color(1.0, 0.4, 0.4)
+	_update_ui_state()
+	_update_slots_ui()
+	_refresh_backpack_ui()
+
+func _update_slots_ui() -> void:
+	if target_hdd_count <= 1 or not is_instance_valid(slots_container):
+		return
+	var buttons = [btn_slot_0, btn_slot_1, btn_slot_2]
+	for i in range(buttons.size()):
+		var btn = buttons[i]
+		if not is_instance_valid(btn):
+			continue
+		if i >= target_hdd_count:
+			btn.visible = false
+			continue
+		btn.visible = true
+		if hdd_installed_states[i]:
+			btn.text = "✓ BAHÍA SAS/SSD #%d [INSTALADA]" % (i + 1)
+			btn.modulate = Color(0.2, 1.0, 0.45)
+			btn.disabled = false
+		elif i == current_hdd_index:
+			if current_state == State.EMPTY_BAY or current_state == State.INSERT_DRAG_DOWN:
+				btn.text = "➔ BAHÍA SAS #%d (EN MONTAJE)" % (i + 1)
+				btn.modulate = Color(0.0, 0.95, 1.0)
+				btn.disabled = false
+			else:
+				btn.text = "➔ CLIC PARA MONTAR BAHÍA #%d" % (i + 1)
+				btn.modulate = Color(1.0, 0.85, 0.2)
+				btn.disabled = false
+		else:
+			btn.text = "🔒 BAHÍA SAS #%d [PENDIENTE]" % (i + 1)
+			btn.modulate = Color(0.55, 0.6, 0.7, 0.6)
+			btn.disabled = true
 
 func _on_disk_gui_input(event: InputEvent) -> void:
 	if current_state == State.EXTRACT_DRAG_UP:

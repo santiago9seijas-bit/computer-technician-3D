@@ -22,6 +22,7 @@ signal minigame_finished(success: bool)
 @onready var pendrive_led: ColorRect = $ModalControl/Panel/VBox/HardwareArea/PendriveBody/Margin/HBox/Led
 @onready var pendrive_name_lbl: Label = $ModalControl/Panel/VBox/HardwareArea/PendriveBody/Margin/HBox/Name
 @onready var drag_hint_lbl: Label = $ModalControl/Panel/VBox/HardwareArea/DragHint
+@onready var btn_toggle_connect: Button = $ModalControl/Panel/VBox/HardwareArea/BtnToggleConnect
 
 # Área de Archivos & Inventario (Software / Transferencia)
 @onready var files_work_area: HBoxContainer = $ModalControl/Panel/VBox/FilesWorkArea
@@ -103,11 +104,7 @@ func _ready() -> void:
 	layer = 12
 	btn_cancel.pressed.connect(func(): minigame_finished.emit(false))
 	btn_start_transfer.pressed.connect(_on_start_transfer_pressed)
-
-func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("ui_cancel") or (event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE):
-		get_viewport().set_input_as_handled()
-		minigame_finished.emit(false)
+	btn_toggle_connect.pressed.connect(_on_btn_toggle_connect_pressed)
 	
 	btn_start_transfer.disabled = true
 	transfer_progress_bar.visible = false
@@ -121,28 +118,74 @@ func _unhandled_input(event: InputEvent) -> void:
 	connected_pendrive_x = usb_port_panel.position.x + 40.0
 	
 	pendrive_body.gui_input.connect(_on_pendrive_gui_input)
+	usb_port_panel.gui_input.connect(func(ev: InputEvent):
+		if ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT:
+			if current_state == State.CONNECT_USB:
+				var tw = create_tween()
+				tw.tween_property(pendrive_body, "position:x", connected_pendrive_x, 0.15)
+				await tw.finished
+				_trigger_usb_connected()
+	)
 	_setup_files_ui()
 	_update_state(State.CONNECT_USB)
+
+func _input(event: InputEvent) -> void:
+	if is_dragging_pendrive:
+		if event is InputEventMouseMotion:
+			var target_x = pendrive_body.get_global_mouse_position().x - pendrive_drag_mouse_offset
+			pendrive_body.position.x = clampf(target_x, connected_pendrive_x, initial_pendrive_pos.x)
+		elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:
+			is_dragging_pendrive = false
+			_handle_pendrive_release()
+			
+	if is_dragging_file:
+		if event is InputEventMouseMotion:
+			drag_ghost.global_position = event.global_position - Vector2(120, 20)
+		elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:
+			is_dragging_file = false
+			drag_ghost.visible = false
+			drop_zone_hint.modulate = Color(1.0, 1.0, 1.0, 1.0)
+			_check_file_drop(event.global_position)
+
+func _on_btn_toggle_connect_pressed() -> void:
+	if current_state == State.CONNECT_USB:
+		var tw = create_tween()
+		tw.tween_property(pendrive_body, "position:x", connected_pendrive_x, 0.2).set_trans(Tween.TRANS_QUAD)
+		await tw.finished
+		_trigger_usb_connected()
+	elif current_state == State.EJECT_USB:
+		var tw = create_tween()
+		tw.tween_property(pendrive_body, "position:x", initial_pendrive_pos.x, 0.2).set_trans(Tween.TRANS_QUAD)
+		await tw.finished
+		_trigger_usb_ejected()
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel") or (event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE):
+		get_viewport().set_input_as_handled()
+		minigame_finished.emit(false)
 
 func _update_state(new_state: State) -> void:
 	current_state = new_state
 	match current_state:
 		State.CONNECT_USB:
 			step_label.text = "PASO 1 / 4: CONEXIÓN DE LA UNIDAD PENDRIVE"
-			status_label.text = "Haz clic y arrastra el pendrive hacia la izquierda para insertarlo en el puerto USB 3.2."
+			status_label.text = "Haz clic o arrastra el pendrive hacia la izquierda para insertarlo en el puerto USB 3.2."
 			drag_hint_lbl.text = "◀ ARRASTRA HACIA EL PUERTO USB ◀"
 			drag_hint_lbl.visible = true
 			pendrive_name_lbl.text = "💾 CyberDrive 64GB\n(Arrastra al puerto)"
 			pendrive_led.color = Color(0.3, 0.3, 0.35)
+			btn_toggle_connect.visible = true
+			btn_toggle_connect.text = "⚡ CONECTAR AL PUERTO"
 			files_work_area.visible = false
 			
 		State.DRAG_FILES:
 			step_label.text = "PASO 2 / 4: ARRASTRA LOS ARCHIVOS AL PENDRIVE"
-			status_label.text = "Haz clic y arrastra cada archivo del cliente hacia el panel derecho del pendrive."
+			status_label.text = "Haz clic o arrastra cada archivo del cliente hacia el panel derecho del pendrive."
 			drag_hint_lbl.text = "🔌 PENDRIVE CONECTADO EN PUERTO USB 3.2"
 			drag_hint_lbl.add_theme_color_override("font_color", Color(0.2, 1.0, 0.6))
 			pendrive_name_lbl.text = "💾 CyberDrive (E:)\n[CONECTADO]"
 			pendrive_led.color = Color(0.2, 1.0, 0.6)
+			btn_toggle_connect.visible = false
 			files_work_area.visible = true
 			drop_zone_hint.visible = true
 			_update_storage_label()
@@ -151,16 +194,19 @@ func _update_state(new_state: State) -> void:
 			step_label.text = "PASO 3 / 4: ESCRITURA Y VERIFICACIÓN DE DATOS"
 			status_label.text = "Grabando celdas flash y creando booteo GPT. ¡No desconectes la unidad!"
 			btn_start_transfer.disabled = true
+			btn_toggle_connect.visible = false
 			transfer_progress_bar.visible = true
 			lbl_transfer_status.visible = true
 			drop_zone_hint.visible = false
 			
 		State.EJECT_USB:
 			step_label.text = "PASO 4 / 4: EXTRACCIÓN SEGURA DEL DISPOSITIVO"
-			status_label.text = "Copia completada al 100%. Arrastra el pendrive hacia la derecha para desconectarlo."
+			status_label.text = "Copia completada al 100%. Haz clic o arrastra el pendrive hacia la derecha para desconectarlo."
 			drag_hint_lbl.text = "▶ ARRASTRA HACIA LA DERECHA PARA EXTRAER ▶"
 			drag_hint_lbl.add_theme_color_override("font_color", Color(1.0, 0.85, 0.2))
 			pendrive_name_lbl.text = "💾 CyberDrive (E:)\n(Listo para extraer)"
+			btn_toggle_connect.visible = true
+			btn_toggle_connect.text = "⚡ EXTRAER DISPOSITIVO"
 			
 			var tw_pulse = create_tween().set_loops(3)
 			tw_pulse.tween_property(drag_hint_lbl, "modulate:a", 0.3, 0.25)
@@ -171,6 +217,7 @@ func _update_state(new_state: State) -> void:
 			status_label.text = "El pendrive contiene las herramientas y respaldos necesarios listos para el trabajo."
 			drag_hint_lbl.text = "✓ PENDRIVE EXTRAÍDO DE FORMA SEGURA"
 			drag_hint_lbl.add_theme_color_override("font_color", Color(0.2, 1.0, 0.5))
+			btn_toggle_connect.visible = false
 
 # =============================================================================
 # ARRASTRE DEL PENDRIVE (CONEXIÓN Y DESCONEXIÓN FÍSICA)
@@ -195,30 +242,25 @@ func _on_pendrive_gui_input(event: InputEvent) -> void:
 
 func _handle_pendrive_release() -> void:
 	if current_state == State.CONNECT_USB:
-		# Si se acercó lo suficiente al puerto USB
-		if pendrive_body.position.x <= connected_pendrive_x + 60.0:
+		# Si se acercó o hizo clic en el pendrive
+		if pendrive_body.position.x <= connected_pendrive_x + 120.0:
 			var tw = create_tween()
 			tw.tween_property(pendrive_body, "position:x", connected_pendrive_x, 0.15).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 			await tw.finished
 			_trigger_usb_connected()
 		else:
-			# Regresa a la posición inicial
-			var tw = create_tween()
-			tw.tween_property(pendrive_body, "position:x", initial_pendrive_pos.x, 0.2).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-			_show_toast("Arrastra el pendrive hasta insertarlo completamente en el puerto USB.")
-			
-	elif current_state == State.EJECT_USB:
-		# Si se arrastró hacia afuera hacia la derecha
-		if pendrive_body.position.x >= initial_pendrive_pos.x - 70.0:
-			var tw = create_tween()
-			tw.tween_property(pendrive_body, "position:x", initial_pendrive_pos.x, 0.15).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-			await tw.finished
-			_trigger_usb_ejected()
-		else:
-			# Regresa al puerto
+			# Si hizo un simple clic, conectarlo directamente de forma intuitiva
 			var tw = create_tween()
 			tw.tween_property(pendrive_body, "position:x", connected_pendrive_x, 0.2).set_trans(Tween.TRANS_QUAD)
-			_show_toast("Arrastra el pendrive hacia la derecha para sacarlo del puerto.")
+			await tw.finished
+			_trigger_usb_connected()
+			
+	elif current_state == State.EJECT_USB:
+		# Si se arrastró o hizo clic para expulsar
+		var tw = create_tween()
+		tw.tween_property(pendrive_body, "position:x", initial_pendrive_pos.x, 0.15).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		await tw.finished
+		_trigger_usb_ejected()
 
 func _trigger_usb_connected() -> void:
 	is_usb_connected = true
@@ -274,7 +316,7 @@ func _setup_files_ui() -> void:
 		panel.add_theme_stylebox_override("panel", style)
 		
 		var lbl = Label.new()
-		lbl.text = " %s (%s)\n  %s" % [file["name"], file["size"], file["desc"]]
+		lbl.text = " %s (%s) [CLIC O ARRASTRA]\n  %s" % [file["name"], file["size"], file["desc"]]
 		lbl.add_theme_font_size_override("font_size", 10)
 		lbl.add_theme_color_override("font_color", Color(0.85, 0.9, 0.95))
 		panel.add_child(lbl)
@@ -314,10 +356,15 @@ func _on_file_item_gui_input(event: InputEvent, file: Dictionary, card_panel: Pa
 
 func _check_file_drop(mouse_pos: Vector2) -> void:
 	var right_col_rect = right_col.get_global_rect()
-	if right_col_rect.has_point(mouse_pos):
+	var origin_rect = Rect2()
+	if dragged_file_data and file_cards.has(dragged_file_data["id"]):
+		origin_rect = file_cards[dragged_file_data["id"]].get_global_rect()
+		
+	# Aceptar arrastre hacia la derecha O clic directo sobre el archivo
+	if right_col_rect.has_point(mouse_pos) or origin_rect.has_point(mouse_pos):
 		_deposit_file_in_usb(dragged_file_data)
 	else:
-		_show_toast("Arrastra y suelta el archivo dentro del panel derecho del pendrive.")
+		_show_toast("Arrastra o haz clic en el archivo para copiarlo al pendrive.")
 
 func _deposit_file_in_usb(file: Dictionary) -> void:
 	if file["transferred"]:

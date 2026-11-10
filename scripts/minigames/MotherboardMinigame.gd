@@ -145,9 +145,17 @@ var tex_screw_pala = preload("res://pixel art minijuegos/tornillos/tornillo de p
 @onready var btn_extract_mobo: Button = $ModalControl/Panel/VBox/WorkArea/BtnExtractMobo
 @onready var warning_label: Label = $ModalControl/Panel/VBox/WorkArea/WarningLabel
 
-@onready var btn_tab_quitar: Button = $ModalControl/Panel/VBox/Header/GuidePanel/VBoxGuide/TabsBox/BtnTabQuitar
-@onready var btn_tab_poner: Button = $ModalControl/Panel/VBox/Header/GuidePanel/VBoxGuide/TabsBox/BtnTabPoner
-@onready var guide_text: Label = $ModalControl/Panel/VBox/Header/GuidePanel/VBoxGuide/GuideText
+@onready var btn_tab_quitar: Button = $ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBox/TabsBox/BtnTabQuitar
+@onready var btn_tab_poner: Button = $ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBox/TabsBox/BtnTabPoner
+@onready var guide_text: Label = $ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBox/GuideText
+
+@onready var chk_cables: Label = $ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBox/ChecklistVBox/ChkCables
+@onready var chk_gpu: Label = $ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBox/ChecklistVBox/ChkGPU
+@onready var chk_cooler: Label = $ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBox/ChecklistVBox/ChkCooler
+@onready var chk_m2: Label = $ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBox/ChecklistVBox/ChkM2
+@onready var chk_ram: Label = $ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBox/ChecklistVBox/ChkRAM
+@onready var chk_standoffs: Label = $ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBox/ChecklistVBox/ChkStandoffs
+@onready var chk_mobo: Label = $ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBox/ChecklistVBox/ChkMobo
 
 var cooler_screw_buttons: Array[Button] = []
 var cooler_screw_icons: Array[TextureRect] = []
@@ -160,13 +168,12 @@ func _ready() -> void:
 	_setup_ui()
 	_update_tool_buttons()
 	
-	if is_tutorial_mode:
+	if is_instance_valid(btn_tab_quitar) and is_instance_valid(btn_tab_quitar.get_parent()):
+		btn_tab_quitar.get_parent().visible = false
+	if is_instance_valid(btn_tab_quitar):
 		btn_tab_quitar.pressed.connect(func(): _select_guide_tab(0))
+	if is_instance_valid(btn_tab_poner):
 		btn_tab_poner.pressed.connect(func(): _select_guide_tab(1))
-	else:
-		var tabs = btn_tab_quitar.get_parent()
-		if tabs:
-			tabs.queue_free()
 	
 	if start_as_empty_slot:
 		_setup_empty_tray_phase()
@@ -186,14 +193,13 @@ func _select_guide_tab(idx: int) -> void:
 			btn_tab_quitar.modulate = Color(0.7, 0.7, 0.7, 0.7)
 			btn_tab_poner.modulate = Color(0.2, 1.0, 0.5, 1.0)
 			
-	if idx == 0:
-		guide_text.text = "PASOS DE DESMONTAJE (QUITAR): 1. Desmontar componentes/cables (ATX/EPS, GPU, Cooler, M.2, RAM) · 2. Retirar 6 standoffs con [1]/[2] · 3. Extraer placa madre"
-		if is_tutorial_mode and (is_mobo_install_phase() or current_phase == Phase.INSTALL_MOBO):
-			_setup_quitar_phase()
-	else:
-		guide_text.text = "PASOS DE MONTAJE (CÓMO PONER AL REVÉS): 1. Monta la placa madre con el procesador pegado · 2. Atornilla los 6 standoffs · 3. Haz clic en las piezas transparentes para colocarlas una a una"
-		if is_tutorial_mode and (not is_mobo_install_phase() and current_phase != Phase.INSTALL_MOBO):
-			_setup_empty_tray_phase()
+	var has_mobo = false
+	for it in GameManager.backpack:
+		if it.get("name") == "Placa Madre" and not it.get("broken", true):
+			has_mobo = true
+			break
+	var spare_msg = "✓ Placa Madre de repuesto detectada en inventario.\n\n" if has_mobo else "⚠️ Listo para montar repuesto.\n\n"
+	guide_text.text = "INSTRUCCIONES DE MONTAJE:\n\n" + spare_msg + "1. Monta la placa base en los rieles del chasis/bandeja.\n2. Asegura los tornillos de fijación standoff.\n3. Conecta el cable ATX de 24 pines y componentes auxiliares."
 
 func _clean_reinstall_overlays() -> void:
 	for c in [cooler_container, ram_container, m2_container, gpu_container]:
@@ -1358,3 +1364,44 @@ func _update_status() -> void:
 			phase_tracker.text = "¡OPERACIÓN COMPLETADA! ✓"
 			status_label.text = "¡Placa madre asegurada y todos los componentes reinstalados con éxito!"
 			status_label.modulate = Color(0.2, 1.0, 0.4)
+			
+	_update_checklist()
+
+func _update_checklist() -> void:
+	if not is_instance_valid(chk_cables):
+		return
+		
+	var is_install = is_mobo_install_phase() or current_phase == Phase.INSTALL_MOBO or current_phase == Phase.STANDOFFS_INSTALL or current_phase == Phase.REINSTALL_COMPONENTS
+	
+	if not is_install:
+		# Modo Quitar
+		_set_chk_item(chk_cables, _are_cables_done(), "Cables ATX & EPS", "Clic para desconectar")
+		_set_chk_item(chk_gpu, _is_gpu_done(), "Tarjeta Gráfica GPU", "Tornillo, traba y extraer")
+		_set_chk_item(chk_cooler, _is_cooler_done(), "Disipador Fan Cooler", "PWM y 4 tornillos")
+		_set_chk_item(chk_m2, _is_m2_done(), "Almacenamiento M.2", "Disipador y tornillo")
+		_set_chk_item(chk_ram, _is_ram_done(), "Memoria RAM", "Abrir trabas sup/inf")
+		
+		var s_done = true
+		for s in standoff_screws_removed:
+			if not s: s_done = false
+		_set_chk_item(chk_standoffs, s_done, "6 Tornillos Standoff", "Destornillador Cruz/Pala")
+		_set_chk_item(chk_mobo, current_phase == Phase.EXTRACT_MOBO or is_mobo_lifted, "Extracción de Placa", "Levantar hacia arriba")
+	else:
+		# Modo Poner
+		_set_chk_item(chk_mobo, current_phase != Phase.INSTALL_MOBO, "Colocar Placa en Chasis", "Asentar en zócalo")
+		_set_chk_item(chk_standoffs, current_phase == Phase.REINSTALL_COMPONENTS or current_phase == Phase.COMPLETED, "6 Tornillos Standoff", "Fijar con [1]/[2]")
+		_set_chk_item(chk_cooler, is_reinstall_cooler_done, "Fan Cooler Reinstalado", "Asentar, 4T y PWM")
+		_set_chk_item(chk_ram, is_reinstall_ram_done, "Memoria RAM Montada", "Asentar y trabas")
+		_set_chk_item(chk_m2, is_reinstall_m2_done, "SSD M.2 Asegurado", "Asentar y tornillo")
+		_set_chk_item(chk_gpu, is_reinstall_gpu_done, "GPU Reinstalada", "Traba, tornillo y cable")
+		_set_chk_item(chk_cables, is_reinstall_atx_done and is_reinstall_eps_done, "Cables ATX y EPS", "Conectar a la placa")
+
+func _set_chk_item(label: Label, is_done: bool, title: String, hint: String) -> void:
+	if not is_instance_valid(label):
+		return
+	if is_done:
+		label.text = "✓ " + title + " [OK]"
+		label.modulate = Color(0.2, 1.0, 0.45)
+	else:
+		label.text = "• " + title + " (" + hint + ")"
+		label.modulate = Color(0.85, 0.9, 1.0, 0.8)

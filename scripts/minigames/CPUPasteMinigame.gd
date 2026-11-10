@@ -57,6 +57,9 @@ var tex_cursor_syringe: Texture2D = preload("res://pixel art minijuegos/limpieza
 # Cursor flotante personalizado
 @onready var cursor_sprite: TextureRect = $ModalControl/CursorSprite
 
+@onready var chk_clean: Label = $ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide/ChecklistContainer/ChkClean
+@onready var chk_apply: Label = $ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide/ChecklistContainer/ChkApply
+
 var active_tool: int = 1 # 1 = Pañuelo, 2 = Pasta
 var clean_clicks: int = 0
 const MAX_CLEAN_CLICKS: int = 5
@@ -208,6 +211,7 @@ func _handle_clean_click() -> void:
 	tw_wobble.tween_property(cursor_sprite, "rotation_degrees", 0.0, 0.06)
 	
 	_show_warning("¡Limpiando pasta vieja con pañuelo! [%d%%]" % int(progress * 100.0), Color(0.3, 0.9, 1.0))
+	_update_checklist()
 	
 	if clean_clicks >= MAX_CLEAN_CLICKS:
 		old_paste_stain.visible = false
@@ -259,6 +263,7 @@ func _handle_apply_click() -> void:
 	tw_inj.tween_property(cursor_sprite, "scale", Vector2(1.0, 1.0), 0.09)
 	
 	_show_warning("¡Aplicando pasta térmica! Gota expandiéndose... [%d%%]" % int(progress * 100.0), Color(0.1, 1.0, 0.7))
+	_update_checklist()
 	
 	if apply_clicks >= MAX_APPLY_CLICKS:
 		_complete_apply_phase()
@@ -307,3 +312,35 @@ func _update_status() -> void:
 		Phase.COMPLETED:
 			status_label.text = "¡PROCESO COMPLETADO! CPU listo con pasta térmica nueva."
 			status_label.modulate = Color(0.2, 1.0, 0.5)
+			
+	_update_checklist()
+
+func _update_checklist() -> void:
+	if not is_instance_valid(chk_clean) or not is_instance_valid(chk_apply):
+		return
+	var c_pct: int = int((float(clean_clicks) / float(MAX_CLEAN_CLICKS)) * 100.0)
+	var a_pct: int = int((float(apply_clicks) / float(MAX_APPLY_CLICKS)) * 100.0)
+	
+	if current_phase == Phase.CLEAN_OLD_PASTE:
+		if c_pct >= 100:
+			chk_clean.text = "✓ 1. Limpieza de IHS con [1] (100%)"
+			chk_clean.modulate = Color(0.2, 1.0, 0.5)
+		else:
+			chk_clean.text = "➔ 1. Limpieza de IHS con [1] (%d%%)" % c_pct
+			chk_clean.modulate = Color(1.0, 0.85, 0.2)
+		chk_apply.text = "○ 2. Aplicar Pasta con [2] (0%)"
+		chk_apply.modulate = Color(0.7, 0.75, 0.85, 0.6)
+	elif current_phase == Phase.APPLY_NEW_PASTE:
+		chk_clean.text = "✓ 1. Limpieza de IHS con [1] (100%)"
+		chk_clean.modulate = Color(0.2, 1.0, 0.5)
+		if a_pct >= 100:
+			chk_apply.text = "✓ 2. Aplicar Pasta con [2] (100%)"
+			chk_apply.modulate = Color(0.2, 1.0, 0.5)
+		else:
+			chk_apply.text = "➔ 2. Aplicar Pasta con [2] (%d%%)" % a_pct
+			chk_apply.modulate = Color(0.1, 1.0, 0.7)
+	else:
+		chk_clean.text = "✓ 1. Limpieza de IHS con [1] (100%)"
+		chk_clean.modulate = Color(0.2, 1.0, 0.5)
+		chk_apply.text = "✓ 2. Aplicar Pasta con [2] (100%)"
+		chk_apply.modulate = Color(0.2, 1.0, 0.5)

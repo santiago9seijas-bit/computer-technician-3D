@@ -77,10 +77,10 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -490.0
-offset_top = -300.0
-offset_right = 490.0
-offset_bottom = 300.0
+offset_left = -580.0
+offset_top = -320.0
+offset_right = 580.0
+offset_bottom = 320.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxEmpty_frame")
@@ -137,7 +137,7 @@ text = "PASO 1: Usa [1] Destornillador Cruz para retirar el tornillo del disipad
 horizontal_alignment = 1
 
 [node name="WorkArea" type="Control" parent="ModalControl/Panel/VBox"]
-custom_minimum_size = Vector2(850, 360)
+custom_minimum_size = Vector2(1100, 390)
 layout_mode = 2
 
 [node name="MoboBase" type="Panel" parent="ModalControl/Panel/VBox/WorkArea"]
@@ -147,9 +147,9 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -330.0
+offset_left = -510.0
 offset_top = -110.0
-offset_right = 330.0
+offset_right = 150.0
 offset_bottom = 110.0
 grow_horizontal = 2
 grow_vertical = 2
@@ -430,9 +430,9 @@ anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -140.0
+offset_left = -320.0
 offset_top = -54.0
-offset_right = 140.0
+offset_right = -40.0
 offset_bottom = -12.0
 grow_horizontal = 2
 grow_vertical = 0
@@ -443,6 +443,78 @@ text = "↗ DESLIZAR EN DIAGONAL"
 flat = true
 script = ExtResource("2_cbtn")
 slant = 14.0
+
+[node name="RightGuidePanel" type="PanelContainer" parent="ModalControl/Panel/VBox/WorkArea"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -315.0
+offset_top = -180.0
+offset_right = -5.0
+offset_bottom = 180.0
+grow_horizontal = 0
+grow_vertical = 2
+
+[node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/WorkArea/RightGuidePanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 10
+
+[node name="VBoxGuide" type="VBoxContainer" parent="ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="GuideTitle" type="Label" parent="ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.9, 0.7, 1)
+theme_override_font_sizes/font_size = 13
+text = "GUÍA DE PROCEDIMIENTO"
+horizontal_alignment = 1
+
+[node name="GuideText" type="Label" parent="ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.9, 1, 0.9)
+theme_override_font_sizes/font_size = 10
+text = "El conector M.2 posee tensión de resorte que eleva el disco a 30° al soltar el micro-tornillo."
+autowrap_mode = 2
+
+[node name="HSeparator" type="HSeparator" parent="ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide"]
+layout_mode = 2
+
+[node name="ChecklistTitle" type="Label" parent="ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 11
+text = "PASOS A EJECUTAR:"
+
+[node name="ChecklistContainer" type="VBoxContainer" parent="ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ChkHeatsink" type="Label" parent="ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide/ChecklistContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "○ 1. Desatornillar Disipador Armor"
+
+[node name="ChkStandoff" type="Label" parent="ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide/ChecklistContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "○ 2. Desatornillar Micro-Tornillo"
+
+[node name="ChkSpring" type="Label" parent="ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide/ChecklistContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "○ 3. Observar Inclinación de 30°"
+
+[node name="ChkExtract" type="Label" parent="ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide/ChecklistContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "○ 4. Extraer en Diagonal"
 
 [node name="WarningLabel" type="Label" parent="ModalControl/Panel/VBox/WorkArea"]
 layout_mode = 1

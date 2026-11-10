@@ -24,13 +24,20 @@ signal old_part_extracted()
 @export var start_as_empty_slot: bool = false
 @export var is_tutorial_mode: bool = false
 @export var require_screws_sequence: bool = false
+@export var target_cpu_count: int = 1
+@export var initial_installed_count: int = 0
+var current_cpu_index: int = 0
+var cpu_installed_states: Array[bool] = [false, false, false]
+
+func get_installed_count() -> int:
+	return current_cpu_index
 
 enum Phase {
-	EXTRACT_SCREWS,     # Desatornillar en orden: 3 -> 1 -> 2 (Solo nivel servidor)
 	EXTRACT_LEVER_DOWN, # Arrastrar palanca abajo
 	EXTRACT_CPU_CLICK,  # Clic en CPU para sacarlo
-	INSERT_CPU_CLICK,   # Clic en socket para poner CPU
-	INSERT_LEVER_UP,    # Arrastrar palanca arriba para trabar
+	INSERT_CPU_CLICK,   # 1. Clic en socket para poner CPU
+	INSERT_LEVER_UP,    # 2. Arrastrar palanca arriba para trabar
+	FASTEN_SCREWS,      # 3. Atornillar en orden: 2 -> 3 -> 1 (Solo servidor)
 	COMPLETED
 }
 
@@ -45,26 +52,35 @@ var current_phase: Phase = Phase.EXTRACT_LEVER_DOWN
 @onready var btn_cancel: Button = $ModalControl/Panel/VBox/Footer/BtnCancel
 @onready var feedback_label: Label = $ModalControl/Panel/VBox/FeedbackLabel
 
+# Guía y slots
+@onready var right_panel: PanelContainer = get_node_or_null("ModalControl/Panel/VBox/ContentHBox/RightPanel")
+@onready var guide_text: Label = get_node_or_null("ModalControl/Panel/VBox/ContentHBox/RightPanel/Margin/VBox/GuideText")
+@onready var slots_container: VBoxContainer = get_node_or_null("ModalControl/Panel/VBox/ContentHBox/RightPanel/Margin/VBox/SlotsContainer")
+@onready var btn_slot_0: Button = get_node_or_null("ModalControl/Panel/VBox/ContentHBox/RightPanel/Margin/VBox/SlotsContainer/BtnSlot0")
+@onready var btn_slot_1: Button = get_node_or_null("ModalControl/Panel/VBox/ContentHBox/RightPanel/Margin/VBox/SlotsContainer/BtnSlot1")
+@onready var btn_slot_2: Button = get_node_or_null("ModalControl/Panel/VBox/ContentHBox/RightPanel/Margin/VBox/SlotsContainer/BtnSlot2")
+
 # Área del Socket
-@onready var socket_base: Panel = $ModalControl/Panel/VBox/WorkArea/SocketBase
-@onready var socket_grid_pattern: Panel = $ModalControl/Panel/VBox/WorkArea/SocketBase/PinsMatrix
-@onready var cpu_chip: Button = $ModalControl/Panel/VBox/WorkArea/SocketBase/CPUChip
-@onready var notch_indicator: Label = $ModalControl/Panel/VBox/WorkArea/SocketBase/CPUChip/NotchIndicator
-@onready var load_plate: Panel = $ModalControl/Panel/VBox/WorkArea/SocketBase/LoadPlate
+@onready var socket_base: Panel = $ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase
+@onready var socket_grid_pattern: Panel = $ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase/PinsMatrix
+@onready var cpu_chip: Button = $ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase/CPUChip
+@onready var notch_indicator: Label = $ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase/CPUChip/NotchIndicator
+@onready var load_plate: Panel = $ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase/LoadPlate
 
 # Tornillos de sujeción (para área de servidor: orden 3 -> 1 -> 2)
-@onready var screw_1: Button = get_node_or_null("ModalControl/Panel/VBox/WorkArea/SocketBase/Screw1")
-@onready var screw_2: Button = get_node_or_null("ModalControl/Panel/VBox/WorkArea/SocketBase/Screw2")
-@onready var screw_3: Button = get_node_or_null("ModalControl/Panel/VBox/WorkArea/SocketBase/Screw3")
+@onready var screw_1: Button = get_node_or_null("ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase/Screw1")
+@onready var screw_2: Button = get_node_or_null("ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase/Screw2")
+@onready var screw_3: Button = get_node_or_null("ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase/Screw3")
 
-const REQUIRED_SCREW_ORDER: Array[int] = [3, 1, 2]
+const REQUIRED_SCREW_ORDER: Array[int] = [2, 3, 1]
 var current_screw_step: int = 0
 var screws_removed: Array[int] = []
+var liquid_cooling_card: PanelContainer = null
 
 # Palanca
-@onready var lever_handle: Button = $ModalControl/Panel/VBox/WorkArea/SocketBase/LeverArea/LeverHandle
-@onready var lever_arrow: Label = $ModalControl/Panel/VBox/WorkArea/SocketBase/LeverArea/LeverArrow
-@onready var lever_status_text: Label = $ModalControl/Panel/VBox/WorkArea/SocketBase/LeverArea/LeverStatusText
+@onready var lever_handle: Button = $ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase/LeverArea/LeverHandle
+@onready var lever_arrow: Label = $ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase/LeverArea/LeverArrow
+@onready var lever_status_text: Label = $ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase/LeverArea/LeverStatusText
 
 # Arrastre de palanca
 const LEVER_TOP_Y: float = 0.0
@@ -94,9 +110,25 @@ func _ready() -> void:
 	if screw_3:
 		screw_3.pressed.connect(func(): _on_screw_pressed(3))
 		
+	if btn_slot_0: btn_slot_0.pressed.connect(func(): _on_cpu_slot_clicked(0))
+	if btn_slot_1: btn_slot_1.pressed.connect(func(): _on_cpu_slot_clicked(1))
+	if btn_slot_2: btn_slot_2.pressed.connect(func(): _on_cpu_slot_clicked(2))
+	
+	if target_cpu_count > 1 and is_instance_valid(slots_container):
+		slots_container.visible = true
+		_update_slots_ui()
+		
 	# Definir visibilidad de tornillos según modo
 	_apply_screws_visibility(require_screws_sequence)
 	
+	if initial_installed_count > 0:
+		for k in range(min(initial_installed_count, cpu_installed_states.size())):
+			cpu_installed_states[k] = true
+		current_cpu_index = initial_installed_count
+		if current_cpu_index < target_cpu_count:
+			_prepare_next_cpu_socket()
+			return
+
 	if require_screws_sequence:
 		_setup_server_mode()
 	elif start_as_empty_slot:
@@ -170,38 +202,36 @@ func _setup_insert_mode() -> void:
 	_show_feedback("Haz clic en el socket para asentar el nuevo procesador.", Color(0.2, 0.95, 1.0))
 
 # =============================================================================
-# ÁREA DE SERVIDOR: MONTAJE DUAL CPU ENTERPRISE CON TORNILLOS (3 -> 1 -> 2)
+# ÁREA DE SERVIDOR: MONTAJE DUAL CPU ENTERPRISE (CPU ➔ PALANCA ARRIBA ➔ TORNILLOS 2 -> 3 -> 1)
 # =============================================================================
 func _setup_server_mode() -> void:
-	current_phase = Phase.EXTRACT_SCREWS
+	current_phase = Phase.INSERT_CPU_CLICK
 	current_screw_step = 0
 	screws_removed.clear()
-	title_label.text = "MONTAJE INDUSTRIAL: DUAL CPU ENTERPRISE"
+	title_label.text = "MONTAJE INDUSTRIAL: DUAL CPU ENTERPRISE (SOCKET #%d)" % (current_cpu_index + 1)
 	
-	_reset_screws()
+	_apply_screws_visibility(false)
 	
-	# Palanca bloqueada mientras haya tornillos de sujeción
-	lever_handle.position.y = LEVER_BOTTOM_Y
-	lever_handle.disabled = true
-	lever_handle.mouse_default_cursor_shape = Control.CURSOR_FORBIDDEN
-	lever_arrow.visible = false
-	lever_status_text.text = "PALANCA:\nBLOQUEADA\n(TORNILLOS)"
-	lever_status_text.modulate = Color(1.0, 0.35, 0.35, 1.0)
-	
-	# Placa protectora de fábrica cerrada sobre el zócalo
+	# Placa protectora abierta (plegada hacia arriba)
 	load_plate.visible = true
-	load_plate.position.y = 20.0
-	load_plate.modulate.a = 1.0
-	load_plate.scale = Vector2(1.0, 1.0)
+	load_plate.position.y = -70.0
+	load_plate.modulate.a = 0.25
+	load_plate.scale = Vector2(1.0, 0.2)
 	
-	# Socket sin CPU aún
+	# Palanca abierta abajo
+	lever_handle.position.y = LEVER_BOTTOM_Y
+	lever_handle.disabled = false
+	lever_arrow.visible = false
+	lever_status_text.text = "PALANCA:\nLIBERADA [90°]"
+	lever_status_text.modulate = Color(0.2, 1.0, 0.5, 1.0)
+	
+	# Socket listo para insertar CPU
 	cpu_chip.visible = false
-	cpu_chip.disabled = true
-	cpu_chip.mouse_default_cursor_shape = Control.CURSOR_ARROW
+	cpu_chip.disabled = false
+	cpu_chip.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	
-	_update_screw_ui()
 	_update_ui_state()
-	_show_feedback("PASO 1: Desatornilla el soporte del socket en el orden correcto: 3 ➔ 1 ➔ 2.", Color(1.0, 0.85, 0.2))
+	_show_feedback("PASO 1: Haz clic en el socket para asentar el procesador Enterprise #%d." % (current_cpu_index + 1), Color(0.2, 0.95, 1.0))
 
 func _reset_screws() -> void:
 	for id in [1, 2, 3]:
@@ -222,7 +252,7 @@ func _get_screw_button(id: int) -> Button:
 	return null
 
 func _on_screw_pressed(screw_id: int) -> void:
-	if current_phase != Phase.EXTRACT_SCREWS:
+	if current_phase != Phase.FASTEN_SCREWS:
 		return
 		
 	if screw_id in screws_removed:
@@ -238,19 +268,18 @@ func _on_screw_pressed(screw_id: int) -> void:
 			btn.disabled = true
 			var tw = create_tween().set_parallel(true)
 			tw.tween_property(btn, "rotation", TAU, 0.35)
-			tw.tween_property(btn, "scale", Vector2(0.1, 0.1), 0.35)
-			tw.tween_property(btn, "modulate:a", 0.0, 0.35)
+			tw.tween_property(btn, "modulate", Color(0.2, 1.0, 0.5, 1.0), 0.35)
 			
 		_update_screw_ui()
 		
 		if current_screw_step >= REQUIRED_SCREW_ORDER.size():
-			_show_feedback("✓ ¡Tornillos retirados en el orden 3 ➔ 1 ➔ 2! Soporte liberado.", Color(0.2, 1.0, 0.5))
+			_show_feedback("✓ ¡Tornillos asegurados en el orden 2 ➔ 3 ➔ 1! Socket fijado.", Color(0.2, 1.0, 0.5))
 			if get_tree():
 				await get_tree().create_timer(0.45).timeout
 			_complete_screws_phase()
 		else:
 			var next_screw = REQUIRED_SCREW_ORDER[current_screw_step]
-			_show_feedback("✓ ¡Tornillo %d retirado! Siguiente tornillo en orden: [%d]." % [screw_id, next_screw], Color(0.2, 0.95, 1.0))
+			_show_feedback("✓ ¡Tornillo [%d] fijado! Siguiente tornillo en orden: [%d]." % [screw_id, next_screw], Color(0.2, 0.95, 1.0))
 			_update_ui_state()
 	else:
 		var btn = _get_screw_button(screw_id)
@@ -261,7 +290,7 @@ func _on_screw_pressed(screw_id: int) -> void:
 		if gm and gm.has_method("register_error"):
 			gm.register_error(2.0)
 			
-		_show_feedback("❌ ¡Orden incorrecto! Debes aflojar en orden: 3 ➔ 1 ➔ 2 (Debes retirar primero el Tornillo %d)" % expected_screw, Color(1.0, 0.35, 0.35))
+		_show_feedback("❌ ¡Orden incorrecto! Debes atornillar en orden: 2 ➔ 3 ➔ 1 (Tornillo requerido: %d)" % expected_screw, Color(1.0, 0.35, 0.35))
 
 func _shake_button(btn: Button) -> void:
 	if not btn:
@@ -278,38 +307,40 @@ func _shake_button(btn: Button) -> void:
 func _update_screw_ui() -> void:
 	if not order_badge:
 		return
+	var text_s2 = "[2 ✓]" if 2 in screws_removed else "[2]"
 	var text_s3 = "[3 ✓]" if 3 in screws_removed else "[3]"
 	var text_s1 = "[1 ✓]" if 1 in screws_removed else "[1]"
-	var text_s2 = "[2 ✓]" if 2 in screws_removed else "[2]"
-	order_badge.text = "ORDEN DE TORNILLOS:  %s  ➔  %s  ➔  %s" % [text_s3, text_s1, text_s2]
+	order_badge.text = "ORDEN DE APRIETE DE TORNILLOS:  %s  ➔  %s  ➔  %s" % [text_s2, text_s3, text_s1]
 
 func _complete_screws_phase() -> void:
-	current_phase = Phase.INSERT_CPU_CLICK
-	# Placa de protección abierta (plegada hacia arriba)
-	var tw = create_tween().set_parallel(true)
-	tw.tween_property(load_plate, "position:y", -70.0, 0.4).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	tw.tween_property(load_plate, "scale", Vector2(1.0, 0.2), 0.4)
-	tw.tween_property(load_plate, "modulate:a", 0.25, 0.4)
+	cpu_installed_states[current_cpu_index] = true
+	current_cpu_index += 1
+	_apply_screws_visibility(false)
 	
-	lever_handle.position.y = LEVER_BOTTOM_Y
-	lever_handle.disabled = false
-	lever_status_text.text = "PALANCA:\nLIBERADA [90°]"
-	lever_status_text.modulate = Color(0.2, 1.0, 0.5, 1.0)
-	
-	cpu_chip.visible = false
-	cpu_chip.disabled = false
-	cpu_chip.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	
-	_update_ui_state()
-	_show_feedback("✓ ¡Cubierta retirada! Haz clic en el socket para asentar el procesador Enterprise.", Color(0.2, 0.95, 1.0))
+	if current_cpu_index < target_cpu_count:
+		_show_feedback("✓ ¡SOCKET CPU #%d ASEGURADO! Preparando Socket CPU #%d..." % [current_cpu_index, current_cpu_index + 1], Color(0.0, 1.0, 0.5))
+		status_label.text = "✓ CPU #%d INSTALADO · PREPARANDO SOCKET #%d..." % [current_cpu_index, current_cpu_index + 1]
+		status_label.modulate = Color(0.0, 0.95, 1.0)
+		_update_slots_ui()
+		await get_tree().create_timer(0.8).timeout
+		_prepare_next_cpu_socket()
+	else:
+		current_phase = Phase.COMPLETED
+		_show_feedback("✓ ¡LOS %d PROCESADORES ENTERPRISE INSTALADOS CON ÉXITO!" % target_cpu_count, Color(0.0, 1.0, 0.5))
+		status_label.text = "✓ ¡LOS %d PROCESADORES ENTERPRISE ASEGURADOS CON ÉXITO!" % target_cpu_count
+		status_label.modulate = Color(0.0, 1.0, 0.5)
+		_update_ui_state()
+		_update_slots_ui()
+		await get_tree().create_timer(1.2).timeout
+		minigame_finished.emit(true)
 
 # =============================================================================
 # ARRASTRE DE LA PALANCA CON EL RATÓN
 # =============================================================================
 func _on_lever_gui_input(event: InputEvent) -> void:
-	if require_screws_sequence and current_phase == Phase.EXTRACT_SCREWS:
+	if require_screws_sequence and current_phase == Phase.FASTEN_SCREWS:
 		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-			_show_feedback("⚠️ ¡La palanca está bloqueada! Primero debes desatornillar los tornillos en orden: 3 ➔ 1 ➔ 2.", Color(1.0, 0.4, 0.4))
+			_show_feedback("⚠️ La palanca ya está trabada. Ahora atornilla los pernos en orden: 2 ➔ 3 ➔ 1.", Color(1.0, 0.85, 0.2))
 		return
 		
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
@@ -435,6 +466,19 @@ func _on_socket_gui_input(event: InputEvent) -> void:
 		_insert_cpu()
 
 func _insert_cpu() -> void:
+	var has_cpu = false
+	var gm = get_node_or_null("/root/GameManager")
+	if gm and "backpack" in gm:
+		for it in gm.backpack:
+			if it is Dictionary and (it.get("name") == "CPU" or it.get("type") == "CPU") and not it.get("broken", true):
+				has_cpu = true
+				break
+	if not has_cpu:
+		_show_feedback("⚠️ No tienes procesadores en la mochila. Sal [ESC] para recogerlos.", Color(1.0, 0.4, 0.4))
+		status_label.text = "⚠️ FALTA PROCESADOR EN MOCHILA · SAL [ESC] PARA RECOGERLO (PROGRESO: %d/%d)" % [current_cpu_index, target_cpu_count]
+		status_label.modulate = Color(1.0, 0.4, 0.4)
+		return
+
 	current_phase = Phase.INSERT_LEVER_UP
 	cpu_chip.visible = true
 	cpu_chip.disabled = true
@@ -479,7 +523,6 @@ func _complete_lever_up() -> void:
 	lever_status_text.text = "PALANCA:\nTRABADA [0°]"
 	lever_status_text.modulate = Color(0.2, 1.0, 0.5, 1.0)
 	lever_arrow.visible = false
-	current_phase = Phase.COMPLETED
 	
 	# Retirar el repuesto nuevo de la mochila si el jugador tenía uno
 	var gm_up = get_node_or_null("/root/GameManager")
@@ -491,52 +534,165 @@ func _complete_lever_up() -> void:
 					gm_up.remove_item_from_backpack(i)
 				break
 				
-	_show_feedback("✓ ¡Palanca trabada y protección asegurada con éxito!", Color(0.0, 1.0, 0.5))
-	_update_ui_state()
+	if require_screws_sequence:
+		current_phase = Phase.FASTEN_SCREWS
+		current_screw_step = 0
+		screws_removed.clear()
+		_reset_screws()
+		_apply_screws_visibility(true)
+		_update_screw_ui()
+		_update_ui_state()
+		_show_feedback("✓ ¡Palanca trabada! PASO 3: Atornilla la sujeción en orden estricto: 2 ➔ 3 ➔ 1.", Color(1.0, 0.85, 0.2))
+		status_label.text = "SOCKET CPU #%d: Atornilla en orden estricto: 2 ➔ 3 ➔ 1" % (current_cpu_index + 1)
+		status_label.modulate = Color(1.0, 0.85, 0.2)
+		return
+				
+	cpu_installed_states[current_cpu_index] = true
+	current_cpu_index += 1
 	
-	if get_tree():
-		await get_tree().create_timer(1.2).timeout
-	minigame_finished.emit(true)
+	if current_cpu_index < target_cpu_count:
+		_show_feedback("✓ ¡SOCKET CPU #%d ASEGURADO! Haz clic en el recuadro a la derecha para montar el SOCKET CPU #%d." % [current_cpu_index, current_cpu_index + 1], Color(0.0, 1.0, 0.5))
+		status_label.text = "✓ CPU #%d INSTALADO · HAZ CLIC EN EL RECUADRO A LA DERECHA PARA EL SOCKET #%d" % [current_cpu_index, current_cpu_index + 1]
+		status_label.modulate = Color(0.0, 0.95, 1.0)
+		_update_slots_ui()
+	else:
+		current_phase = Phase.COMPLETED
+		_show_feedback("✓ ¡Palanca trabada y protección asegurada con éxito!", Color(0.0, 1.0, 0.5))
+		_update_ui_state()
+		_update_slots_ui()
+		
+		if get_tree():
+			await get_tree().create_timer(1.2).timeout
+		minigame_finished.emit(true)
+
+func _on_cpu_slot_clicked(idx: int) -> void:
+	if idx == current_cpu_index and current_cpu_index < target_cpu_count and not cpu_installed_states[idx]:
+		_prepare_next_cpu_socket()
+
+func _prepare_next_cpu_socket() -> void:
+	current_screw_step = 0
+	screws_removed.clear()
+	_apply_screws_visibility(false)
+	
+	# Placa protectora abierta (plegada hacia arriba)
+	load_plate.visible = true
+	load_plate.position.y = -70.0
+	load_plate.scale = Vector2(1.0, 0.2)
+	load_plate.modulate.a = 0.25
+	
+	# CPU oculto
+	cpu_chip.visible = false
+	cpu_chip.disabled = false
+	cpu_chip.modulate.a = 1.0
+	cpu_chip.scale = Vector2(1.0, 1.0)
+	
+	# Palanca abierta abajo
+	lever_handle.position.y = LEVER_BOTTOM_Y
+	lever_status_text.text = "PALANCA:\nLIBERADA [90°]"
+	lever_status_text.modulate = Color(0.2, 1.0, 0.5, 1.0)
+	lever_arrow.visible = false
+	
+	current_phase = Phase.INSERT_CPU_CLICK
+	
+	var has_cpu = false
+	var gm = get_node_or_null("/root/GameManager")
+	if gm and "backpack" in gm:
+		for it in gm.backpack:
+			if it is Dictionary and (it.get("name") == "CPU" or it.get("type") == "CPU") and not it.get("broken", true):
+				has_cpu = true
+				break
+				
+	if not has_cpu:
+		status_label.text = "⚠️ FALTA PROCESADOR EN MOCHILA · SAL [ESC] PARA RECOGERLO (PROGRESO: %d/%d)" % [current_cpu_index, target_cpu_count]
+		status_label.modulate = Color(1.0, 0.4, 0.4)
+		_show_feedback("⚠️ No tienes más procesadores en la mochila. Sal [ESC] para recogerlos.", Color(1.0, 0.4, 0.4))
+	else:
+		_show_feedback("PASO 1: Haz clic en el socket para asentar el procesador Enterprise #%d." % (current_cpu_index + 1), Color(0.2, 0.95, 1.0))
+		_update_ui_state()
+	_update_slots_ui()
+
+func _update_slots_ui() -> void:
+	if target_cpu_count <= 1 or not is_instance_valid(slots_container):
+		return
+	var buttons = [btn_slot_0, btn_slot_1, btn_slot_2]
+	for i in range(buttons.size()):
+		var btn = buttons[i]
+		if not is_instance_valid(btn):
+			continue
+		if i >= target_cpu_count:
+			btn.visible = false
+			continue
+		btn.visible = true
+		if cpu_installed_states[i]:
+			btn.text = "✓ SOCKET CPU #%d [INSTALADO]" % (i + 1)
+			btn.modulate = Color(0.2, 1.0, 0.45)
+			btn.disabled = false
+		elif i == current_cpu_index:
+			if current_phase != Phase.COMPLETED and not cpu_installed_states[i] and (screws_removed.size() > 0 or cpu_chip.visible):
+				btn.text = "➔ SOCKET CPU #%d (EN MONTAJE)" % (i + 1)
+				btn.modulate = Color(0.0, 0.95, 1.0)
+				btn.disabled = false
+			else:
+				btn.text = "➔ CLIC PARA MONTAR CPU #%d" % (i + 1)
+				btn.modulate = Color(1.0, 0.85, 0.2)
+				btn.disabled = false
+		else:
+			btn.text = "🔒 SOCKET CPU #%d [PENDIENTE]" % (i + 1)
+			btn.modulate = Color(0.55, 0.6, 0.7, 0.6)
+			btn.disabled = true
 
 # =============================================================================
 # FEEDBACK Y TEXTOS UI
 # =============================================================================
 func _update_ui_state() -> void:
+	var prefix = ""
+	if target_cpu_count > 1:
+		prefix = "SOCKET CPU #%d DE %d · " % [current_cpu_index + 1, target_cpu_count]
+		
+	if is_instance_valid(guide_text):
+		if require_screws_sequence:
+			guide_text.text = "INSTRUCCIONES DE MONTAJE:\n\n1. Haz clic en el socket abierto para asentar el procesador Enterprise.\n2. Arrastra la palanca hacia arriba ↑ para trabar el socket.\n3. Atornilla la sujeción en orden estricto de apriete: [ 2 ➔ 3 ➔ 1 ].\n4. Repite la secuencia para los 3 procesadores del servidor."
+		else:
+			var has_cpu = false
+			for it in GameManager.backpack:
+				if it.get("name") == "CPU" and not it.get("broken", true):
+					has_cpu = true
+					break
+			var spare_msg = "✓ Procesador de repuesto detectado en inventario.\n\n" if has_cpu else "⚠️ Listo para montar procesador.\n\n"
+			guide_text.text = "INSTRUCCIONES DE MONTAJE:\n\n" + spare_msg + "1. Haz clic en el socket para asentar el procesador.\n2. Arrastra la palanca hacia arriba ↑ para trabar la placa de carga."
+
 	match current_phase:
-		Phase.EXTRACT_SCREWS:
-			status_label.text = "PASO 1: Desatornilla el soporte del socket en el orden de descompresión: [ 3 ➔ 1 ➔ 2 ]."
-			status_label.modulate = Color(1.0, 0.85, 0.2, 1.0)
-			var next_id = REQUIRED_SCREW_ORDER[current_screw_step] if current_screw_step < REQUIRED_SCREW_ORDER.size() else 0
-			instruction_badge.text = "ACCION: HAZ CLIC EN EL TORNILLO [%d] PARA DESATORNILLARLO" % next_id
-			instruction_badge.modulate = Color(1.0, 0.85, 0.2, 1.0)
 		Phase.EXTRACT_LEVER_DOWN:
-			status_label.text = "PASO 1: Arrastra la palanca metálica hacia abajo para liberar la tensión."
+			status_label.text = prefix + "PASO 1: Arrastra la palanca metálica hacia abajo para liberar la tensión."
 			status_label.modulate = Color(1.0, 0.85, 0.2, 1.0)
 			instruction_badge.text = "ACCION: ARRASTRA LA PALANCA HACIA ABAJO ↓"
 			instruction_badge.modulate = Color(1.0, 0.85, 0.2, 1.0)
 		Phase.EXTRACT_CPU_CLICK:
-			status_label.text = "PASO 2: La protección se ha retirado. Haz clic sobre el CPU para extraerlo."
+			status_label.text = prefix + "PASO 2: La protección se ha retirado. Haz clic sobre el CPU para extraerlo."
 			status_label.modulate = Color(0.0, 0.95, 1.0, 1.0)
 			instruction_badge.text = "ACCION: HAZ CLIC EN EL CPU PARA QUITARLO"
 			instruction_badge.modulate = Color(0.0, 0.95, 1.0, 1.0)
 		Phase.INSERT_CPU_CLICK:
 			if require_screws_sequence:
-				status_label.text = "PASO 2: Haz clic en el socket para colocar el procesador Enterprise."
+				status_label.text = prefix + "PASO 1: Haz clic en el socket para colocar el procesador Enterprise."
 			else:
-				status_label.text = "PASO 1: Haz clic en el zócalo abierto para colocar el nuevo procesador."
+				status_label.text = prefix + "PASO 1: Haz clic en el zócalo abierto para colocar el nuevo procesador."
 			status_label.modulate = Color(0.2, 1.0, 0.6, 1.0)
 			instruction_badge.text = "ACCION: HAZ CLIC EN EL ZÓCALO PARA INSERTAR CPU"
 			instruction_badge.modulate = Color(0.2, 1.0, 0.6, 1.0)
 		Phase.INSERT_LEVER_UP:
-			if require_screws_sequence:
-				status_label.text = "PASO 3: Arrastra la palanca hacia arriba para trabar el socket."
-			else:
-				status_label.text = "PASO 2: Arrastra la palanca hacia arriba para trabar el socket."
+			status_label.text = prefix + "PASO 2: Arrastra la palanca hacia arriba ↑ para trabar el socket."
 			status_label.modulate = Color(1.0, 0.85, 0.2, 1.0)
 			instruction_badge.text = "ACCION: ARRASTRA LA PALANCA HACIA ARRIBA ↑"
 			instruction_badge.modulate = Color(1.0, 0.85, 0.2, 1.0)
+		Phase.FASTEN_SCREWS:
+			status_label.text = prefix + "PASO 3: Atornilla la sujeción en orden estricto de apriete: [ 2 ➔ 3 ➔ 1 ]."
+			status_label.modulate = Color(1.0, 0.85, 0.2, 1.0)
+			var next_id = REQUIRED_SCREW_ORDER[current_screw_step] if current_screw_step < REQUIRED_SCREW_ORDER.size() else 0
+			instruction_badge.text = "ACCION: ATORNILLA EL PERNO [%d]" % next_id
+			instruction_badge.modulate = Color(1.0, 0.85, 0.2, 1.0)
 		Phase.COMPLETED:
-			status_label.text = "¡OPERACIÓN DE CPU COMPLETADA CON ÉXITO!"
+			status_label.text = ("¡LOS %d PROCESADORES ENTERPRISE INSTALADOS CON ÉXITO!" % target_cpu_count) if target_cpu_count > 1 else "¡OPERACIÓN DE CPU COMPLETADA CON ÉXITO!"
 			status_label.modulate = Color(0.0, 1.0, 0.5, 1.0)
 			instruction_badge.text = "✓ LISTO"
 			instruction_badge.modulate = Color(0.0, 1.0, 0.5, 1.0)

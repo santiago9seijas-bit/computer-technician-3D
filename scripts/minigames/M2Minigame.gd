@@ -50,6 +50,11 @@ var tex_screw_cruz = preload("res://pixel art minijuegos/tornillos/tornillo de c
 @onready var btn_extract_m2: Button = $ModalControl/Panel/VBox/WorkArea/BtnExtractM2
 @onready var warning_label: Label = $ModalControl/Panel/VBox/WorkArea/WarningLabel
 
+@onready var chk_heatsink: Label = $ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide/ChecklistContainer/ChkHeatsink
+@onready var chk_standoff: Label = $ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide/ChecklistContainer/ChkStandoff
+@onready var chk_spring: Label = $ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide/ChecklistContainer/ChkSpring
+@onready var chk_extract: Label = $ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide/ChecklistContainer/ChkExtract
+
 func _ready() -> void:
 	layer = 12
 	_setup_ui()
@@ -216,3 +221,24 @@ func _update_status() -> void:
 		State.COMPLETED:
 			status_label.text = "¡DESMONTAJE COMPLETADO! Almacenamiento NVMe retirado con éxito."
 			status_label.modulate = Color(0.2, 1.0, 0.4)
+	
+	_update_checklist()
+
+func _update_checklist() -> void:
+	if not is_instance_valid(chk_heatsink):
+		return
+	_format_check_item(chk_heatsink, is_heatsink_removed, "1. Desatornillar Disipador Armor", current_state == State.REMOVE_HEATSINK)
+	_format_check_item(chk_standoff, is_standoff_screw_removed, "2. Desatornillar Micro-Tornillo", current_state == State.UNSCREW_STANDOFF)
+	_format_check_item(chk_spring, is_sprung_up, "3. Observar Inclinación de 30°", current_state == State.SPRING_TENSION_30DEG)
+	_format_check_item(chk_extract, is_extracted, "4. Extraer en Diagonal", current_state == State.EXTRACT_DIAGONAL)
+
+func _format_check_item(lbl: Label, done: bool, text: String, active: bool = false) -> void:
+	if done:
+		lbl.text = "✓ " + text
+		lbl.modulate = Color(0.2, 1.0, 0.5, 0.95)
+	elif active:
+		lbl.text = "➔ " + text
+		lbl.modulate = Color(1.0, 0.85, 0.2, 1.0)
+	else:
+		lbl.text = "○ " + text
+		lbl.modulate = Color(0.7, 0.75, 0.85, 0.6)

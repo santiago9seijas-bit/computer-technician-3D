@@ -17,22 +17,26 @@ signal minigame_finished(success: bool)
 @onready var btn_cancel: Button = $ModalControl/Panel/VBox/Footer/BtnCancel
 
 # Contenedor de Pasos
-@onready var step1_container: Control = $ModalControl/Panel/VBox/WorkArea/Step1_PartitionTable
-@onready var btn_mbr: Button = $ModalControl/Panel/VBox/WorkArea/Step1_PartitionTable/HBox/BtnMBR
-@onready var btn_gpt: Button = $ModalControl/Panel/VBox/WorkArea/Step1_PartitionTable/HBox/BtnGPT
+@onready var step1_container: Control = $ModalControl/Panel/VBox/ContentHBox/WorkArea/Step1_PartitionTable
+@onready var btn_mbr: Button = $ModalControl/Panel/VBox/ContentHBox/WorkArea/Step1_PartitionTable/HBox/BtnMBR
+@onready var btn_gpt: Button = $ModalControl/Panel/VBox/ContentHBox/WorkArea/Step1_PartitionTable/HBox/BtnGPT
 
-@onready var step2_container: Control = $ModalControl/Panel/VBox/WorkArea/Step2_Partitions
-@onready var disk_visual_bar: HBoxContainer = $ModalControl/Panel/VBox/WorkArea/Step2_Partitions/DiskBarContainer/DiskVisualBar
-@onready var btn_add_efi: Button = $ModalControl/Panel/VBox/WorkArea/Step2_Partitions/ButtonsHBox/BtnAddEFI
-@onready var btn_add_root: Button = $ModalControl/Panel/VBox/WorkArea/Step2_Partitions/ButtonsHBox/BtnAddRoot
-@onready var btn_add_swap: Button = $ModalControl/Panel/VBox/WorkArea/Step2_Partitions/ButtonsHBox/BtnAddSwap
-@onready var btn_next_to_install: Button = $ModalControl/Panel/VBox/WorkArea/Step2_Partitions/BtnNextToInstall
+@onready var step2_container: Control = $ModalControl/Panel/VBox/ContentHBox/WorkArea/Step2_Partitions
+@onready var disk_visual_bar: HBoxContainer = $ModalControl/Panel/VBox/ContentHBox/WorkArea/Step2_Partitions/DiskBarContainer/DiskVisualBar
+@onready var btn_add_efi: Button = $ModalControl/Panel/VBox/ContentHBox/WorkArea/Step2_Partitions/ButtonsHBox/BtnAddEFI
+@onready var btn_add_root: Button = $ModalControl/Panel/VBox/ContentHBox/WorkArea/Step2_Partitions/ButtonsHBox/BtnAddRoot
+@onready var btn_add_swap: Button = $ModalControl/Panel/VBox/ContentHBox/WorkArea/Step2_Partitions/ButtonsHBox/BtnAddSwap
+@onready var btn_next_to_install: Button = $ModalControl/Panel/VBox/ContentHBox/WorkArea/Step2_Partitions/BtnNextToInstall
 
-@onready var step3_container: Control = $ModalControl/Panel/VBox/WorkArea/Step3_Deployment
-@onready var install_progress: ProgressBar = $ModalControl/Panel/VBox/WorkArea/Step3_Deployment/ProgressBar
-@onready var log_console: Label = $ModalControl/Panel/VBox/WorkArea/Step3_Deployment/LogConsole
-@onready var btn_start_install: Button = $ModalControl/Panel/VBox/WorkArea/Step3_Deployment/BtnStartInstall
-@onready var victory_banner: PanelContainer = $ModalControl/Panel/VBox/WorkArea/Step3_Deployment/VictoryBanner
+@onready var step3_container: Control = $ModalControl/Panel/VBox/ContentHBox/WorkArea/Step3_Deployment
+@onready var install_progress: ProgressBar = $ModalControl/Panel/VBox/ContentHBox/WorkArea/Step3_Deployment/ProgressBar
+@onready var log_console: Label = $ModalControl/Panel/VBox/ContentHBox/WorkArea/Step3_Deployment/LogConsole
+@onready var btn_start_install: Button = $ModalControl/Panel/VBox/ContentHBox/WorkArea/Step3_Deployment/BtnStartInstall
+@onready var victory_banner: PanelContainer = $ModalControl/Panel/VBox/ContentHBox/WorkArea/Step3_Deployment/VictoryBanner
+
+@onready var step1_status: Label = get_node_or_null("ModalControl/Panel/VBox/ContentHBox/RightGuidePanel/Margin/VBox/Step1Box/Status")
+@onready var step2_status: Label = get_node_or_null("ModalControl/Panel/VBox/ContentHBox/RightGuidePanel/Margin/VBox/Step2Box/Status")
+@onready var step3_status: Label = get_node_or_null("ModalControl/Panel/VBox/ContentHBox/RightGuidePanel/Margin/VBox/Step3Box/Status")
 
 @onready var toast_label: Label = $ModalControl/Panel/VBox/ToastLabel
 
@@ -54,11 +58,6 @@ func _ready() -> void:
 	layer = 12
 	btn_cancel.pressed.connect(func(): minigame_finished.emit(false))
 	toast_label.visible = false
-
-func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("ui_cancel") or (event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE):
-		get_viewport().set_input_as_handled()
-		minigame_finished.emit(false)
 	
 	# Conexiones Paso 1
 	btn_mbr.pressed.connect(_on_mbr_pressed)
@@ -77,11 +76,47 @@ func _unhandled_input(event: InputEvent) -> void:
 	
 	_show_step(InstallStep.SELECT_TABLE)
 
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel") or (event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE):
+		get_viewport().set_input_as_handled()
+		minigame_finished.emit(false)
+
 func _show_step(step: InstallStep) -> void:
 	current_step = step
 	step1_container.visible = (step == InstallStep.SELECT_TABLE)
 	step2_container.visible = (step == InstallStep.CREATE_PARTITIONS)
 	step3_container.visible = (step == InstallStep.DEPLOY_OS or step == InstallStep.COMPLETED)
+	
+	if is_instance_valid(step1_status) and is_instance_valid(step2_status) and is_instance_valid(step3_status):
+		match step:
+			InstallStep.SELECT_TABLE:
+				step1_status.text = "➔ EN CURSO"
+				step1_status.modulate = Color(0, 0.95, 1)
+				step2_status.text = "🔒 PENDIENTE"
+				step2_status.modulate = Color(0.6, 0.65, 0.7, 0.7)
+				step3_status.text = "🔒 PENDIENTE"
+				step3_status.modulate = Color(0.6, 0.65, 0.7, 0.7)
+			InstallStep.CREATE_PARTITIONS:
+				step1_status.text = "✓ GPT SELECCIONADO"
+				step1_status.modulate = Color(0.2, 1.0, 0.45)
+				step2_status.text = "➔ EN CURSO"
+				step2_status.modulate = Color(0, 0.95, 1)
+				step3_status.text = "🔒 PENDIENTE"
+				step3_status.modulate = Color(0.6, 0.65, 0.7, 0.7)
+			InstallStep.DEPLOY_OS:
+				step1_status.text = "✓ GPT SELECCIONADO"
+				step1_status.modulate = Color(0.2, 1.0, 0.45)
+				step2_status.text = "✓ PARTICIONES ASIGNADAS"
+				step2_status.modulate = Color(0.2, 1.0, 0.45)
+				step3_status.text = "➔ EN CURSO"
+				step3_status.modulate = Color(0, 0.95, 1)
+			InstallStep.COMPLETED:
+				step1_status.text = "✓ GPT SELECCIONADO"
+				step1_status.modulate = Color(0.2, 1.0, 0.45)
+				step2_status.text = "✓ PARTICIONES ASIGNADAS"
+				step2_status.modulate = Color(0.2, 1.0, 0.45)
+				step3_status.text = "✓ SISTEMA INSTALADO"
+				step3_status.modulate = Color(0.2, 1.0, 0.45)
 	
 	match step:
 		InstallStep.SELECT_TABLE:
@@ -92,7 +127,7 @@ func _show_step(step: InstallStep) -> void:
 			status_label.text = "Crea la partición EFI (/boot/efi), la partición Raíz (/) y el área Swap."
 		InstallStep.DEPLOY_OS:
 			step_label.text = "PASO 3 / 3: DESPLIEGUE DEL KERNEL & PAQUETES"
-			status_label.text = "Presiona 'INICIAR DESPLIEGUE DE CYBER-OS' para compilar e instalar los binarios."
+			status_label.text = "Presiona 'INICIAR DESPLIEGUE DE ANDROMEDA-OS' para compilar e instalar los binarios."
 		InstallStep.COMPLETED:
 			step_label.text = "INSTALACIÓN COMPLETADA EXITOSAMENTE"
 			status_label.text = "El sistema operativo está listo para su primer arranque UEFI."
