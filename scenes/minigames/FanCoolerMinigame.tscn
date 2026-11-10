@@ -364,6 +364,36 @@ text = "🔺 2. PONER"
 [node name="Sep" type="HSeparator" parent="ModalControl/Panel/VBox/ContentHBox/SideInfo/Margin/VBox"]
 layout_mode = 2
 
+[node name="SlotsContainer" type="VBoxContainer" parent="ModalControl/Panel/VBox/ContentHBox/SideInfo/Margin/VBox"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="SlotsTitle" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/SideInfo/Margin/VBox/SlotsContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.1, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 12
+text = "TURBINAS FAN WALL (3x):"
+horizontal_alignment = 1
+
+[node name="BtnSlot0" type="Button" parent="ModalControl/Panel/VBox/ContentHBox/SideInfo/Margin/VBox/SlotsContainer"]
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "TURBINA #1"
+
+[node name="BtnSlot1" type="Button" parent="ModalControl/Panel/VBox/ContentHBox/SideInfo/Margin/VBox/SlotsContainer"]
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "TURBINA #2"
+
+[node name="BtnSlot2" type="Button" parent="ModalControl/Panel/VBox/ContentHBox/SideInfo/Margin/VBox/SlotsContainer"]
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "TURBINA #3"
+
 [node name="Text" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/SideInfo/Margin/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.85, 0.85, 0.95, 0.85)

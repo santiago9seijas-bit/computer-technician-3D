@@ -434,14 +434,12 @@ func _on_level_rear_screw_pressed() -> void:
 			_update_slots_ui()
 			
 			if current_hdd_index < target_hdd_count:
-				status_label.text = "✓ ¡SSD/M.2 #%d INSTALADO! Preparando siguiente bahía..." % current_hdd_index
+				status_label.text = "✓ ¡SSD/M.2 #%d INSTALADO! Haz clic en 'BAHÍA SSD #%d' a la derecha para continuar." % [current_hdd_index, current_hdd_index + 1]
 				status_label.modulate = Color(0.2, 1.0, 0.4)
-				await get_tree().create_timer(0.6).timeout
-				_prepare_next_level_drive_slot()
 			else:
 				level_phase = LevelPhase.COMPLETED
 				_update_level_ui_state()
-				await get_tree().create_timer(0.6).timeout
+				await get_tree().create_timer(0.5).timeout
 				minigame_finished.emit(true)
 		)
 
@@ -797,20 +795,15 @@ func _on_screw_pressed() -> void:
 		current_hdd_index += 1
 		
 		if current_hdd_index < target_hdd_count:
-			status_label.text = "✓ ¡DISCO SAS CADDY #%d ATORNILLADO Y FIJADO! Preparando siguiente bahía..." % current_hdd_index
+			status_label.text = "✓ ¡DISCO SAS CADDY #%d ATORNILLADO Y FIJADO! Haz clic en la BAHÍA #%d a la derecha para continuar." % [current_hdd_index, current_hdd_index + 1]
 			status_label.modulate = Color(0.2, 1.0, 0.4)
 			_update_slots_ui()
-			var tween = create_tween()
-			tween.tween_interval(0.6)
-			tween.tween_callback(func():
-				_prepare_next_hdd_bay()
-			)
 		else:
 			current_state = State.COMPLETED
 			_update_ui_state()
 			_update_slots_ui()
 			var tween = create_tween()
-			tween.tween_interval(0.8)
+			tween.tween_interval(0.5)
 			tween.tween_callback(func():
 				minigame_finished.emit(true)
 			)

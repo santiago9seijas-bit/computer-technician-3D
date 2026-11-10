@@ -86,6 +86,13 @@ var tex_screw_pala = preload("res://pixel art minijuegos/tornillos/tornillo de p
 @onready var chk_latch: Label = $ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide/ChecklistContainer/ChkLatch
 @onready var chk_extract: Label = $ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide/ChecklistContainer/ChkExtract
 
+@onready var slots_container: VBoxContainer = get_node_or_null("ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide/SlotsContainer")
+@onready var btn_slot_0: Button = get_node_or_null("ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide/SlotsContainer/BtnSlot0")
+@onready var btn_slot_1: Button = get_node_or_null("ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide/SlotsContainer/BtnSlot1")
+@onready var btn_slot_2: Button = get_node_or_null("ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide/SlotsContainer/BtnSlot2")
+
+var gpu_installed_states: Array[bool] = [false, false, false]
+
 func _ready() -> void:
 	layer = 12
 	_setup_screws()
@@ -101,10 +108,21 @@ func _ready() -> void:
 	
 	pcie_latch_btn.pivot_offset = Vector2(35, 14)
 	
+	if btn_slot_0: btn_slot_0.pressed.connect(func(): _on_slot_button_clicked(0))
+	if btn_slot_1: btn_slot_1.pressed.connect(func(): _on_slot_button_clicked(1))
+	if btn_slot_2: btn_slot_2.pressed.connect(func(): _on_slot_button_clicked(2))
+	
+	if target_gpu_count > 1 and is_instance_valid(slots_container):
+		slots_container.visible = true
+		_update_slots_ui()
+	
 	if initial_installed_count > 0:
+		for k in range(min(initial_installed_count, gpu_installed_states.size())):
+			gpu_installed_states[k] = true
 		current_gpu_index = initial_installed_count
 		_prepare_next_gpu_slot()
 		_select_guide_tab(1)
+		_update_slots_ui()
 	elif start_as_empty_slot:
 		current_state = State.EMPTY_SLOT
 		gpu_container.visible = true
@@ -368,16 +386,47 @@ func _check_gpu_install_completed() -> void:
 	var latch_done = not is_pcie_latch_unlocked
 	var cable_done = not is_power_disconnected
 	if screws_done and latch_done and cable_done:
+		if current_gpu_index < gpu_installed_states.size():
+			gpu_installed_states[current_gpu_index] = true
 		current_gpu_index += 1
+		_update_slots_ui()
 		if current_gpu_index < target_gpu_count:
-			_show_warning("✓ ¡TARJETA GPU #%d/%d MONTADA! Preparando siguiente ranura..." % [current_gpu_index, target_gpu_count], Color(0.2, 1.0, 0.4))
-			await get_tree().create_timer(0.8).timeout
-			_prepare_next_gpu_slot()
+			_show_warning("✓ ¡TARJETA GPU #%d MONTADA!" % current_gpu_index, Color(0.2, 1.0, 0.4))
+			status_label.text = "✓ GPU #%d INSTALADA · HAZ CLIC EN 'RANURA GPU #%d' A LA DERECHA PARA CONTINUAR" % [current_gpu_index, current_gpu_index + 1]
+			status_label.modulate = Color(0.0, 0.95, 1.0)
 		else:
 			current_state = State.COMPLETED
 			_show_success_flow()
 	else:
 		_update_status()
+
+func _on_slot_button_clicked(idx: int) -> void:
+	if idx == current_gpu_index and current_gpu_index < target_gpu_count and not gpu_installed_states[idx]:
+		_prepare_next_gpu_slot()
+
+func _update_slots_ui() -> void:
+	if target_gpu_count <= 1 or not is_instance_valid(slots_container):
+		return
+	var buttons = [btn_slot_0, btn_slot_1, btn_slot_2]
+	for i in range(buttons.size()):
+		var btn = buttons[i]
+		if not is_instance_valid(btn): continue
+		if i >= target_gpu_count:
+			btn.visible = false
+			continue
+		btn.visible = true
+		if gpu_installed_states[i]:
+			btn.text = "✓ RANURA GPU #%d [MONTADA]" % (i + 1)
+			btn.modulate = Color(0.2, 1.0, 0.45)
+			btn.disabled = false
+		elif i == current_gpu_index:
+			btn.text = "➔ CLIC PARA MONTAR GPU #%d" % (i + 1)
+			btn.modulate = Color(1.0, 0.85, 0.2)
+			btn.disabled = false
+		else:
+			btn.text = "🔒 RANURA GPU #%d [PENDIENTE]" % (i + 1)
+			btn.modulate = Color(0.55, 0.6, 0.7, 0.6)
+			btn.disabled = true
 
 func _prepare_next_gpu_slot() -> void:
 	var has_gpu = false
@@ -688,6 +737,7 @@ func _format_check_item(lbl: Label, done: bool, text: String, active: bool = fal
 func _show_success_flow() -> void:
 	current_state = State.COMPLETED
 	_update_status()
+	_update_slots_ui()
 	_show_warning("✓ ¡REPARACIÓN COMPLETADA! GPU instalada y testeada con éxito.", Color(0.2, 1.0, 0.4))
-	await get_tree().create_timer(1.2).timeout
+	await get_tree().create_timer(0.5).timeout
 	minigame_finished.emit(true)

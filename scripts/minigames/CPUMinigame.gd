@@ -318,16 +318,19 @@ func _complete_screws_phase() -> void:
 	_apply_screws_visibility(false)
 	
 	if current_cpu_index < target_cpu_count:
-		_show_feedback("✓ ¡SOCKET CPU #%d ASEGURADO! Preparando Socket CPU #%d..." % [current_cpu_index, current_cpu_index + 1], Color(0.0, 1.0, 0.5))
-		status_label.text = "✓ CPU #%d INSTALADO · PREPARANDO SOCKET #%d..." % [current_cpu_index, current_cpu_index + 1]
+		_show_feedback("✓ ¡SOCKET CPU #%d ASEGURADO!" % current_cpu_index, Color(0.0, 1.0, 0.5))
+		status_label.text = "✓ CPU #%d INSTALADO · HAZ CLIC EN 'SOCKET CPU #%d' A LA DERECHA PARA CONTINUAR" % [current_cpu_index, current_cpu_index + 1]
 		status_label.modulate = Color(0.0, 0.95, 1.0)
 		_update_slots_ui()
-		await get_tree().create_timer(0.8).timeout
-		_prepare_next_cpu_socket()
 	else:
 		current_phase = Phase.COMPLETED
 		_show_feedback("✓ ¡LOS %d PROCESADORES ENTERPRISE INSTALADOS CON ÉXITO!" % target_cpu_count, Color(0.0, 1.0, 0.5))
 		status_label.text = "✓ ¡LOS %d PROCESADORES ENTERPRISE ASEGURADOS CON ÉXITO!" % target_cpu_count
+		status_label.modulate = Color(0.0, 1.0, 0.5)
+		_update_ui_state()
+		_update_slots_ui()
+		await get_tree().create_timer(0.6).timeout
+		minigame_finished.emit(true)
 		status_label.modulate = Color(0.0, 1.0, 0.5)
 		_update_ui_state()
 		_update_slots_ui()

@@ -458,6 +458,36 @@ theme_override_font_sizes/font_size = 10
 text = "PASOS: 1. Cable PCIe · 2. Tornillos bracket · 3. Pestillo PCIe · 4. Extraer GPU"
 autowrap_mode = 2
 
+[node name="SlotsContainer" type="VBoxContainer" parent="ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="SlotsTitle" type="Label" parent="ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide/SlotsContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.1, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 12
+text = "RANURAS PCIE RISER (3x):"
+horizontal_alignment = 1
+
+[node name="BtnSlot0" type="Button" parent="ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide/SlotsContainer"]
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "RANURA GPU #1"
+
+[node name="BtnSlot1" type="Button" parent="ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide/SlotsContainer"]
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "RANURA GPU #2"
+
+[node name="BtnSlot2" type="Button" parent="ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide/SlotsContainer"]
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "RANURA GPU #3"
+
 [node name="HSeparator" type="HSeparator" parent="ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide"]
 layout_mode = 2
 

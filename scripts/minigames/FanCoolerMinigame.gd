@@ -106,6 +106,13 @@ func _stop_cable_pulse() -> void:
 @onready var backpack_items_box: VBoxContainer = $ModalControl/Panel/VBox/ContentHBox/SideInfo/Margin/VBox/BackpackBox/ItemsContainer
 @onready var backpack_hint: Label = $ModalControl/Panel/VBox/ContentHBox/SideInfo/Margin/VBox/BackpackBox/BackpackHint
 
+@onready var slots_container: VBoxContainer = get_node_or_null("ModalControl/Panel/VBox/ContentHBox/SideInfo/Margin/VBox/SlotsContainer")
+@onready var btn_slot_0: Button = get_node_or_null("ModalControl/Panel/VBox/ContentHBox/SideInfo/Margin/VBox/SlotsContainer/BtnSlot0")
+@onready var btn_slot_1: Button = get_node_or_null("ModalControl/Panel/VBox/ContentHBox/SideInfo/Margin/VBox/SlotsContainer/BtnSlot1")
+@onready var btn_slot_2: Button = get_node_or_null("ModalControl/Panel/VBox/ContentHBox/SideInfo/Margin/VBox/SlotsContainer/BtnSlot2")
+
+var cooler_installed_states: Array[bool] = [false, false, false]
+
 # Lista de botones de tornillos
 var screw_buttons: Array[Button] = []
 var screw_icons: Array[TextureRect] = []
@@ -113,6 +120,11 @@ var screw_icons: Array[TextureRect] = []
 var default_cooler_pos: Vector2 = Vector2.ZERO
 var is_dragging_cooler: bool = false
 var drag_start_y: float = 0.0
+
+func get_socket_target_pos() -> Vector2:
+	if is_instance_valid(socket_frame):
+		return socket_frame.position
+	return default_cooler_pos
 
 func _ready() -> void:
 	layer = 12
@@ -131,11 +143,23 @@ func _ready() -> void:
 		btn_tab_quitar.pressed.connect(func(): _select_tab(0))
 	if is_instance_valid(btn_tab_poner):
 		btn_tab_poner.pressed.connect(func(): _select_tab(1))
+		
+	if btn_slot_0: btn_slot_0.pressed.connect(func(): _on_slot_button_clicked(0))
+	if btn_slot_1: btn_slot_1.pressed.connect(func(): _on_slot_button_clicked(1))
+	if btn_slot_2: btn_slot_2.pressed.connect(func(): _on_slot_button_clicked(2))
+	
+	if target_cooler_count > 1 and is_instance_valid(slots_container):
+		slots_container.visible = true
+		_update_slots_ui()
 	
 	if initial_installed_count > 0:
+		for k in range(min(initial_installed_count, cooler_installed_states.size())):
+			cooler_installed_states[k] = true
 		current_cooler_index = initial_installed_count
 		if current_cooler_index < target_cooler_count:
 			_prepare_next_cooler_socket()
+			_select_tab(1)
+		_update_slots_ui()
 	elif start_as_empty_slot:
 		current_state = State.EMPTY_SOCKET
 		_setup_empty_socket_visual()
@@ -148,9 +172,6 @@ func _ready() -> void:
 	_update_status()
 
 func _process(delta: float) -> void:
-	if is_instance_valid(cooler_sprite) and default_cooler_pos != Vector2.ZERO:
-		cooler_sprite.position.x = default_cooler_pos.x
-		
 	if not is_spinning:
 		return
 		
@@ -182,10 +203,13 @@ func _setup_empty_socket_visual() -> void:
 	is_decelerating = false
 	current_spin_fps = 0.0
 	
+	var target_pos = get_socket_target_pos()
+	default_cooler_pos = target_pos
+	
 	cooler_sprite.visible = true
 	cooler_sprite.texture = tex_cooler_disconnected
-	cooler_sprite.modulate = Color(0.2, 0.9, 1.0, 0.6)
-	cooler_sprite.position = default_cooler_pos + Vector2(0, -90.0)
+	cooler_sprite.modulate = Color(0.2, 0.9, 1.0, 0.7)
+	cooler_sprite.position = Vector2(target_pos.x, target_pos.y - 85.0)
 
 func _on_cooler_sprite_gui_input(event: InputEvent) -> void:
 	if current_state == State.READY_TO_EXTRACT:
@@ -201,10 +225,11 @@ func _on_cooler_sprite_gui_input(event: InputEvent) -> void:
 						_on_extract_cooler_pressed()
 					else:
 						var tw = create_tween()
-						tw.tween_property(cooler_sprite, "position", default_cooler_pos, 0.2)
+						tw.tween_property(cooler_sprite, "position", get_socket_target_pos(), 0.2)
 		elif event is InputEventMouseMotion and is_dragging_cooler:
 			var pull = clamp(drag_start_y - event.global_position.y, 0.0, 90.0)
-			cooler_sprite.position = Vector2(default_cooler_pos.x, default_cooler_pos.y - pull)
+			var target_pos = get_socket_target_pos()
+			cooler_sprite.position = Vector2(target_pos.x, target_pos.y - pull)
 		return
 
 	if current_state != State.EMPTY_SOCKET:
@@ -218,22 +243,27 @@ func _on_cooler_sprite_gui_input(event: InputEvent) -> void:
 			if is_dragging_cooler:
 				is_dragging_cooler = false
 				var diff_y = event.global_position.y - drag_start_y
-				# Permitir calce por arrastre hacia abajo o clic directo
-				if diff_y >= 45.0 or abs(diff_y) < 12.0 or cooler_sprite.position.distance_to(default_cooler_pos) < 30.0:
+				var target_pos = get_socket_target_pos()
+				# Calce por arrastre hacia abajo o clic directo
+				if diff_y >= 30.0 or abs(diff_y) < 15.0 or cooler_sprite.position.y >= target_pos.y - 30.0:
 					_seat_cooler_into_socket()
 				else:
 					is_cooler_lowered_to_socket = false
 					var tw = create_tween()
-					tw.tween_property(cooler_sprite, "position", Vector2(default_cooler_pos.x, default_cooler_pos.y - 90.0), 0.2)
-					_show_floating_feedback("⚠️ Debes bajar el disipador hasta el zócalo.", Color(1.0, 0.4, 0.4))
+					tw.tween_property(cooler_sprite, "position", Vector2(target_pos.x, target_pos.y - 85.0), 0.2)
+					_show_floating_feedback("⚠️ Arrastra el disipador hacia abajo hasta calzar en el zócalo.", Color(1.0, 0.85, 0.2))
 	elif event is InputEventMouseMotion and is_dragging_cooler:
-		# Bloqueado estrictamente en X: no se puede arrastrar a los lados, solo hacia abajo
-		var push = clamp(event.global_position.y - drag_start_y, 0.0, 110.0)
-		cooler_sprite.position = Vector2(default_cooler_pos.x, default_cooler_pos.y - 90.0 + push)
-		is_cooler_lowered_to_socket = (push >= 65.0)
+		# Bloqueado estrictamente en X y calzado vertical
+		var target_pos = get_socket_target_pos()
+		var push = clamp(event.global_position.y - drag_start_y, 0.0, 85.0)
+		cooler_sprite.position = Vector2(target_pos.x, target_pos.y - 85.0 + push)
+		is_cooler_lowered_to_socket = (push >= 55.0)
 
 func _seat_cooler_into_socket() -> void:
 	is_cooler_lowered_to_socket = true
+	var target_pos = get_socket_target_pos()
+	default_cooler_pos = target_pos
+	
 	# Retirar repuesto de la mochila si existe
 	for i in range(GameManager.backpack.size()):
 		var it = GameManager.backpack[i]
@@ -241,9 +271,9 @@ func _seat_cooler_into_socket() -> void:
 			GameManager.remove_item_from_backpack(i)
 			break
 			
-	var tw = create_tween()
-	tw.tween_property(cooler_sprite, "position", default_cooler_pos, 0.25).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	tw.parallel().tween_property(cooler_sprite, "modulate", Color(1, 1, 1, 1), 0.25)
+	var tw = create_tween().set_parallel(true)
+	tw.tween_property(cooler_sprite, "position", target_pos, 0.22).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tw.tween_property(cooler_sprite, "modulate", Color(1, 1, 1, 1), 0.2)
 	
 	cooler_sprite.texture = tex_cooler_disconnected
 	is_spinning = false
@@ -268,6 +298,9 @@ func _seat_cooler_into_socket() -> void:
 	is_cable_disconnected = true
 	
 	current_state = State.FASTEN_SCREWS
+	_show_floating_feedback("✓ ¡FAN COOLER MONTADO! COLOCA LOS TORNILLOS O CONECTA EL CABLE EN CUALQUIER ORDEN", Color(0.2, 1.0, 0.5))
+	_update_status()
+	_refresh_backpack_ui()
 	_show_floating_feedback("✓ ¡FAN COOLER MONTADO! COLOCA LOS TORNILLOS O CONECTA EL CABLE EN CUALQUIER ORDEN", Color(0.2, 1.0, 0.5))
 	_update_status()
 	_refresh_backpack_ui()
@@ -560,17 +593,50 @@ func _check_install_completed() -> void:
 			all_screws = false
 			break
 	if all_screws and not is_cable_disconnected:
+		if current_cooler_index < cooler_installed_states.size():
+			cooler_installed_states[current_cooler_index] = true
 		current_cooler_index += 1
+		_update_slots_ui()
 		if current_cooler_index < target_cooler_count:
-			_show_floating_feedback("✓ ¡TURBINA #%d/%d MONTADA! Preparando siguiente turbina..." % [current_cooler_index, target_cooler_count], Color(0.2, 1.0, 0.5))
-			await get_tree().create_timer(0.8).timeout
-			_prepare_next_cooler_socket()
+			_show_floating_feedback("✓ ¡TURBINA #%d MONTADA!" % current_cooler_index, Color(0.2, 1.0, 0.5))
+			status_label.text = "✓ TURBINA #%d INSTALADA · HAZ CLIC EN 'TURBINA #%d' A LA DERECHA PARA CONTINUAR" % [current_cooler_index, current_cooler_index + 1]
+			status_label.modulate = Color(0.0, 0.95, 1.0)
 		else:
 			current_state = State.COMPLETED
 			_update_status()
-			_show_victory_panel()
+			_show_floating_feedback("✓ ¡TODAS LAS TURBINAS INSTALADAS CON ÉXITO!", Color(0.2, 1.0, 0.5))
+			await get_tree().create_timer(0.5).timeout
+			minigame_finished.emit(true)
 	else:
 		_update_status()
+
+func _on_slot_button_clicked(idx: int) -> void:
+	if idx == current_cooler_index and current_cooler_index < target_cooler_count and not cooler_installed_states[idx]:
+		_prepare_next_cooler_socket()
+
+func _update_slots_ui() -> void:
+	if target_cooler_count <= 1 or not is_instance_valid(slots_container):
+		return
+	var buttons = [btn_slot_0, btn_slot_1, btn_slot_2]
+	for i in range(buttons.size()):
+		var btn = buttons[i]
+		if not is_instance_valid(btn): continue
+		if i >= target_cooler_count:
+			btn.visible = false
+			continue
+		btn.visible = true
+		if cooler_installed_states[i]:
+			btn.text = "✓ TURBINA #%d [MONTADA]" % (i + 1)
+			btn.modulate = Color(0.2, 1.0, 0.45)
+			btn.disabled = false
+		elif i == current_cooler_index:
+			btn.text = "➔ CLIC PARA MONTAR TURBINA #%d" % (i + 1)
+			btn.modulate = Color(1.0, 0.85, 0.2)
+			btn.disabled = false
+		else:
+			btn.text = "🔒 TURBINA #%d [PENDIENTE]" % (i + 1)
+			btn.modulate = Color(0.55, 0.6, 0.7, 0.6)
+			btn.disabled = true
 
 func _prepare_next_cooler_socket() -> void:
 	is_cooler_lowered_to_socket = false
@@ -592,6 +658,7 @@ func _prepare_next_cooler_socket() -> void:
 		_show_floating_feedback("⚠️ No tienes más turbinas en la mochila. Sal [ESC] para recogerlas y continuarás desde aquí.", Color(1.0, 0.4, 0.4))
 		
 	_update_status()
+	_update_slots_ui()
 	_refresh_backpack_ui()
 
 func _check_readiness() -> void:
@@ -652,21 +719,11 @@ func _on_extract_cooler_pressed() -> void:
 	)
 
 func _show_victory_panel() -> void:
-	status_label.text = "¡REPARACIÓN INTEGRAL SUPERADA (QUITAR Y PONER COMPLETADOS)!"
+	status_label.text = "¡REPARACIÓN COMPLETADA CON ÉXITO!"
 	status_label.add_theme_color_override("font_color", Color(0.2, 1.0, 0.5, 1.0))
-	
-	var victory_modal = $ModalControl/VictoryPanel
-	if victory_modal:
-		var v_title = victory_modal.get_node_or_null("VBox/Title")
-		if v_title:
-			v_title.text = "¡REPARACIÓN INTEGRAL COMPLETADA! ✓"
-		var v_desc = victory_modal.get_node_or_null("VBox/Desc")
-		if v_desc:
-			v_desc.text = "Has desmontado la pieza averiada e instalado el Fan Cooler nuevo sobre la %s con total éxito." % ("Placa AMD" if is_amd_plate else "Placa Intel")
-		victory_modal.visible = true
-		var btn_done = victory_modal.get_node_or_null("VBox/BtnContinuar")
-		if btn_done:
-			btn_done.pressed.connect(func(): minigame_finished.emit(true))
+	_show_floating_feedback("✓ ¡FAN COOLER INSTALADO Y ASEGURADO!", Color(0.2, 1.0, 0.5))
+	await get_tree().create_timer(0.5).timeout
+	minigame_finished.emit(true)
 
 func _update_status() -> void:
 	var plate_tag = "Placa AMD" if is_amd_plate else "Placa Intel"

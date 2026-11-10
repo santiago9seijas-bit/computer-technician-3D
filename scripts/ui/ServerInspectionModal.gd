@@ -566,9 +566,13 @@ func _launch_liquid_cooling() -> void:
 			var gm = get_node_or_null("/root/GameManager")
 			if gm and gm.has_method("add_score"):
 				gm.add_score(500, 30.0)
-			if gm and gm.has_method("complete_level"):
-				gm.complete_level()
 			_show_feedback("✓ ¡REFRIGERACIÓN LÍQUIDA INSTALADA! ¡TORRE DE SERVIDOR 100% OPERATIVA! (+500 PTS)", Color(0.2, 1.0, 0.5))
+			await get_tree().create_timer(1.2).timeout
+			if gm and gm.has_method("win_level"):
+				gm.win_level()
+			inspection_closed.emit()
+			queue_free()
+			return
 		else:
 			_show_feedback("⚠️ Montaje de refrigeración líquida pausado.", Color(1.0, 0.85, 0.2))
 			

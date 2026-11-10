@@ -713,12 +713,10 @@ func _latch_ram_into_socket() -> void:
 	current_ram_index += 1
 	
 	if current_ram_index < target_ram_count:
-		_show_floating_feedback("✓ ¡MÓDULO RAM #%d/%d ENGANCHADO! Preparando siguiente banco..." % [current_ram_index, target_ram_count], COLOR_GREEN)
-		status_label.text = "✓ BANCO #%d ENGANCHADO · PREPARANDO BANCO #%d..." % [current_ram_index, current_ram_index + 1]
+		_show_floating_feedback("✓ ¡MÓDULO RAM #%d/%d ENGANCHADO!" % [current_ram_index, target_ram_count], COLOR_GREEN)
+		status_label.text = "✓ BANCO #%d ENGANCHADO · HAZ CLIC EN 'BANCO RAM #%d' A LA DERECHA PARA CONTINUAR" % [current_ram_index, current_ram_index + 1]
 		status_label.modulate = Color(0.0, 0.95, 1.0)
 		_update_slots_ui()
-		await get_tree().create_timer(0.6).timeout
-		_prepare_next_ram_slot()
 	else:
 		current_state = State.COMPLETED
 		_update_slots_ui()
@@ -727,7 +725,7 @@ func _latch_ram_into_socket() -> void:
 		status_label.text = victory_msg
 		status_label.modulate = COLOR_GREEN
 		
-		await get_tree().create_timer(1.0).timeout
+		await get_tree().create_timer(0.5).timeout
 		_finish_minigame_with_slide(true)
 
 func _on_slot_button_clicked(idx: int) -> void:
