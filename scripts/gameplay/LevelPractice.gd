@@ -106,4 +106,4 @@ func _on_reintentar() -> void:
 
 func _on_siguiente() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-	get_tree().change_scene_to_file("res://scenes/menus/LevelSelect.tscn")
+	CyberPlayTransition.play_exit(get_tree(), "practica")

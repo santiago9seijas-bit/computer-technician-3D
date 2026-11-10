@@ -366,6 +366,23 @@ func _on_reiniciar_pressed() -> void:
 		gm.start_level(120.0)
 	get_tree().reload_current_scene.call_deferred()
 
+func _detect_current_mode() -> String:
+	var cur_scene = get_tree().current_scene
+	if cur_scene:
+		var scene_name = cur_scene.name.to_lower()
+		var scene_path = cur_scene.scene_file_path.to_lower()
+		if "system" in scene_name or "system" in scene_path:
+			return "sistema"
+		elif "server" in scene_name or "server" in scene_path:
+			return "servidor"
+		elif "tutorial" in scene_name or "tutorial" in scene_path:
+			return "tutorial"
+		elif "practice" in scene_name or "practica" in scene_name or "practice" in scene_path:
+			return "practica"
+		elif "level" in scene_name or "reparacion" in scene_name or "level" in scene_path:
+			return "reparacion"
+	return "reparacion"
+
 func _on_volver_selector() -> void:
 	var gm = _get_game_manager()
 	if gm and gm.is_game_paused:
@@ -374,9 +391,5 @@ func _on_volver_selector() -> void:
 		if gm.has_signal("pause_state_changed"):
 			gm.pause_state_changed.emit(false)
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-	CyberPlayTransition.play(
-		get_tree(),
-		"res://scenes/menus/LevelSelect.tscn",
-		"VOLVIENDO AL SELECTOR DE NIVEL",
-		"// DESCONECTANDO SESIÓN DE TALLER //"
-	)
+	var detected_mode = _detect_current_mode()
+	CyberPlayTransition.play_exit(get_tree(), detected_mode)

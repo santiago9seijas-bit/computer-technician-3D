@@ -7,8 +7,10 @@ extends Control
 # =============================================================================
 
 static var initial_tab: String = "niveles"
+static var initial_mode: String = "reparacion"
 
 # --- Nodos Principales ---
+@onready var background_rect: ColorRect = $Background
 @onready var btn_volver: Button = $TopBar/BtnVolver
 @onready var btn_niveles: Button = $TopBar/Tabs/BtnNiveles
 @onready var btn_tutoriales: Button = $TopBar/Tabs/BtnTutoriales
@@ -22,6 +24,55 @@ static var initial_tab: String = "niveles"
 @onready var col2_label: Label = $ColumnHeaders/Col2
 @onready var col3_label: Label = $ColumnHeaders/Col3
 @onready var footer_hint: Label = $FooterHint
+
+# --- Selector Circular de Modo & Decoración Lateral Derecha ---
+@onready var decoracion_right: TextureRect = get_node_or_null("DecoracionRight")
+@onready var circular_mode_selector: Control = get_node_or_null("CircularModeSelector")
+@onready var btn_up_arrow: Button = get_node_or_null("CircularModeSelector/BtnUpArrow")
+@onready var btn_down_arrow: Button = get_node_or_null("CircularModeSelector/BtnDownArrow")
+@onready var mode_wheel_area: Control = get_node_or_null("CircularModeSelector/ModeWheelArea")
+@onready var bubble_reparacion: Control = get_node_or_null("CircularModeSelector/ModeWheelArea/BubbleReparacion")
+@onready var bubble_sistema: Control = get_node_or_null("CircularModeSelector/ModeWheelArea/BubbleSistema")
+@onready var bubble_servidor: Control = get_node_or_null("CircularModeSelector/ModeWheelArea/BubbleServidor")
+
+const MODE_ORDER: Array[String] = ["reparacion", "sistema", "servidor"]
+var _wheel_visual_angle: float = 0.0
+var _wheel_target_angle: float = 0.0
+var _wheel_tween: Tween = null
+var _color_tween: Tween = null
+
+const MODE_PALETTES: Dictionary = {
+	"reparacion": {
+		"bg_color": Color(0.05, 0.02, 0.1, 1.0),
+		"accent": Color(1.0, 0.1, 0.35, 1.0),
+		"accent_dim": Color(0.65, 0.05, 0.45, 0.55),
+		"banner_font": Color(1.0, 0.1, 0.25, 1.0),
+		"banner_shadow": Color(0.65, 0.0, 0.85, 0.8),
+		"holo_top": Color(0.48, 0.04, 0.78, 1.0),
+		"holo_bottom": Color(0.88, 0.02, 0.16, 1.0),
+		"holo_edge": Color(1.0, 0.08, 0.22, 1.0)
+	},
+	"sistema": {
+		"bg_color": Color(0.015, 0.035, 0.12, 1.0),
+		"accent": Color(0.18, 0.55, 1.0, 1.0),
+		"accent_dim": Color(0.04, 0.22, 0.65, 0.55),
+		"banner_font": Color(0.2, 0.7, 1.0, 1.0),
+		"banner_shadow": Color(0.04, 0.2, 0.65, 0.8),
+		"holo_top": Color(0.02, 0.12, 0.45, 1.0),
+		"holo_bottom": Color(0.08, 0.35, 0.85, 1.0),
+		"holo_edge": Color(0.25, 0.7, 1.0, 1.0)
+	},
+	"servidor": {
+		"bg_color": Color(0.08, 0.035, 0.01, 1.0),
+		"accent": Color(1.0, 0.55, 0.08, 1.0),
+		"accent_dim": Color(0.7, 0.25, 0.02, 0.55),
+		"banner_font": Color(1.0, 0.6, 0.1, 1.0),
+		"banner_shadow": Color(0.75, 0.25, 0.02, 0.8),
+		"holo_top": Color(0.45, 0.15, 0.01, 1.0),
+		"holo_bottom": Color(0.95, 0.45, 0.05, 1.0),
+		"holo_edge": Color(1.0, 0.68, 0.12, 1.0)
+	}
+}
 
 # --- Área de Constelación (Niveles) ---
 @onready var constellation_area: Control = $ConstellationArea
@@ -109,6 +160,7 @@ var is_level_zoomed: bool = false
 var active_zoomed_index: int = -1
 var camera_zoom_tween: Tween = null
 var is_launching_level: bool = false
+var is_exiting_scene: bool = false
 
 # =============================================================================
 # BASE DE DATOS DE LOS 12 NIVELES POR MODO (TODOS BLOQUEADOS CON INSPECCIÓN ACTIVA)
@@ -1082,6 +1134,33 @@ func _ready() -> void:
 	if graph_lines and graph_lines.has_signal("mode_transition_completed"):
 		graph_lines.mode_transition_completed.connect(_update_node_hitboxes_positions)
 		
+	# Selector Circular de Modo & Decoración Flipped en el lateral derecho
+	if decoracion_right and decoracion_right.material:
+		decoracion_right.material = decoracion_right.material.duplicate()
+		
+	if btn_up_arrow:
+		btn_up_arrow.pressed.connect(func(): _cycle_mode(-1))
+	if btn_down_arrow:
+		btn_down_arrow.pressed.connect(func(): _cycle_mode(1))
+		
+	if bubble_reparacion:
+		var hit = bubble_reparacion.get_node_or_null("Hitbox")
+		if hit: hit.pressed.connect(func(): _switch_mode("reparacion"))
+	if bubble_sistema:
+		var hit = bubble_sistema.get_node_or_null("Hitbox")
+		if hit: hit.pressed.connect(func(): _switch_mode("sistema"))
+	if bubble_servidor:
+		var hit = bubble_servidor.get_node_or_null("Hitbox")
+		if hit: hit.pressed.connect(func(): _switch_mode("servidor"))
+		
+	if initial_mode != "" and (initial_mode == "reparacion" or initial_mode == "sistema" or initial_mode == "servidor"):
+		current_mode = initial_mode
+		
+	_init_mode_wheel()
+	_apply_mode_palette(current_mode, true)
+	if graph_lines and graph_lines.has_method("transition_to_mode") and current_mode != "reparacion":
+		graph_lines.transition_to_mode(current_mode)
+		
 	_create_node_hitboxes()
 	
 	# Configurar pestaña inicial solicitada
@@ -1140,18 +1219,19 @@ func _switch_main_tab(tab_name: String, instant: bool = false) -> void:
 
 func _update_tab_buttons_visuals() -> void:
 	var is_niv = (current_tab == "niveles")
+	var pal = MODE_PALETTES.get(current_mode, MODE_PALETTES["reparacion"])
 	
 	if is_niv:
 		btn_niveles.modulate = Color(1.3, 1.3, 1.3, 1.0)
 		if "border_color" in btn_niveles:
-			btn_niveles.border_color = Color(1.0, 0.1, 0.4, 1.0)
+			btn_niveles.border_color = pal.accent
 		btn_tutoriales.modulate = Color(0.65, 0.65, 0.72, 0.75)
 		if "border_color" in btn_tutoriales:
 			btn_tutoriales.border_color = Color(0.45, 0.15, 0.6, 0.6)
 	else:
 		btn_tutoriales.modulate = Color(1.3, 1.3, 1.3, 1.0)
 		if "border_color" in btn_tutoriales:
-			btn_tutoriales.border_color = Color(1.0, 0.1, 0.4, 1.0)
+			btn_tutoriales.border_color = pal.accent
 		btn_niveles.modulate = Color(0.65, 0.65, 0.72, 0.75)
 		if "border_color" in btn_niveles:
 			btn_niveles.border_color = Color(0.45, 0.15, 0.6, 0.6)
@@ -1162,16 +1242,137 @@ func _update_tab_buttons_visuals() -> void:
 		btn_tutoriales.queue_redraw()
 
 # =============================================================================
+# SELECTOR CIRCULAR DE MODO 3D & RUEDA ORBITAL (LATERAL DERECHO)
+# =============================================================================
+func _init_mode_wheel() -> void:
+	var init_idx = MODE_ORDER.find(current_mode)
+	if init_idx == -1:
+		init_idx = 0
+	_wheel_target_angle = -float(init_idx) * (TAU / 3.0)
+	_wheel_visual_angle = _wheel_target_angle
+	_update_wheel_visuals()
+
+func _cycle_mode(direction: int) -> void:
+	if is_level_zoomed:
+		return
+	var cur_idx = MODE_ORDER.find(current_mode)
+	if cur_idx == -1:
+		cur_idx = 0
+	var next_idx = posmod(cur_idx + direction, MODE_ORDER.size())
+	_switch_mode(MODE_ORDER[next_idx], direction)
+
+func _animate_wheel_step(val: float) -> void:
+	_wheel_visual_angle = val
+	_update_wheel_visuals()
+
+func _update_wheel_visuals() -> void:
+	var bubbles = [bubble_reparacion, bubble_sistema, bubble_servidor]
+	if not mode_wheel_area or bubbles.any(func(b): return b == null):
+		return
+
+	var center = Vector2(mode_wheel_area.size.x * 0.5, mode_wheel_area.size.y * 0.5)
+	var rx = 26.0
+	var ry = 70.0
+
+	for i in range(bubbles.size()):
+		var b = bubbles[i]
+		var ang = _wheel_visual_angle + float(i) * (TAU / 3.0)
+		var bx = -cos(ang) * rx
+		var by = sin(ang) * ry
+		var depth = (cos(ang) + 1.0) * 0.5 # 1.0 al frente, 0.0 atrás
+
+		b.position = center + Vector2(bx - 30.0, by - 30.0)
+		var sc = lerp(0.74, 1.25, depth)
+		b.scale = Vector2(sc, sc)
+		b.modulate.a = lerp(0.42, 1.0, depth)
+		b.z_index = int(depth * 10)
+		b.rotation = sin(ang) * 0.12
+
+		var title_lbl = b.get_node_or_null("TitleLabel")
+		var bg_circle = b.get_node_or_null("BgCircle")
+		var is_front = (depth > 0.82)
+
+		if title_lbl:
+			title_lbl.modulate.a = lerp(0.0, 1.0, clampf((depth - 0.6) / 0.35, 0.0, 1.0))
+		if bg_circle:
+			var mode_name = MODE_ORDER[i]
+			var pal = MODE_PALETTES.get(mode_name, MODE_PALETTES["reparacion"])
+			bg_circle.modulate = pal.accent if is_front else pal.accent_dim
+
+func _apply_mode_palette(mode_name: String, instant: bool = false) -> void:
+	var pal = MODE_PALETTES.get(mode_name, MODE_PALETTES["reparacion"])
+
+	if instant:
+		if background_rect:
+			background_rect.color = pal.bg_color
+		if decoracion_right and decoracion_right.material is ShaderMaterial:
+			var mat: ShaderMaterial = decoracion_right.material
+			mat.set_shader_parameter("top_color", pal.holo_top)
+			mat.set_shader_parameter("bottom_color", pal.holo_bottom)
+			mat.set_shader_parameter("edge_color", pal.holo_edge)
+		if banner_label:
+			banner_label.add_theme_color_override("font_color", pal.banner_font)
+			banner_label.add_theme_color_override("font_shadow_color", pal.banner_shadow)
+		return
+
+	if _color_tween and _color_tween.is_valid():
+		_color_tween.kill()
+	_color_tween = create_tween().set_parallel(true).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+
+	if background_rect:
+		_color_tween.tween_property(background_rect, "color", pal.bg_color, 0.38)
+
+	if decoracion_right and decoracion_right.material is ShaderMaterial:
+		var mat: ShaderMaterial = decoracion_right.material
+		_color_tween.tween_property(mat, "shader_parameter/top_color", pal.holo_top, 0.38)
+		_color_tween.tween_property(mat, "shader_parameter/bottom_color", pal.holo_bottom, 0.38)
+		_color_tween.tween_property(mat, "shader_parameter/edge_color", pal.holo_edge, 0.38)
+
+	if banner_label:
+		var cur_font_c = banner_label.get_theme_color("font_color")
+		var cur_shad_c = banner_label.get_theme_color("font_shadow_color")
+		_color_tween.tween_method(func(c: Color): banner_label.add_theme_color_override("font_color", c), cur_font_c, pal.banner_font, 0.35)
+		_color_tween.tween_method(func(c: Color): banner_label.add_theme_color_override("font_shadow_color", c), cur_shad_c, pal.banner_shadow, 0.35)
+
+# =============================================================================
 # CONMUTACIÓN DE MODO / DIVISIÓN (REPARACIÓN, SISTEMA, SERVIDOR)
 # =============================================================================
-func _switch_mode(mode_name: String) -> void:
+func _switch_mode(mode_name: String, spin_dir: int = 0) -> void:
 	if is_level_zoomed:
 		_unzoom_camera()
-	if current_mode == mode_name:
+	if current_mode == mode_name and spin_dir == 0:
 		return
 		
 	current_mode = mode_name
+	var cur_idx = MODE_ORDER.find(current_mode)
+	if cur_idx == -1:
+		cur_idx = 0
+
+	if spin_dir != 0:
+		_wheel_target_angle -= float(spin_dir) * (TAU / 3.0)
+	else:
+		var target_base = -float(cur_idx) * (TAU / 3.0)
+		var diff = wrapf(target_base - _wheel_visual_angle, -PI, PI)
+		_wheel_target_angle = _wheel_visual_angle + diff
+
+	if _wheel_tween and _wheel_tween.is_valid():
+		_wheel_tween.kill()
+	_wheel_tween = create_tween().set_parallel(true)
+	_wheel_tween.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	_wheel_tween.tween_method(_animate_wheel_step, _wheel_visual_angle, _wheel_target_angle, 0.42)
+
+	if btn_up_arrow and spin_dir < 0:
+		var tw_arr = create_tween()
+		tw_arr.tween_property(btn_up_arrow, "scale", Vector2(1.2, 1.2), 0.08)
+		tw_arr.tween_property(btn_up_arrow, "scale", Vector2.ONE, 0.12)
+	elif btn_down_arrow and spin_dir > 0:
+		var tw_arr = create_tween()
+		tw_arr.tween_property(btn_down_arrow, "scale", Vector2(1.2, 1.2), 0.08)
+		tw_arr.tween_property(btn_down_arrow, "scale", Vector2.ONE, 0.12)
+
+	_apply_mode_palette(current_mode, false)
 	_update_mode_buttons()
+	_update_tab_buttons_visuals()
 	_update_btn_play_level1_visibility()
 	
 	if current_tab == "niveles":
@@ -1315,7 +1516,7 @@ func _on_node_clicked(index: int) -> void:
 		graph_lines.trigger_node_click_zoom(index)
 		
 	# ZOOM DE CÁMARA AL CÍRCULO CLICKEADO:
-	var node_pos = graph_lines.nodes[index] if (graph_lines and index < graph_lines.nodes.size()) else Vector2(640, 410)
+	var node_pos = graph_lines.nodes[index] if (graph_lines and index < graph_lines.nodes.size()) else Vector2(580, 410)
 	var zoom_factor: float = 2.1
 	var target_screen_pos = Vector2(260, 390)
 	var target_area_pos = target_screen_pos - node_pos * zoom_factor
@@ -1388,7 +1589,7 @@ func _unzoom_camera() -> void:
 		
 	camera_zoom_tween = create_tween().set_parallel(true)
 	if constellation_area:
-		constellation_area.pivot_offset = Vector2(640, 395)
+		constellation_area.pivot_offset = Vector2(580, 395)
 		camera_zoom_tween.tween_property(constellation_area, "position", Vector2.ZERO, 0.38)\
 			.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 		camera_zoom_tween.tween_property(constellation_area, "scale", Vector2(current_map_zoom, current_map_zoom), 0.38)\
@@ -1448,7 +1649,7 @@ func _apply_map_zoom(target_zoom: float) -> void:
 		zoom_label.text = "%d%%" % int(round(current_map_zoom * 100.0))
 		
 	if constellation_area:
-		constellation_area.pivot_offset = Vector2(640, 395)
+		constellation_area.pivot_offset = Vector2(580, 395)
 		if camera_zoom_tween and camera_zoom_tween.is_valid():
 			camera_zoom_tween.kill()
 		camera_zoom_tween = create_tween().set_parallel(true)
@@ -1465,7 +1666,9 @@ func _fade_menu_chrome(visible_state: bool) -> void:
 		get_node_or_null("ModeSelector"),
 		get_node_or_null("SectionBanner"),
 		get_node_or_null("ColumnHeaders"),
-		get_node_or_null("FooterHint")
+		get_node_or_null("FooterHint"),
+		decoracion_right,
+		circular_mode_selector
 	]
 	for node in chrome_nodes:
 		if node:
@@ -1505,11 +1708,12 @@ func _play_practice_level() -> void:
 	CyberPlayTransition.play(
 		get_tree(),
 		"res://scenes/gameplay/LevelPractice.tscn",
-		"ENTRANDO A LA SALA DE PRÁCTICA 3D",
-		"// ENTRENAMIENTO TÉCNICO · BANCO DE TRABAJO //",
+		"SALA DE PRÁCTICA 3D",
+		"// ENTRENAMIENTO TÉCNICO · BANCO DE TRABAJO LIBRE //",
 		Callable(),
 		false,
-		true
+		false,
+		current_mode
 	)
 
 func _play_tutorial_level() -> void:
@@ -1527,10 +1731,12 @@ func _play_tutorial_level() -> void:
 	CyberPlayTransition.play(
 		get_tree(),
 		"res://scenes/gameplay/LevelTutorial.tscn",
-		"ENTRANDO AL TUTORIAL 3D",
+		"NÚCLEO TUTORIAL 3D",
 		"// SALA DE ENTRENAMIENTO · INDUCCIÓN TÉCNICA //",
 		Callable(),
-		true
+		false,
+		false,
+		current_mode
 	)
 
 func _open_tutorial_from_hub() -> void:
@@ -1561,18 +1767,25 @@ func _play_level_1() -> void:
 		
 	var target_scene = "res://scenes/gameplay/Level1.tscn"
 	var mode_title = "TALLER DE HARDWARE 3D"
+	var enter_title = "ENTRANDO AL TALLER 3D"
 	if current_mode == "sistema":
 		target_scene = "res://scenes/gameplay/LevelSystems1.tscn"
 		mode_title = "ESTACIÓN DE SISTEMAS"
+		enter_title = "ENTRANDO A SISTEMAS 3D"
 	elif current_mode == "servidor":
 		target_scene = "res://scenes/gameplay/LevelServer1.tscn"
 		mode_title = "DATACENTER CORPORATIVO"
+		enter_title = "ENTRANDO AL DATACENTER 3D"
 	
 	CyberPlayTransition.play(
 		get_tree(),
 		target_scene,
-		"ENTRANDO AL DATACENTER 3D" if current_mode == "servidor" else "ENTRANDO AL TALLER 3D",
-		"// ACCEDIENDO A EQUIPO #1 · %s //" % mode_title
+		enter_title,
+		"// ACCEDIENDO A EQUIPO #1 · %s //" % mode_title,
+		Callable(),
+		false,
+		false,
+		current_mode
 	)
 
 # =============================================================================
@@ -1581,7 +1794,8 @@ func _play_level_1() -> void:
 func _filter_tutorial_cards() -> void:
 	var mode_cards: Array[Dictionary] = []
 	for c in ALL_TUTORIAL_CARDS:
-		if c.get("division", "") == current_mode:
+		var d = c.get("division", "")
+		if d == current_mode or (current_mode == "reparacion" and d == "reparacion_fondo"):
 			mode_cards.append(c)
 			
 	# Asegurar que existan suficientes slots para todas las tarjetas del modo
@@ -2013,9 +2227,106 @@ func _show_toast(msg: String) -> void:
 	tw.chain().tween_callback(lbl.queue_free)
 
 func _on_volver_pressed() -> void:
-	get_tree().change_scene_to_file("res://scenes/menus/MainMenu.tscn")
+	if is_exiting_scene or is_launching_level:
+		return
+	is_exiting_scene = true
+	_play_exit_animation()
+
+func _play_exit_sfx() -> void:
+	if not ResourceLoader.exists("res://efectos/sonido de entrada.ogg"):
+		return
+	var player = AudioStreamPlayer.new()
+	player.stream = load("res://efectos/sonido de entrada.ogg")
+	player.volume_db = -2.0
+	player.pitch_scale = 0.82 # Modulación grave sci-fi de desconexión
+	player.bus = "Master"
+	add_child(player)
+	player.play()
+	player.finished.connect(player.queue_free)
+
+func _play_exit_animation() -> void:
+	# 1. Overlay bloqueador interno (hijo directo de self, NUNCA en root para evitar congelamiento)
+	var local_blocker = ColorRect.new()
+	local_blocker.set_anchors_preset(Control.PRESET_FULL_RECT)
+	local_blocker.color = Color(0, 0, 0, 0)
+	local_blocker.mouse_filter = Control.MOUSE_FILTER_STOP
+	local_blocker.z_index = 100
+	add_child(local_blocker)
+
+	# 2. SFX de desconexión
+	_play_exit_sfx()
+
+	# 3. Micro punch en el botón volver
+	if btn_volver:
+		btn_volver.pivot_offset = btn_volver.size * 0.5
+		var tw_btn = create_tween()
+		tw_btn.tween_property(btn_volver, "scale", Vector2(0.85, 0.85), 0.08).set_trans(Tween.TRANS_QUAD)
+		tw_btn.tween_property(btn_volver, "scale", Vector2.ONE, 0.12)
+		tw_btn.parallel().tween_property(btn_volver, "modulate", Color(2.2, 0.3, 0.7, 1.0), 0.08)
+
+	# 4. Coreografía de salida de los elementos de interfaz (animación reactiva)
+	var tw_ui = create_tween().set_parallel(true).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+
+	# Fade a negro suave del bloqueador
+	tw_ui.tween_property(local_blocker, "color", Color(0.02, 0.015, 0.04, 1.0), 0.28)
+
+	# TopBar sube hacia arriba fuera de pantalla
+	var top_bar = get_node_or_null("TopBar")
+	if top_bar:
+		tw_ui.tween_property(top_bar, "position:y", top_bar.position.y - 95.0, 0.28)
+		tw_ui.tween_property(top_bar, "modulate:a", 0.0, 0.25)
+
+	# Banner y cabeceras suben
+	var banner = get_node_or_null("SectionBanner")
+	if banner:
+		tw_ui.tween_property(banner, "position:y", banner.position.y - 50.0, 0.26)
+		tw_ui.tween_property(banner, "modulate:a", 0.0, 0.24)
+	if column_headers:
+		tw_ui.tween_property(column_headers, "position:y", column_headers.position.y - 40.0, 0.25)
+		tw_ui.tween_property(column_headers, "modulate:a", 0.0, 0.22)
+
+	# FooterHint cae hacia abajo
+	if footer_hint:
+		tw_ui.tween_property(footer_hint, "position:y", footer_hint.position.y + 55.0, 0.24)
+		tw_ui.tween_property(footer_hint, "modulate:a", 0.0, 0.22)
+
+	# Selector de modo y decoración derecha se deslizan a la derecha
+	if decoracion_right:
+		tw_ui.tween_property(decoracion_right, "position:x", decoracion_right.position.x + 220.0, 0.30)
+		tw_ui.tween_property(decoracion_right, "modulate:a", 0.0, 0.26)
+	if circular_mode_selector:
+		tw_ui.tween_property(circular_mode_selector, "position:x", circular_mode_selector.position.x + 220.0, 0.30)
+		tw_ui.tween_property(circular_mode_selector, "modulate:a", 0.0, 0.26)
+		_wheel_target_angle += TAU * 1.5
+		if _wheel_tween and _wheel_tween.is_valid():
+			_wheel_tween.kill()
+		_wheel_tween = create_tween()
+		_wheel_tween.tween_method(_animate_wheel_step, _wheel_visual_angle, _wheel_target_angle, 0.30)
+
+	# Constelación de niveles: Implosión hacia el centro con rotación
+	if constellation_area:
+		constellation_area.pivot_offset = Vector2(580, 395)
+		tw_ui.tween_property(constellation_area, "scale", Vector2(0.08, 0.08), 0.28).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
+		tw_ui.tween_property(constellation_area, "rotation", 0.30, 0.28)
+		tw_ui.tween_property(constellation_area, "modulate:a", 0.0, 0.25)
+
+	if tutorial_area and tutorial_area.visible:
+		tw_ui.tween_property(tutorial_area, "position:y", tutorial_area.position.y + 60.0, 0.28)
+		tw_ui.tween_property(tutorial_area, "modulate:a", 0.0, 0.24)
+
+	if map_zoom_controls:
+		tw_ui.tween_property(map_zoom_controls, "modulate:a", 0.0, 0.20)
+
+	# 5. Cambio limpio y seguro a MainMenu al completar la transición (sin residuos en root)
+	tw_ui.chain().tween_callback(func():
+		get_tree().change_scene_to_file("res://scenes/menus/MainMenu.tscn")
+	)
 
 func _input(event: InputEvent) -> void:
+	if is_exiting_scene:
+		get_viewport().set_input_as_handled()
+		return
+		
 	if event.is_action_pressed("ui_cancel") or (event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE):
 		if deployed_modal and deployed_modal.visible:
 			get_viewport().set_input_as_handled()
@@ -2029,6 +2340,21 @@ func _input(event: InputEvent) -> void:
 		_on_volver_pressed()
 		return
 		
+	# Navegación entre los 3 modos de juego (Arriba/Abajo o W/S) en la vista general
+	if not is_level_zoomed and not (deployed_modal and deployed_modal.visible):
+		var is_up: bool = (event is InputEventKey and event.pressed and not event.echo and (event.keycode == KEY_UP or event.physical_keycode == KEY_UP or event.keycode == KEY_W or event.physical_keycode == KEY_W)) \
+			or event.is_action_pressed("ui_up")
+		var is_down: bool = (event is InputEventKey and event.pressed and not event.echo and (event.keycode == KEY_DOWN or event.physical_keycode == KEY_DOWN or event.keycode == KEY_S or event.physical_keycode == KEY_S)) \
+			or event.is_action_pressed("ui_down")
+		if is_up:
+			get_viewport().set_input_as_handled()
+			_cycle_mode(-1)
+			return
+		elif is_down:
+			get_viewport().set_input_as_handled()
+			_cycle_mode(1)
+			return
+
 	# 1. Rueda del ratón para alejar y acercar la vista del mapa en vista general
 	if not is_level_zoomed and current_tab == "niveles" and not (deployed_modal and deployed_modal.visible):
 		if event is InputEventMouseButton and event.pressed:

@@ -16,6 +16,8 @@ var _subtitle_text: String = ""
 var _on_finished: Callable = Callable()
 var _is_tutorial: bool = false
 var _is_practice: bool = false
+var _mode: String = ""
+var _is_exit: bool = false
 
 static func play(
 	tree: SceneTree,
@@ -24,14 +26,35 @@ static func play(
 	subtitle_text: String = "// ENLACE NEURONAL CON TALLER TÉCNICO //",
 	on_finished: Callable = Callable(),
 	is_tutorial: bool = false,
-	is_practice: bool = false
+	is_practice: bool = false,
+	mode: String = "",
+	is_exit: bool = false
 ) -> void:
 	if not tree or not tree.root:
 		return
 		
+	var old = tree.root.get_node_or_null("CyberPlayTransition")
+	if old:
+		old.queue_free()
+		
+	var resolved_mode = mode.to_lower()
+	if resolved_mode == "" and target_scene_path != "":
+		var low_path = target_scene_path.to_lower()
+		if "system" in low_path:
+			resolved_mode = "sistema"
+		elif "server" in low_path:
+			resolved_mode = "servidor"
+		elif "level1" in low_path or "reparacion" in low_path:
+			resolved_mode = "reparacion"
+		elif is_tutorial:
+			resolved_mode = "sistema"
+		elif is_practice:
+			resolved_mode = "servidor"
+
 	var transition = CyberPlayTransition.new()
 	transition.name = "CyberPlayTransition"
 	transition.layer = 150 # Por encima de cualquier interfaz, modal o HUD
+	transition.process_mode = Node.PROCESS_MODE_ALWAYS
 	transition._tree = tree
 	transition._target_scene = target_scene_path
 	transition._title_text = title_text
@@ -39,18 +62,68 @@ static func play(
 	transition._on_finished = on_finished
 	transition._is_tutorial = is_tutorial
 	transition._is_practice = is_practice
+	transition._mode = resolved_mode
+	transition._is_exit = is_exit
 	tree.root.call_deferred("add_child", transition)
+
+static func play_exit(
+	tree: SceneTree,
+	mode: String = "reparacion",
+	target_scene_path: String = "res://scenes/menus/LevelSelect.tscn",
+	title_text: String = "",
+	subtitle_text: String = "",
+	on_finished: Callable = Callable()
+) -> void:
+	if not tree or not tree.root:
+		return
+	var m = mode.to_lower()
+	if title_text == "":
+		if m == "sistema":
+			title_text = "DESCONECTANDO ESTACIÓN DE SISTEMAS"
+		elif m == "servidor":
+			title_text = "DESCONECTANDO DATACENTER CORPORATIVO"
+		elif m == "tutorial":
+			title_text = "DESCONECTANDO NÚCLEO TUTORIAL"
+		elif m == "practica":
+			title_text = "DESCONECTANDO SALA DE PRÁCTICA"
+		else:
+			title_text = "DESCONECTANDO TALLER DE REPARACIÓN"
+			
+	if subtitle_text == "":
+		if m == "sistema":
+			subtitle_text = "// RETORNANDO A LA MATRIZ DE SISTEMAS · STATUS: 200 OK //"
+		elif m == "servidor":
+			subtitle_text = "// RETORNANDO A LA INFRAESTRUCTURA DE SERVIDOR · STATUS: 200 OK //"
+		elif m == "tutorial":
+			subtitle_text = "// TUTORIAL FINALIZADO · RETORNANDO AL SELECTOR //"
+		elif m == "practica":
+			subtitle_text = "// PRÁCTICA FINALIZADA · RETORNANDO AL SELECTOR //"
+		else:
+			subtitle_text = "// RETORNANDO A LA MATRIZ DE HARDWARE · STATUS: 200 OK //"
+
+	if m in ["reparacion", "sistema", "servidor"]:
+		LevelSelect.initial_mode = m
+	elif m == "tutorial":
+		LevelSelect.initial_tab = "tutoriales"
+
+	play(tree, target_scene_path, title_text, subtitle_text, on_finished, (m == "tutorial"), (m == "practica"), m, true)
 
 func _ready() -> void:
 	_start_sequence(_tree if _tree else get_tree(), _target_scene, _title_text, _subtitle_text, _on_finished)
 
-# Sonido de entrada de nivel (OGG real) reproducido exactamente una vez
+# Sonido de entrada / salida de nivel según el modo
 func _play_entry_sfx() -> void:
 	if not ResourceLoader.exists("res://efectos/sonido de entrada.ogg"):
 		return
 	var player = AudioStreamPlayer.new()
 	player.stream = load("res://efectos/sonido de entrada.ogg")
 	player.volume_db = 0.0
+	if _mode == "sistema":
+		player.pitch_scale = 1.08 # Resonancia limpia y aguda ciber-azul
+	elif _mode == "servidor":
+		player.pitch_scale = 0.88 # Resonancia grave y profunda de datacenter naranja
+	else:
+		player.pitch_scale = 1.0 # Resonancia táctica carmesí roja
 	player.bus = "Master"
 	add_child(player)
 	player.play()
@@ -76,25 +149,25 @@ func _start_sequence(
 	var screen_h = root_ctrl.size.y if root_ctrl.size.y > 0 else 720.0
 	var half_h = screen_h * 0.5
 	
-	# Paletas de color según el modo (Nivel = Rojo / Tutorial = Azul / Práctica = Naranja)
+	# Paletas de color según el modo (Reparación = Rojo / Sistemas = Azul / Servidor = Naranja)
 	var theme_primary_col: Color
 	var theme_accent_col: Color
 	var theme_bg_shutter: Color
 	var theme_shadow_col: Color
 	
-	if _is_practice:
-		theme_primary_col = Color(1.0, 0.55, 0.05, 1.0) # Naranja Neón
+	if _mode == "servidor" or _is_practice:
+		theme_primary_col = Color(1.0, 0.55, 0.08, 1.0) # Naranja Neón Datacenter
 		theme_accent_col  = Color(1.0, 0.85, 0.35, 1.0)
 		theme_bg_shutter  = Color(0.04, 0.02, 0.01, 0.98)
 		theme_shadow_col  = Color(1.0, 0.5, 0.0, 0.55)
-	elif _is_tutorial:
-		theme_primary_col = Color(0.0, 0.88, 1.0, 1.0)  # Azul Eléctrico y Cian
-		theme_accent_col  = Color(0.7, 1.0, 1.0, 1.0)
-		theme_bg_shutter  = Color(0.02, 0.04, 0.09, 0.98)
-		theme_shadow_col  = Color(0.0, 0.7, 1.0, 0.55)
+	elif _mode == "sistema" or _is_tutorial:
+		theme_primary_col = Color(0.18, 0.55, 1.0, 1.0)  # Azul Eléctrico y Cian
+		theme_accent_col  = Color(0.55, 0.88, 1.0, 1.0)
+		theme_bg_shutter  = Color(0.015, 0.035, 0.09, 0.98)
+		theme_shadow_col  = Color(0.15, 0.50, 1.0, 0.55)
 	else:
 		theme_primary_col = Color(1.0, 0.08, 0.25, 1.0) # Rojo Carmesí Neón
-		theme_accent_col  = Color(0.0, 0.95, 1.0, 1.0)
+		theme_accent_col  = Color(1.0, 0.40, 0.55, 1.0)
 		theme_bg_shutter  = Color(0.04, 0.012, 0.08, 0.98)
 		theme_shadow_col  = Color(1.0, 0.05, 0.2, 0.45)
 	
@@ -126,11 +199,23 @@ func _start_sequence(
 	var corner_margin = 28.0
 	var corner_size = 40.0
 	
+	var label_tl = "[+ REPARACIÓN.INIT]"
+	var label_tr = "[RED.SYS // +]"
+	var label_br = "[OVERRIDE.OK +]"
+	if _mode == "servidor" or _is_practice:
+		label_tl = "[+ SERVIDOR.INIT]"
+		label_tr = "[ORANGE.SYS // +]"
+		label_br = "[DATACENTER.OK +]"
+	elif _mode == "sistema" or _is_tutorial:
+		label_tl = "[+ SISTEMAS.INIT]"
+		label_tr = "[BLUE.SYS // +]"
+		label_br = "[KERNEL.OK +]"
+	
 	var corner_positions = [
-		{"pos": Vector2(corner_margin, corner_margin), "label": "[+ PRÁCTICA.INIT]" if _is_practice else ("[+ TUTORIAL.INIT]" if _is_tutorial else "[+ REC.01 // RED-LINK]")},
-		{"pos": Vector2(screen_w - corner_margin - corner_size, corner_margin), "label": "[ORANGE.SYS // +]" if _is_practice else ("[BLUE.SYS // +]" if _is_tutorial else "[RED.SYS // +]")},
+		{"pos": Vector2(corner_margin, corner_margin), "label": label_tl},
+		{"pos": Vector2(screen_w - corner_margin - corner_size, corner_margin), "label": label_tr},
 		{"pos": Vector2(corner_margin, screen_h - corner_margin - corner_size), "label": "[+ PWR.NEXUS]"},
-		{"pos": Vector2(screen_w - corner_margin - corner_size, screen_h - corner_margin - corner_size), "label": "[PRÁCTICA.OK +]" if _is_practice else ("[TUTORIAL.OK +]" if _is_tutorial else "[OVERRIDE.OK +]")}
+		{"pos": Vector2(screen_w - corner_margin - corner_size, screen_h - corner_margin - corner_size), "label": label_br}
 	]
 	
 	for cp in corner_positions:
@@ -202,7 +287,13 @@ func _start_sequence(
 	shutter_top.add_child(accent_top)
 	
 	var top_chevrons = Label.new()
-	if _is_practice:
+	if _mode == "servidor":
+		top_chevrons.text = ">>> [ COMPUERTA A // INFRAESTRUCTURA DATACENTER // MATRIZ NARANJA ] <<<"
+	elif _mode == "sistema":
+		top_chevrons.text = ">>> [ COMPUERTA A // GESTIÓN DE SISTEMAS // MATRIZ AZUL ] <<<"
+	elif _mode == "reparacion":
+		top_chevrons.text = ">>> [ COMPUERTA A // TALLER DE REPARACIÓN // MATRIZ ROJA ] <<<"
+	elif _is_practice:
 		top_chevrons.text = ">>> [ COMPUERTA A // NIVEL DE PRÁCTICA // TIEMPO INFINITO ] <<<"
 	elif _is_tutorial:
 		top_chevrons.text = ">>> [ COMPUERTA A // NÚCLEO TUTORIAL 3D // AISLAMIENTO NEURONAL ] <<<"
@@ -238,7 +329,13 @@ func _start_sequence(
 	shutter_bot.add_child(accent_bot)
 	
 	var bot_chevrons = Label.new()
-	if _is_practice:
+	if _mode == "servidor":
+		bot_chevrons.text = "/// /// /// DATACENTER RACK // REDUNDANCIA SERVIDOR // COMPUERTA B /// /// ///"
+	elif _mode == "sistema":
+		bot_chevrons.text = "/// /// /// TERMINAL DE SISTEMAS // KERNEL SECURITY // COMPUERTA B /// /// ///"
+	elif _mode == "reparacion":
+		bot_chevrons.text = "/// /// /// HARDWARE LINK // VULKAN SHADER EMISSION // RED MATRIX /// /// ///"
+	elif _is_practice:
 		bot_chevrons.text = "/// /// /// TALLER DE PRÁCTICA // ENTRENAMIENTO LIBRE // COMPUERTA B /// /// ///"
 	elif _is_tutorial:
 		bot_chevrons.text = "/// /// /// SALA DE ENTRENAMIENTO // MODO GUIADO // COMPUERTA B /// /// ///"
@@ -285,7 +382,7 @@ func _start_sequence(
 	var lbl_telemetry: Label = null
 	var center_element: Control = null
 	
-	if _is_tutorial or _is_practice:
+	if (_is_tutorial or _is_practice) and _mode == "":
 		# =====================================================================
 		# CÍRCULO HOLOGRÁFICO (AZUL PARA TUTORIAL, NARANJA PARA PRÁCTICA)
 		# =====================================================================
@@ -436,15 +533,15 @@ func _start_sequence(
 		card_center.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		
 		var card_sb = StyleBoxFlat.new()
-		card_sb.bg_color = Color(0.04, 0.015, 0.08, 0.96)
-		card_sb.border_color = Color(1.0, 0.08, 0.25, 0.95)
+		card_sb.bg_color = theme_bg_shutter
+		card_sb.border_color = theme_primary_col
 		card_sb.set_border_width_all(2)
 		card_sb.set_corner_radius_all(8)
 		card_sb.content_margin_left = 30.0
 		card_sb.content_margin_right = 30.0
 		card_sb.content_margin_top = 20.0
 		card_sb.content_margin_bottom = 20.0
-		card_sb.shadow_color = Color(1.0, 0.05, 0.2, 0.45)
+		card_sb.shadow_color = theme_shadow_col
 		card_sb.shadow_size = 18
 		card_center.add_theme_stylebox_override("panel", card_sb)
 		root_ctrl.add_child(card_center)
@@ -454,10 +551,31 @@ func _start_sequence(
 		vbox.add_theme_constant_override("separation", 6)
 		card_center.add_child(vbox)
 		
+		var mode_badge = Label.new()
+		if _mode == "servidor":
+			mode_badge.text = "[ 🖧 SERVIDOR // INFRAESTRUCTURA DATACENTER RACK 2U ]"
+		elif _mode == "sistema":
+			mode_badge.text = "[ 💻 SISTEMAS // ESTACIÓN KERNEL & TERMINALES ]"
+		else:
+			mode_badge.text = "[ 🛠 REPARACIÓN // LABORATORIO HARDWARE 3D ]"
+		mode_badge.add_theme_color_override("font_color", theme_accent_col)
+		mode_badge.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
+		mode_badge.add_theme_constant_override("outline_size", 4)
+		mode_badge.add_theme_font_size_override("font_size", 10)
+		mode_badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		vbox.add_child(mode_badge)
+		
 		var lbl_protocol = Label.new()
-		lbl_protocol.text = "🔴 // PROTOCOLO DE ENLACE // MATRIZ HOLOGRAMA ROJO v0.0.9 //"
-		lbl_protocol.add_theme_color_override("font_color", Color(1.0, 0.2, 0.35, 1.0))
-		lbl_protocol.add_theme_color_override("font_shadow_color", Color(0.8, 0.0, 0.1, 0.9))
+		if _mode == "servidor":
+			lbl_protocol.text = "🟠 // PROTOCOLO DATACENTER // MATRIZ SERVIDOR NARANJA //"
+		elif _mode == "sistema":
+			lbl_protocol.text = "🔵 // PROTOCOLO DE SISTEMAS // MATRIZ KERNEL AZUL //"
+		elif _mode == "reparacion":
+			lbl_protocol.text = "🔴 // PROTOCOLO DE REPARACIÓN // MATRIZ TALLER ROJA //"
+		else:
+			lbl_protocol.text = "🔴 // PROTOCOLO DE ENLACE // MATRIZ DE SIMULACIÓN //"
+		lbl_protocol.add_theme_color_override("font_color", theme_primary_col)
+		lbl_protocol.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.9))
 		lbl_protocol.add_theme_constant_override("shadow_outline_size", 4)
 		lbl_protocol.add_theme_font_size_override("font_size", 11)
 		lbl_protocol.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -468,17 +586,17 @@ func _start_sequence(
 		if font_bungee:
 			lbl_title.add_theme_font_override("font", font_bungee)
 		lbl_title.add_theme_font_size_override("font_size", 22)
-		lbl_title.add_theme_color_override("font_color", Color(1.0, 0.15, 0.3, 1.0))
+		lbl_title.add_theme_color_override("font_color", theme_primary_col)
 		lbl_title.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
 		lbl_title.add_theme_constant_override("outline_size", 6)
-		lbl_title.add_theme_color_override("font_shadow_color", Color(0.9, 0.0, 0.2, 0.95))
+		lbl_title.add_theme_color_override("font_shadow_color", theme_shadow_col)
 		lbl_title.add_theme_constant_override("shadow_outline_size", 10)
 		lbl_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		vbox.add_child(lbl_title)
 		
 		var lbl_sub = Label.new()
 		lbl_sub.text = subtitle_text
-		lbl_sub.add_theme_color_override("font_color", Color(0.95, 0.45, 0.6, 1.0))
+		lbl_sub.add_theme_color_override("font_color", theme_accent_col)
 		lbl_sub.add_theme_font_size_override("font_size", 12)
 		lbl_sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		vbox.add_child(lbl_sub)
@@ -495,14 +613,14 @@ func _start_sequence(
 		prog_bar.show_percentage = false
 		
 		var prog_bg_sb = StyleBoxFlat.new()
-		prog_bg_sb.bg_color = Color(0.08, 0.015, 0.04, 0.95)
-		prog_bg_sb.border_color = Color(1.0, 0.1, 0.3, 0.8)
+		prog_bg_sb.bg_color = Color(0.02, 0.02, 0.04, 0.95)
+		prog_bg_sb.border_color = Color(theme_primary_col.r, theme_primary_col.g, theme_primary_col.b, 0.7)
 		prog_bg_sb.set_border_width_all(1)
 		prog_bg_sb.set_corner_radius_all(4)
 		prog_bar.add_theme_stylebox_override("background", prog_bg_sb)
 		
 		var prog_fill_sb = StyleBoxFlat.new()
-		prog_fill_sb.bg_color = Color(1.0, 0.1, 0.3, 0.95)
+		prog_fill_sb.bg_color = theme_primary_col
 		prog_fill_sb.set_corner_radius_all(3)
 		prog_bar.add_theme_stylebox_override("fill", prog_fill_sb)
 		vbox.add_child(prog_bar)
@@ -519,8 +637,13 @@ func _start_sequence(
 		prog_bar.add_child(lbl_progress_val)
 		
 		lbl_telemetry = Label.new()
-		lbl_telemetry.text = "> RED_MATRIX: ACTIVA // CARGANDO CONTROLADORES Y MAPA DE HARDWARE..."
-		lbl_telemetry.add_theme_color_override("font_color", Color(1.0, 0.45, 0.55, 0.85))
+		if _mode == "servidor":
+			lbl_telemetry.text = "> DATACENTER_CORE: ENLAZANDO TELEMETRÍA Y CONTROLADORES..."
+		elif _mode == "sistema":
+			lbl_telemetry.text = "> SISTEMAS_CORE: CARGANDO MÓDULOS DE KERNEL Y ENTORNO..."
+		else:
+			lbl_telemetry.text = "> RED_MATRIX: ACTIVA // CARGANDO CONTROLADORES Y MAPA DE HARDWARE..."
+		lbl_telemetry.add_theme_color_override("font_color", theme_accent_col)
 		lbl_telemetry.add_theme_font_size_override("font_size", 10)
 		lbl_telemetry.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		vbox.add_child(lbl_telemetry)
@@ -540,32 +663,41 @@ func _start_sequence(
 	var tw = tree.create_tween()
 	tw.set_parallel(true)
 	
-	# 1. Oscurecer fondo y cerrar compuertas
-	tw.tween_property(bg_overlay, "color:a", 0.75, 0.28).set_trans(Tween.TRANS_QUAD)
-	tw.tween_property(shutter_top, "position:y", 0.0, 0.38).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	tw.tween_property(shutter_bot, "position:y", half_h, 0.38).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	# 1. Oscurecer fondo y cerrar compuertas con impacto cinemático
+	tw.tween_property(bg_overlay, "color:a", 0.85, 0.28).set_trans(Tween.TRANS_QUAD)
+	tw.tween_property(shutter_top, "position:y", 0.0, 0.32).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tw.tween_property(shutter_bot, "position:y", half_h, 0.32).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	
+	# Micro impacto shake de las compuertas al cerrarse
+	tw.tween_property(root_ctrl, "position:y", 6.0, 0.04).set_delay(0.30)
+	tw.tween_property(root_ctrl, "position:y", -3.0, 0.03).set_delay(0.34)
+	tw.tween_property(root_ctrl, "position:y", 0.0, 0.03).set_delay(0.37)
 	
 	# Activar capa de hologramas
-	tw.tween_property(hologram_layer, "modulate:a", 1.0, 0.22)
+	tw.tween_property(hologram_layer, "modulate:a", 1.0, 0.20)
 	
 	# Retícula holográfica
-	tw.tween_property(reticle_ctrl, "modulate:a", 0.85, 0.2).set_delay(0.08)
-	tw.tween_property(reticle_ctrl, "scale", Vector2(1.15, 1.15), 0.45).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT).set_delay(0.08)
+	tw.tween_property(reticle_ctrl, "modulate:a", 0.90, 0.18).set_delay(0.06)
+	tw.tween_property(reticle_ctrl, "scale", Vector2(1.2, 1.2), 0.40).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT).set_delay(0.06)
 	
-	# 2. Barrido de haz láser
+	# 2. Barrido dual de haces láser cruzados
 	laser_beam_main.modulate.a = 1.0
-	laser_beam_sub.modulate.a = 0.8
-	tw.tween_property(laser_beam_main, "position:y", screen_h + 10.0, 0.42).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
-	tw.tween_property(laser_beam_sub, "position:y", screen_h + 10.0, 0.38).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT).set_delay(0.04)
+	laser_beam_main.position.y = -10.0
+	laser_beam_sub.modulate.a = 0.85
+	laser_beam_sub.position.y = screen_h + 10.0
+	tw.tween_property(laser_beam_main, "position:y", screen_h + 10.0, 0.40).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
+	tw.tween_property(laser_beam_sub, "position:y", -10.0, 0.40).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT).set_delay(0.02)
 	
-	# 3. Aparición con escala del elemento central
+	# 3. Aparición con escala y glow del elemento central
 	if center_element:
-		tw.tween_property(center_element, "modulate:a", 1.0, 0.25).set_delay(0.12)
-		tw.tween_property(center_element, "scale", Vector2(1.0, 1.0), 0.32).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT).set_delay(0.1)
+		center_element.modulate.a = 0.0
+		center_element.scale = Vector2(0.75, 0.75)
+		tw.tween_property(center_element, "modulate:a", 1.0, 0.22).set_delay(0.10)
+		tw.tween_property(center_element, "scale", Vector2(1.0, 1.0), 0.30).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT).set_delay(0.10)
 	
 	# 4. Llenado exacto y fiable de la barra de progreso
 	if prog_bar:
-		tw.tween_property(prog_bar, "value", 100.0, 0.50).set_trans(Tween.TRANS_QUAD).set_delay(0.12)
+		tw.tween_property(prog_bar, "value", 100.0, 0.50).set_trans(Tween.TRANS_QUAD).set_delay(0.10)
 	
 	# Actualizar texto de porcentaje dinámicamente hasta 100%
 	tw.tween_method(func(val: float):
@@ -575,28 +707,55 @@ func _start_sequence(
 				lbl_progress_val.text = "✓ [ CARGA COMPLETA: 100% OK ]"
 				lbl_progress_val.add_theme_color_override("font_color", Color(0.2, 1.0, 0.5, 1.0))
 				if lbl_telemetry:
-					if _is_practice:
-						lbl_telemetry.text = "> PRÁCTICA_3D: LISTO // ABRIENDO TALLER..."
-					elif _is_tutorial:
-						lbl_telemetry.text = "> INDUCCION_3D: LISTO // ABRIENDO COMPUERTAS..."
+					if _is_exit:
+						if _mode == "servidor":
+							lbl_telemetry.text = "> DATACENTER: TELEMETRÍA GUARDADA // RETORNANDO AL SELECTOR..."
+						elif _mode == "sistema":
+							lbl_telemetry.text = "> SISTEMA_CORE: AUDITORÍA FINALIZADA // RETORNANDO AL SELECTOR..."
+						else:
+							lbl_telemetry.text = "> TALLER_3D: SESIÓN GUARDADA // RETORNANDO AL SELECTOR..."
 					else:
-						lbl_telemetry.text = "> TECNICO_VULKAN: CONECTADO // BIENVENIDO AL ENTORNO TÉCNICO"
+						if _mode == "servidor":
+							lbl_telemetry.text = "> DATACENTER: PROTOCOLO CONECTADO // ACCEDIENDO A BASTIDOR 2U..."
+						elif _mode == "sistema":
+							lbl_telemetry.text = "> SISTEMA_CORE: KERNEL CONECTADO // ACCEDIENDO A ESTACIÓN DE TRABAJO..."
+						elif _is_practice:
+							lbl_telemetry.text = "> PRÁCTICA_3D: LISTO // ABRIENDO BANCO DE TRABAJO LIBRE..."
+						elif _is_tutorial:
+							lbl_telemetry.text = "> INDUCCION_3D: LISTO // INICIANDO TUTORIAL 3D..."
+						else:
+							lbl_telemetry.text = "> TALLER_HW: BANCO DE MONTAJE LISTO // BIENVENIDO AL TALLER 3D..."
 			elif pct >= 65:
 				lbl_progress_val.text = "[ SINCRONIZANDO NODOS: %d%% ]" % pct
 				if lbl_telemetry:
-					if _is_practice:
-						lbl_telemetry.text = "> PRÁCTICA_ROOM: INSTANCIANDO MESA Y COMPONENTES..."
-					elif _is_tutorial:
-						lbl_telemetry.text = "> TUTORIAL_ROOM: PREPARANDO MESA DE REPARACIÓN..."
+					if _is_exit:
+						lbl_telemetry.text = "> MEMORY_CLEANUP: VOLCANDO BÚFERES Y CERRANDO CONEXIONES..."
 					else:
-						lbl_telemetry.text = "> WORKSHOP_3D: INSTANCIANDO MÁQUINAS Y BANCO DE TRABAJO..."
+						if _mode == "servidor":
+							lbl_telemetry.text = "> STORAGE_ARRAY: CALIBRANDO CADDIES SAS Y SWITCH CORE 10GbE..."
+						elif _mode == "sistema":
+							lbl_telemetry.text = "> SECURITY_ENGINE: AUDITANDO INTERFACES Y TABLA DE PARTICIONES..."
+						elif _is_practice:
+							lbl_telemetry.text = "> PRÁCTICA_ROOM: INSTANCIANDO MESA Y COMPONENTES..."
+						elif _is_tutorial:
+							lbl_telemetry.text = "> TUTORIAL_ROOM: PREPARANDO MESA DE REPARACIÓN..."
+						else:
+							lbl_telemetry.text = "> DIAGNOSTIC_BUS: VERIFICANDO SOCKET CPU, LÍNEAS PCIe Y RAM..."
 			elif pct >= 30:
 				lbl_progress_val.text = "[ DESPLEGANDO SISTEMA: %d%% ]" % pct
 				if lbl_telemetry:
-					lbl_telemetry.text = "> DIAGNOSTIC_ENGINE: VERIFICANDO RAM, FUENTE Y ALMACENAMIENTO..."
+					if _is_exit:
+						lbl_telemetry.text = "> SYNC_DAEMON: GUARDANDO ESTADO DEL NIVEL..."
+					else:
+						if _mode == "servidor":
+							lbl_telemetry.text = "> DATACENTER_CORE: ENLAZANDO TELEMETRÍA DE BASTIDOR Y FUENTES 1+1..."
+						elif _mode == "sistema":
+							lbl_telemetry.text = "> SISTEMAS_CORE: CARGANDO MÓDULOS DE TERMINAL Y CONTROLADORES..."
+						else:
+							lbl_telemetry.text = "> HARDWARE_LINK: INICIANDO CONTROLADORES Y MAPA DE BANCO..."
 			else:
 				lbl_progress_val.text = "[ INICIALIZANDO: %d%% ]" % pct
-	, 0.0, 100.0, 0.50).set_delay(0.12)
+	, 0.0, 100.0, 0.50).set_delay(0.10)
 	
 	# Pausa deliberada con 100% a la vista para apreciarlo claramente
 	tw.chain().tween_callback(func():
@@ -606,31 +765,31 @@ func _start_sequence(
 			lbl_progress_val.text = "✓ [ CARGA COMPLETA: 100% OK ]"
 			lbl_progress_val.add_theme_color_override("font_color", Color(0.2, 1.0, 0.5, 1.0))
 	)
-	tw.chain().tween_interval(0.20)
+	tw.chain().tween_interval(0.18)
 	
-	# 5. Destello óptico en el pico de la animación (0.12s)
-	tw.chain().tween_property(flash_rect, "color:a", 0.65, 0.12).set_trans(Tween.TRANS_QUAD)
+	# 5. Destello óptico vibrante con el color del modo
+	tw.chain().tween_property(flash_rect, "color:a", 0.80, 0.10).set_trans(Tween.TRANS_QUAD)
 	
 	# 6. Momento pico: Cambio de escena seguro bajo el destello y compuertas cerradas
-	# (Sin duplicar el efecto de sonido, solo cambio de escena)
 	tw.chain().tween_callback(func():
 		if target_scene_path != "":
+			tree.paused = false
 			tree.change_scene_to_file(target_scene_path)
 	)
 	
 	# 7. Desvanecer destello y abrir compuertas revelando la nueva escena
 	tw.chain().set_parallel(true)
-	tw.tween_property(flash_rect, "color:a", 0.0, 0.28).set_trans(Tween.TRANS_QUAD)
+	tw.tween_property(flash_rect, "color:a", 0.0, 0.25).set_trans(Tween.TRANS_QUAD)
 	if center_element:
-		tw.tween_property(center_element, "modulate:a", 0.0, 0.2).set_trans(Tween.TRANS_QUAD)
-		tw.tween_property(center_element, "scale", Vector2(1.12, 1.12), 0.2).set_trans(Tween.TRANS_QUAD)
-	tw.tween_property(hologram_layer, "modulate:a", 0.0, 0.25).set_delay(0.05)
-	tw.tween_property(reticle_ctrl, "modulate:a", 0.0, 0.25).set_delay(0.05)
+		tw.tween_property(center_element, "modulate:a", 0.0, 0.18).set_trans(Tween.TRANS_QUAD)
+		tw.tween_property(center_element, "scale", Vector2(1.15, 1.15), 0.18).set_trans(Tween.TRANS_QUAD)
+	tw.tween_property(hologram_layer, "modulate:a", 0.0, 0.22).set_delay(0.04)
+	tw.tween_property(reticle_ctrl, "modulate:a", 0.0, 0.22).set_delay(0.04)
 	
-	# Apertura suave de las compuertas hacia arriba y abajo
-	tw.tween_property(shutter_top, "position:y", -half_h - 20.0, 0.38).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN).set_delay(0.08)
-	tw.tween_property(shutter_bot, "position:y", screen_h + 20.0, 0.38).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN).set_delay(0.08)
-	tw.tween_property(bg_overlay, "color:a", 0.0, 0.32).set_delay(0.1)
+	# Apertura suave y rápida de las compuertas hacia arriba y abajo
+	tw.tween_property(shutter_top, "position:y", -half_h - 20.0, 0.35).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN).set_delay(0.06)
+	tw.tween_property(shutter_bot, "position:y", screen_h + 20.0, 0.35).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN).set_delay(0.06)
+	tw.tween_property(bg_overlay, "color:a", 0.0, 0.30).set_delay(0.08)
 	
 	# 8. Liberación y finalización
 	tw.chain().tween_callback(func():

@@ -379,11 +379,10 @@ func _on_reintentar() -> void:
 
 func _on_siguiente() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-	CyberPlayTransition.play(
+	CyberPlayTransition.play_exit(
 		get_tree(),
+		"tutorial",
 		"res://scenes/menus/LevelSelect.tscn",
 		"TUTORIAL COMPLETADO",
-		"// CERTIFICACIÓN TÉCNICA OFICIAL REGISTRADA //",
-		Callable(),
-		true
+		"// CERTIFICACIÓN TÉCNICA OFICIAL REGISTRADA //"
 	)

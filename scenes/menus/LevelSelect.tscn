@@ -1,4 +1,4 @@
-[gd_scene format=3 load_steps=14]
+[gd_scene format=3 load_steps=20]
 
 [ext_resource type="Script" path="res://scripts/menus/LevelSelect.gd" id="1_sel"]
 [ext_resource type="Script" path="res://scripts/menus/ConstellationGraph.gd" id="2_graph"]
@@ -11,6 +11,12 @@
 [ext_resource type="Material" uid="uid://dfghj8374neonglow" path="res://styles/cyber_neon_glow_sprite.tres" id="10_neon_mat"]
 [ext_resource type="PackedScene" path="res://scenes/ui/DifficultySelector.tscn" id="11_diff_sel"]
 [ext_resource type="PackedScene" path="res://scenes/ui/TutorialInfoPanel.tscn" id="12_tut_panel"]
+[ext_resource type="Material" uid="uid://cxvd852m89a0b" path="res://styles/cyber_decoration_hologram.tres" id="13_deco_mat"]
+[ext_resource type="Texture2D" uid="uid://b8in2ksfawwet" path="res://pixel art menus/decoracion de menus/decoracion.png" id="14_deco_tex"]
+[ext_resource type="Texture2D" uid="uid://fhmvb4vcarjv" path="res://pixel art menus/pantalla/circulo de objeto .png" id="15_circulo_tex"]
+[ext_resource type="Texture2D" uid="uid://d22ex8vx2lte6" path="res://pixel art menus/decoracion/reparacion emoticono.png" id="16_icon_rep"]
+[ext_resource type="Texture2D" uid="uid://cmwfo3lakryg1" path="res://pixel art menus/decoracion/emoticono de sistemas.png" id="17_icon_sis"]
+[ext_resource type="Texture2D" uid="uid://cv6ghw3qgaue3" path="res://pixel art menus/decoracion/emoticono de rayo.png" id="18_icon_srv"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_deployed"]
 content_margin_left = 22.0
@@ -181,6 +187,7 @@ theme_override_font_sizes/font_size = 16
 text = "PUNTOS 1720   ★ 3"
 
 [node name="ModeSelector" type="HBoxContainer" parent="."]
+visible = false
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
@@ -224,14 +231,307 @@ flat = true
 script = ExtResource("3_cbtn")
 slant = 14.0
 
+[node name="DecoracionRight" type="TextureRect" parent="."]
+texture_filter = 1
+material = ExtResource("13_deco_mat")
+layout_mode = 1
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -180.0
+offset_top = 80.0
+offset_right = 0.0
+offset_bottom = -20.0
+grow_horizontal = 0
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("14_deco_tex")
+flip_h = true
+expand_mode = 1
+
+[node name="CircularModeSelector" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -165.0
+offset_top = -175.0
+offset_right = -15.0
+offset_bottom = 175.0
+grow_horizontal = 0
+grow_vertical = 2
+
+[node name="BtnUpArrow" type="Button" parent="CircularModeSelector"]
+custom_minimum_size = Vector2(56, 36)
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -28.0
+offset_top = 0.0
+offset_right = 28.0
+offset_bottom = 36.0
+grow_horizontal = 2
+tooltip_text = "Modo anterior (W / Flecha Arriba)"
+mouse_default_cursor_shape = 2
+text = "▲"
+flat = true
+script = ExtResource("3_cbtn")
+slant = 10.0
+
+[node name="ModeWheelArea" type="Control" parent="CircularModeSelector"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 42.0
+offset_bottom = -42.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="BubbleReparacion" type="Control" parent="CircularModeSelector/ModeWheelArea"]
+layout_mode = 0
+offset_left = 50.0
+offset_top = 98.0
+offset_right = 110.0
+offset_bottom = 158.0
+pivot_offset = Vector2(30, 30)
+
+[node name="BgCircle" type="TextureRect" parent="CircularModeSelector/ModeWheelArea/BubbleReparacion"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("15_circulo_tex")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Icon" type="TextureRect" parent="CircularModeSelector/ModeWheelArea/BubbleReparacion"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("16_icon_rep")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TitleLabel" type="Label" parent="CircularModeSelector/ModeWheelArea/BubbleReparacion"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -55.0
+offset_top = -2.0
+offset_right = 55.0
+offset_bottom = 16.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 0.2, 0.45, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_fonts/font = ExtResource("6_title_font")
+theme_override_font_sizes/font_size = 9
+text = "REPARACIÓN"
+horizontal_alignment = 1
+
+[node name="Hitbox" type="Button" parent="CircularModeSelector/ModeWheelArea/BubbleReparacion"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+focus_mode = 0
+mouse_default_cursor_shape = 2
+flat = true
+
+[node name="BubbleSistema" type="Control" parent="CircularModeSelector/ModeWheelArea"]
+layout_mode = 0
+offset_left = 50.0
+offset_top = 98.0
+offset_right = 110.0
+offset_bottom = 158.0
+pivot_offset = Vector2(30, 30)
+
+[node name="BgCircle" type="TextureRect" parent="CircularModeSelector/ModeWheelArea/BubbleSistema"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("15_circulo_tex")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Icon" type="TextureRect" parent="CircularModeSelector/ModeWheelArea/BubbleSistema"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("17_icon_sis")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TitleLabel" type="Label" parent="CircularModeSelector/ModeWheelArea/BubbleSistema"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -55.0
+offset_top = -2.0
+offset_right = 55.0
+offset_bottom = 16.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.2, 0.7, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_fonts/font = ExtResource("6_title_font")
+theme_override_font_sizes/font_size = 9
+text = "SISTEMA"
+horizontal_alignment = 1
+
+[node name="Hitbox" type="Button" parent="CircularModeSelector/ModeWheelArea/BubbleSistema"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+focus_mode = 0
+mouse_default_cursor_shape = 2
+flat = true
+
+[node name="BubbleServidor" type="Control" parent="CircularModeSelector/ModeWheelArea"]
+layout_mode = 0
+offset_left = 50.0
+offset_top = 98.0
+offset_right = 110.0
+offset_bottom = 158.0
+pivot_offset = Vector2(30, 30)
+
+[node name="BgCircle" type="TextureRect" parent="CircularModeSelector/ModeWheelArea/BubbleServidor"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("15_circulo_tex")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Icon" type="TextureRect" parent="CircularModeSelector/ModeWheelArea/BubbleServidor"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("18_icon_srv")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TitleLabel" type="Label" parent="CircularModeSelector/ModeWheelArea/BubbleServidor"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -55.0
+offset_top = -2.0
+offset_right = 55.0
+offset_bottom = 16.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 0.6, 0.1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_fonts/font = ExtResource("6_title_font")
+theme_override_font_sizes/font_size = 9
+text = "SERVIDOR"
+horizontal_alignment = 1
+
+[node name="Hitbox" type="Button" parent="CircularModeSelector/ModeWheelArea/BubbleServidor"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+focus_mode = 0
+mouse_default_cursor_shape = 2
+flat = true
+
+[node name="BtnDownArrow" type="Button" parent="CircularModeSelector"]
+custom_minimum_size = Vector2(56, 36)
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -28.0
+offset_top = -36.0
+offset_right = 28.0
+offset_bottom = 0.0
+grow_horizontal = 2
+grow_vertical = 0
+tooltip_text = "Modo siguiente (S / Flecha Abajo)"
+mouse_default_cursor_shape = 2
+text = "▼"
+flat = true
+script = ExtResource("3_cbtn")
+slant = -10.0
+
 [node name="SectionBanner" type="PanelContainer" parent="."]
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_left = 300.0
-offset_top = 130.0
+offset_left = 220.0
+offset_top = 84.0
 offset_right = -300.0
-offset_bottom = 170.0
+offset_bottom = 124.0
 grow_horizontal = 2
 
 [node name="BannerLabel" type="Label" parent="SectionBanner"]
@@ -250,10 +550,10 @@ vertical_alignment = 1
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_left = 120.0
-offset_top = 180.0
-offset_right = -120.0
-offset_bottom = 205.0
+offset_left = 60.0
+offset_top = 130.0
+offset_right = -280.0
+offset_bottom = 155.0
 grow_horizontal = 2
 
 [node name="Col1" type="Label" parent="ColumnHeaders"]

@@ -118,60 +118,60 @@ var initialized_fx: bool = false
 
 # =============================================================================
 # DISTRIBUCIONES GEOMÉTRICAS OPTIMIZADAS DE TELARAÑA (13 NODOS POR MODO)
-# NÚCLEO CENTRAL = VECTOR2(640, 395)
+# NÚCLEO CENTRAL = VECTOR2(580, 395)
 # RAÍZ PRINCIPAL AL NIVEL 1 EN EL OESTE/NOROESTE CONECTADA DIRECTA AL NÚCLEO
 # =============================================================================
 var MODE_NODES: Dictionary = {
 	# 1. REPARACIÓN: Telaraña Octagonal de Hardware y Placa Madre Ampliada
 	"reparacion": [
-		Vector2(640, 395), # [0] TUTORIAL: Núcleo Central de Inducción Técnica (AZUL)
-		Vector2(440, 395), # [1] NIVEL 1: Montaje Fan Cooler (Raíz Primaria Oeste, ROJO)
-		Vector2(640, 195), # [2] NIVEL 2: Diagnóstico Banco RAM (Spoke Norte)
-		Vector2(840, 395), # [3] NIVEL 3: Unidad SATA y Buses (Spoke Este)
-		Vector2(640, 595), # [4] NIVEL 4: Pasta Térmica CPU (Spoke Sur)
-		Vector2(270, 395), # [5] NIVEL 5: Tarjeta Gráfica PCIe (Anillo Medio Oeste)
-		Vector2(890, 145), # [6] NIVEL 6: Bahía M.2 NVMe (Anillo Medio Noreste)
-		Vector2(410, 640), # [7] NIVEL 7: Fuente de Poder ATX (Anillo Medio Suroeste)
-		Vector2(910, 640), # [8] NIVEL 8: Módulos VRM MOSFETs (Anillo Medio Sureste)
-		Vector2(250, 135), # [9] NIVEL 9: Refrigeración Líquida (Anillo Exterior Noroeste)
-		Vector2(640, 65),  # [10] NIVEL 10: Multímetro y Cortos (Anillo Exterior Norte)
-		Vector2(130, 605), # [11] NIVEL 11: Estación Multi-GPU (Anillo Exterior Suroeste)
-		Vector2(1150, 395),# [12] NIVEL 12: Jefe de Taller Supreme (Vértice Maestro Este)
-		Vector2(380, 260)  # [13] SALA DE PRÁCTICA: Banco Libre (Distanciada, NARANJA NEÓN)
+		Vector2(580, 395), # [0] TUTORIAL: Núcleo Central de Inducción Técnica (AZUL)
+		Vector2(380, 395), # [1] NIVEL 1: Montaje Fan Cooler (Raíz Primaria Oeste, ROJO)
+		Vector2(580, 195), # [2] NIVEL 2: Diagnóstico Banco RAM (Spoke Norte)
+		Vector2(780, 395), # [3] NIVEL 3: Unidad SATA y Buses (Spoke Este)
+		Vector2(580, 595), # [4] NIVEL 4: Pasta Térmica CPU (Spoke Sur)
+		Vector2(210, 395), # [5] NIVEL 5: Tarjeta Gráfica PCIe (Anillo Medio Oeste)
+		Vector2(830, 145), # [6] NIVEL 6: Bahía M.2 NVMe (Anillo Medio Noreste)
+		Vector2(350, 640), # [7] NIVEL 7: Fuente de Poder ATX (Anillo Medio Suroeste)
+		Vector2(850, 640), # [8] NIVEL 8: Módulos VRM MOSFETs (Anillo Medio Sureste)
+		Vector2(190, 135), # [9] NIVEL 9: Refrigeración Líquida (Anillo Exterior Noroeste)
+		Vector2(580, 65),  # [10] NIVEL 10: Multímetro y Cortos (Anillo Exterior Norte)
+		Vector2(80, 605),  # [11] NIVEL 11: Estación Multi-GPU (Anillo Exterior Suroeste)
+		Vector2(1080, 395),# [12] NIVEL 12: Jefe de Taller Supreme (Vértice Maestro Este)
+		Vector2(320, 260)  # [13] SALA DE PRÁCTICA: Banco Libre (Distanciada, NARANJA NEÓN)
 	],
 	# 2. SISTEMA: Telaraña de Diamante Cibernético y Matriz de Kernel Ampliada
 	"sistema": [
-		Vector2(640, 395), # [0] TUTORIAL: Núcleo Central de Boot & BIOS (AZUL)
-		Vector2(480, 235), # [1] NIVEL 1: Cold Boot POST (Raíz Primaria Noroeste, ROJO)
-		Vector2(800, 235), # [2] NIVEL 2: Firmware Diagnostics (Raíz Noreste)
-		Vector2(800, 555), # [3] NIVEL 3: BIOS Flash (Raíz Sureste)
-		Vector2(480, 555), # [4] NIVEL 4: Secure Boot (Raíz Suroeste)
-		Vector2(640, 85),  # [5] NIVEL 5: Tabla GPT (Ápice Medio Norte)
-		Vector2(1020, 395),# [6] NIVEL 6: Cargador GRUB/BCD (Ápice Medio Este)
-		Vector2(640, 690), # [7] NIVEL 7: Kernel Ring 0 (Ápice Medio Sur)
-		Vector2(260, 395), # [8] NIVEL 8: Sandbox Malware (Ápice Medio Oeste)
-		Vector2(240, 85),  # [9] NIVEL 9: Registro HKLM (Vértice Exterior Noroeste)
-		Vector2(1040, 85), # [10] NIVEL 10: Protección ASLR (Vértice Exterior Noreste)
-		Vector2(1040, 690),# [11] NIVEL 11: Rescate BitLocker (Vértice Exterior Sureste)
-		Vector2(240, 690), # [12] NIVEL 12: SysAdmin Master (Vértice Exterior Suroeste)
-		Vector2(360, 260)  # [13] SALA DE PRÁCTICA: Distanciada del Nivel 1 (NARANJA NEÓN)
+		Vector2(580, 395), # [0] TUTORIAL: Núcleo Central de Boot & BIOS (AZUL)
+		Vector2(420, 235), # [1] NIVEL 1: Cold Boot POST (Raíz Primaria Noroeste, ROJO)
+		Vector2(740, 235), # [2] NIVEL 2: Firmware Diagnostics (Raíz Noreste)
+		Vector2(740, 555), # [3] NIVEL 3: BIOS Flash (Raíz Sureste)
+		Vector2(420, 555), # [4] NIVEL 4: Secure Boot (Raíz Suroeste)
+		Vector2(580, 85),  # [5] NIVEL 5: Tabla GPT (Ápice Medio Norte)
+		Vector2(960, 395), # [6] NIVEL 6: Cargador GRUB/BCD (Ápice Medio Este)
+		Vector2(580, 690), # [7] NIVEL 7: Kernel Ring 0 (Ápice Medio Sur)
+		Vector2(200, 395), # [8] NIVEL 8: Sandbox Malware (Ápice Medio Oeste)
+		Vector2(180, 85),  # [9] NIVEL 9: Registro HKLM (Vértice Exterior Noroeste)
+		Vector2(980, 85),  # [10] NIVEL 10: Protección ASLR (Vértice Exterior Noreste)
+		Vector2(980, 690), # [11] NIVEL 11: Rescate BitLocker (Vértice Exterior Sureste)
+		Vector2(180, 690), # [12] NIVEL 12: SysAdmin Master (Vértice Exterior Suroeste)
+		Vector2(300, 260)  # [13] SALA DE PRÁCTICA: Distanciada del Nivel 1 (NARANJA NEÓN)
 	],
 	# 3. SERVIDOR: Hiper-Malla Circular de Datacenter y Anillos de Fibra Óptica Ampliada
 	"servidor": [
-		Vector2(640, 395), # [0] TUTORIAL: Núcleo Central de Infraestructura 1U (AZUL)
-		Vector2(430, 395), # [1] NIVEL 1: Bastidor 1U (Raíz Primaria Oeste 9h, ROJO)
-		Vector2(535, 215), # [2] NIVEL 2: Servidor Blade 2U (Radio 11h)
-		Vector2(745, 215), # [3] NIVEL 3: Cabina 4U SAN (Radio 1h)
-		Vector2(850, 395), # [4] NIVEL 4: PDU Redundante (Radio 3h)
-		Vector2(745, 575), # [5] NIVEL 5: Fibra SAN Fabric (Radio 5h)
-		Vector2(535, 575), # [6] NIVEL 6: SAS Hot-Swap RAID (Radio 7h)
-		Vector2(230, 160), # [7] NIVEL 7: Switch ToR 100G (Anillo Exterior 10h)
-		Vector2(640, 75),  # [8] NIVEL 8: Trunking VLAN LACP (Anillo Exterior 12h)
-		Vector2(1050, 160),# [9] NIVEL 9: Pasillo Frío (Anillo Exterior 2h)
-		Vector2(1160, 395),# [10] NIVEL 10: Clúster HA (Anillo Exterior 4h)
-		Vector2(640, 695), # [11] NIVEL 11: Live Migration (Anillo Exterior 6h)
-		Vector2(120, 395), # [12] NIVEL 12: Centro NOC Datacenter (Anillo Exterior 8h)
-		Vector2(340, 280)  # [13] SALA DE PRÁCTICA: Distanciada de Servidores 1U y 2U (NARANJA NEÓN)
+		Vector2(580, 395), # [0] TUTORIAL: Núcleo Central de Infraestructura 1U (AZUL)
+		Vector2(370, 395), # [1] NIVEL 1: Bastidor 1U (Raíz Primaria Oeste 9h, ROJO)
+		Vector2(475, 215), # [2] NIVEL 2: Servidor Blade 2U (Radio 11h)
+		Vector2(685, 215), # [3] NIVEL 3: Cabina 4U SAN (Radio 1h)
+		Vector2(790, 395), # [4] NIVEL 4: PDU Redundante (Radio 3h)
+		Vector2(685, 575), # [5] NIVEL 5: Fibra SAN Fabric (Radio 5h)
+		Vector2(475, 575), # [6] NIVEL 6: SAS Hot-Swap RAID (Radio 7h)
+		Vector2(170, 160), # [7] NIVEL 7: Switch ToR 100G (Anillo Exterior 10h)
+		Vector2(580, 75),  # [8] NIVEL 8: Trunking VLAN LACP (Anillo Exterior 12h)
+		Vector2(990, 160), # [9] NIVEL 9: Pasillo Frío (Anillo Exterior 2h)
+		Vector2(1100, 395),# [10] NIVEL 10: Clúster HA (Anillo Exterior 4h)
+		Vector2(580, 695), # [11] NIVEL 11: Live Migration (Anillo Exterior 6h)
+		Vector2(60, 395),  # [12] NIVEL 12: Centro NOC Datacenter (Anillo Exterior 8h)
+		Vector2(280, 280)  # [13] SALA DE PRÁCTICA: Distanciada de Servidores 1U y 2U (NARANJA NEÓN)
 	]
 }
 
@@ -278,7 +278,7 @@ func transition_to_mode(new_mode: String) -> void:
 	mode_switch_pulse = 1.0
 	mode_transition_started.emit()
 	
-	var hub = Vector2(640, 395)
+	var hub = Vector2(580, 395)
 	var tw = create_tween().set_parallel(true)
 	
 	tw.tween_method(func(val: float):
@@ -455,7 +455,7 @@ func _draw() -> void:
 	var w = size.x if size.x > 100 else 1280.0
 	var h = size.y if size.y > 50 else 720.0
 	var font = ThemeDB.fallback_font
-	var hub = nodes[0] if not nodes.is_empty() else Vector2(640, 395)
+	var hub = nodes[0] if not nodes.is_empty() else Vector2(580, 395)
 
 	# =========================================================================
 	# 1. FONDO DE TELARAÑA CIBERNÉTICA ARQUITECTÓNICA
@@ -473,10 +473,26 @@ func _draw() -> void:
 	# =========================================================================
 	for trace in circuit_traces:
 		if trace.points.size() >= 2:
-			draw_polyline(trace.points, Color(0.1, 0.4, 0.8, 0.14) if current_mode != "reparacion" else Color(0.8, 0.05, 0.3, 0.12), 4.5, false)
-			draw_polyline(trace.points, Color(0.0, 0.75, 0.95, 0.32) if current_mode != "reparacion" else Color(0.65, 0.05, 0.85, 0.32), 1.8, false)
+			var trace_c1: Color
+			var trace_c2: Color
+			var dot_c: Color
+			match current_mode:
+				"sistema":
+					trace_c1 = Color(0.04, 0.2, 0.65, 0.16)
+					trace_c2 = Color(0.12, 0.45, 0.95, 0.35)
+					dot_c = Color(0.18, 0.55, 1.0, 0.5)
+				"servidor":
+					trace_c1 = Color(0.65, 0.25, 0.02, 0.16)
+					trace_c2 = Color(1.0, 0.52, 0.08, 0.35)
+					dot_c = Color(1.0, 0.6, 0.15, 0.5)
+				_:
+					trace_c1 = Color(0.8, 0.05, 0.3, 0.12)
+					trace_c2 = Color(0.65, 0.05, 0.85, 0.32)
+					dot_c = Color(1.0, 0.1, 0.3, 0.4)
+			draw_polyline(trace.points, trace_c1, 4.5, false)
+			draw_polyline(trace.points, trace_c2, 1.8, false)
 			for pt in trace.points:
-				draw_circle(pt, 2.5, Color(0.0, 0.85, 1.0, 0.4) if current_mode != "reparacion" else Color(1.0, 0.1, 0.3, 0.4))
+				draw_circle(pt, 2.5, dot_c)
 				draw_circle(pt, 1.2, Color(0.02, 0.01, 0.05, 0.95))
 
 	# =========================================================================
@@ -530,7 +546,7 @@ func _draw() -> void:
 			var p_start = transition_start_nodes[i]
 			var p_cur = nodes[i]
 			var p_mid = p_start.lerp(p_cur, 0.55)
-			var trail_col = Color(0.0, 0.88, 1.0, trail_factor * 0.35) if (current_mode == "sistema") else (Color(1.0, 0.15, 0.4, trail_factor * 0.35) if current_mode == "reparacion" else Color(0.2, 0.65, 1.0, trail_factor * 0.35))
+			var trail_col = Color(0.12, 0.45, 0.95, trail_factor * 0.38) if (current_mode == "sistema") else (Color(1.0, 0.15, 0.4, trail_factor * 0.35) if current_mode == "reparacion" else Color(1.0, 0.55, 0.08, trail_factor * 0.38))
 			draw_line(p_start, p_cur, Color(trail_col.r, trail_col.g, trail_col.b, trail_factor * 0.22), 2.2)
 			draw_circle(p_mid, 8.0 * trail_factor, Color(trail_col.r, trail_col.g, trail_col.b, trail_factor * 0.28))
 			draw_circle(p_mid, 3.0 * trail_factor, Color.WHITE)
@@ -564,7 +580,12 @@ func _draw() -> void:
 			elif is_practice:
 				rip_col = Color(1.0, 0.55, 0.05, rip_a)
 			elif is_playable:
-				rip_col = Color(1.0, 0.08, 0.25, rip_a)
+				if current_mode == "sistema":
+					rip_col = Color(0.18, 0.55, 1.0, rip_a)
+				elif current_mode == "servidor":
+					rip_col = Color(1.0, 0.55, 0.08, rip_a)
+				else:
+					rip_col = Color(1.0, 0.08, 0.25, rip_a)
 			else:
 				rip_col = Color(0.2, 0.85, 1.0, rip_a)
 			draw_arc(np, rip_r, 0, TAU, 32, rip_col, 2.6)
@@ -579,8 +600,15 @@ func _draw() -> void:
 			socket_bg = Color(0.9, 0.45, 0.02, 0.22)
 			socket_arc = Color(1.0, 0.55, 0.05, 0.85)
 		elif is_playable:
-			socket_bg = Color(0.8, 0.05, 0.22, 0.18)
-			socket_arc = Color(1.0, 0.08, 0.25, 0.75)
+			if current_mode == "sistema":
+				socket_bg = Color(0.03, 0.15, 0.5, 0.25)
+				socket_arc = Color(0.18, 0.58, 1.0, 0.85)
+			elif current_mode == "servidor":
+				socket_bg = Color(0.65, 0.25, 0.02, 0.25)
+				socket_arc = Color(1.0, 0.55, 0.08, 0.85)
+			else:
+				socket_bg = Color(0.8, 0.05, 0.22, 0.18)
+				socket_arc = Color(1.0, 0.08, 0.25, 0.75)
 		else:
 			socket_bg = Color(0.12, 0.3, 0.48, 0.08)
 			socket_arc = Color(0.22, 0.42, 0.6, 0.32)
@@ -597,7 +625,12 @@ func _draw() -> void:
 		elif is_practice:
 			tick_col = Color(1.0, 0.65, 0.1, 0.95)
 		elif is_playable:
-			tick_col = Color(1.0, 0.15, 0.35, 0.9)
+			if current_mode == "sistema":
+				tick_col = Color(0.25, 0.7, 1.0, 0.95)
+			elif current_mode == "servidor":
+				tick_col = Color(1.0, 0.65, 0.15, 0.95)
+			else:
+				tick_col = Color(1.0, 0.15, 0.35, 0.9)
 		else:
 			tick_col = Color(0.25, 0.5, 0.68, 0.38)
 
@@ -628,12 +661,28 @@ func _draw() -> void:
 			draw_arc(np, ring_r2, rot_ccw, rot_ccw + PI * 0.65, 14, Color(1.0, 0.65, 0.1, 0.8), 1.6)
 			draw_arc(np, ring_r2, rot_ccw + PI * 1.05, rot_ccw + PI * 1.7, 14, Color(1.0, 0.85, 0.3, 0.8), 1.6)
 		elif is_playable:
-			draw_arc(np, ring_r1, rot_cw, rot_cw + PI * 0.45, 12, Color(1.0, 0.08, 0.25, 0.9), 1.8)
-			draw_arc(np, ring_r1, rot_cw + PI * 0.7, rot_cw + PI * 1.15, 12, Color(1.0, 0.22, 0.38, 0.9), 1.8)
-			draw_arc(np, ring_r1, rot_cw + PI * 1.4, rot_cw + PI * 1.85, 12, Color(1.0, 0.12, 0.28, 0.9), 1.8)
+			var play_accent1: Color
+			var play_accent2: Color
+			var play_accent3: Color
+			if current_mode == "sistema":
+				play_accent1 = Color(0.15, 0.55, 1.0, 0.9)
+				play_accent2 = Color(0.25, 0.68, 1.0, 0.9)
+				play_accent3 = Color(0.1, 0.45, 0.9, 0.9)
+			elif current_mode == "servidor":
+				play_accent1 = Color(1.0, 0.55, 0.08, 0.9)
+				play_accent2 = Color(1.0, 0.7, 0.2, 0.9)
+				play_accent3 = Color(1.0, 0.45, 0.05, 0.9)
+			else:
+				play_accent1 = Color(1.0, 0.08, 0.25, 0.9)
+				play_accent2 = Color(1.0, 0.22, 0.38, 0.9)
+				play_accent3 = Color(1.0, 0.12, 0.28, 0.9)
 
-			draw_arc(np, ring_r2, rot_ccw, rot_ccw + PI * 0.6, 12, Color(1.0, 0.18, 0.35, 0.75), 1.4)
-			draw_arc(np, ring_r2, rot_ccw + PI, rot_ccw + PI * 1.6, 12, Color(1.0, 0.28, 0.45, 0.75), 1.4)
+			draw_arc(np, ring_r1, rot_cw, rot_cw + PI * 0.45, 12, play_accent1, 1.8)
+			draw_arc(np, ring_r1, rot_cw + PI * 0.7, rot_cw + PI * 1.15, 12, play_accent2, 1.8)
+			draw_arc(np, ring_r1, rot_cw + PI * 1.4, rot_cw + PI * 1.85, 12, play_accent3, 1.8)
+
+			draw_arc(np, ring_r2, rot_ccw, rot_ccw + PI * 0.6, 12, play_accent2, 1.4)
+			draw_arc(np, ring_r2, rot_ccw + PI, rot_ccw + PI * 1.6, 12, play_accent3, 1.4)
 		else:
 			draw_arc(np, ring_r1, rot_cw, rot_cw + PI * 0.45, 12, Color(0.25, 0.48, 0.65, 0.4), 1.4)
 			draw_arc(np, ring_r1, rot_cw + PI * 0.7, rot_cw + PI * 1.15, 12, Color(0.2, 0.4, 0.58, 0.4), 1.4)
@@ -649,7 +698,12 @@ func _draw() -> void:
 		elif is_practice:
 			crystal_col = Color(0.15, 0.05, 0.01, 0.98) # Ámbar oscuro
 		elif is_playable:
-			crystal_col = Color(0.14, 0.015, 0.04, 0.98)
+			if current_mode == "sistema":
+				crystal_col = Color(0.015, 0.04, 0.15, 0.98)
+			elif current_mode == "servidor":
+				crystal_col = Color(0.14, 0.05, 0.01, 0.98)
+			else:
+				crystal_col = Color(0.14, 0.015, 0.04, 0.98)
 		else:
 			crystal_col = Color(0.04, 0.03, 0.08, 0.96)
 		draw_circle(np, breath_radius, crystal_col)
@@ -665,9 +719,18 @@ func _draw() -> void:
 			if is_hovered:
 				base_neon = Color(1.0, 0.9, 0.5, 1.0)
 		elif is_playable:
-			base_neon = Color(1.0, 0.06, 0.22, 1.0).lerp(Color(1.0, 0.25, 0.4, 1.0), core_breath)
-			if is_hovered:
-				base_neon = Color(1.0, 0.45, 0.55, 1.0)
+			if current_mode == "sistema":
+				base_neon = Color(0.15, 0.55, 1.0, 1.0).lerp(Color(0.3, 0.75, 1.0, 1.0), core_breath)
+				if is_hovered:
+					base_neon = Color(0.5, 0.85, 1.0, 1.0)
+			elif current_mode == "servidor":
+				base_neon = Color(1.0, 0.55, 0.08, 1.0).lerp(Color(1.0, 0.75, 0.2, 1.0), core_breath)
+				if is_hovered:
+					base_neon = Color(1.0, 0.85, 0.4, 1.0)
+			else:
+				base_neon = Color(1.0, 0.06, 0.22, 1.0).lerp(Color(1.0, 0.25, 0.4, 1.0), core_breath)
+				if is_hovered:
+					base_neon = Color(1.0, 0.45, 0.55, 1.0)
 		else:
 			base_neon = Color(0.22, 0.45, 0.62, 0.65).lerp(Color(0.18, 0.35, 0.52, 0.65), core_breath)
 			if is_hovered:
@@ -683,7 +746,14 @@ func _draw() -> void:
 			draw_arc(np, halo_r, 0, TAU, 32, Color(1.0, 0.55, 0.05, 0.45 + core_breath * 0.3), 1.8)
 		elif is_playable:
 			var halo_r = breath_radius + (3.2 + core_breath * 2.5) * zoom_scale
-			draw_arc(np, halo_r, 0, TAU, 32, Color(1.0, 0.08, 0.25, 0.42 + core_breath * 0.25), 1.5)
+			var halo_c: Color
+			if current_mode == "sistema":
+				halo_c = Color(0.15, 0.55, 1.0, 0.45 + core_breath * 0.25)
+			elif current_mode == "servidor":
+				halo_c = Color(1.0, 0.55, 0.08, 0.45 + core_breath * 0.25)
+			else:
+				halo_c = Color(1.0, 0.08, 0.25, 0.42 + core_breath * 0.25)
+			draw_arc(np, halo_r, 0, TAU, 32, halo_c, 1.5)
 
 		# --- ÍCONO CENTRAL (OTRA FIGURA PARA PRÁCTICA) ---
 		if is_tutorial:
@@ -740,7 +810,13 @@ func _draw() -> void:
 			var p_top = np + Vector2(-tri_sz * 0.65, -tri_sz)
 			var p_bot = np + Vector2(-tri_sz * 0.65, tri_sz)
 			var p_tip = np + Vector2(tri_sz * 1.15, 0.0)
-			var tri_col = Color(1.0, 0.12, 0.28, 0.95) if not is_hovered else Color(1.0, 0.35, 0.48, 1.0)
+			var tri_col: Color
+			if current_mode == "sistema":
+				tri_col = Color(0.2, 0.65, 1.0, 0.95) if not is_hovered else Color.WHITE
+			elif current_mode == "servidor":
+				tri_col = Color(1.0, 0.6, 0.15, 0.95) if not is_hovered else Color.WHITE
+			else:
+				tri_col = Color(1.0, 0.12, 0.28, 0.95) if not is_hovered else Color(1.0, 0.35, 0.48, 1.0)
 			draw_colored_polygon([p_top, p_tip, p_bot], tri_col)
 			draw_polyline([p_top, p_tip, p_bot, p_top], Color(1.0, 0.92, 0.96, 1.0), 1.3)
 		else:
@@ -777,7 +853,20 @@ func _draw() -> void:
 		if is_hovered:
 			var b_dist = (socket_sz + 4.0)
 			var b_sz = 9.0 * zoom_scale
-			var b_col = Color(0.0, 0.95, 1.0, 0.95) if is_tutorial else (Color(1.0, 0.55, 0.05, 0.95) if is_practice else (Color(1.0, 0.2, 0.35, 0.95) if is_playable else Color(0.0, 1.0, 0.8, 0.95)))
+			var b_col: Color
+			if is_tutorial:
+				b_col = Color(0.0, 0.95, 1.0, 0.95)
+			elif is_practice:
+				b_col = Color(1.0, 0.55, 0.05, 0.95)
+			elif is_playable:
+				if current_mode == "sistema":
+					b_col = Color(0.2, 0.65, 1.0, 0.95)
+				elif current_mode == "servidor":
+					b_col = Color(1.0, 0.6, 0.1, 0.95)
+				else:
+					b_col = Color(1.0, 0.2, 0.35, 0.95)
+			else:
+				b_col = Color(0.0, 1.0, 0.8, 0.95)
 			draw_line(np + Vector2(-b_dist, -b_dist), np + Vector2(-b_dist + b_sz, -b_dist), b_col, 2.2)
 			draw_line(np + Vector2(-b_dist, -b_dist), np + Vector2(-b_dist, -b_dist + b_sz), b_col, 2.2)
 			draw_line(np + Vector2(b_dist, -b_dist), np + Vector2(b_dist - b_sz, -b_dist), b_col, 2.2)
@@ -797,7 +886,14 @@ func _draw() -> void:
 # =============================================================================
 func _draw_spiderweb_background(w: float, h: float, hub: Vector2) -> void:
 	var grid_step = 54.0
-	var grid_color = Color(0.1, 0.4, 0.8, 0.04) if current_mode != "reparacion" else Color(0.85, 0.05, 0.35, 0.04)
+	var grid_color: Color
+	match current_mode:
+		"sistema":
+			grid_color = Color(0.05, 0.25, 0.75, 0.06)
+		"servidor":
+			grid_color = Color(0.85, 0.45, 0.05, 0.06)
+		_:
+			grid_color = Color(0.85, 0.05, 0.35, 0.04)
 	var cross_len = 3.0
 	var x_steps = int(w / grid_step) + 1
 	var y_steps = int(h / grid_step) + 1
@@ -823,14 +919,14 @@ func _draw_spiderweb_background(w: float, h: float, hub: Vector2) -> void:
 				spoke_angles.append(float(i) * TAU / 8.0)
 		"sistema":
 			spoke_count = 8
-			web_color = Color(0.0, 0.75, 0.95, 0.16)
-			glow_color = Color(0.5, 0.1, 0.85, 0.08)
+			web_color = Color(0.08, 0.35, 0.88, 0.22)
+			glow_color = Color(0.03, 0.16, 0.65, 0.12)
 			for i in range(spoke_count):
 				spoke_angles.append(float(i) * TAU / 8.0 + PI * 0.125)
 		"servidor":
 			spoke_count = 12
-			web_color = Color(0.15, 0.6, 1.0, 0.18)
-			glow_color = Color(0.9, 0.15, 0.65, 0.08)
+			web_color = Color(1.0, 0.52, 0.08, 0.24)
+			glow_color = Color(0.85, 0.3, 0.02, 0.12)
 			for i in range(spoke_count):
 				spoke_angles.append(float(i) * TAU / 12.0)
 		_:
@@ -910,13 +1006,13 @@ func _draw_transition_effect(hub: Vector2, w: float, h: float) -> void:
 				var p1 = hub + Vector2(cos(theta1), sin(theta1)) * r
 				var p2 = hub + Vector2(cos(theta2), sin(theta2)) * r
 				var line_a = a * (1.0 - frac * 0.5)
-				draw_line(prev_p1, p1, Color(0.0, 0.95, 1.0, line_a), 2.2)
-				draw_line(prev_p2, p2, Color(0.85, 0.15, 0.95, line_a), 2.2)
+				draw_line(prev_p1, p1, Color(0.12, 0.45, 0.95, line_a), 2.2)
+				draw_line(prev_p2, p2, Color(0.05, 0.25, 0.75, line_a), 2.2)
 				
 				# Puntos de código digital en la espiral
 				if k % 3 == 0:
-					draw_circle(p1, 2.4, Color(0.2, 1.0, 0.85, line_a * 1.3))
-					draw_circle(p2, 2.4, Color(1.0, 0.35, 0.9, line_a * 1.3))
+					draw_circle(p1, 2.4, Color(0.2, 0.65, 1.0, line_a * 1.3))
+					draw_circle(p2, 2.4, Color(0.08, 0.35, 0.85, line_a * 1.3))
 				prev_p1 = p1
 				prev_p2 = p2
 				
@@ -927,7 +1023,7 @@ func _draw_transition_effect(hub: Vector2, w: float, h: float) -> void:
 				var g_dist = lerp(90.0, 320.0, float(g_i % 4) / 3.0)
 				var g_pos = hub + Vector2(cos(g_ang), sin(g_ang)) * g_dist
 				var g_alpha = a * 0.65
-				draw_string(font, g_pos, glyphs[g_i], HORIZONTAL_ALIGNMENT_CENTER, -1, 10, Color(0.0, 1.0, 0.85, g_alpha))
+				draw_string(font, g_pos, glyphs[g_i], HORIZONTAL_ALIGNMENT_CENTER, -1, 10, Color(0.18, 0.65, 1.0, g_alpha))
 				
 			# Rombo de matriz en expansión que sincroniza los diamantes de sistema
 			var dia_r = sin(transition_progress * PI) * 220.0
@@ -938,23 +1034,23 @@ func _draw_transition_effect(hub: Vector2, w: float, h: float) -> void:
 				hub + Vector2(-dia_r, 0),
 				hub + Vector2(0, -dia_r)
 			])
-			draw_polyline(dia_pts, Color(0.0, 0.9, 1.0, a * 0.55), 1.6)
+			draw_polyline(dia_pts, Color(0.12, 0.5, 0.95, a * 0.55), 1.6)
 				
 		"quantum_sweep":
-			# ANIMACIÓN 3 (SERVIDOR): Barrido radar 360° con encendido óptico de nodos
+			# ANIMACIÓN 3 (SERVIDOR): Barrido radar 360° con encendido óptico de nodos en Naranja Industrial
 			var sweep_ang = transition_sweep_angle
 			var sweep_dir = Vector2(cos(sweep_ang), sin(sweep_ang))
 			var beam_end = hub + sweep_dir * (w * 0.62)
 			var beam_alpha = (1.0 - transition_progress * 0.5) * 0.75
-			draw_line(hub, beam_end, Color(0.1, 0.65, 1.0, beam_alpha), 3.2)
+			draw_line(hub, beam_end, Color(1.0, 0.55, 0.08, beam_alpha), 3.2)
 			draw_line(hub, beam_end, Color(1.0, 1.0, 1.0, beam_alpha * 0.8), 1.2)
 			
-			# Abanico fosforescente de barrido
+			# Abanico fosforescente de barrido naranja
 			for s in range(14):
 				var lag_ang = sweep_ang - float(s) * 0.07
 				var lag_dir = Vector2(cos(lag_ang), sin(lag_ang))
 				var lag_alpha = beam_alpha * (1.0 - float(s) / 14.0) * 0.35
-				draw_line(hub, hub + lag_dir * (w * 0.60), Color(0.9, 0.15, 0.7, lag_alpha), 1.8)
+				draw_line(hub, hub + lag_dir * (w * 0.60), Color(1.0, 0.35, 0.02, lag_alpha), 1.8)
 
 # =============================================================================
 # ENLACE CIRCUIT LINE CON SOPORTE PARA RAÍZ PRINCIPAL
@@ -981,10 +1077,21 @@ func _draw_circuit_line(p1: Vector2, p2: Vector2, alpha: float, seed_val: int, i
 		draw_circle(packet_posp, 4.0, Color(1.0, 0.55, 0.05, min(1.0, alpha * 1.8)))
 		draw_circle(packet_posp, 2.0, Color.WHITE)
 	else:
-		# Glow exterior estándar
-		draw_line(p1, p2, Color(0.48, 0.05, 0.70, 0.28 * alpha), 4.5)
-		# Pista central
-		draw_line(p1, p2, Color(1.0, 0.12, 0.38, alpha), 1.8)
+		if current_mode == "sistema":
+			# Glow exterior azul oscuro
+			draw_line(p1, p2, Color(0.03, 0.15, 0.55, 0.32 * alpha), 4.5)
+			# Pista central cyber blue
+			draw_line(p1, p2, Color(0.12, 0.48, 0.95, alpha), 1.8)
+		elif current_mode == "servidor":
+			# Glow exterior naranja profundo
+			draw_line(p1, p2, Color(0.55, 0.2, 0.0, 0.35 * alpha), 4.5)
+			# Pista central naranja neón
+			draw_line(p1, p2, Color(1.0, 0.55, 0.1, alpha), 1.8)
+		else:
+			# Glow exterior estándar magenta
+			draw_line(p1, p2, Color(0.48, 0.05, 0.70, 0.28 * alpha), 4.5)
+			# Pista central carmesí neón
+			draw_line(p1, p2, Color(1.0, 0.12, 0.38, alpha), 1.8)
 		
 		var packet_t = fmod(anim_offset * 0.75 + float(seed_val) * 0.14, 1.0)
 		var packet_pos = p1.lerp(p2, packet_t)
