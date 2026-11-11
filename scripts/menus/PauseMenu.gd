@@ -32,6 +32,10 @@ extends Control
 @onready var lbl_volume_val: Label = $OptionsPanel/Margin/VBox/SettingsList/VolumeSection/HBox/LblVal
 @onready var slider_sens: HSlider = $OptionsPanel/Margin/VBox/SettingsList/SensSection/SliderSens
 @onready var lbl_sens_val: Label = $OptionsPanel/Margin/VBox/SettingsList/SensSection/HBox/LblVal
+@onready var btn_consumo: Button = $OptionsPanel/Margin/VBox/SettingsList/ConsumoSection/BtnConsumo
+@onready var lbl_consumo_val: Label = $OptionsPanel/Margin/VBox/SettingsList/ConsumoSection/HBox/LblVal
+@onready var btn_fotosensible: Button = get_node_or_null("OptionsPanel/Margin/VBox/SettingsList/FotosensibleSection/BtnFotosensible")
+@onready var lbl_fotosensible_val: Label = get_node_or_null("OptionsPanel/Margin/VBox/SettingsList/FotosensibleSection/HBox/LblVal")
 @onready var btn_cerrar_opciones: Button = $OptionsPanel/Margin/VBox/Footer/BtnCerrarOpciones
 
 const BASE_OPTIONS_OFFSET_LEFT: float = -450.0
@@ -75,6 +79,10 @@ func _ready() -> void:
 	btn_cerrar_opciones.pressed.connect(_close_options)
 	slider_volume.value_changed.connect(_on_volume_changed)
 	slider_sens.value_changed.connect(_on_sens_changed)
+	if btn_consumo:
+		btn_consumo.pressed.connect(_on_consumo_toggle)
+	if btn_fotosensible:
+		btn_fotosensible.pressed.connect(_on_fotosensible_toggle)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if (event.is_action_pressed("pause") or (event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE)) and not event.is_echo():
@@ -98,6 +106,15 @@ func _unhandled_input(event: InputEvent) -> void:
 func _is_any_modal_or_minigame_active() -> bool:
 	var root_node = get_tree().root
 	
+	# Si una transición cibernética está activa, no pausar
+	if root_node.get_node_or_null("CyberPlayTransition") != null or root_node.find_child("CyberPlayTransition", true, false) != null:
+		return true
+
+	# Si el jugador está en la cinemática de entrada orbital, no pausar
+	var player = root_node.find_child("Player", true, false)
+	if is_instance_valid(player) and "is_in_cinematic" in player and player.is_in_cinematic:
+		return true
+
 	# Verificar si hay HUD con pantalla de victoria o fin de juego abierta
 	var hud = root_node.find_child("HUD", true, false)
 	if is_instance_valid(hud):
@@ -321,22 +338,65 @@ func _sync_options_controls() -> void:
 	slider_sens.value = mult * 100.0
 	lbl_sens_val.text = "%.1fx" % mult
 
+	_refresh_consumo_ui()
+	_refresh_fotosensible_ui()
+
+func _refresh_consumo_ui() -> void:
+	var gm = _get_game_manager()
+	var is_on: bool = false
+	if gm and gm.has_method("is_hardware_monitor_enabled"):
+		is_on = gm.is_hardware_monitor_enabled()
+	if lbl_consumo_val:
+		lbl_consumo_val.text = "ON" if is_on else "OFF"
+		lbl_consumo_val.modulate = Color(0.1, 1.0, 0.45) if is_on else Color(0.7, 0.7, 0.8)
+	if btn_consumo:
+		btn_consumo.text = "ESTADO: [ ON ]" if is_on else "ESTADO: [ OFF ]"
+
+func _on_consumo_toggle() -> void:
+	var gm = _get_game_manager()
+	if gm and gm.has_method("toggle_hardware_monitor"):
+		gm.toggle_hardware_monitor()
+	_refresh_consumo_ui()
+
+func _refresh_fotosensible_ui() -> void:
+	var gm = _get_game_manager()
+	var is_on: bool = false
+	if gm and gm.has_method("is_photosensitive_mode_enabled"):
+		is_on = gm.is_photosensitive_mode_enabled()
+	if lbl_fotosensible_val:
+		lbl_fotosensible_val.text = "ON" if is_on else "OFF"
+		lbl_fotosensible_val.modulate = Color(0.1, 1.0, 0.45) if is_on else Color(0.7, 0.7, 0.8)
+	if btn_fotosensible:
+		btn_fotosensible.text = "ESTADO: [ ON ]" if is_on else "ESTADO: [ OFF ]"
+
+func _on_fotosensible_toggle() -> void:
+	var gm = _get_game_manager()
+	if gm and gm.has_method("toggle_photosensitive_mode"):
+		gm.toggle_photosensitive_mode()
+	_refresh_fotosensible_ui()
+
 func _on_volume_changed(value: float) -> void:
 	lbl_volume_val.text = "%d%%" % int(value)
-	var bus_idx = AudioServer.get_bus_index("Master")
-	if bus_idx != -1:
-		if value <= 0.0:
-			AudioServer.set_bus_mute(bus_idx, true)
-		else:
-			AudioServer.set_bus_mute(bus_idx, false)
-			var db = linear_to_db(value / 100.0)
-			AudioServer.set_bus_volume_db(bus_idx, db)
+	var gm = _get_game_manager()
+	if gm and gm.has_method("set_master_volume_val"):
+		gm.set_master_volume_val(value)
+	else:
+		var bus_idx = AudioServer.get_bus_index("Master")
+		if bus_idx != -1:
+			if value <= 0.0:
+				AudioServer.set_bus_mute(bus_idx, true)
+			else:
+				AudioServer.set_bus_mute(bus_idx, false)
+				var db = linear_to_db(value / 100.0)
+				AudioServer.set_bus_volume_db(bus_idx, db)
 
 func _on_sens_changed(value: float) -> void:
 	var mult = value / 100.0
 	lbl_sens_val.text = "%.1fx" % mult
 	var gm = _get_game_manager()
-	if gm:
+	if gm and gm.has_method("set_mouse_sensitivity"):
+		gm.set_mouse_sensitivity(mult)
+	elif gm:
 		gm.set("mouse_sensitivity_multiplier", mult)
 	# Si el jugador está activo en el árbol, actualizar sensibilidad en vivo
 	var player = get_tree().root.find_child("Player", true, false)
@@ -367,6 +427,9 @@ func _on_reiniciar_pressed() -> void:
 	get_tree().reload_current_scene.call_deferred()
 
 func _detect_current_mode() -> String:
+	var gm = _get_game_manager()
+	if gm and "current_mode" in gm and str(gm.current_mode) != "":
+		return str(gm.current_mode).to_lower()
 	var cur_scene = get_tree().current_scene
 	if cur_scene:
 		var scene_name = cur_scene.name.to_lower()
@@ -376,7 +439,9 @@ func _detect_current_mode() -> String:
 		elif "server" in scene_name or "server" in scene_path:
 			return "servidor"
 		elif "tutorial" in scene_name or "tutorial" in scene_path:
-			return "tutorial"
+			if gm and "current_mode" in gm and str(gm.current_mode) != "":
+				return str(gm.current_mode).to_lower()
+			return "reparacion"
 		elif "practice" in scene_name or "practica" in scene_name or "practice" in scene_path:
 			return "practica"
 		elif "level" in scene_name or "reparacion" in scene_name or "level" in scene_path:
@@ -392,4 +457,7 @@ func _on_volver_selector() -> void:
 			gm.pause_state_changed.emit(false)
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	var detected_mode = _detect_current_mode()
+	LevelSelect.initial_tab = "niveles"
+	if detected_mode in ["reparacion", "sistema", "servidor"]:
+		LevelSelect.initial_mode = detected_mode
 	CyberPlayTransition.play_exit(get_tree(), detected_mode)

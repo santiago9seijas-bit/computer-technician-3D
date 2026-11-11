@@ -27,6 +27,8 @@ var components_installed_counts: Dictionary = {
 var is_completed: bool = false
 var has_player_inspected: bool = false
 var current_glow_color: Color = Color(0.0, 0.65, 1.0)
+var custom_interact_callback: Callable = Callable()
+var custom_prompt: String = ""
 
 @onready var label_3d: Label3D = $Label3D
 @onready var arrow_mesh: MeshInstance3D = $ArrowMesh
@@ -149,6 +151,8 @@ func update_3d_state() -> void:
 		status_light.light_color = current_glow_color
 
 func get_interaction_prompt() -> String:
+	if custom_prompt != "":
+		return custom_prompt
 	if is_completed:
 		return "[E] Inspeccionar Torre de Servidor (Datacenter 100% ✓)"
 	elif has_player_inspected:
@@ -159,6 +163,10 @@ func get_interaction_prompt() -> String:
 	return "[E] Acceder a la Torre de Servidor (Sin revisar)"
 
 func interact(player) -> void:
+	if custom_interact_callback.is_valid():
+		custom_interact_callback.call(player)
+		return
+
 	if get_tree().root.has_node("ServerInspectionModal"):
 		return
 		

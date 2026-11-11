@@ -23,6 +23,7 @@ var transition_start_nodes: Array[Vector2] = []
 var transition_target_nodes: Array[Vector2] = []
 var mode_switch_pulse: float = 0.0
 var transition_sweep_angle: float = 0.0
+var _mode_tween: Tween = null
 
 # Micro-animación de zoom táctil sobre los círculos de nivel (16 nodos: 0 tutorial, 1-12 niveles, 13-15 práctica)
 var node_zoom_scales: Array[float] = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
@@ -233,10 +234,14 @@ var MODE_CONNECTIONS: Dictionary = {
 }
 
 var nodes: Array[Vector2] = []
+var node_labels: Array[Label] = []
+var _cached_grid_lines: PackedVector2Array = PackedVector2Array()
+var _cached_grid_size: Vector2 = Vector2.ZERO
 
 func _ready() -> void:
 	_update_nodes_for_mode()
 	_init_cyber_fx()
+	_setup_cached_node_labels()
 
 func transition_to_mode(new_mode: String) -> void:
 	if not MODE_NODES.has(new_mode):
@@ -273,15 +278,18 @@ func transition_to_mode(new_mode: String) -> void:
 		return
 		
 	# Iniciar micro-animación de transición fluida y diferenciada de alto impacto
+	if _mode_tween and _mode_tween.is_valid():
+		_mode_tween.kill()
+
 	is_transitioning = true
 	transition_progress = 0.0
 	mode_switch_pulse = 1.0
 	mode_transition_started.emit()
 	
 	var hub = Vector2(580, 395)
-	var tw = create_tween().set_parallel(true)
+	_mode_tween = create_tween().set_parallel(true)
 	
-	tw.tween_method(func(val: float):
+	_mode_tween.tween_method(func(val: float):
 		transition_progress = val
 		transition_sweep_angle = val * TAU * 1.5
 		
@@ -320,15 +328,17 @@ func transition_to_mode(new_mode: String) -> void:
 				nodes[i] = start_pt.lerp(target_pt, val)
 				
 		_rebuild_dynamic_traces()
+		_update_label_positions()
 		queue_redraw()
-	, 0.0, 1.0, 0.62)
+	, 0.0, 1.0, 0.22)
 	
-	tw.tween_property(self, "mode_switch_pulse", 0.0, 0.65).set_ease(Tween.EASE_OUT)
+	_mode_tween.tween_property(self, "mode_switch_pulse", 0.0, 0.25).set_ease(Tween.EASE_OUT)
 	
-	tw.chain().tween_callback(func():
+	_mode_tween.chain().tween_callback(func():
 		is_transitioning = false
 		_update_nodes_for_mode()
 		_rebuild_dynamic_traces()
+		_update_label_positions()
 		mode_transition_completed.emit()
 		queue_redraw()
 	)
@@ -338,6 +348,74 @@ func _update_nodes_for_mode() -> void:
 	var raw_list = MODE_NODES.get(current_mode, [])
 	for pt in raw_list:
 		nodes.append(pt as Vector2)
+	_update_label_positions()
+
+func _setup_cached_node_labels() -> void:
+	for lbl in node_labels:
+		if is_instance_valid(lbl):
+			lbl.queue_free()
+	node_labels.clear()
+
+	var font = null
+	if ResourceLoader.exists("res://assets/fonts/JetBrainsMono-Bold.ttf"):
+		font = load("res://assets/fonts/JetBrainsMono-Bold.ttf")
+	elif ResourceLoader.exists("res://assets/fonts/Bungee-Regular.ttf"):
+		font = load("res://assets/fonts/Bungee-Regular.ttf")
+
+	for i in range(14):
+		var lbl = Label.new()
+		lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		if font:
+			lbl.add_theme_font_override("font", font)
+		lbl.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.95))
+		lbl.add_theme_constant_override("outline_size", 4)
+		
+		if i == 0:
+			lbl.text = "TUTORIAL"
+			lbl.add_theme_font_size_override("font_size", 10)
+			lbl.add_theme_color_override("font_color", Color(0.2, 0.95, 1.0, 1.0))
+			lbl.size = Vector2(80, 20)
+		elif i == 13:
+			lbl.text = "PRÁCTICA"
+			lbl.add_theme_font_size_override("font_size", 10)
+			lbl.add_theme_color_override("font_color", Color(1.0, 0.65, 0.15, 1.0))
+			lbl.size = Vector2(80, 20)
+		else:
+			lbl.text = str(i)
+			lbl.add_theme_font_size_override("font_size", 11)
+			lbl.size = Vector2(30, 20)
+			if i == 1:
+				lbl.add_theme_color_override("font_color", Color(1.0, 0.92, 0.95, 1.0))
+			else:
+				lbl.add_theme_color_override("font_color", Color(0.55, 0.7, 0.82, 0.75))
+				
+		add_child(lbl)
+		node_labels.append(lbl)
+	_update_label_positions()
+
+func _update_label_positions() -> void:
+	for i in range(min(node_labels.size(), nodes.size())):
+		var lbl = node_labels[i]
+		if not is_instance_valid(lbl):
+			continue
+		var np = nodes[i]
+		var zoom_scale = node_zoom_scales[i] if i < node_zoom_scales.size() else 1.0
+		if i == 0 or i == 13:
+			lbl.position = np + Vector2(-40, -40 * zoom_scale)
+		else:
+			lbl.position = np + Vector2(-15, -34 * zoom_scale)
+
+func _update_label_hover() -> void:
+	for i in range(node_labels.size()):
+		var lbl = node_labels[i]
+		if not is_instance_valid(lbl):
+			continue
+		if i == hovered_node_index:
+			lbl.modulate = Color(1.4, 1.4, 1.4, 1.0)
+		else:
+			lbl.modulate = Color(1.0, 1.0, 1.0, 1.0)
 
 func _rebuild_dynamic_traces() -> void:
 	if nodes.size() < 13:
@@ -390,53 +468,76 @@ func _init_cyber_fx() -> void:
 		Color(0.2, 1.0, 0.75, 0.90)    # Turquesa Neón
 	]
 
-	for i in range(20):
+	for i in range(10):
 		var p = DataPulse.new()
 		p.trace_index = i % max(1, circuit_traces.size())
 		p.progress = rng.randf()
-		p.speed = rng.randf_range(0.18, 0.35)
+		p.speed = rng.randf_range(0.18, 0.32)
 		p.color = pulse_colors[i % pulse_colors.size()]
-		p.size = rng.randf_range(2.8, 4.4)
-		p.tail_length = rng.randf_range(30.0, 55.0)
+		p.size = rng.randf_range(2.6, 3.8)
+		p.tail_length = rng.randf_range(25.0, 45.0)
 		data_pulses.append(p)
 
 	var w = size.x if size.x > 100 else 1280.0
 	var h = size.y if size.y > 50 else 720.0
-	for i in range(36):
+	for i in range(14):
 		var m = CyberMote.new()
 		m.pos = Vector2(rng.randf_range(20.0, w - 20.0), rng.randf_range(110.0, h - 60.0))
-		m.drift = Vector2(rng.randf_range(-14.0, 14.0), rng.randf_range(-8.0, 8.0))
-		m.size = rng.randf_range(1.3, 2.8)
-		m.base_alpha = rng.randf_range(0.2, 0.55)
+		m.drift = Vector2(rng.randf_range(-10.0, 10.0), rng.randf_range(-6.0, 6.0))
+		m.size = rng.randf_range(1.2, 2.2)
+		m.base_alpha = rng.randf_range(0.2, 0.45)
 		m.phase = rng.randf_range(0.0, TAU)
 		m.pulse_speed = rng.randf_range(1.5, 3.2)
 		m.color = pulse_colors[rng.randi_range(0, pulse_colors.size() - 1)]
 		cyber_motes.append(m)
 
+	_rebuild_grid_cache(w, h)
 	initialized_fx = true
 
+func _rebuild_grid_cache(w: float, h: float) -> void:
+	_cached_grid_size = Vector2(w, h)
+	_cached_grid_lines.clear()
+	var grid_step = 54.0
+	var cross_len = 3.0
+	var x_steps = int(w / grid_step) + 1
+	var y_steps = int(h / grid_step) + 1
+	for xi in range(x_steps):
+		var gx = xi * grid_step
+		for yi in range(y_steps):
+			var gy = yi * grid_step
+			_cached_grid_lines.append(Vector2(gx - cross_len, gy))
+			_cached_grid_lines.append(Vector2(gx + cross_len, gy))
+			_cached_grid_lines.append(Vector2(gx, gy - cross_len))
+			_cached_grid_lines.append(Vector2(gx, gy + cross_len))
+
 func _process(delta: float) -> void:
-	anim_offset += delta * 2.2
+	var gm = get_node_or_null("/root/GameManager")
+	var is_photo = gm and gm.has_method("is_photosensitive_mode_enabled") and gm.is_photosensitive_mode_enabled()
+	var time_scale = 0.8 if is_photo else 2.2
+	anim_offset += delta * time_scale
 
 	if not initialized_fx:
 		_init_cyber_fx()
 
 	var w = size.x if size.x > 100 else 1280.0
 	var h = size.y if size.y > 50 else 720.0
+	if _cached_grid_size != Vector2(w, h):
+		_rebuild_grid_cache(w, h)
 
-	if not is_transitioning:
-		_rebuild_dynamic_traces()
-
-	# Detección de hover sobre cualquiera de los 13 nodos
+	# Detección de hover sobre cualquiera de los 14 nodos
 	var mouse_pos = get_local_mouse_position()
-	hovered_node_index = -1
+	var new_hovered: int = -1
 	for i in range(nodes.size()):
 		if mouse_pos.distance_to(nodes[i]) <= 32.0:
-			hovered_node_index = i
+			new_hovered = i
 			break
 
+	if new_hovered != hovered_node_index:
+		hovered_node_index = new_hovered
+		_update_label_hover()
+
 	# Acelerar los paquetes de datos durante la transición de telaraña ("data surge")
-	var speed_mult = 2.4 if is_transitioning else 1.0
+	var speed_mult = (1.2 if is_photo else 2.4) if is_transitioning else (0.6 if is_photo else 1.0)
 	for p in data_pulses:
 		p.progress += p.speed * delta * speed_mult
 		if p.progress > 1.0:
@@ -454,11 +555,10 @@ func _process(delta: float) -> void:
 func _draw() -> void:
 	var w = size.x if size.x > 100 else 1280.0
 	var h = size.y if size.y > 50 else 720.0
-	var font = ThemeDB.fallback_font
 	var hub = nodes[0] if not nodes.is_empty() else Vector2(580, 395)
 
 	# =========================================================================
-	# 1. FONDO DE TELARAÑA CIBERNÉTICA ARQUITECTÓNICA
+	# 1. FONDO DE TELARAÑA CIBERNÉTICA ARQUITECTÓNICA (BATCHEADA)
 	# =========================================================================
 	_draw_spiderweb_background(w, h, hub)
 
@@ -471,29 +571,22 @@ func _draw() -> void:
 	# =========================================================================
 	# 3. PISTAS DE TELARAÑA Y FILAMENTOS DINÁMICOS
 	# =========================================================================
+	var trace_col: Color
+	var dot_col: Color
+	match current_mode:
+		"sistema":
+			trace_col = Color(0.12, 0.45, 0.95, 0.40)
+			dot_col = Color(0.18, 0.55, 1.0, 0.6)
+		"servidor":
+			trace_col = Color(1.0, 0.52, 0.08, 0.40)
+			dot_col = Color(1.0, 0.6, 0.15, 0.6)
+		_:
+			trace_col = Color(0.85, 0.08, 0.45, 0.40)
+			dot_col = Color(1.0, 0.1, 0.35, 0.5)
+
 	for trace in circuit_traces:
 		if trace.points.size() >= 2:
-			var trace_c1: Color
-			var trace_c2: Color
-			var dot_c: Color
-			match current_mode:
-				"sistema":
-					trace_c1 = Color(0.04, 0.2, 0.65, 0.16)
-					trace_c2 = Color(0.12, 0.45, 0.95, 0.35)
-					dot_c = Color(0.18, 0.55, 1.0, 0.5)
-				"servidor":
-					trace_c1 = Color(0.65, 0.25, 0.02, 0.16)
-					trace_c2 = Color(1.0, 0.52, 0.08, 0.35)
-					dot_c = Color(1.0, 0.6, 0.15, 0.5)
-				_:
-					trace_c1 = Color(0.8, 0.05, 0.3, 0.12)
-					trace_c2 = Color(0.65, 0.05, 0.85, 0.32)
-					dot_c = Color(1.0, 0.1, 0.3, 0.4)
-			draw_polyline(trace.points, trace_c1, 4.5, false)
-			draw_polyline(trace.points, trace_c2, 1.8, false)
-			for pt in trace.points:
-				draw_circle(pt, 2.5, dot_c)
-				draw_circle(pt, 1.2, Color(0.02, 0.01, 0.05, 0.95))
+			draw_polyline(trace.points, trace_col, 1.0, false)
 
 	# =========================================================================
 	# 4. PULSOS DE DATOS VIAJANDO POR LOS FILAMENTOS DE LA TELARAÑA
@@ -504,32 +597,33 @@ func _draw() -> void:
 			if trace.total_length > 0.0:
 				var head_dist = p.progress * trace.total_length
 				var head_pos = trace.get_point_at_distance(head_dist)
-				draw_circle(head_pos, p.size * 2.0, Color(p.color.r, p.color.g, p.color.b, 0.28))
 				draw_circle(head_pos, p.size, p.color)
 
 	# =========================================================================
-	# 5. ENLACES ESTRUCTURALES ENTRE NODOS DE LA TELARAÑA
+	# 5. ENLACES ESTRUCTURALES ENTRE NODOS (BATCHEADOS EN MULTILINE)
 	# =========================================================================
-	if is_transitioning and previous_mode != current_mode:
-		var old_conns = MODE_CONNECTIONS.get(previous_mode, [])
-		var old_alpha = (1.0 - transition_progress) * 0.45
-		for conn in old_conns:
-			if conn.x < nodes.size() and conn.y < nodes.size():
-				_draw_circuit_line(nodes[conn.x], nodes[conn.y], old_alpha, conn.x + conn.y)
-
-		var new_conns = MODE_CONNECTIONS.get(current_mode, [])
-		var new_alpha = transition_progress * 0.55
-		for conn in new_conns:
-			if conn.x < nodes.size() and conn.y < nodes.size():
-				_draw_circuit_line(nodes[conn.x], nodes[conn.y], new_alpha, conn.x + conn.y)
+	var conns = MODE_CONNECTIONS.get(current_mode, MODE_CONNECTIONS["reparacion"])
+	var std_lines = PackedVector2Array()
+	var std_line_color: Color
+	if current_mode == "sistema":
+		std_line_color = Color(0.12, 0.48, 0.95, 0.40)
+	elif current_mode == "servidor":
+		std_line_color = Color(1.0, 0.55, 0.1, 0.40)
 	else:
-		var conns = MODE_CONNECTIONS.get(current_mode, MODE_CONNECTIONS["reparacion"])
-		for conn in conns:
-			if conn.x < nodes.size() and conn.y < nodes.size():
-				var is_primary_root = (conn.x == 0 and conn.y == 1) or (conn.x == 1 and conn.y == 0)
-				var is_practice_link = (conn.x == 13 or conn.y == 13)
-				var line_alpha = 0.95 if (is_primary_root or is_practice_link) else 0.55
-				_draw_circuit_line(nodes[conn.x], nodes[conn.y], line_alpha, conn.x + conn.y, is_primary_root, is_practice_link)
+		std_line_color = Color(0.85, 0.08, 0.35, 0.40)
+
+	for conn in conns:
+		if conn.x < nodes.size() and conn.y < nodes.size():
+			var is_primary_root = (conn.x == 0 and conn.y == 1) or (conn.x == 1 and conn.y == 0)
+			var is_practice_link = (conn.x == 13 or conn.y == 13)
+			if is_primary_root or is_practice_link:
+				_draw_circuit_line(nodes[conn.x], nodes[conn.y], 0.95, conn.x + conn.y, is_primary_root, is_practice_link)
+			else:
+				std_lines.append(nodes[conn.x])
+				std_lines.append(nodes[conn.y])
+				
+	if not std_lines.is_empty():
+		draw_multiline(std_lines, std_line_color, 1.0)
 
 	# =========================================================================
 	# 6. POLVO DIGITAL AMBIENTAL
@@ -538,7 +632,7 @@ func _draw() -> void:
 		draw_circle(m.pos, m.size, m.color)
 
 	# =========================================================================
-	# 7. ESTELAS HOLOGRÁFICAS DE MOVIMIENTO EN TRANSICIÓN (DETALLITOS SCI-FI)
+	# 7. ESTELAS HOLOGRÁFICAS DE MOVIMIENTO EN TRANSICIÓN
 	# =========================================================================
 	if is_transitioning and transition_start_nodes.size() == nodes.size():
 		var trail_factor = sin(transition_progress * PI)
@@ -552,20 +646,19 @@ func _draw() -> void:
 			draw_circle(p_mid, 3.0 * trail_factor, Color.WHITE)
 
 	# =========================================================================
-	# 8. RENDERIZADO DE LOS 13 NODOS DE LA TELARAÑA
+	# 8. RENDERIZADO OPTIMIZADO DE LOS 14 NODOS DE LA TELARAÑA
 	# =========================================================================
 	for i in range(nodes.size()):
 		var np = nodes[i]
 		var is_hovered = (hovered_node_index == i)
 		var is_tutorial = (i == 0)
-		var is_practice = (i == 13) # Nodo de Práctica en Naranja Neón
-		var is_playable = (i == 1) # Nivel 1 es jugable en Rojo Carmesí
+		var is_practice = (i == 13)
+		var is_playable = (i == 1)
+		var is_active_node = is_tutorial or is_practice or is_playable or is_hovered
 		var zoom_scale = node_zoom_scales[i] if i < node_zoom_scales.size() else 1.0
 		var ripple = node_ripples[i] if i < node_ripples.size() else 0.0
 
-		var node_phase = float(i) * 0.52
-		var core_breath = sin(anim_offset * 3.0 + node_phase) * 0.5 + 0.5
-		var base_radius = (26.0 if is_tutorial else (24.0 if is_practice else 21.0)) + core_breath * 2.2
+		var base_radius = (26.0 if is_tutorial else (24.0 if is_practice else 21.0))
 		if is_hovered:
 			base_radius += 3.5
 		var breath_radius = base_radius * zoom_scale
@@ -574,23 +667,10 @@ func _draw() -> void:
 		if ripple > 0.01:
 			var rip_r = lerp(26.0, 72.0, 1.0 - ripple) * zoom_scale
 			var rip_a = ripple * 0.85
-			var rip_col: Color
-			if is_tutorial:
-				rip_col = Color(0.0, 0.88, 1.0, rip_a)
-			elif is_practice:
-				rip_col = Color(1.0, 0.55, 0.05, rip_a)
-			elif is_playable:
-				if current_mode == "sistema":
-					rip_col = Color(0.18, 0.55, 1.0, rip_a)
-				elif current_mode == "servidor":
-					rip_col = Color(1.0, 0.55, 0.08, rip_a)
-				else:
-					rip_col = Color(1.0, 0.08, 0.25, rip_a)
-			else:
-				rip_col = Color(0.2, 0.85, 1.0, rip_a)
-			draw_arc(np, rip_r, 0, TAU, 32, rip_col, 2.6)
+			var rip_col = Color(0.0, 0.88, 1.0, rip_a) if is_tutorial else (Color(1.0, 0.55, 0.05, rip_a) if is_practice else (Color(1.0, 0.1, 0.3, rip_a) if is_playable else Color(0.2, 0.85, 1.0, rip_a)))
+			draw_arc(np, rip_r, 0, TAU, 24, rip_col, 2.0)
 
-		# --- Zócalo base en la placa / telaraña ---
+		# --- Zócalo base en la telaraña ---
 		var socket_bg: Color
 		var socket_arc: Color
 		if is_tutorial:
@@ -610,153 +690,34 @@ func _draw() -> void:
 				socket_bg = Color(0.8, 0.05, 0.22, 0.18)
 				socket_arc = Color(1.0, 0.08, 0.25, 0.75)
 		else:
-			socket_bg = Color(0.12, 0.3, 0.48, 0.08)
-			socket_arc = Color(0.22, 0.42, 0.6, 0.32)
+			socket_bg = Color(0.08, 0.12, 0.22, 0.12)
+			socket_arc = Color(0.22, 0.35, 0.5, 0.30)
 
 		var socket_sz = (36.0 if is_tutorial else (34.0 if is_practice else 32.0)) * zoom_scale
 		draw_circle(np, socket_sz, socket_bg)
-		draw_arc(np, socket_sz - 4.0 * zoom_scale, 0, TAU, 32, socket_arc, 1.6)
+		draw_arc(np, socket_sz - 4.0 * zoom_scale, 0, TAU, 20, socket_arc, 1.0)
 
-		# --- Marcas cardinales tácticas que oscilan ---
-		var tick_offset = (socket_sz + core_breath * 2.0)
-		var tick_col: Color
-		if is_tutorial:
-			tick_col = Color(0.1, 0.95, 1.0, 0.95)
-		elif is_practice:
-			tick_col = Color(1.0, 0.65, 0.1, 0.95)
-		elif is_playable:
-			if current_mode == "sistema":
-				tick_col = Color(0.25, 0.7, 1.0, 0.95)
-			elif current_mode == "servidor":
-				tick_col = Color(1.0, 0.65, 0.15, 0.95)
-			else:
-				tick_col = Color(1.0, 0.15, 0.35, 0.9)
-		else:
-			tick_col = Color(0.25, 0.5, 0.68, 0.38)
+		# --- Anillos segmentados rotatorios SOLO en nodos activos o hovered ---
+		if is_active_node:
+			var rot_cw = anim_offset * (1.2 + float(i % 3) * 0.3)
+			var rot_ccw = -anim_offset * (0.9 + float((i + 1) % 3) * 0.25)
+			var ring_r1 = (28.0 if is_tutorial else (27.0 if is_practice else 25.5)) * zoom_scale
+			var ring_r2 = (25.0 if is_tutorial else (24.0 if is_practice else 23.0)) * zoom_scale
+			var arc_col = socket_arc
 
-		draw_line(np + Vector2(-tick_offset, 0), np + Vector2(-tick_offset + 5 * zoom_scale, 0), tick_col, 1.5)
-		draw_line(np + Vector2(tick_offset - 5 * zoom_scale, 0), np + Vector2(tick_offset, 0), tick_col, 1.5)
-		draw_line(np + Vector2(0, -tick_offset), np + Vector2(0, -tick_offset + 5 * zoom_scale), tick_col, 1.5)
-		draw_line(np + Vector2(0, tick_offset - 5 * zoom_scale), np + Vector2(0, tick_offset), tick_col, 1.5)
+			draw_arc(np, ring_r1, rot_cw, rot_cw + PI * 0.5, 10, arc_col, 1.2)
+			draw_arc(np, ring_r1, rot_cw + PI * 1.1, rot_cw + PI * 1.6, 10, arc_col, 1.2)
+			draw_arc(np, ring_r2, rot_ccw, rot_ccw + PI * 0.6, 10, Color(arc_col.r, arc_col.g, arc_col.b, 0.7), 1.0)
+			draw_arc(np, ring_r2, rot_ccw + PI * 1.2, rot_ccw + PI * 1.8, 10, Color(arc_col.r, arc_col.g, arc_col.b, 0.7), 1.0)
 
-		# --- Anillos segmentados rotatorios ---
-		var rot_cw = anim_offset * (1.2 + float(i % 3) * 0.3)
-		var rot_ccw = -anim_offset * (0.9 + float((i + 1) % 3) * 0.25)
-		var ring_r1 = (28.0 if is_tutorial else (27.0 if is_practice else 25.5)) * zoom_scale
-		var ring_r2 = (25.0 if is_tutorial else (24.0 if is_practice else 23.0)) * zoom_scale
-
-		if is_tutorial:
-			draw_arc(np, ring_r1, rot_cw, rot_cw + PI * 0.5, 14, Color(0.0, 0.9, 1.0, 0.95), 2.2)
-			draw_arc(np, ring_r1, rot_cw + PI * 0.75, rot_cw + PI * 1.25, 14, Color(0.2, 0.75, 1.0, 0.95), 2.2)
-			draw_arc(np, ring_r1, rot_cw + PI * 1.5, rot_cw + PI * 1.95, 14, Color(0.0, 1.0, 0.9, 0.95), 2.2)
-
-			draw_arc(np, ring_r2, rot_ccw, rot_ccw + PI * 0.65, 14, Color(0.1, 0.85, 1.0, 0.8), 1.6)
-			draw_arc(np, ring_r2, rot_ccw + PI * 1.05, rot_ccw + PI * 1.7, 14, Color(0.4, 0.95, 1.0, 0.8), 1.6)
-		elif is_practice:
-			# Anillos giratorios de práctica en Naranja Neón
-			draw_arc(np, ring_r1, rot_cw, rot_cw + PI * 0.5, 14, Color(1.0, 0.55, 0.05, 0.95), 2.2)
-			draw_arc(np, ring_r1, rot_cw + PI * 0.75, rot_cw + PI * 1.25, 14, Color(1.0, 0.75, 0.15, 0.95), 2.2)
-			draw_arc(np, ring_r1, rot_cw + PI * 1.5, rot_cw + PI * 1.95, 14, Color(1.0, 0.45, 0.0, 0.95), 2.2)
-
-			draw_arc(np, ring_r2, rot_ccw, rot_ccw + PI * 0.65, 14, Color(1.0, 0.65, 0.1, 0.8), 1.6)
-			draw_arc(np, ring_r2, rot_ccw + PI * 1.05, rot_ccw + PI * 1.7, 14, Color(1.0, 0.85, 0.3, 0.8), 1.6)
-		elif is_playable:
-			var play_accent1: Color
-			var play_accent2: Color
-			var play_accent3: Color
-			if current_mode == "sistema":
-				play_accent1 = Color(0.15, 0.55, 1.0, 0.9)
-				play_accent2 = Color(0.25, 0.68, 1.0, 0.9)
-				play_accent3 = Color(0.1, 0.45, 0.9, 0.9)
-			elif current_mode == "servidor":
-				play_accent1 = Color(1.0, 0.55, 0.08, 0.9)
-				play_accent2 = Color(1.0, 0.7, 0.2, 0.9)
-				play_accent3 = Color(1.0, 0.45, 0.05, 0.9)
-			else:
-				play_accent1 = Color(1.0, 0.08, 0.25, 0.9)
-				play_accent2 = Color(1.0, 0.22, 0.38, 0.9)
-				play_accent3 = Color(1.0, 0.12, 0.28, 0.9)
-
-			draw_arc(np, ring_r1, rot_cw, rot_cw + PI * 0.45, 12, play_accent1, 1.8)
-			draw_arc(np, ring_r1, rot_cw + PI * 0.7, rot_cw + PI * 1.15, 12, play_accent2, 1.8)
-			draw_arc(np, ring_r1, rot_cw + PI * 1.4, rot_cw + PI * 1.85, 12, play_accent3, 1.8)
-
-			draw_arc(np, ring_r2, rot_ccw, rot_ccw + PI * 0.6, 12, play_accent2, 1.4)
-			draw_arc(np, ring_r2, rot_ccw + PI, rot_ccw + PI * 1.6, 12, play_accent3, 1.4)
-		else:
-			draw_arc(np, ring_r1, rot_cw, rot_cw + PI * 0.45, 12, Color(0.25, 0.48, 0.65, 0.4), 1.4)
-			draw_arc(np, ring_r1, rot_cw + PI * 0.7, rot_cw + PI * 1.15, 12, Color(0.2, 0.4, 0.58, 0.4), 1.4)
-			draw_arc(np, ring_r1, rot_cw + PI * 1.4, rot_cw + PI * 1.85, 12, Color(0.28, 0.52, 0.7, 0.4), 1.4)
-
-			draw_arc(np, ring_r2, rot_ccw, rot_ccw + PI * 0.6, 12, Color(0.18, 0.36, 0.52, 0.35), 1.2)
-			draw_arc(np, ring_r2, rot_ccw + PI, rot_ccw + PI * 1.6, 12, Color(0.22, 0.42, 0.58, 0.35), 1.2)
-
-		# --- Esfera de cristal oscuro central ---
-		var crystal_col: Color
-		if is_tutorial:
-			crystal_col = Color(0.015, 0.06, 0.15, 0.98)
-		elif is_practice:
-			crystal_col = Color(0.15, 0.05, 0.01, 0.98) # Ámbar oscuro
-		elif is_playable:
-			if current_mode == "sistema":
-				crystal_col = Color(0.015, 0.04, 0.15, 0.98)
-			elif current_mode == "servidor":
-				crystal_col = Color(0.14, 0.05, 0.01, 0.98)
-			else:
-				crystal_col = Color(0.14, 0.015, 0.04, 0.98)
-		else:
-			crystal_col = Color(0.04, 0.03, 0.08, 0.96)
+		# --- Esfera de cristal central ---
+		var crystal_col = Color(0.02, 0.06, 0.14, 0.95) if is_tutorial else (Color(0.12, 0.05, 0.01, 0.95) if is_practice else (Color(0.10, 0.02, 0.05, 0.95) if is_playable else Color(0.04, 0.03, 0.08, 0.92)))
 		draw_circle(np, breath_radius, crystal_col)
+		draw_arc(np, breath_radius, 0, TAU, 18, socket_arc, 1.0)
 
-		# --- Borde de neón con halo ---
-		var base_neon: Color
+		# --- Iconografía interior de cada nodo ---
 		if is_tutorial:
-			base_neon = Color(0.0, 0.88, 1.0, 1.0).lerp(Color(0.3, 1.0, 1.0, 1.0), core_breath)
-			if is_hovered:
-				base_neon = Color(0.6, 1.0, 1.0, 1.0)
-		elif is_practice:
-			base_neon = Color(1.0, 0.55, 0.05, 1.0).lerp(Color(1.0, 0.8, 0.25, 1.0), core_breath)
-			if is_hovered:
-				base_neon = Color(1.0, 0.9, 0.5, 1.0)
-		elif is_playable:
-			if current_mode == "sistema":
-				base_neon = Color(0.15, 0.55, 1.0, 1.0).lerp(Color(0.3, 0.75, 1.0, 1.0), core_breath)
-				if is_hovered:
-					base_neon = Color(0.5, 0.85, 1.0, 1.0)
-			elif current_mode == "servidor":
-				base_neon = Color(1.0, 0.55, 0.08, 1.0).lerp(Color(1.0, 0.75, 0.2, 1.0), core_breath)
-				if is_hovered:
-					base_neon = Color(1.0, 0.85, 0.4, 1.0)
-			else:
-				base_neon = Color(1.0, 0.06, 0.22, 1.0).lerp(Color(1.0, 0.25, 0.4, 1.0), core_breath)
-				if is_hovered:
-					base_neon = Color(1.0, 0.45, 0.55, 1.0)
-		else:
-			base_neon = Color(0.22, 0.45, 0.62, 0.65).lerp(Color(0.18, 0.35, 0.52, 0.65), core_breath)
-			if is_hovered:
-				base_neon = Color(0.0, 1.0, 0.75, 1.0)
-
-		draw_arc(np, breath_radius, 0, TAU, 32, base_neon, 2.6 if (is_tutorial or is_practice or is_playable or is_hovered) else 1.6)
-
-		if is_tutorial:
-			var halo_r = breath_radius + (4.0 + core_breath * 3.0) * zoom_scale
-			draw_arc(np, halo_r, 0, TAU, 32, Color(0.0, 0.88, 1.0, 0.45 + core_breath * 0.3), 1.8)
-		elif is_practice:
-			var halo_r = breath_radius + (4.0 + core_breath * 3.0) * zoom_scale
-			draw_arc(np, halo_r, 0, TAU, 32, Color(1.0, 0.55, 0.05, 0.45 + core_breath * 0.3), 1.8)
-		elif is_playable:
-			var halo_r = breath_radius + (3.2 + core_breath * 2.5) * zoom_scale
-			var halo_c: Color
-			if current_mode == "sistema":
-				halo_c = Color(0.15, 0.55, 1.0, 0.45 + core_breath * 0.25)
-			elif current_mode == "servidor":
-				halo_c = Color(1.0, 0.55, 0.08, 0.45 + core_breath * 0.25)
-			else:
-				halo_c = Color(1.0, 0.08, 0.25, 0.42 + core_breath * 0.25)
-			draw_arc(np, halo_r, 0, TAU, 32, halo_c, 1.5)
-
-		# --- ÍCONO CENTRAL (OTRA FIGURA PARA PRÁCTICA) ---
-		if is_tutorial:
+			# GORRO DE GRADUADO (BIRRETE CIBERNÉTICO)
 			var em_col = Color(0.2, 0.95, 1.0, 0.98) if not is_hovered else Color.WHITE
 			var sz = 7.5 * zoom_scale
 			var p_top = np + Vector2(0, -sz * 0.9)
@@ -779,7 +740,6 @@ func _draw() -> void:
 			var w_end = np + Vector2(sz * 0.85, -sz * 0.85)
 			draw_line(w_start, w_end, tool_glow, 3.8 * zoom_scale)
 			draw_line(w_start, w_end, tool_col, 2.2 * zoom_scale)
-			# Cabeza abierta de la llave inglesa en w_end
 			var head_dir = Vector2(0.707, -0.707)
 			var head_perp = Vector2(0.707, 0.707)
 			var j1 = w_end + head_perp * (sz * 0.45)
@@ -787,7 +747,6 @@ func _draw() -> void:
 			draw_line(j1, j1 + head_dir * (sz * 0.4), tool_col, 2.0 * zoom_scale)
 			draw_line(j2, j2 + head_dir * (sz * 0.4), tool_col, 2.0 * zoom_scale)
 			draw_line(j1, j2, tool_col, 1.8 * zoom_scale)
-			# Anillo de la llave inglesa en w_start
 			draw_arc(w_start, sz * 0.32, 0, TAU, 12, tool_col, 1.6 * zoom_scale)
 
 			# 2. Destornillador cruzado (SE a NO)
@@ -795,10 +754,8 @@ func _draw() -> void:
 			var s_end = np + Vector2(-sz * 0.85, -sz * 0.85)
 			draw_line(s_start, s_end, tool_glow, 3.4 * zoom_scale)
 			draw_line(s_start, s_end, tool_col, 1.8 * zoom_scale)
-			# Punta plana del destornillador en s_end
 			var s_dir = Vector2(-0.707, -0.707)
 			draw_line(s_end - s_dir * (sz * 0.3), s_end, Color(1.0, 1.0, 1.0, 0.95), 2.4 * zoom_scale)
-			# Mango ergonómico en s_start
 			var handle_p = s_start - s_dir * (sz * 0.5)
 			draw_line(handle_p, s_start, Color(1.0, 0.45, 0.05, 1.0), 3.2 * zoom_scale)
 
@@ -806,86 +763,38 @@ func _draw() -> void:
 			draw_circle(np, 2.6 * zoom_scale, Color(1.0, 0.9, 0.4, 1.0))
 			draw_circle(np, 1.2 * zoom_scale, Color.WHITE)
 		elif is_playable:
-			var tri_sz = 6.8 * zoom_scale
-			var p_top = np + Vector2(-tri_sz * 0.65, -tri_sz)
-			var p_bot = np + Vector2(-tri_sz * 0.65, tri_sz)
-			var p_tip = np + Vector2(tri_sz * 1.15, 0.0)
-			var tri_col: Color
-			if current_mode == "sistema":
-				tri_col = Color(0.2, 0.65, 1.0, 0.95) if not is_hovered else Color.WHITE
-			elif current_mode == "servidor":
-				tri_col = Color(1.0, 0.6, 0.15, 0.95) if not is_hovered else Color.WHITE
-			else:
-				tri_col = Color(1.0, 0.12, 0.28, 0.95) if not is_hovered else Color(1.0, 0.35, 0.48, 1.0)
-			draw_colored_polygon([p_top, p_tip, p_bot], tri_col)
-			draw_polyline([p_top, p_tip, p_bot, p_top], Color(1.0, 0.92, 0.96, 1.0), 1.3)
+			var tri_sz = 6.5 * zoom_scale
+			var p_top = np + Vector2(-tri_sz * 0.6, -tri_sz)
+			var p_bot = np + Vector2(-tri_sz * 0.6, tri_sz)
+			var p_tip = np + Vector2(tri_sz * 1.1, 0.0)
+			draw_colored_polygon([p_top, p_tip, p_bot], Color(1.0, 0.2, 0.35, 0.95) if not is_hovered else Color.WHITE)
 		else:
-			var lock_col = Color(0.4, 0.62, 0.78, 0.75) if not is_hovered else Color(0.0, 1.0, 0.75, 0.95)
-			var lock_w = 12.0 * zoom_scale
-			var lock_h = 9.0 * zoom_scale
-			var lock_pos = Vector2(np.x - lock_w * 0.5, np.y - 1.5 * zoom_scale)
-			draw_rect(Rect2(lock_pos.x, lock_pos.y, lock_w, lock_h), lock_col, false, 1.5)
-			draw_arc(np + Vector2(0, -1.5 * zoom_scale), 4.2 * zoom_scale, PI, TAU, 14, lock_col, 1.5)
-			draw_circle(np + Vector2(0, 2.0 * zoom_scale), 1.3 * zoom_scale, Color(0.04, 0.03, 0.08, 1.0))
-			draw_line(np + Vector2(0, 2.0 * zoom_scale), np + Vector2(0, 5.0 * zoom_scale), Color(0.04, 0.03, 0.08, 1.0), 1.3)
-
-		# --- Rótulo / Número de nivel ---
-		if is_tutorial:
-			var tut_str = "TUTORIAL"
-			var tut_col = Color(0.2, 0.95, 1.0, 1.0) if not is_hovered else Color.WHITE
-			draw_string(font, np + Vector2(-32 * zoom_scale, -34 * zoom_scale), tut_str, HORIZONTAL_ALIGNMENT_CENTER, int(64 * zoom_scale), int(12 * zoom_scale), tut_col)
-		elif is_practice:
-			var prac_str = "PRÁCTICA"
-			var prac_col = Color(1.0, 0.65, 0.15, 1.0) if not is_hovered else Color.WHITE
-			draw_string(font, np + Vector2(-32 * zoom_scale, -34 * zoom_scale), prac_str, HORIZONTAL_ALIGNMENT_CENTER, int(64 * zoom_scale), int(12 * zoom_scale), prac_col)
-		else:
-			var lvl_str = str(i)
-			var num_color: Color
-			if is_playable:
-				num_color = Color(1.0, 0.92, 0.95, 1.0)
-			elif is_hovered:
-				num_color = Color.WHITE
-			else:
-				num_color = Color(0.55, 0.7, 0.82, 0.75)
-			draw_string(font, np + Vector2(-12 * zoom_scale, -28 * zoom_scale), lvl_str, HORIZONTAL_ALIGNMENT_CENTER, int(24 * zoom_scale), int(12 * zoom_scale), num_color)
+			# Candado ligero
+			var lock_col = Color(0.4, 0.6, 0.75, 0.65) if not is_hovered else Color(0.0, 1.0, 0.75, 0.95)
+			var lock_w = 11.0 * zoom_scale
+			var lock_h = 8.0 * zoom_scale
+			var lock_pos = Vector2(np.x - lock_w * 0.5, np.y - 1.0 * zoom_scale)
+			draw_rect(Rect2(lock_pos.x, lock_pos.y, lock_w, lock_h), lock_col, false, 1.0)
+			draw_arc(np + Vector2(0, -1.0 * zoom_scale), 3.8 * zoom_scale, PI, TAU, 8, lock_col, 1.0)
 
 		# --- Corchetes tácticos de selección en Hover ---
 		if is_hovered:
 			var b_dist = (socket_sz + 4.0)
-			var b_sz = 9.0 * zoom_scale
-			var b_col: Color
-			if is_tutorial:
-				b_col = Color(0.0, 0.95, 1.0, 0.95)
-			elif is_practice:
-				b_col = Color(1.0, 0.55, 0.05, 0.95)
-			elif is_playable:
-				if current_mode == "sistema":
-					b_col = Color(0.2, 0.65, 1.0, 0.95)
-				elif current_mode == "servidor":
-					b_col = Color(1.0, 0.6, 0.1, 0.95)
-				else:
-					b_col = Color(1.0, 0.2, 0.35, 0.95)
-			else:
-				b_col = Color(0.0, 1.0, 0.8, 0.95)
-			draw_line(np + Vector2(-b_dist, -b_dist), np + Vector2(-b_dist + b_sz, -b_dist), b_col, 2.2)
-			draw_line(np + Vector2(-b_dist, -b_dist), np + Vector2(-b_dist, -b_dist + b_sz), b_col, 2.2)
-			draw_line(np + Vector2(b_dist, -b_dist), np + Vector2(b_dist - b_sz, -b_dist), b_col, 2.2)
-			draw_line(np + Vector2(b_dist, -b_dist), np + Vector2(b_dist, -b_dist + b_sz), b_col, 2.2)
-			draw_line(np + Vector2(-b_dist, b_dist), np + Vector2(-b_dist + b_sz, b_dist), b_col, 2.2)
-			draw_line(np + Vector2(-b_dist, b_dist), np + Vector2(-b_dist, b_dist - b_sz), b_col, 2.2)
-			draw_line(np + Vector2(b_dist, b_dist), np + Vector2(b_dist - b_sz, b_dist), b_col, 2.2)
-			draw_line(np + Vector2(b_dist, b_dist), np + Vector2(b_dist, b_dist - b_sz), b_col, 2.2)
-
-			var ripple_t = fmod(anim_offset * 1.5, 1.0)
-			var ripple_r = lerp(26.0, 52.0, ripple_t) * zoom_scale
-			var ripple_a = (1.0 - ripple_t) * 0.4
-			draw_arc(np, ripple_r, 0, TAU, 32, Color(b_col.r, b_col.g, b_col.b, ripple_a), 1.5)
+			var b_sz = 8.0 * zoom_scale
+			var b_col = socket_arc
+			draw_line(np + Vector2(-b_dist, -b_dist), np + Vector2(-b_dist + b_sz, -b_dist), b_col, 1.8)
+			draw_line(np + Vector2(-b_dist, -b_dist), np + Vector2(-b_dist, -b_dist + b_sz), b_col, 1.8)
+			draw_line(np + Vector2(b_dist, -b_dist), np + Vector2(b_dist - b_sz, -b_dist), b_col, 1.8)
+			draw_line(np + Vector2(b_dist, -b_dist), np + Vector2(b_dist, -b_dist + b_sz), b_col, 1.8)
+			draw_line(np + Vector2(-b_dist, b_dist), np + Vector2(-b_dist + b_sz, b_dist), b_col, 1.8)
+			draw_line(np + Vector2(-b_dist, b_dist), np + Vector2(-b_dist, b_dist - b_sz), b_col, 1.8)
+			draw_line(np + Vector2(b_dist, b_dist), np + Vector2(b_dist - b_sz, b_dist), b_col, 1.8)
+			draw_line(np + Vector2(b_dist, b_dist), np + Vector2(b_dist, b_dist - b_sz), b_col, 1.8)
 
 # =============================================================================
-# FONDO DE TELARAÑA GEOMÉTRICA CONCÉNTRICA Y RADIAL SEGÚN EL MODO
+# FONDO DE TELARAÑA GEOMÉTRICA CONCÉNTRICA Y RADIAL SEGÚN EL MODO (BATCHEADO)
 # =============================================================================
 func _draw_spiderweb_background(w: float, h: float, hub: Vector2) -> void:
-	var grid_step = 54.0
 	var grid_color: Color
 	match current_mode:
 		"sistema":
@@ -894,56 +803,49 @@ func _draw_spiderweb_background(w: float, h: float, hub: Vector2) -> void:
 			grid_color = Color(0.85, 0.45, 0.05, 0.06)
 		_:
 			grid_color = Color(0.85, 0.05, 0.35, 0.04)
-	var cross_len = 3.0
-	var x_steps = int(w / grid_step) + 1
-	var y_steps = int(h / grid_step) + 1
-	for xi in range(x_steps):
-		var gx = xi * grid_step
-		for yi in range(y_steps):
-			var gy = yi * grid_step
-			draw_line(Vector2(gx - cross_len, gy), Vector2(gx + cross_len, gy), grid_color, 1.0)
-			draw_line(Vector2(gx, gy - cross_len), Vector2(gx, gy + cross_len), grid_color, 1.0)
+
+	# 1. Cuadrícula precalculada batcheada en 1 sola llamada
+	if not _cached_grid_lines.is_empty():
+		draw_multiline(_cached_grid_lines, grid_color, 1.0)
 
 	var spoke_count: int
 	var spoke_angles: Array[float] = []
 	var web_radii: Array[float] = [150.0, 260.0, 380.0, 520.0, 680.0]
 	var web_color: Color
-	var glow_color: Color
 
 	match current_mode:
 		"reparacion":
 			spoke_count = 8
 			web_color = Color(0.85, 0.08, 0.32, 0.16)
-			glow_color = Color(0.65, 0.05, 0.45, 0.08)
 			for i in range(spoke_count):
 				spoke_angles.append(float(i) * TAU / 8.0)
 		"sistema":
 			spoke_count = 8
 			web_color = Color(0.08, 0.35, 0.88, 0.22)
-			glow_color = Color(0.03, 0.16, 0.65, 0.12)
 			for i in range(spoke_count):
 				spoke_angles.append(float(i) * TAU / 8.0 + PI * 0.125)
 		"servidor":
 			spoke_count = 12
 			web_color = Color(1.0, 0.52, 0.08, 0.24)
-			glow_color = Color(0.85, 0.3, 0.02, 0.12)
 			for i in range(spoke_count):
 				spoke_angles.append(float(i) * TAU / 12.0)
 		_:
 			spoke_count = 8
 			web_color = Color(0.85, 0.08, 0.32, 0.16)
-			glow_color = Color(0.65, 0.05, 0.45, 0.08)
 			for i in range(spoke_count):
 				spoke_angles.append(float(i) * TAU / 8.0)
 
-	# 1. Filamentos radiales proyectados desde el núcleo tutorial hacia el perímetro
+	# 2. Filamentos radiales batcheados en multiline
+	var spoke_lines = PackedVector2Array()
 	for ang in spoke_angles:
 		var dir = Vector2(cos(ang), sin(ang))
 		var end_pt = hub + dir * 680.0
-		draw_line(hub, end_pt, glow_color, 2.5)
-		draw_line(hub, end_pt, web_color, 1.0)
+		spoke_lines.append(hub)
+		spoke_lines.append(end_pt)
+	if not spoke_lines.is_empty():
+		draw_multiline(spoke_lines, web_color, 1.0)
 
-	# 2. Anillos concéntricos poligonales de la telaraña con oscilación viva
+	# 3. Anillos concéntricos poligonales de la telaraña con oscilación viva
 	for r_idx in range(web_radii.size()):
 		var base_r = web_radii[r_idx]
 		var wave_osc = sin(anim_offset * 1.6 + float(r_idx) * 1.1) * 2.2
@@ -955,11 +857,7 @@ func _draw_spiderweb_background(w: float, h: float, hub: Vector2) -> void:
 			ring_pts.append(hub + dir * cur_r)
 		ring_pts.append(ring_pts[0])
 
-		draw_polyline(ring_pts, glow_color, 3.2, false)
-		draw_polyline(ring_pts, web_color, 1.2, false)
-
-		for pt in ring_pts:
-			draw_circle(pt, 1.8, Color(web_color.r, web_color.g, web_color.b, 0.35))
+		draw_polyline(ring_pts, web_color, 1.0, false)
 
 # =============================================================================
 # MICRO-ANIMACIÓN DE TRANSICIÓN ESPECÍFICA POR TELARAÑA AL CAMBIAR DE MODO
@@ -1057,43 +955,22 @@ func _draw_transition_effect(hub: Vector2, w: float, h: float) -> void:
 # =============================================================================
 func _draw_circuit_line(p1: Vector2, p2: Vector2, alpha: float, seed_val: int, is_primary_root: bool = false, is_practice_link: bool = false) -> void:
 	if is_primary_root:
-		# RAÍZ PRINCIPAL (TUTORIAL -> NIVEL 1): Doble intensidad y filamento dorado/cian
-		draw_line(p1, p2, Color(0.0, 0.65, 1.0, 0.4 * alpha), 6.5)
-		draw_line(p1, p2, Color(0.2, 0.9, 1.0, alpha), 2.8)
-		draw_line(p1, p2, Color(1.0, 1.0, 1.0, alpha * 0.85), 1.2)
+		# RAÍZ PRINCIPAL (TUTORIAL -> NIVEL 1): Filamento cian/azul luminoso
+		draw_line(p1, p2, Color(0.0, 0.65, 1.0, 0.35 * alpha), 3.5)
+		draw_line(p1, p2, Color(0.4, 0.95, 1.0, alpha), 1.2)
 		
 		var packet_t1 = fmod(anim_offset * 1.2 + float(seed_val) * 0.14, 1.0)
 		var packet_pos1 = p1.lerp(p2, packet_t1)
-		draw_circle(packet_pos1, 4.0, Color(0.0, 0.9, 1.0, min(1.0, alpha * 1.8)))
-		draw_circle(packet_pos1, 2.0, Color.WHITE)
+		draw_circle(packet_pos1, 3.5, Color(0.0, 0.9, 1.0, min(1.0, alpha * 1.8)))
+		draw_circle(packet_pos1, 1.8, Color.WHITE)
 	elif is_practice_link:
 		# ENLACE DE PRÁCTICA (TUTORIAL / NIVEL 1 -> SALA DE PRÁCTICA): Naranja Neón brillante
-		draw_line(p1, p2, Color(1.0, 0.45, 0.0, 0.35 * alpha), 6.0)
-		draw_line(p1, p2, Color(1.0, 0.60, 0.1, alpha), 2.6)
-		draw_line(p1, p2, Color(1.0, 0.90, 0.5, alpha * 0.85), 1.2)
+		draw_line(p1, p2, Color(1.0, 0.45, 0.0, 0.30 * alpha), 3.5)
+		draw_line(p1, p2, Color(1.0, 0.70, 0.2, alpha), 1.2)
 		
 		var packet_tp = fmod(anim_offset * 1.0 + float(seed_val) * 0.14, 1.0)
 		var packet_posp = p1.lerp(p2, packet_tp)
-		draw_circle(packet_posp, 4.0, Color(1.0, 0.55, 0.05, min(1.0, alpha * 1.8)))
-		draw_circle(packet_posp, 2.0, Color.WHITE)
+		draw_circle(packet_posp, 3.5, Color(1.0, 0.55, 0.05, min(1.0, alpha * 1.8)))
+		draw_circle(packet_posp, 1.8, Color.WHITE)
 	else:
-		if current_mode == "sistema":
-			# Glow exterior azul oscuro
-			draw_line(p1, p2, Color(0.03, 0.15, 0.55, 0.32 * alpha), 4.5)
-			# Pista central cyber blue
-			draw_line(p1, p2, Color(0.12, 0.48, 0.95, alpha), 1.8)
-		elif current_mode == "servidor":
-			# Glow exterior naranja profundo
-			draw_line(p1, p2, Color(0.55, 0.2, 0.0, 0.35 * alpha), 4.5)
-			# Pista central naranja neón
-			draw_line(p1, p2, Color(1.0, 0.55, 0.1, alpha), 1.8)
-		else:
-			# Glow exterior estándar magenta
-			draw_line(p1, p2, Color(0.48, 0.05, 0.70, 0.28 * alpha), 4.5)
-			# Pista central carmesí neón
-			draw_line(p1, p2, Color(1.0, 0.12, 0.38, alpha), 1.8)
-		
-		var packet_t = fmod(anim_offset * 0.75 + float(seed_val) * 0.14, 1.0)
-		var packet_pos = p1.lerp(p2, packet_t)
-		draw_circle(packet_pos, 2.6, Color(1.0, 0.3, 0.65, min(1.0, alpha * 1.6)))
-		draw_circle(packet_pos, 1.2, Color(1.0, 1.0, 1.0, min(1.0, alpha * 1.6)))
+		draw_line(p1, p2, Color(1.0, 1.0, 1.0, 0.4 * alpha), 1.0)

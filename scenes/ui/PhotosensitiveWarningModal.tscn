@@ -1,0 +1,182 @@
+[gd_scene format=3 load_steps=8]
+
+[ext_resource type="Script" path="res://scripts/ui/PhotosensitiveWarningModal.gd" id="1_script"]
+[ext_resource type="FontFile" uid="uid://dbcug8887dro7" path="res://assets/fonts/Bungee-Regular.ttf" id="2_bungee"]
+[ext_resource type="FontFile" uid="uid://brgrovhedx2am" path="res://assets/fonts/JetBrainsMono-Bold.ttf" id="3_mono_bold"]
+[ext_resource type="FontFile" uid="uid://bo3ax66jib17l" path="res://assets/fonts/JetBrainsMono-Regular.ttf" id="4_mono_reg"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
+content_margin_left = 32.0
+content_margin_top = 28.0
+content_margin_right = 32.0
+content_margin_bottom = 28.0
+bg_color = Color(0.04, 0.02, 0.08, 0.96)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.7, 0.1, 0.9)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+shadow_color = Color(1, 0.6, 0.05, 0.25)
+shadow_size = 18
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_toggle"]
+content_margin_left = 18.0
+content_margin_top = 10.0
+content_margin_right = 18.0
+content_margin_bottom = 10.0
+bg_color = Color(0.12, 0.06, 0.02, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 0.75, 0.2, 0.8)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_continue"]
+content_margin_left = 24.0
+content_margin_top = 12.0
+content_margin_right = 24.0
+content_margin_bottom = 12.0
+bg_color = Color(0.03, 0.25, 0.35, 0.9)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0, 0.95, 1, 0.95)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+shadow_color = Color(0, 0.95, 1, 0.35)
+shadow_size = 8
+
+[node name="PhotosensitiveWarningModal" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+script = ExtResource("1_script")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.015, 0.01, 0.03, 0.88)
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="CenterContainer"]
+custom_minimum_size = Vector2(720, 0)
+layout_mode = 2
+pivot_offset = Vector2(360, 240)
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="Margin" type="MarginContainer" parent="CenterContainer/PanelContainer"]
+layout_mode = 2
+
+[node name="VBox" type="VBoxContainer" parent="CenterContainer/PanelContainer/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Header" type="VBoxContainer" parent="CenterContainer/PanelContainer/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Badge" type="Label" parent="CenterContainer/PanelContainer/Margin/VBox/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.75, 0.15, 1)
+theme_override_fonts/font = ExtResource("3_mono_bold")
+theme_override_font_sizes/font_size = 11
+text = "[ ⚠️ AVISO DE SALUD Y ACCESIBILIDAD // SEGURIDAD VISUAL ]"
+horizontal_alignment = 1
+
+[node name="Title" type="Label" parent="CenterContainer/PanelContainer/Margin/VBox/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.25, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_fonts/font = ExtResource("2_bungee")
+theme_override_font_sizes/font_size = 20
+text = "ADVERTENCIA DE FOTOSENSIBILIDAD"
+horizontal_alignment = 1
+
+[node name="Subtitle" type="Label" parent="CenterContainer/PanelContainer/Margin/VBox/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.8, 0.65, 0.8)
+theme_override_fonts/font = ExtResource("4_mono_reg")
+theme_override_font_sizes/font_size = 10
+text = "// PREVENCIÓN CONTRA LUCES CONTINUAS Y CONTRASTES //"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="CenterContainer/PanelContainer/Margin/VBox"]
+layout_mode = 2
+
+[node name="BodyLabel" type="Label" parent="CenterContainer/PanelContainer/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.92, 0.96, 0.92)
+theme_override_fonts/font = ExtResource("4_mono_reg")
+theme_override_font_sizes/font_size = 12
+text = "Este videojuego contiene luces continuas, destellos de alto contraste, efectos de neón y patrones visuales que pueden afectar a personas con fotosensibilidad o predisposición a fatiga visual y epilepsia reflexiva.
+
+Por prevención, cuentas con un MODO FOTOSENSIBILIDAD para reducir luces continuas, eliminar destellos repentinos y suavizar la saturación general de colores.
+
+Por defecto permanece desactivado (juego estándar). Puedes activarlo a continuación o en cualquier momento desde Configuración."
+autowrap_mode = 2
+
+[node name="ToggleRow" type="VBoxContainer" parent="CenterContainer/PanelContainer/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="BtnToggleMode" type="Button" parent="CenterContainer/PanelContainer/Margin/VBox/ToggleRow"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_override_fonts/font = ExtResource("3_mono_bold")
+theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_toggle")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_toggle")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_toggle")
+text = "MODO FOTOSENSIBLE: [ DESACTIVADO (Por defecto) ]"
+
+[node name="LblStatus" type="Label" parent="CenterContainer/PanelContainer/Margin/VBox/ToggleRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.75, 0.85, 0.75)
+theme_override_fonts/font = ExtResource("4_mono_reg")
+theme_override_font_sizes/font_size = 10
+text = "Efectos visuales e iluminación originales activos"
+horizontal_alignment = 1
+
+[node name="Footer" type="HBoxContainer" parent="CenterContainer/PanelContainer/Margin/VBox"]
+layout_mode = 2
+alignment = 1
+
+[node name="BtnContinuar" type="Button" parent="CenterContainer/PanelContainer/Margin/VBox/Footer"]
+custom_minimum_size = Vector2(300, 44)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_override_colors/font_color = Color(0.1, 1, 0.9, 1)
+theme_override_fonts/font = ExtResource("3_mono_bold")
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_continue")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_continue")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_continue")
+text = "✓ [ ENTENDIDO · CONTINUAR ]"

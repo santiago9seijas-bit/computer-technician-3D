@@ -593,7 +593,7 @@ expand_icon = true
 
 [node name="ConfigPanel" type="PanelContainer" parent="." unique_id=1264065880]
 visible = false
-custom_minimum_size = Vector2(800, 540)
+custom_minimum_size = Vector2(800, 580)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -778,6 +778,54 @@ theme_override_colors/font_focus_color = Color(0, 0, 0, 0)
 theme_override_colors/font_pressed_color = Color(0, 0, 0, 0)
 theme_override_colors/font_hover_color = Color(0, 0, 0, 0)
 text = "ESTADO: [ ALTA DEFINICIÓN ]"
+flat = true
+script = ExtResource("14_cbtn")
+slant = 12.0
+
+[node name="ConsumoRow" type="HBoxContainer" parent="ConfigPanel/Margin/VBox/OptionsVBox" unique_id=987654321]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Lbl" type="Label" parent="ConfigPanel/Margin/VBox/OptionsVBox/ConsumoRow" unique_id=987654322]
+custom_minimum_size = Vector2(230, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 13
+text = "CONSUMO"
+
+[node name="BtnConsumo" type="Button" parent="ConfigPanel/Margin/VBox/OptionsVBox/ConsumoRow" unique_id=987654323]
+custom_minimum_size = Vector2(320, 38)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0, 0, 0, 0)
+theme_override_colors/font_focus_color = Color(0, 0, 0, 0)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 0)
+theme_override_colors/font_hover_color = Color(0, 0, 0, 0)
+text = "ESTADO: [ OFF ]"
+flat = true
+script = ExtResource("14_cbtn")
+slant = 12.0
+
+[node name="FotosensibleRow" type="HBoxContainer" parent="ConfigPanel/Margin/VBox/OptionsVBox" unique_id=987654330]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Lbl" type="Label" parent="ConfigPanel/Margin/VBox/OptionsVBox/FotosensibleRow" unique_id=987654331]
+custom_minimum_size = Vector2(230, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 13
+text = "FOTOSENSIBILIDAD"
+
+[node name="BtnFotosensible" type="Button" parent="ConfigPanel/Margin/VBox/OptionsVBox/FotosensibleRow" unique_id=987654332]
+custom_minimum_size = Vector2(320, 38)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0, 0, 0, 0)
+theme_override_colors/font_focus_color = Color(0, 0, 0, 0)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 0)
+theme_override_colors/font_hover_color = Color(0, 0, 0, 0)
+text = "ESTADO: [ OFF ]"
 flat = true
 script = ExtResource("14_cbtn")
 slant = 12.0

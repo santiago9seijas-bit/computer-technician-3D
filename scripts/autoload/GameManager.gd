@@ -12,6 +12,9 @@ signal spares_repopulated()
 signal pause_state_changed(is_paused: bool)
 signal difficulty_changed(new_difficulty: String)
 signal examination_points_updated(current_pts: int, max_pts: int, recharge_progress: int)
+signal hardware_monitor_changed(enabled: bool)
+signal photosensitive_mode_changed(enabled: bool)
+signal settings_loaded()
 
 # Sistema de Dificultad: "brutal" (10 min), "dificil" (15 min), "normal" (20 min), "facil" (25 min)
 const DIFFICULTY_TIMES: Dictionary = {
@@ -22,6 +25,8 @@ const DIFFICULTY_TIMES: Dictionary = {
 }
 
 var current_difficulty: String = "normal"
+var current_mode: String = "reparacion"
+var santiago_esc_count: int = 0
 
 func set_difficulty(diff: String) -> void:
 	var lower = diff.to_lower().strip_edges()
@@ -76,6 +81,11 @@ var spares_stock: Dictionary = {
 # Estado de pausa y configuración
 var is_game_paused: bool = false
 var mouse_sensitivity_multiplier: float = 1.0
+var master_volume: float = 100.0
+var sfx_volume: float = 100.0
+var performance_mode: bool = false
+var show_hardware_monitor: bool = false # Consumo / Monitor en off por defecto
+var photosensitive_mode: bool = false # Modo prevención fotosensible en off por defecto
 
 # Sistema de Puntos de Examinación (Diagnóstico de Hardware)
 const MAX_EXAMINATION_POINTS: int = 4
@@ -101,12 +111,171 @@ func notify_piece_repaired(custom_pos: Vector2 = Vector2.ZERO) -> void:
 			spawn_floating_text("🔍 +1 PUNTO DE EXAMINACIÓN", true, custom_pos)
 	examination_points_updated.emit(examination_points, MAX_EXAMINATION_POINTS, pieces_repaired_since_recharge)
 
+# Seguimiento de modales abiertos para optimizar comprobaciones sin find_child recursivo
+var _open_modals_set: Dictionary = {}
+
+func register_modal_opened(modal_node: Node) -> void:
+	if modal_node:
+		_open_modals_set[modal_node] = true
+
+func register_modal_closed(modal_node: Node) -> void:
+	if modal_node:
+		_open_modals_set.erase(modal_node)
+
+func is_any_modal_open() -> bool:
+	for node in _open_modals_set.keys():
+		if is_instance_valid(node) and (not ("visible" in node) or node.visible):
+			return true
+	return false
+
+# Capas globales de UI
 var feedback_canvas_layer: CanvasLayer = null
 var feedback_container: Control = null
+var hardware_monitor_layer: CanvasLayer = null
+var hardware_monitor_instance: Control = null
+
+const SETTINGS_FILE_PATH: String = "user://settings.cfg"
+const HARDWARE_MONITOR_SCENE: PackedScene = preload("res://scenes/ui/HardwareMonitorOverlay.tscn")
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_setup_feedback_layer()
+	_setup_hardware_monitor_layer()
+	load_settings()
+	get_tree().node_added.connect(func(n: Node):
+		if photosensitive_mode and n is WorldEnvironment and n.environment:
+			n.environment.glow_enabled = false
+	)
+
+func _setup_hardware_monitor_layer() -> void:
+	if hardware_monitor_layer != null:
+		return
+	hardware_monitor_layer = CanvasLayer.new()
+	hardware_monitor_layer.name = "HardwareMonitorLayer"
+	hardware_monitor_layer.layer = 126 # Muy alta prioridad pero debajo de feedback
+	add_child(hardware_monitor_layer)
+
+	hardware_monitor_instance = HARDWARE_MONITOR_SCENE.instantiate()
+	hardware_monitor_instance.visible = show_hardware_monitor
+	hardware_monitor_instance.set_process(show_hardware_monitor)
+	hardware_monitor_layer.add_child(hardware_monitor_instance)
+
+func set_hardware_monitor_enabled(enabled: bool) -> void:
+	show_hardware_monitor = enabled
+	if hardware_monitor_instance:
+		hardware_monitor_instance.visible = enabled
+		hardware_monitor_instance.set_process(enabled)
+	hardware_monitor_changed.emit(show_hardware_monitor)
+
+func toggle_hardware_monitor() -> bool:
+	set_hardware_monitor_enabled(!show_hardware_monitor)
+	return show_hardware_monitor
+
+func is_hardware_monitor_enabled() -> bool:
+	return show_hardware_monitor
+
+func set_photosensitive_mode(enabled: bool) -> void:
+	photosensitive_mode = enabled
+	photosensitive_mode_changed.emit(photosensitive_mode)
+	_apply_photosensitive_mode()
+	save_settings()
+
+func toggle_photosensitive_mode() -> bool:
+	set_photosensitive_mode(!photosensitive_mode)
+	return photosensitive_mode
+
+func is_photosensitive_mode_enabled() -> bool:
+	return photosensitive_mode
+
+func _apply_photosensitive_mode() -> void:
+	var tree = get_tree()
+	if not tree or not tree.root:
+		return
+	_update_environments_recursive(tree.root)
+
+func _update_environments_recursive(node: Node) -> void:
+	if node is WorldEnvironment and node.environment:
+		var env = node.environment
+		if photosensitive_mode:
+			env.glow_enabled = false
+		else:
+			env.glow_enabled = true
+			env.glow_bloom = 0.08
+			env.glow_intensity = 0.75
+	for child in node.get_children():
+		_update_environments_recursive(child)
+
+func set_performance_mode(enabled: bool) -> void:
+	performance_mode = enabled
+	var vp = get_viewport()
+	if vp:
+		if performance_mode:
+			# Modo Rendimiento Suave: escala 3D a 0.85 y menor carga de filtrado
+			vp.scaling_3d_mode = Viewport.SCALING_3D_MODE_BILINEAR
+			vp.scaling_3d_scale = 0.85
+			RenderingServer.viewport_set_msaa_3d(vp.get_viewport_rid(), RenderingServer.VIEWPORT_MSAA_DISABLED)
+		else:
+			# Modo Alta Definición nativo
+			vp.scaling_3d_mode = Viewport.SCALING_3D_MODE_BILINEAR
+			vp.scaling_3d_scale = 1.0
+			RenderingServer.viewport_set_msaa_3d(vp.get_viewport_rid(), RenderingServer.VIEWPORT_MSAA_2X)
+	save_settings()
+
+func set_mouse_sensitivity(multiplier: float) -> void:
+	mouse_sensitivity_multiplier = clampf(multiplier, 0.1, 4.0)
+	save_settings()
+
+func set_master_volume_val(val: float) -> void:
+	master_volume = clampf(val, 0.0, 100.0)
+	var bus = AudioServer.get_bus_index("Master")
+	if bus >= 0:
+		AudioServer.set_bus_volume_db(bus, linear_to_db(max(master_volume / 100.0, 0.0001)))
+	save_settings()
+
+func set_sfx_volume_val(val: float) -> void:
+	sfx_volume = clampf(val, 0.0, 100.0)
+	var bus = AudioServer.get_bus_index("SFX")
+	if bus >= 0:
+		AudioServer.set_bus_volume_db(bus, linear_to_db(max(sfx_volume / 100.0, 0.0001)))
+	save_settings()
+
+func load_settings() -> void:
+	var cfg = ConfigFile.new()
+	var err = cfg.load(SETTINGS_FILE_PATH)
+	if err == OK:
+		# El monitor de consumo SIEMPRE inicia desactivado (OFF) por defecto en cada sesión
+		show_hardware_monitor = false
+		photosensitive_mode = cfg.get_value("accessibility", "photosensitive_mode", false)
+		performance_mode = cfg.get_value("graphics", "performance_mode", false)
+		master_volume = cfg.get_value("audio", "master_volume", 100.0)
+		sfx_volume = cfg.get_value("audio", "sfx_volume", 100.0)
+		mouse_sensitivity_multiplier = cfg.get_value("controls", "mouse_sensitivity", 1.0)
+	else:
+		show_hardware_monitor = false
+		photosensitive_mode = false
+		performance_mode = false
+		master_volume = 100.0
+		sfx_volume = 100.0
+		mouse_sensitivity_multiplier = 1.0
+
+	# Aplicar volumen cargado
+	set_master_volume_val(master_volume)
+	set_sfx_volume_val(sfx_volume)
+	set_performance_mode(performance_mode)
+	_apply_photosensitive_mode()
+	if hardware_monitor_instance:
+		hardware_monitor_instance.visible = false
+		hardware_monitor_instance.set_process(false)
+	settings_loaded.emit()
+
+func save_settings() -> void:
+	var cfg = ConfigFile.new()
+	cfg.set_value("accessibility", "photosensitive_mode", photosensitive_mode)
+	cfg.set_value("graphics", "performance_mode", performance_mode)
+	cfg.set_value("audio", "master_volume", master_volume)
+	cfg.set_value("audio", "sfx_volume", sfx_volume)
+	cfg.set_value("controls", "mouse_sensitivity", mouse_sensitivity_multiplier)
+	cfg.save(SETTINGS_FILE_PATH)
 
 func _setup_feedback_layer() -> void:
 	if feedback_canvas_layer != null:

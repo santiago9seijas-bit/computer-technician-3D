@@ -26,6 +26,74 @@ func _ready() -> void:
 			finish_pressed.emit()
 		)
 
+func setup_mode(mode: String) -> void:
+	var title_label = get_node_or_null("CardModal/Margin/VBox/Title") as Label
+	var desc_label = get_node_or_null("CardModal/Margin/VBox/Description") as Label
+	var badge_ram = get_node_or_null("CardModal/Margin/VBox/BadgesContainer/Margin/HBox/BadgeRAM")
+	var badge_ssd = get_node_or_null("CardModal/Margin/VBox/BadgesContainer/Margin/HBox/BadgeSSD")
+	var badge_psu = get_node_or_null("CardModal/Margin/VBox/BadgesContainer/Margin/HBox/BadgePSU")
+	
+	if mode == "sistema":
+		if title_label:
+			title_label.text = "¡FELICIDADES COMPLETASTE EL TUTORIAL DE SISTEMAS!"
+		if desc_label:
+			desc_label.text = "¡Has dominado la instalación del sistema operativo, el escaneo de ciberdefensa y la gestión de controladores!"
+		if badge_ram:
+			var t = badge_ram.get_node_or_null("Title") as Label
+			var d = badge_ram.get_node_or_null("Desc") as Label
+			if t: t.text = "💿 SISTEMA OPERATIVO"
+			if d: d.text = "Partición GPT & Andromeda OS"
+		if badge_ssd:
+			var t = badge_ssd.get_node_or_null("Title") as Label
+			var d = badge_ssd.get_node_or_null("Desc") as Label
+			if t: t.text = "🛡️ CIBERDEFENSA"
+			if d: d.text = "Escaneo ClamAV Heurístico"
+		if badge_psu:
+			var t = badge_psu.get_node_or_null("Title") as Label
+			var d = badge_psu.get_node_or_null("Desc") as Label
+			if t: t.text = "⚙️ CONTROLADORES"
+			if d: d.text = "Drivers WHQL & Kernel OK"
+	elif mode == "servidor":
+		if title_label:
+			title_label.text = "¡FELICIDADES COMPLETASTE EL TUTORIAL DE SERVIDOR!"
+		if desc_label:
+			desc_label.text = "¡Has dominado la programación de servidores y el montaje de refrigeración líquida enterprise!"
+		if badge_ram:
+			var t = badge_ram.get_node_or_null("Title") as Label
+			var d = badge_ram.get_node_or_null("Desc") as Label
+			if t: t.text = "💻 CÓDIGO DAEMON"
+			if d: d.text = "Depuración de Bugs en Código"
+		if badge_ssd:
+			var t = badge_ssd.get_node_or_null("Title") as Label
+			var d = badge_ssd.get_node_or_null("Desc") as Label
+			if t: t.text = "❄️ REFRIGERACIÓN"
+			if d: d.text = "Loop Líquido & Cero Fugas"
+		if badge_psu:
+			var t = badge_psu.get_node_or_null("Title") as Label
+			var d = badge_psu.get_node_or_null("Desc") as Label
+			if t: t.text = "🌐 RACK OPERATIVO"
+			if d: d.text = "Datacenter 100% Online"
+	else:
+		if title_label:
+			title_label.text = "¡FELICIDADES COMPLETASTE EL TUTORIAL!"
+		if desc_label:
+			desc_label.text = "¡Has completado con éxito el entrenamiento de diagnóstico e instalación de hardware!"
+		if badge_ram:
+			var t = badge_ram.get_node_or_null("Title") as Label
+			var d = badge_ram.get_node_or_null("Desc") as Label
+			if t: t.text = "🧠 MEMORIA RAM"
+			if d: d.text = "Desbloqueo & Montaje OK"
+		if badge_ssd:
+			var t = badge_ssd.get_node_or_null("Title") as Label
+			var d = badge_ssd.get_node_or_null("Desc") as Label
+			if t: t.text = "💾 ALMACENAMIENTO SSD"
+			if d: d.text = "Pines, Tornillo & Ranura OK"
+		if badge_psu:
+			var t = badge_psu.get_node_or_null("Title") as Label
+			var d = badge_psu.get_node_or_null("Desc") as Label
+			if t: t.text = "⚡ FUENTE DE PODER"
+			if d: d.text = "Arnés ATX & CPU OK"
+
 func open() -> void:
 	visible = true
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE

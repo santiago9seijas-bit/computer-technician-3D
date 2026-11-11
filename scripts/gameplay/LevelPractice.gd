@@ -106,4 +106,8 @@ func _on_reintentar() -> void:
 
 func _on_siguiente() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-	CyberPlayTransition.play_exit(get_tree(), "practica")
+	var gm = get_node_or_null("/root/GameManager")
+	var m = gm.current_mode if gm and "current_mode" in gm else "reparacion"
+	LevelSelect.initial_tab = "niveles"
+	LevelSelect.initial_mode = m
+	CyberPlayTransition.play_exit(get_tree(), m)

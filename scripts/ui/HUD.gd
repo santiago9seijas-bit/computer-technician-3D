@@ -1,12 +1,15 @@
 extends Control
 
+@onready var top_left_container: Control = $TopLeft
 @onready var lbl_errores: Label = $TopLeft/LblErrores
 @onready var lbl_tiempo: Label = $TopCenter/LblTiempo
 @onready var lbl_puntaje: Label = $BottomLeft/LblPuntaje
+@onready var top_right_panel: PanelContainer = $TopRight
 @onready var backpack_container: VBoxContainer = $TopRight/BackpackContainer
 @onready var falla_solucionada_hud: Label = $FallaSolucionadaHUD
 @onready var prompt_label: Label = $Center/PromptLabel
 @onready var stamina_bar: Control = $Center/CurvedStaminaBar
+@onready var bottom_center_panel: PanelContainer = $BottomCenter
 @onready var tools_bar: HBoxContainer = $BottomCenter/ToolsBar
 @onready var floating_feedback_container: Control = $FloatingFeedback
 @onready var game_over_dim: ColorRect = get_node_or_null("GameOverDim")
@@ -21,6 +24,14 @@ var optic_text_label: Label = null
 var is_cinematic_active: bool = false
 var is_infinite_time: bool = false
 
+# Animación y estado deslizante de la mochila
+var _tw_backpack: Tween = null
+var _backpack_is_shown: bool = false
+const BACKPACK_RESTING_LEFT: float = -260.0
+const BACKPACK_RESTING_RIGHT: float = -30.0
+const BACKPACK_HIDDEN_LEFT: float = 30.0
+const BACKPACK_HIDDEN_RIGHT: float = 260.0
+
 func set_infinite_time(enabled: bool = true) -> void:
 	is_infinite_time = enabled
 	if is_infinite_time and lbl_tiempo:
@@ -28,6 +39,7 @@ func set_infinite_time(enabled: bool = true) -> void:
 		lbl_tiempo.modulate = Color(0, 0.9, 1, 1)
 
 func _ready() -> void:
+	set_process(false) # Optimización: no ejecutar _process en cada frame innecesariamente
 	if game_over_dim:
 		game_over_dim.visible = false
 	game_over_panel.visible = false
@@ -43,8 +55,13 @@ func _ready() -> void:
 		gm.tool_selected.connect(_on_tool_selected)
 		gm.game_over_triggered.connect(_on_game_over)
 		gm.level_completed.connect(_on_level_won)
+		if gm.has_signal("hardware_monitor_changed"):
+			gm.hardware_monitor_changed.connect(_on_hardware_monitor_changed)
+			if gm.has_method("is_hardware_monitor_enabled"):
+				_on_hardware_monitor_changed(gm.is_hardware_monitor_enabled())
 	
-	_update_backpack_ui([])
+	var init_items: Array = gm.backpack if gm and "backpack" in gm else []
+	_update_backpack_ui(init_items, false)
 	_update_tools_ui(0)
 	_create_cinematic_overlay()
 	
@@ -219,19 +236,16 @@ func _on_error_occurred(new_errors: int, _delta: int) -> void:
 	lbl_errores.text = "Errores: %d / 20" % new_errors
 
 func _on_backpack_updated(items: Array) -> void:
-	_update_backpack_ui(items)
+	_update_backpack_ui(items, true)
 
-func _update_backpack_ui(items: Array) -> void:
+func _update_backpack_ui(items: Array, animate: bool = true) -> void:
 	# Limpiar slots viejos
 	for child in backpack_container.get_children():
 		if child.name != "TituloMochila":
 			child.queue_free()
 	
 	if items.is_empty():
-		var empty_lbl = Label.new()
-		empty_lbl.text = "[ Vacía - 0/3 ]"
-		empty_lbl.modulate = Color(0.6, 0.6, 0.6, 0.8)
-		backpack_container.add_child(empty_lbl)
+		_set_backpack_visible(false, animate)
 	else:
 		for i in range(items.size()):
 			var item = items[i]
@@ -249,6 +263,68 @@ func _update_backpack_ui(items: Array) -> void:
 					g.selected_backpack_index = i
 			)
 			backpack_container.add_child(btn)
+		_set_backpack_visible(true, animate)
+
+func _set_backpack_visible(show_it: bool, animate: bool = true) -> void:
+	if not top_right_panel:
+		return
+	if _tw_backpack and _tw_backpack.is_valid():
+		_tw_backpack.kill()
+
+	if show_it:
+		top_right_panel.visible = true
+		if not _backpack_is_shown:
+			_backpack_is_shown = true
+			if animate:
+				top_right_panel.offset_left = BACKPACK_HIDDEN_LEFT
+				top_right_panel.offset_right = BACKPACK_HIDDEN_RIGHT
+				top_right_panel.modulate.a = 0.0
+				_tw_backpack = create_tween().set_parallel(true)
+				_tw_backpack.tween_property(top_right_panel, "offset_left", BACKPACK_RESTING_LEFT, 0.38).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+				_tw_backpack.tween_property(top_right_panel, "offset_right", BACKPACK_RESTING_RIGHT, 0.38).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+				_tw_backpack.tween_property(top_right_panel, "modulate:a", 1.0, 0.25)
+			else:
+				top_right_panel.offset_left = BACKPACK_RESTING_LEFT
+				top_right_panel.offset_right = BACKPACK_RESTING_RIGHT
+				top_right_panel.modulate.a = 1.0
+	else:
+		if _backpack_is_shown:
+			_backpack_is_shown = false
+			if animate:
+				_tw_backpack = create_tween().set_parallel(true)
+				_tw_backpack.tween_property(top_right_panel, "offset_left", BACKPACK_HIDDEN_LEFT, 0.28).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+				_tw_backpack.tween_property(top_right_panel, "offset_right", BACKPACK_HIDDEN_RIGHT, 0.28).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+				_tw_backpack.tween_property(top_right_panel, "modulate:a", 0.0, 0.22)
+				_tw_backpack.chain().tween_callback(func():
+					if not _backpack_is_shown and top_right_panel:
+						top_right_panel.visible = false
+				)
+			else:
+				top_right_panel.visible = false
+				top_right_panel.offset_left = BACKPACK_HIDDEN_LEFT
+				top_right_panel.offset_right = BACKPACK_HIDDEN_RIGHT
+				top_right_panel.modulate.a = 0.0
+		else:
+			top_right_panel.visible = false
+			top_right_panel.offset_left = BACKPACK_HIDDEN_LEFT
+			top_right_panel.offset_right = BACKPACK_HIDDEN_RIGHT
+			top_right_panel.modulate.a = 0.0
+
+func set_visible_tools(count: int) -> void:
+	if not tools_bar:
+		return
+	if bottom_center_panel:
+		bottom_center_panel.visible = (count > 0)
+	for i in range(tools_bar.get_child_count()):
+		var btn = tools_bar.get_child(i) as Control
+		if btn:
+			btn.visible = (i < count)
+
+func set_tools_bar_visible(enabled: bool) -> void:
+	if bottom_center_panel:
+		bottom_center_panel.visible = enabled
+	elif tools_bar:
+		tools_bar.visible = enabled
 
 func _on_tool_selected(tool_id: int) -> void:
 	_update_tools_ui(tool_id)
@@ -264,6 +340,13 @@ func _update_tools_ui(active_tool: int) -> void:
 				btn.modulate = Color(0, 1, 0.8, 1) # Seleccionada
 			else:
 				btn.modulate = Color(0.7, 0.7, 0.7, 0.7)
+
+func _on_hardware_monitor_changed(is_enabled: bool) -> void:
+	if not top_left_container:
+		return
+	var target_y = 175.0 if is_enabled else 20.0
+	var tw = create_tween()
+	tw.tween_property(top_left_container, "position:y", target_y, 0.25).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 
 func _spawn_floating_text(text: String, is_positive: bool, custom_origin: Vector2 = Vector2.ZERO) -> void:
 	var gm = get_node_or_null("/root/GameManager")

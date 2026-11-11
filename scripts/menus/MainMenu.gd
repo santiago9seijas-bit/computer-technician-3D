@@ -35,9 +35,13 @@ extends Control
 @onready var slider_sens: HSlider = $ConfigPanel/Margin/VBox/OptionsVBox/MouseSensRow/SliderSens
 @onready var lbl_sens_val: Label = $ConfigPanel/Margin/VBox/OptionsVBox/MouseSensRow/LblVal
 @onready var btn_holo: Button = $ConfigPanel/Margin/VBox/OptionsVBox/HoloRow/BtnHolo
+@onready var btn_consumo: Button = $ConfigPanel/Margin/VBox/OptionsVBox/ConsumoRow/BtnConsumo
+@onready var btn_fotosensible: Button = get_node_or_null("ConfigPanel/Margin/VBox/OptionsVBox/FotosensibleRow/BtnFotosensible")
 
 var LevelSelectScript = preload("res://scripts/menus/LevelSelect.gd")
 var arcade_scene: PackedScene = preload("res://scenes/minigames/MalwareInvadersMinigame.tscn")
+const WARNING_MODAL_SCENE: PackedScene = preload("res://scenes/ui/PhotosensitiveWarningModal.tscn")
+static var warning_shown_this_boot: bool = false
 
 const KONAMI_CODE: Array[String] = ["up", "up", "down", "down", "left", "right", "left", "right", "b", "a"]
 var konami_buffer: Array[String] = []
@@ -96,6 +100,10 @@ func _ready() -> void:
 	)
 	
 	_setup_configuration_controls()
+	
+	if not warning_shown_this_boot:
+		warning_shown_this_boot = true
+		_show_photosensitive_warning()
 
 func _input(event: InputEvent) -> void:
 	if active_panel != null or is_transitioning or get_tree().root.has_node("MalwareInvadersMinigame"):
@@ -366,20 +374,19 @@ func _close_active_subview() -> void:
 # =============================================================================
 func _setup_configuration_controls() -> void:
 	if slider_master:
-		slider_master.value = 100.0
-		lbl_master_val.text = "100%"
+		slider_master.value = GameManager.master_volume
+		lbl_master_val.text = "%d%%" % int(GameManager.master_volume)
 		slider_master.value_changed.connect(func(val: float):
 			lbl_master_val.text = "%d%%" % int(val)
-			var bus = AudioServer.get_bus_index("Master")
-			if bus >= 0:
-				AudioServer.set_bus_volume_db(bus, linear_to_db(max(val / 100.0, 0.0001)))
+			GameManager.set_master_volume_val(val)
 		)
 		
 	if slider_sfx:
-		slider_sfx.value = 100.0
-		lbl_sfx_val.text = "100%"
+		slider_sfx.value = GameManager.sfx_volume
+		lbl_sfx_val.text = "%d%%" % int(GameManager.sfx_volume)
 		slider_sfx.value_changed.connect(func(val: float):
 			lbl_sfx_val.text = "%d%%" % int(val)
+			GameManager.set_sfx_volume_val(val)
 		)
 		
 	if btn_fullscreen:
@@ -394,20 +401,59 @@ func _setup_configuration_controls() -> void:
 		)
 		
 	if slider_sens:
-		slider_sens.value = 100.0
-		lbl_sens_val.text = "1.0x"
+		slider_sens.value = GameManager.mouse_sensitivity_multiplier * 100.0
+		lbl_sens_val.text = "%.1fx" % GameManager.mouse_sensitivity_multiplier
 		slider_sens.value_changed.connect(func(val: float):
 			var factor = val / 100.0
 			lbl_sens_val.text = "%.1fx" % factor
+			GameManager.set_mouse_sensitivity(factor)
 		)
 		
 	if btn_holo:
+		_refresh_holo_button()
 		btn_holo.pressed.connect(func():
-			if "ALTA" in btn_holo.text:
-				btn_holo.text = "ESTADO: [ SUAVE / RENDIMIENTO ]"
-			else:
-				btn_holo.text = "ESTADO: [ ALTA DEFINICIÓN ]"
+			GameManager.set_performance_mode(!GameManager.performance_mode)
+			_refresh_holo_button()
 		)
+
+	if btn_consumo:
+		_refresh_consumo_button()
+		btn_consumo.pressed.connect(func():
+			GameManager.toggle_hardware_monitor()
+			_refresh_consumo_button()
+		)
+
+	if btn_fotosensible:
+		_refresh_fotosensible_button()
+		btn_fotosensible.pressed.connect(func():
+			GameManager.toggle_photosensitive_mode()
+			_refresh_fotosensible_button()
+		)
+
+func _show_photosensitive_warning() -> void:
+	var modal = WARNING_MODAL_SCENE.instantiate()
+	modal.name = "PhotosensitiveWarningModal"
+	modal.modal_closed.connect(func():
+		_refresh_fotosensible_button()
+	)
+	add_child(modal)
+
+func _refresh_fotosensible_button() -> void:
+	if not btn_fotosensible: return
+	var is_on = GameManager.is_photosensitive_mode_enabled()
+	btn_fotosensible.text = "ESTADO: [ ON ]" if is_on else "ESTADO: [ OFF ]"
+
+func _refresh_holo_button() -> void:
+	if not btn_holo: return
+	if GameManager.performance_mode:
+		btn_holo.text = "ESTADO: [ SUAVE / RENDIMIENTO ]"
+	else:
+		btn_holo.text = "ESTADO: [ ALTA DEFINICIÓN ]"
+
+func _refresh_consumo_button() -> void:
+	if not btn_consumo: return
+	var is_on = GameManager.is_hardware_monitor_enabled()
+	btn_consumo.text = "ESTADO: [ ON ]" if is_on else "ESTADO: [ OFF ]"
 
 func _refresh_fullscreen_button() -> void:
 	if not btn_fullscreen: return

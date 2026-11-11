@@ -667,8 +667,8 @@ func _refresh_backpack_ui() -> void:
 			else:
 				found_hdd = true
 				var d_type = item.get("drive_type", current_drive_type)
-				var d_name = "SSD M.2 NVMe" if d_type == "m2" else "SATA SSD 2.5\""
-				item_btn.text = "⇪ %s (NUEVO)\n[Clic: Cambiar M.2 / SSD]" % d_name
+				var d_name = item.get("display_name", "SSD M.2 NVMe" if d_type == "m2" else "SATA SSD 2.5\"")
+				item_btn.text = "⇪ %s (NUEVO)\n[Clic: Seleccionar / Instalar]" % d_name
 				item_btn.modulate = Color(0.0, 1.0, 0.6, 1.0)
 				
 				item_btn.pressed.connect(func():

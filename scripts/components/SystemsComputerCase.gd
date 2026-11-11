@@ -20,6 +20,8 @@ var is_completed: bool = false
 
 var systems_modal_scene: PackedScene = preload("res://scenes/ui/PCSystemsModal.tscn")
 var original_arrow_y: float = 0.0
+var custom_interact_callback: Callable = Callable()
+var custom_prompt: String = ""
 
 func _ready() -> void:
 	if arrow_mesh:
@@ -69,11 +71,17 @@ func update_3d_state() -> void:
 		label_3d.modulate = Color(0.0, 0.95, 1.0) if fixed_count > 0 else Color(1.0, 0.25, 0.5)
 
 func get_interaction_prompt() -> String:
+	if custom_prompt != "":
+		return custom_prompt
 	if is_fully_repaired():
 		return "[E] Inspeccionar Terminal de Sistemas (Optimizada ✓)"
 	return "[E] Acceder a la Terminal de Sistemas y Ciberseguridad"
 
 func interact(player) -> void:
+	if custom_interact_callback.is_valid():
+		custom_interact_callback.call(player)
+		return
+
 	if get_tree().root.has_node("PCSystemsModal"):
 		return
 		

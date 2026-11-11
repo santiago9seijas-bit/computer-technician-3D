@@ -37,6 +37,11 @@ static func play(
 	if old:
 		old.queue_free()
 		
+	# Iniciar la carga en segundo plano (threaded loading) inmediatamente
+	# para que los modelos, texturas y shaders de la escena destino se precarguen sin congelar el hilo principal.
+	if target_scene_path != "":
+		ResourceLoader.load_threaded_request(target_scene_path)
+		
 	var resolved_mode = mode.to_lower()
 	if resolved_mode == "" and target_scene_path != "":
 		var low_path = target_scene_path.to_lower()
@@ -103,13 +108,23 @@ static func play_exit(
 
 	if m in ["reparacion", "sistema", "servidor"]:
 		LevelSelect.initial_mode = m
+		LevelSelect.initial_tab = "niveles"
 	elif m == "tutorial":
-		LevelSelect.initial_tab = "tutoriales"
+		var gm = tree.root.get_node_or_null("GameManager")
+		if gm and "current_mode" in gm and gm.current_mode in ["reparacion", "sistema", "servidor"]:
+			LevelSelect.initial_mode = gm.current_mode
+		LevelSelect.initial_tab = "niveles"
 
 	play(tree, target_scene_path, title_text, subtitle_text, on_finished, (m == "tutorial"), (m == "practica"), m, true)
 
 func _ready() -> void:
 	_start_sequence(_tree if _tree else get_tree(), _target_scene, _title_text, _subtitle_text, _on_finished)
+
+func _input(event: InputEvent) -> void:
+	var is_esc = (event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE)
+	var is_pause = event.is_action_pressed("pause") or event.is_action_pressed("ui_cancel")
+	if is_esc or is_pause:
+		get_viewport().set_input_as_handled()
 
 # Sonido de entrada / salida de nivel según el modo
 func _play_entry_sfx() -> void:
@@ -681,12 +696,19 @@ func _start_sequence(
 	tw.tween_property(reticle_ctrl, "scale", Vector2(1.2, 1.2), 0.40).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT).set_delay(0.06)
 	
 	# 2. Barrido dual de haces láser cruzados
-	laser_beam_main.modulate.a = 1.0
-	laser_beam_main.position.y = -10.0
-	laser_beam_sub.modulate.a = 0.85
-	laser_beam_sub.position.y = screen_h + 10.0
-	tw.tween_property(laser_beam_main, "position:y", screen_h + 10.0, 0.40).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
-	tw.tween_property(laser_beam_sub, "position:y", -10.0, 0.40).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT).set_delay(0.02)
+	var gm_ref = get_node_or_null("/root/GameManager")
+	var is_photo = gm_ref and gm_ref.has_method("is_photosensitive_mode_enabled") and gm_ref.is_photosensitive_mode_enabled()
+	
+	if not is_photo:
+		laser_beam_main.modulate.a = 1.0
+		laser_beam_main.position.y = -10.0
+		laser_beam_sub.modulate.a = 0.85
+		laser_beam_sub.position.y = screen_h + 10.0
+		tw.tween_property(laser_beam_main, "position:y", screen_h + 10.0, 0.40).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
+		tw.tween_property(laser_beam_sub, "position:y", -10.0, 0.40).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT).set_delay(0.02)
+	else:
+		laser_beam_main.modulate.a = 0.0
+		laser_beam_sub.modulate.a = 0.0
 	
 	# 3. Aparición con escala y glow del elemento central
 	if center_element:
@@ -767,32 +789,86 @@ func _start_sequence(
 	)
 	tw.chain().tween_interval(0.18)
 	
-	# 5. Destello óptico vibrante con el color del modo
-	tw.chain().tween_property(flash_rect, "color:a", 0.80, 0.10).set_trans(Tween.TRANS_QUAD)
+	# 5. Destello óptico vibrante con el color del modo (desactivado en modo fotosensible)
+	var flash_alpha = 0.0 if is_photo else 0.80
+	tw.chain().tween_property(flash_rect, "color:a", flash_alpha, 0.10).set_trans(Tween.TRANS_QUAD)
 	
 	# 6. Momento pico: Cambio de escena seguro bajo el destello y compuertas cerradas
 	tw.chain().tween_callback(func():
-		if target_scene_path != "":
-			tree.paused = false
-			tree.change_scene_to_file(target_scene_path)
+		_perform_scene_swap_and_reveal(
+			tree,
+			target_scene_path,
+			flash_rect,
+			center_element,
+			hologram_layer,
+			reticle_ctrl,
+			shutter_top,
+			shutter_bot,
+			bg_overlay,
+			half_h,
+			screen_h,
+			on_finished
+		)
 	)
-	
-	# 7. Desvanecer destello y abrir compuertas revelando la nueva escena
-	tw.chain().set_parallel(true)
-	tw.tween_property(flash_rect, "color:a", 0.0, 0.25).set_trans(Tween.TRANS_QUAD)
-	if center_element:
-		tw.tween_property(center_element, "modulate:a", 0.0, 0.18).set_trans(Tween.TRANS_QUAD)
-		tw.tween_property(center_element, "scale", Vector2(1.15, 1.15), 0.18).set_trans(Tween.TRANS_QUAD)
-	tw.tween_property(hologram_layer, "modulate:a", 0.0, 0.22).set_delay(0.04)
-	tw.tween_property(reticle_ctrl, "modulate:a", 0.0, 0.22).set_delay(0.04)
-	
-	# Apertura suave y rápida de las compuertas hacia arriba y abajo
-	tw.tween_property(shutter_top, "position:y", -half_h - 20.0, 0.35).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN).set_delay(0.06)
-	tw.tween_property(shutter_bot, "position:y", screen_h + 20.0, 0.35).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN).set_delay(0.06)
-	tw.tween_property(bg_overlay, "color:a", 0.0, 0.30).set_delay(0.08)
-	
-	# 8. Liberación y finalización
-	tw.chain().tween_callback(func():
+
+func _perform_scene_swap_and_reveal(
+	tree: SceneTree,
+	target_scene_path: String,
+	flash_rect: ColorRect,
+	center_element: Control,
+	hologram_layer: Control,
+	reticle_ctrl: Control,
+	shutter_top: ColorRect,
+	shutter_bot: ColorRect,
+	bg_overlay: ColorRect,
+	half_h: float,
+	screen_h: float,
+	on_finished: Callable
+) -> void:
+	if target_scene_path != "":
+		tree.paused = false
+		
+		# Esperar activamente en hilos si la carga en segundo plano sigue en progreso
+		while ResourceLoader.load_threaded_get_status(target_scene_path) == ResourceLoader.THREAD_LOAD_IN_PROGRESS:
+			await tree.process_frame
+			
+		var packed: PackedScene = null
+		if ResourceLoader.load_threaded_get_status(target_scene_path) == ResourceLoader.THREAD_LOAD_LOADED:
+			packed = ResourceLoader.load_threaded_get(target_scene_path) as PackedScene
+			
+		if not packed and ResourceLoader.exists(target_scene_path):
+			packed = load(target_scene_path) as PackedScene
+			
+		if packed:
+			tree.change_scene_to_packed(packed)
+		else:
+			tree.change_scene_to_file(target_scene_path)
+			
+		# Esperar 2 frames con compuertas completamente cerradas
+		# para que la nueva escena se instancie, ejecute _ready() y prepare los shaders en GPU
+		# antes de comenzar la cinemática de apertura
+		await tree.process_frame
+		await tree.process_frame
+
+	# Nuevo Tween limpio e independiente para apertura fluida a 60 FPS estables
+	var tw_open = tree.create_tween().set_parallel(true)
+	tw_open.tween_property(flash_rect, "color:a", 0.0, 0.25).set_trans(Tween.TRANS_QUAD)
+	if center_element and is_instance_valid(center_element):
+		tw_open.tween_property(center_element, "modulate:a", 0.0, 0.18).set_trans(Tween.TRANS_QUAD)
+		tw_open.tween_property(center_element, "scale", Vector2(1.15, 1.15), 0.18).set_trans(Tween.TRANS_QUAD)
+	if is_instance_valid(hologram_layer):
+		tw_open.tween_property(hologram_layer, "modulate:a", 0.0, 0.22).set_delay(0.04)
+	if is_instance_valid(reticle_ctrl):
+		tw_open.tween_property(reticle_ctrl, "modulate:a", 0.0, 0.22).set_delay(0.04)
+		
+	if is_instance_valid(shutter_top):
+		tw_open.tween_property(shutter_top, "position:y", -half_h - 20.0, 0.35).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN).set_delay(0.06)
+	if is_instance_valid(shutter_bot):
+		tw_open.tween_property(shutter_bot, "position:y", screen_h + 20.0, 0.35).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN).set_delay(0.06)
+	if is_instance_valid(bg_overlay):
+		tw_open.tween_property(bg_overlay, "color:a", 0.0, 0.30).set_delay(0.08)
+		
+	tw_open.chain().tween_callback(func():
 		if on_finished.is_valid():
 			on_finished.call()
 		transition_completed.emit()

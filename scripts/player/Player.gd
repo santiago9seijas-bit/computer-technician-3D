@@ -91,6 +91,24 @@ func set_character_shadows_only(shadows_only: bool) -> void:
 		if animation_player and animation_player.has_animation("idle"):
 			animation_player.play("idle")
 
+func skip_intro_cinematic() -> void:
+	if not is_in_cinematic:
+		return
+	if intro_tween and intro_tween.is_valid():
+		intro_tween.kill()
+		intro_tween = null
+	_finish_intro_cinematic()
+
+func _input(event: InputEvent) -> void:
+	if is_in_cinematic:
+		var is_esc = (event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE)
+		var is_pause = event.is_action_pressed("pause") or event.is_action_pressed("ui_cancel")
+		var is_space = (event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_SPACE)
+		if is_esc or is_pause or is_space:
+			get_viewport().set_input_as_handled()
+			skip_intro_cinematic()
+			return
+
 func play_intro_cinematic(on_finished: Callable = Callable()) -> void:
 	is_in_cinematic = true
 	can_move = false
@@ -182,6 +200,10 @@ func set_movement_enabled(enabled: bool) -> void:
 	else:
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
+var _cached_dialog_box: Node = null
+var _cached_tutorial_victory: Node = null
+var _hud_searched: bool = false
+
 func is_dialog_active_anywhere() -> bool:
 	if GameManager.is_game_over:
 		return true
@@ -192,13 +214,19 @@ func is_dialog_active_anywhere() -> bool:
 	var cur_sc = get_tree().current_scene
 	if cur_sc and "is_dialog_active" in cur_sc and cur_sc.is_dialog_active:
 		return true
-	var root_node = get_tree().root
-	var dlg = root_node.find_child("DialogBox", true, false)
-	if is_instance_valid(dlg) and dlg.visible and dlg.get("is_active"):
+		
+	# Caché de DialogBox para evitar recorrer todo el árbol en cada tick de física
+	if not is_instance_valid(_cached_dialog_box):
+		_cached_dialog_box = get_tree().root.find_child("DialogBox", true, false)
+	if is_instance_valid(_cached_dialog_box) and _cached_dialog_box.visible and _cached_dialog_box.get("is_active"):
 		return true
-	var tut_vic = root_node.find_child("TutorialVictoryModal", true, false)
-	if is_instance_valid(tut_vic) and tut_vic.visible:
+
+	# Caché de TutorialVictoryModal
+	if not is_instance_valid(_cached_tutorial_victory):
+		_cached_tutorial_victory = get_tree().root.find_child("TutorialVictoryModal", true, false)
+	if is_instance_valid(_cached_tutorial_victory) and _cached_tutorial_victory.visible:
 		return true
+
 	return false
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -238,18 +266,14 @@ func _unhandled_input(event: InputEvent) -> void:
 			if is_instance_valid(game_over_panel) and game_over_panel.visible:
 				return
 		if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
+			if GameManager.is_any_modal_open():
+				return
 			var root_node = get_tree().root
 			var modal_open = false
-			for modal_name in ["PCInspectionModal", "ServerInspectionModal", "LevelIntroModal", "LevelSystemsIntroModal", "LevelServerIntroModal", "PCSystemsModal", "RAMSelectionModal", "DialogBox", "TutorialVictoryModal"]:
-				var found = root_node.find_child(modal_name, true, false)
-				if is_instance_valid(found) and (not ("visible" in found) or found.visible):
+			for child in root_node.get_children():
+				if child.name.ends_with("Minigame") or child.is_in_group("minigames"):
 					modal_open = true
 					break
-			if not modal_open:
-				for child in root_node.get_children():
-					if child.name.ends_with("Minigame") or child.is_in_group("minigames"):
-						modal_open = true
-						break
 			if not modal_open and not is_in_cinematic:
 				Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
@@ -344,7 +368,8 @@ func _physics_process(delta: float) -> void:
 	_handle_interaction()
 
 func _update_stamina_hud() -> void:
-	if not hud_node:
+	if not hud_node and not _hud_searched:
+		_hud_searched = true
 		var hud_cand = get_tree().root.find_child("HUD", true, false)
 		if hud_cand is Control:
 			hud_node = hud_cand

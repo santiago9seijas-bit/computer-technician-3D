@@ -1320,19 +1320,19 @@ func _apply_mode_palette(mode_name: String, instant: bool = false) -> void:
 	_color_tween = create_tween().set_parallel(true).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 
 	if background_rect:
-		_color_tween.tween_property(background_rect, "color", pal.bg_color, 0.38)
+		_color_tween.tween_property(background_rect, "color", pal.bg_color, 0.20)
 
 	if decoracion_right and decoracion_right.material is ShaderMaterial:
 		var mat: ShaderMaterial = decoracion_right.material
-		_color_tween.tween_property(mat, "shader_parameter/top_color", pal.holo_top, 0.38)
-		_color_tween.tween_property(mat, "shader_parameter/bottom_color", pal.holo_bottom, 0.38)
-		_color_tween.tween_property(mat, "shader_parameter/edge_color", pal.holo_edge, 0.38)
+		_color_tween.tween_property(mat, "shader_parameter/top_color", pal.holo_top, 0.20)
+		_color_tween.tween_property(mat, "shader_parameter/bottom_color", pal.holo_bottom, 0.20)
+		_color_tween.tween_property(mat, "shader_parameter/edge_color", pal.holo_edge, 0.20)
 
 	if banner_label:
 		var cur_font_c = banner_label.get_theme_color("font_color")
 		var cur_shad_c = banner_label.get_theme_color("font_shadow_color")
-		_color_tween.tween_method(func(c: Color): banner_label.add_theme_color_override("font_color", c), cur_font_c, pal.banner_font, 0.35)
-		_color_tween.tween_method(func(c: Color): banner_label.add_theme_color_override("font_shadow_color", c), cur_shad_c, pal.banner_shadow, 0.35)
+		_color_tween.tween_method(func(c: Color): banner_label.add_theme_color_override("font_color", c), cur_font_c, pal.banner_font, 0.20)
+		_color_tween.tween_method(func(c: Color): banner_label.add_theme_color_override("font_shadow_color", c), cur_shad_c, pal.banner_shadow, 0.20)
 
 # =============================================================================
 # CONMUTACIÓN DE MODO / DIVISIÓN (REPARACIÓN, SISTEMA, SERVIDOR)
@@ -1359,7 +1359,7 @@ func _switch_mode(mode_name: String, spin_dir: int = 0) -> void:
 		_wheel_tween.kill()
 	_wheel_tween = create_tween().set_parallel(true)
 	_wheel_tween.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	_wheel_tween.tween_method(_animate_wheel_step, _wheel_visual_angle, _wheel_target_angle, 0.42)
+	_wheel_tween.tween_method(_animate_wheel_step, _wheel_visual_angle, _wheel_target_angle, 0.22)
 
 	if btn_up_arrow and spin_dir < 0:
 		var tw_arr = create_tween()
@@ -1725,16 +1725,27 @@ func _play_tutorial_level() -> void:
 		btn_play_level1.visible = false
 		
 	var gm = get_node_or_null("/root/GameManager")
-	if gm and gm.has_method("start_level"):
-		gm.start_level(999.0)
+	if gm:
+		gm.current_mode = current_mode
+		if gm.has_method("start_level"):
+			gm.start_level(999.0)
 		
+	var tut_title = "NÚCLEO TUTORIAL: REPARACIÓN 3D"
+	var tut_sub = "// INDUCCIÓN TÉCNICA · TALLER DE HARDWARE //"
+	if current_mode == "sistema":
+		tut_title = "NÚCLEO TUTORIAL: SISTEMAS 3D"
+		tut_sub = "// INDUCCIÓN TÉCNICA · KERNEL & SOFTWARE //"
+	elif current_mode == "servidor":
+		tut_title = "NÚCLEO TUTORIAL: SERVIDOR 3D"
+		tut_sub = "// INDUCCIÓN TÉCNICA · INFRAESTRUCTURA DATACENTER //"
+
 	CyberPlayTransition.play(
 		get_tree(),
 		"res://scenes/gameplay/LevelTutorial.tscn",
-		"NÚCLEO TUTORIAL 3D",
-		"// SALA DE ENTRENAMIENTO · INDUCCIÓN TÉCNICA //",
+		tut_title,
+		tut_sub,
 		Callable(),
-		false,
+		true,
 		false,
 		current_mode
 	)
@@ -2323,7 +2334,7 @@ func _play_exit_animation() -> void:
 	)
 
 func _input(event: InputEvent) -> void:
-	if is_exiting_scene:
+	if is_exiting_scene or is_launching_level:
 		get_viewport().set_input_as_handled()
 		return
 		
