@@ -48,6 +48,8 @@ func _cache_device_info() -> void:
 		lbl_device.text = cached_device_info
 
 func _process(delta: float) -> void:
+	if not is_visible_in_tree():
+		return
 	# Suavizado de FPS real por cuadro para filtrar hipos aislados de cambio de escena
 	if delta > 0.0001 and delta < 0.10:
 		var cur_fps = 1.0 / delta

@@ -20,11 +20,18 @@ func _ready() -> void:
 	_setup_button_shader()
 	
 	if btn_iniciar:
+		_make_children_mouse_ignore(btn_iniciar)
 		btn_iniciar.mouse_entered.connect(_on_btn_mouse_entered)
 		btn_iniciar.mouse_exited.connect(_on_btn_mouse_exited)
 		btn_iniciar.pressed.connect(_on_btn_pressed)
 		btn_iniciar.pivot_offset = Vector2(125.0, 27.0)
 		_start_idle_pulse()
+
+func _make_children_mouse_ignore(node: Node) -> void:
+	for child in node.get_children():
+		if child is Control:
+			child.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			_make_children_mouse_ignore(child)
 
 func _setup_button_shader() -> void:
 	if not btn_iniciar:

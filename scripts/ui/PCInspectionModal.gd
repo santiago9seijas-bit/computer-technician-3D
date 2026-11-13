@@ -834,6 +834,8 @@ func _refresh_ui() -> void:
 			has_liquid_kit = true
 			break
 
+	var is_tut_pc: bool = (current_pc and current_pc.has_meta("is_tutorial_pc") and current_pc.get_meta("is_tutorial_pc")) or (get_tree().current_scene and "LevelTutorial" in get_tree().current_scene.name)
+
 	for comp_name in comp_cards.keys():
 		var status = comps_dict.get(comp_name, "ok")
 		var sb: StyleBoxFlat = card_styleboxes[comp_name]
@@ -844,15 +846,9 @@ func _refresh_ui() -> void:
 		var btn_sacar: Button = comp_sacar_btns[comp_name]
 		var examined_st = get_examined_status(comp_name)
 		
-		# Sin botones de poner ni quitar: el cuadro explica y al hacer clic interactúa
-		btn_sacar.visible = false
-		
-		# Si es el cuadro de refrigeración líquida y está vacío para instalar el kit, solo aparece si el jugador tiene el kit
-		if comp_name == "Fan Cooler":
-			if status == "empty":
-				card_cooler.visible = has_liquid_kit
-			else:
-				card_cooler.visible = true
+		# Botón SACAR / PONER interactivo y visible
+		btn_sacar.visible = true
+		btn_sacar.disabled = false
 
 		match status:
 			"empty":
@@ -860,8 +856,11 @@ func _refresh_ui() -> void:
 				if spare_idx != -1:
 					var spare_item = GameManager.backpack[spare_idx]
 					var spare_name = spare_item.get("name", comp_name)
-					lbl.text = "%s\n[ ⚡ REPUESTO DETECTADO EN MOCHILA ]\n(Haz clic en este cuadro para instalar)" % sub
+					lbl.text = "%s\n[ ⚡ REPUESTO DETECTADO EN MOCHILA ]\n(Pulsa 'PONER' o haz clic para instalar)" % sub
 					lbl.modulate = Color(0.2, 1.0, 0.65, 1.0)
+					btn_sacar.text = "⬆ PONER"
+					btn_sacar.disabled = false
+					btn_sacar.modulate = Color(0.2, 1.0, 0.65, 1.0)
 				else:
 					if comp_name == "Fan Cooler":
 						lbl.text = "%s\n[ ⚠️ ZÓCALO VACÍO ]\n(Requiere Kit de Líquida o Cooler del taller)" % sub
@@ -869,37 +868,47 @@ func _refresh_ui() -> void:
 					else:
 						lbl.text = "%s\n[ ⚠️ ZÓCALO VACÍO ]\n(Consigue el repuesto en las cajas del taller)" % sub
 						lbl.modulate = Color(1.0, 0.72, 0.22, 1.0)
+					btn_sacar.text = "⚠️ VACÍO"
+					btn_sacar.disabled = true
+					btn_sacar.modulate = Color(0.6, 0.6, 0.6, 0.6)
 			"fixed":
 				lbl.text = "%s\n[ ✓ COMPONENTE OPERATIVO AL 100%% ]" % sub
 				lbl.modulate = Color(0.0, 1.0, 0.55, 1.0)
+				btn_sacar.text = "⬇ SACAR"
+				btn_sacar.disabled = false
+				btn_sacar.modulate = Color(0.7, 0.9, 1.0, 0.9)
 			_:
+				btn_sacar.text = "⬇ SACAR"
+				btn_sacar.disabled = false
 				if examined_st == "broken":
-					lbl.text = "%s\n[ ❌ DEFECTUOSO // FALLA DETECTADA ]\n(Haz clic en este cuadro para intervenir)" % sub
+					lbl.text = "%s\n[ ❌ DEFECTUOSO // FALLA DETECTADA ]\n(Pulsa 'SACAR' para desmontar)" % sub
 					lbl.modulate = Color(1.0, 0.3, 0.3, 1.0)
+					btn_sacar.modulate = Color(1.0, 0.35, 0.35, 1.0)
 				elif examined_st == "ok":
 					lbl.text = "%s\n[ ✓ VERIFICADO EN BUEN ESTADO ]" % sub
 					lbl.modulate = Color(0.0, 1.0, 0.55, 1.0)
+					btn_sacar.modulate = Color(0.2, 0.95, 1.0, 1.0)
 				else:
-					lbl.text = "%s\n[ 🔧 COMPONENTE INSTALADO ]\n(Haz clic para intervenir o examina con 🔍)" % sub
+					lbl.text = "%s\n[ 🔧 COMPONENTE INSTALADO ]\n(Pulsa 'SACAR' o examina con 🔍)" % sub
 					lbl.modulate = Color(1.0, 0.75, 0.2, 1.0)
+					btn_sacar.modulate = Color(1.0, 1.0, 1.0, 1.0)
 
 		# Bloqueo visual progresivo exclusivo para el tutorial
-		if current_pc and current_pc.get_meta("is_tutorial_pc", false):
+		if is_tut_pc:
 			var ram_done = current_pc.components.get("RAM", "") in ["ok", "fixed"]
 			var ssd_done = current_pc.components.get("Disco Duro", "") in ["ok", "fixed"]
-			if comp_sacar_btns.has(comp_name):
-				var s_btn: Button = comp_sacar_btns[comp_name]
-				if not ram_done and comp_name != "RAM":
-					s_btn.text = "🔒 PRIMERO LA RAM"
-					s_btn.modulate = Color(0.5, 0.5, 0.5, 0.6)
-				elif not ssd_done and comp_name == "Fuente":
-					s_btn.text = "🔒 PRIMERO EL DISCO"
-					s_btn.modulate = Color(0.5, 0.5, 0.5, 0.6)
+			if not ram_done and comp_name != "RAM":
+				btn_sacar.text = "🔒 PRIMERO LA RAM"
+				btn_sacar.disabled = true
+				btn_sacar.modulate = Color(0.5, 0.5, 0.5, 0.6)
+			elif not ssd_done and comp_name == "Fuente":
+				btn_sacar.text = "🔒 PRIMERO EL DISCO"
+				btn_sacar.disabled = true
+				btn_sacar.modulate = Color(0.5, 0.5, 0.5, 0.6)
 				
 		if comp_name == "CPU":
 			btn_cpu_limpiar.visible = false
 			btn_cpu_pines.visible = false
-			btn_sacar_cpu.visible = false
 
 		# Estado de botón EXAMINAR en cada cuadro
 		if comp_examinar_btns.has(comp_name):
@@ -921,16 +930,46 @@ func _refresh_ui() -> void:
 					btn_ex.modulate = Color(1.0, 1.0, 1.0, 1.0)
 
 	# En el tutorial solo se muestra RAM, Fuente de Poder y Almacenamiento (SSD/HDD)
-	var is_tut_pc: bool = (current_pc and current_pc.has_meta("is_tutorial_pc") and current_pc.get_meta("is_tutorial_pc")) or (get_tree().current_scene and "LevelTutorial" in get_tree().current_scene.name)
 	if is_tut_pc:
+		if card_cpu:
+			card_cpu.visible = false
+		if card_cooler:
+			card_cooler.visible = false
+		if card_ram:
+			card_ram.visible = true
 		if card_gpu:
 			card_gpu.visible = false
-		if row_bottom:
-			row_bottom.visible = false
 		if card_hdd:
+			card_hdd.visible = true
 			var hdd_title = card_hdd.get_node_or_null("Margin/VBox/Title") as Label
 			if hdd_title:
 				hdd_title.text = "ALMACENAMIENTO (SSD / HDD)"
+		if card_mobo:
+			card_mobo.visible = false
+		if card_psu:
+			card_psu.visible = true
+		if row_bottom:
+			row_bottom.visible = true
+	else:
+		if card_cpu:
+			card_cpu.visible = true
+		if card_cooler:
+			card_cooler.visible = true
+		if card_ram:
+			card_ram.visible = true
+		if card_gpu:
+			card_gpu.visible = true
+		if card_hdd:
+			card_hdd.visible = true
+			var hdd_title = card_hdd.get_node_or_null("Margin/VBox/Title") as Label
+			if hdd_title:
+				hdd_title.text = "ALMACENAMIENTO (M.2 / SATA)"
+		if card_mobo:
+			card_mobo.visible = true
+		if card_psu:
+			card_psu.visible = true
+		if row_bottom:
+			row_bottom.visible = true
 	
 	# Actualizar slots de mochila
 	for i in range(slot_buttons.size()):

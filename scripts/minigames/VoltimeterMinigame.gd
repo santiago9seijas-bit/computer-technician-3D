@@ -348,9 +348,10 @@ func _ready() -> void:
 	needle.visible = false
 
 func _process(delta: float) -> void:
-	if is_needle_spinning:
-		needle_angle = wrapf(needle_angle + needle_speed * delta, -PI, PI)
-		needle.rotation = needle_angle - NEEDLE_SPRITE_ANGLE
+	if not is_needle_spinning or not visible:
+		return
+	needle_angle = wrapf(needle_angle + needle_speed * delta, -PI, PI)
+	needle.rotation = needle_angle - NEEDLE_SPRITE_ANGLE
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel") or (event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE):

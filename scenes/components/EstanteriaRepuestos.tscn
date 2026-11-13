@@ -1,0 +1,29 @@
+[gd_scene format=3 load_steps=5]
+
+[ext_resource type="PackedScene" uid="uid://c1tmkvgr3vlwd" path="res://modelos_3d/escenario_3d/estanteria de repuestos.glb" id="1_estanteria"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_base"]
+size = Vector3(1.26, 0.48, 0.65)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_back"]
+size = Vector3(1.26, 1.63, 0.15)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_top"]
+size = Vector3(1.26, 0.12, 0.65)
+
+[node name="EstanteriaRepuestos" type="StaticBody3D"]
+
+[node name="CollisionBase" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.24, 0)
+shape = SubResource("BoxShape3D_base")
+
+[node name="CollisionBack" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.815, -0.25)
+shape = SubResource("BoxShape3D_back")
+
+[node name="CollisionTop" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.57, 0)
+shape = SubResource("BoxShape3D_top")
+
+[node name="EstanteriaModel" parent="." instance=ExtResource("1_estanteria")]
+transform = Transform3D(0, 0, 0.06, 0, 0.06, 0, -0.06, 0, 0, 0, 0, 0)

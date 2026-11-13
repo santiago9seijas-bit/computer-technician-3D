@@ -203,6 +203,7 @@ func set_movement_enabled(enabled: bool) -> void:
 var _cached_dialog_box: Node = null
 var _cached_tutorial_victory: Node = null
 var _hud_searched: bool = false
+var _modal_search_timer: float = 0.0
 
 func is_dialog_active_anywhere() -> bool:
 	if GameManager.is_game_over:
@@ -215,17 +216,26 @@ func is_dialog_active_anywhere() -> bool:
 	if cur_sc and "is_dialog_active" in cur_sc and cur_sc.is_dialog_active:
 		return true
 		
-	# Caché de DialogBox para evitar recorrer todo el árbol en cada tick de física
-	if not is_instance_valid(_cached_dialog_box):
+	# Caché de DialogBox con comprobación amortizada O(1)
+	if is_instance_valid(_cached_dialog_box):
+		if _cached_dialog_box.visible and _cached_dialog_box.get("is_active"):
+			return true
+	elif _modal_search_timer <= 0.0:
 		_cached_dialog_box = get_tree().root.find_child("DialogBox", true, false)
-	if is_instance_valid(_cached_dialog_box) and _cached_dialog_box.visible and _cached_dialog_box.get("is_active"):
-		return true
+		if is_instance_valid(_cached_dialog_box) and _cached_dialog_box.visible and _cached_dialog_box.get("is_active"):
+			return true
 
-	# Caché de TutorialVictoryModal
-	if not is_instance_valid(_cached_tutorial_victory):
+	# Caché de TutorialVictoryModal con comprobación amortizada O(1)
+	if is_instance_valid(_cached_tutorial_victory):
+		if _cached_tutorial_victory.visible:
+			return true
+	elif _modal_search_timer <= 0.0:
 		_cached_tutorial_victory = get_tree().root.find_child("TutorialVictoryModal", true, false)
-	if is_instance_valid(_cached_tutorial_victory) and _cached_tutorial_victory.visible:
-		return true
+		if is_instance_valid(_cached_tutorial_victory) and _cached_tutorial_victory.visible:
+			return true
+
+	if _modal_search_timer <= 0.0:
+		_modal_search_timer = 1.0 # Evitar búsqueda recursiva del árbol en cada tick si no existen
 
 	return false
 
@@ -278,6 +288,9 @@ func _unhandled_input(event: InputEvent) -> void:
 				Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 func _physics_process(delta: float) -> void:
+	if _modal_search_timer > 0.0:
+		_modal_search_timer -= delta
+
 	if is_dialog_active_anywhere():
 		velocity.x = 0.0
 		velocity.z = 0.0

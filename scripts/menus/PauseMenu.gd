@@ -406,9 +406,14 @@ func _on_sens_changed(value: float) -> void:
 # =============================================================================
 # RESTO DE ACCIONES DEL MENÚ
 # =============================================================================
+var _last_displayed_sec: int = -1
+
 func _on_time_updated(t: float, _delta: float) -> void:
 	if visible:
-		_update_time_display(t)
+		var total_sec := int(t)
+		if total_sec != _last_displayed_sec:
+			_last_displayed_sec = total_sec
+			_update_time_display(t)
 
 func _update_time_display(t: float) -> void:
 	var mins = int(t) / 60
@@ -416,6 +421,8 @@ func _update_time_display(t: float) -> void:
 	lbl_tiempo.text = "TIEMPO: %02d:%02d" % [mins, secs]
 
 func _on_reiniciar_pressed() -> void:
+	if is_animating:
+		return
 	var gm = _get_game_manager()
 	if gm and gm.is_game_paused:
 		gm.is_game_paused = false
@@ -449,6 +456,8 @@ func _detect_current_mode() -> String:
 	return "reparacion"
 
 func _on_volver_selector() -> void:
+	if is_animating:
+		return
 	var gm = _get_game_manager()
 	if gm and gm.is_game_paused:
 		gm.is_game_paused = false

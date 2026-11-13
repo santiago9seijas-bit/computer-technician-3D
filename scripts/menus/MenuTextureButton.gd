@@ -4,18 +4,24 @@ extends TextureButton
 @export var hover_shift_x: float = 8.0
 
 var label: Label = null
-var base_x: float = 0.0
-var initialized_base: bool = false
+var base_label_x: float = 0.0
+var has_base_label: bool = false
 var hover_t: float = 0.0
 
 func _ready() -> void:
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	
+	# Asegurar que ningún hijo (Label, iconos, contenedores) intercepte los clics del mouse
+	_make_children_mouse_ignore(self)
+	
 	if material == null and ResourceLoader.exists("res://styles/cyber_button_hologram.tres"):
 		material = load("res://styles/cyber_button_hologram.tres")
 		
 	label = get_node_or_null("Label")
+	if label:
+		base_label_x = label.position.x
+		has_base_label = true
 	
 	mouse_entered.connect(_on_hover_changed.bind(true))
 	mouse_exited.connect(_on_hover_changed.bind(false))
@@ -24,17 +30,24 @@ func _ready() -> void:
 	
 	_update_text_visuals(false)
 
-func _process(delta: float) -> void:
-	if not initialized_base and position.x != 0:
-		base_x = position.x
-		initialized_base = true
+func _make_children_mouse_ignore(node: Node) -> void:
+	for child in node.get_children():
+		if child is Control:
+			child.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			_make_children_mouse_ignore(child)
 
-	var is_hovered = is_hovered() or has_focus()
-	var target_t = 1.0 if is_hovered else 0.0
+func _process(delta: float) -> void:
+	if not is_visible_in_tree():
+		return
+
+	var is_hov: bool = is_hovered() or has_focus()
+	var target_t: float = 1.0 if is_hov else 0.0
 	if abs(hover_t - target_t) > 0.001:
 		hover_t = lerp(hover_t, target_t, delta * 15.0)
-		if initialized_base:
-			position.x = base_x + hover_t * hover_shift_x
+		if abs(hover_t - target_t) <= 0.001:
+			hover_t = target_t
+		if label and has_base_label:
+			label.position.x = base_label_x + hover_t * hover_shift_x
 
 func _on_hover_changed(hovered: bool) -> void:
 	_update_text_visuals(hovered)
@@ -42,6 +55,9 @@ func _on_hover_changed(hovered: bool) -> void:
 func _update_text_visuals(hovered: bool) -> void:
 	if not label:
 		label = get_node_or_null("Label")
+		if label and not has_base_label:
+			base_label_x = label.position.x
+			has_base_label = true
 	if label:
 		if hovered:
 			label.add_theme_color_override("font_color", Color(1.0, 1.0, 1.0, 1.0))

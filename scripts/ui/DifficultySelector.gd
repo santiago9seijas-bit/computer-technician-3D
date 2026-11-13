@@ -141,7 +141,6 @@ func _ready() -> void:
 		btn.mouse_entered.connect(_on_btn_hover.bind(diff_key, true))
 		btn.mouse_exited.connect(_on_btn_hover.bind(diff_key, false))
 	
-	# Shader para el botón mejorado de Iniciar
 	if btn_iniciar:
 		_launch_material = ShaderMaterial.new()
 		_launch_material.shader = LAUNCH_SHADER
@@ -171,8 +170,19 @@ func _ready() -> void:
 			tw.chain().tween_callback(_start_idle_launch_pulse)
 		)
 	
+	# Asegurar que ningún hijo de los botones intercepte o consuma clics del ratón
+	for b in [btn_brutal, btn_dificil, btn_normal, btn_facil, btn_iniciar]:
+		if b:
+			_make_children_mouse_ignore(b)
+	
 	# SIEMPRE iniciar en modo NORMAL predeterminado
 	select_difficulty("normal", false)
+
+func _make_children_mouse_ignore(node: Node) -> void:
+	for child in node.get_children():
+		if child is Control:
+			child.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			_make_children_mouse_ignore(child)
 
 func select_difficulty(diff_name: String, animate: bool = true) -> void:
 	var key = diff_name.to_lower().strip_edges()

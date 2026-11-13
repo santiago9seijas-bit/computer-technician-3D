@@ -90,6 +90,8 @@ func _ready() -> void:
 	_load_step(0)
 
 func _process(delta: float) -> void:
+	if not visible:
+		return
 	cursor_timer += delta
 	if cursor_timer >= 0.4:
 		cursor_timer = 0.0

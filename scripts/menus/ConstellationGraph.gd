@@ -511,6 +511,8 @@ func _rebuild_grid_cache(w: float, h: float) -> void:
 			_cached_grid_lines.append(Vector2(gx, gy + cross_len))
 
 func _process(delta: float) -> void:
+	if not is_visible_in_tree():
+		return
 	var gm = get_node_or_null("/root/GameManager")
 	var is_photo = gm and gm.has_method("is_photosensitive_mode_enabled") and gm.is_photosensitive_mode_enabled()
 	var time_scale = 0.8 if is_photo else 2.2

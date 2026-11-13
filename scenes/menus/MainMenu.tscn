@@ -31,6 +31,54 @@ corner_radius_bottom_left = 2
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_volver"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_volver_normal"]
+bg_color = Color(0.06, 0.08, 0.14, 0.85)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.2, 0.8, 1, 0.9)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+content_margin_left = 20.0
+content_margin_top = 8.0
+content_margin_right = 20.0
+content_margin_bottom = 8.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_volver_hover"]
+bg_color = Color(0.12, 0.16, 0.28, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.4, 1, 1, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+content_margin_left = 20.0
+content_margin_top = 8.0
+content_margin_right = 20.0
+content_margin_bottom = 8.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_volver_pressed"]
+bg_color = Color(0.85, 0.15, 0.5, 0.85)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.4, 0.7, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+content_margin_left = 20.0
+content_margin_top = 8.0
+content_margin_right = 20.0
+content_margin_bottom = 8.0
+
 [node name="MainMenu" type="Control" unique_id=1799927486]
 layout_mode = 3
 anchors_preset = 15
@@ -575,21 +623,19 @@ layout_mode = 2
 alignment = 1
 
 [node name="BtnVolverControles" type="Button" parent="ControlsPanel/Margin/VBox/Footer" unique_id=2045974137]
-texture_filter = 1
-material = ExtResource("16_glitch_mat")
-custom_minimum_size = Vector2(60, 38)
+custom_minimum_size = Vector2(160, 40)
 layout_mode = 2
 mouse_default_cursor_shape = 2
-theme_override_colors/icon_pressed_color = Color(1, 0.2, 0.5, 1)
-theme_override_colors/icon_hover_color = Color(0.2, 0.95, 1, 1)
-theme_override_styles/normal = SubResource("StyleBoxEmpty_volver")
-theme_override_styles/pressed = SubResource("StyleBoxEmpty_volver")
-theme_override_styles/hover = SubResource("StyleBoxEmpty_volver")
-theme_override_styles/focus = SubResource("StyleBoxEmpty_volver")
-icon = ExtResource("15_volver_tex")
-flat = true
-icon_alignment = 1
-expand_icon = true
+theme_override_colors/font_color = Color(0.85, 0.95, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 0.8, 0.95, 1)
+theme_override_fonts/font = ExtResource("9_title_font")
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_volver_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_volver_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_volver_hover")
+theme_override_styles/focus = SubResource("StyleBoxFlat_volver_hover")
+text = "VOLVER"
 
 [node name="ConfigPanel" type="PanelContainer" parent="." unique_id=1264065880]
 visible = false
@@ -835,18 +881,16 @@ layout_mode = 2
 alignment = 1
 
 [node name="BtnVolverConfig" type="Button" parent="ConfigPanel/Margin/VBox/Footer" unique_id=867581164]
-texture_filter = 1
-material = ExtResource("16_glitch_mat")
-custom_minimum_size = Vector2(60, 38)
+custom_minimum_size = Vector2(160, 40)
 layout_mode = 2
 mouse_default_cursor_shape = 2
-theme_override_colors/icon_pressed_color = Color(1, 0.2, 0.5, 1)
-theme_override_colors/icon_hover_color = Color(0.2, 0.95, 1, 1)
-theme_override_styles/normal = SubResource("StyleBoxEmpty_volver")
-theme_override_styles/pressed = SubResource("StyleBoxEmpty_volver")
-theme_override_styles/hover = SubResource("StyleBoxEmpty_volver")
-theme_override_styles/focus = SubResource("StyleBoxEmpty_volver")
-icon = ExtResource("15_volver_tex")
-flat = true
-icon_alignment = 1
-expand_icon = true
+theme_override_colors/font_color = Color(0.85, 0.95, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 0.8, 0.95, 1)
+theme_override_fonts/font = ExtResource("9_title_font")
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_volver_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_volver_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_volver_hover")
+theme_override_styles/focus = SubResource("StyleBoxFlat_volver_hover")
+text = "VOLVER"

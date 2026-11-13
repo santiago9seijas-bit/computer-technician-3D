@@ -1,0 +1,127 @@
+[gd_scene format=3 load_steps=6]
+
+[ext_resource type="Script" path="res://scripts/ui/SparesSelectionModal.gd" id="1_modal"]
+[ext_resource type="Theme" path="res://styles/cyberpunk_theme.tres" id="2_theme"]
+[ext_resource type="PackedScene" path="res://scenes/ui/CyberBackgroundFrame.tscn" id="3_bg_frame"]
+[ext_resource type="FontFile" uid="uid://dbcug8887dro7" path="res://assets/fonts/Bungee-Regular.ttf" id="4_title_font"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
+bg_color = Color(0.04, 0.02, 0.08, 0.96)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.0, 0.88, 1.0, 0.7)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+shadow_color = Color(0.0, 0.88, 1.0, 0.25)
+shadow_size = 12
+
+[node name="SparesSelectionModal" type="Control"]
+process_mode = 3
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_theme")
+script = ExtResource("1_modal")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.02, 0.01, 0.05, 0.75)
+
+[node name="CyberBackgroundFrame" parent="." instance=ExtResource("3_bg_frame")]
+layout_mode = 1
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+custom_minimum_size = Vector2(780, 520)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -390.0
+offset_top = -260.0
+offset_right = 390.0
+offset_bottom = 260.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="Margin" type="MarginContainer" parent="PanelContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 20
+
+[node name="VBox" type="VBoxContainer" parent="PanelContainer/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Header" type="HBoxContainer" parent="PanelContainer/Margin/VBox"]
+layout_mode = 2
+
+[node name="TitleBox" type="VBoxContainer" parent="PanelContainer/Margin/VBox/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="LblTitle" type="Label" parent="PanelContainer/Margin/VBox/Header/TitleBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.0, 0.9, 1.0, 1.0)
+theme_override_fonts/font = ExtResource("4_title_font")
+theme_override_font_sizes/font_size = 20
+text = "📦 CAJA DE REPUESTOS DEL TALLER"
+
+[node name="LblSub" type="Label" parent="PanelContainer/Margin/VBox/Header/TitleBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.8, 0.9, 0.8)
+theme_override_font_sizes/font_size = 11
+text = "// SELECCIONA EL COMPONENTE DE REEMPLAZO · ALMACÉN TÉCNICO //"
+
+[node name="BtnCerrar" type="Button" parent="PanelContainer/Margin/VBox/Header"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+text = "✕"
+
+[node name="HSeparator" type="HSeparator" parent="PanelContainer/Margin/VBox"]
+layout_mode = 2
+
+[node name="Scroll" type="ScrollContainer" parent="PanelContainer/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="Grid" type="GridContainer" parent="PanelContainer/Margin/VBox/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 12
+columns = 2
+
+[node name="Footer" type="HBoxContainer" parent="PanelContainer/Margin/VBox"]
+layout_mode = 2
+
+[node name="LblBackpack" type="Label" parent="PanelContainer/Margin/VBox/Footer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.2, 1.0, 0.6, 1.0)
+theme_override_font_sizes/font_size = 12
+text = "MOCHILA DEL TÉCNICO: 0 / 3 ESPACIOS OCUPADOS"
+
+[node name="LblHelp" type="Label" parent="PanelContainer/Margin/VBox/Footer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.6, 0.7, 0.8)
+theme_override_font_sizes/font_size = 11
+text = "[ESC] o [E] para Cerrar"

@@ -172,7 +172,7 @@ func _ready() -> void:
 	_update_status()
 
 func _process(delta: float) -> void:
-	if not is_spinning:
+	if not is_spinning or not visible:
 		return
 		
 	if is_decelerating:

@@ -79,7 +79,7 @@ func _init_pulses() -> void:
 		pulses.append(p)
 
 func _process(delta: float) -> void:
-	if not visible or web_alpha <= 0.001:
+	if not is_visible_in_tree() or web_alpha <= 0.001:
 		return
 	anim_time += delta
 	queue_redraw()

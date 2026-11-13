@@ -213,12 +213,14 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -620.0
+offset_left = -540.0
 offset_top = -348.0
-offset_right = 460.0
+offset_right = 540.0
 offset_bottom = 348.0
 grow_horizontal = 2
 grow_vertical = 2
+scale = Vector2(0.85, 0.85)
+pivot_offset = Vector2(540, 348)
 theme_override_styles/panel = SubResource("StyleBoxEmpty_frame")
 
 [node name="CyberBackgroundFrame" parent="ModalControl/Panel" instance=ExtResource("5_bg_frame")]
