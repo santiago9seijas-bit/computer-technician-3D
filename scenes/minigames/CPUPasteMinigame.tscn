@@ -51,8 +51,6 @@ offset_right = 560.0
 offset_bottom = 320.0
 grow_horizontal = 2
 grow_vertical = 2
-scale = Vector2(0.80, 0.80)
-pivot_offset = Vector2(560, 320)
 theme_override_styles/panel = SubResource("StyleBoxEmpty_frame")
 
 [node name="CyberBackgroundFrame" parent="ModalControl/Panel" instance=ExtResource("5_bg_frame")]
@@ -176,7 +174,6 @@ offset_right = 34.0
 offset_bottom = 202.0
 grow_horizontal = 2
 grow_vertical = 2
-pivot_offset = Vector2(194, 171)
 
 [node name="RightGuidePanel" type="PanelContainer" parent="ModalControl/Panel/VBox/WorkArea"]
 layout_mode = 1
@@ -276,7 +273,6 @@ offset_right = 104.0
 offset_bottom = 98.0
 grow_horizontal = 2
 grow_vertical = 2
-pivot_offset = Vector2(104, 99)
 mouse_filter = 0
 texture = ExtResource("8_stain")
 stretch_mode = 5
@@ -296,7 +292,6 @@ offset_right = 104.0
 offset_bottom = 98.0
 grow_horizontal = 2
 grow_vertical = 2
-pivot_offset = Vector2(104, 99)
 mouse_filter = 0
 texture = ExtResource("8_stain")
 stretch_mode = 5

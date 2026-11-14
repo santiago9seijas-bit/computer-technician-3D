@@ -206,21 +206,19 @@ grow_vertical = 2
 color = Color(0.04, 0.01, 0.08, 0.94)
 
 [node name="Panel" type="PanelContainer" parent="ModalControl"]
-custom_minimum_size = Vector2(1080, 696)
+custom_minimum_size = Vector2(960, 500)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -540.0
-offset_top = -348.0
-offset_right = 540.0
-offset_bottom = 348.0
+offset_left = -480.0
+offset_top = -250.0
+offset_right = 480.0
+offset_bottom = 250.0
 grow_horizontal = 2
 grow_vertical = 2
-scale = Vector2(0.85, 0.85)
-pivot_offset = Vector2(540, 348)
 theme_override_styles/panel = SubResource("StyleBoxEmpty_frame")
 
 [node name="CyberBackgroundFrame" parent="ModalControl/Panel" instance=ExtResource("5_bg_frame")]
@@ -239,18 +237,6 @@ theme_override_constants/separation = 7
 [node name="Header" type="VBoxContainer" parent="ModalControl/Panel/VBox"]
 layout_mode = 2
 theme_override_constants/separation = 3
-
-[node name="TitleLabel" type="Label" parent="ModalControl/Panel/VBox/Header"]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.75, 0.2, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 8
-theme_override_colors/font_shadow_color = Color(0.85, 0.35, 0.05, 0.85)
-theme_override_constants/shadow_outline_size = 8
-theme_override_fonts/font = ExtResource("4_title_font")
-theme_override_font_sizes/font_size = 19
-text = "BANCO DE REPARACIÓN Y DIAGNÓSTICO // HARDWARE PC"
-horizontal_alignment = 1
 
 [node name="QuestionPanel" type="PanelContainer" parent="ModalControl/Panel/VBox/Header"]
 layout_mode = 2
@@ -784,6 +770,15 @@ layout_mode = 2
 theme_override_constants/separation = 12
 alignment = 1
 
+[node name="BtnVolver" type="Button" parent="ModalControl/Panel/VBox/BackpackSection/BackpackSlots"]
+custom_minimum_size = Vector2(170, 42)
+layout_mode = 2
+text = "◀ VOLVER"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 12.0
+custom_font_size = 14
+
 [node name="Slot0" type="Button" parent="ModalControl/Panel/VBox/BackpackSection/BackpackSlots"]
 custom_minimum_size = Vector2(260, 42)
 layout_mode = 2
@@ -890,30 +885,18 @@ theme_override_colors/font_color = Color(0.3, 1, 0.65, 1)
 theme_override_font_sizes/font_size = 11
 text = "⚡ Recarga: +1 cada 2 piezas reparadas (0/2)"
 
-[node name="Footer" type="HBoxContainer" parent="ModalControl/Panel/VBox"]
-layout_mode = 2
-alignment = 1
-
-[node name="BtnVolver" type="Button" parent="ModalControl/Panel/VBox/Footer"]
-custom_minimum_size = Vector2(380, 42)
-layout_mode = 2
-text = "◄ SALIR AL TALLER (CAMINAR / BUSCAR REPUESTOS)"
-flat = true
-script = ExtResource("2_cbtn")
-slant = 18.0
-
 [node name="ToolsDock" type="PanelContainer" parent="ModalControl"]
-custom_minimum_size = Vector2(144, 696)
+custom_minimum_size = Vector2(120, 500)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = 476.0
-offset_top = -348.0
-offset_right = 620.0
-offset_bottom = 348.0
+offset_left = 420.0
+offset_top = -250.0
+offset_right = 540.0
+offset_bottom = 250.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxEmpty_tools_dock")
@@ -955,7 +938,7 @@ horizontal_alignment = 1
 layout_mode = 2
 
 [node name="BtnTool1" type="Button" parent="ModalControl/ToolsDock/Margin/VBox"]
-custom_minimum_size = Vector2(104, 110)
+custom_minimum_size = Vector2(88, 88)
 layout_mode = 2
 size_flags_horizontal = 4
 flat = true
@@ -968,7 +951,7 @@ icon_modulate = Color(1, 0.35, 0.45, 1)
 circle_texture = ExtResource("7_circulo_obj")
 
 [node name="BtnTool2" type="Button" parent="ModalControl/ToolsDock/Margin/VBox"]
-custom_minimum_size = Vector2(104, 110)
+custom_minimum_size = Vector2(88, 88)
 layout_mode = 2
 size_flags_horizontal = 4
 flat = true
@@ -982,7 +965,7 @@ icon_flip_h = true
 circle_texture = ExtResource("7_circulo_obj")
 
 [node name="BtnTool3" type="Button" parent="ModalControl/ToolsDock/Margin/VBox"]
-custom_minimum_size = Vector2(104, 110)
+custom_minimum_size = Vector2(88, 88)
 layout_mode = 2
 size_flags_horizontal = 4
 flat = true
@@ -995,7 +978,7 @@ icon_modulate = Color(1, 0.5, 0.2, 1)
 circle_texture = ExtResource("7_circulo_obj")
 
 [node name="BtnTool4" type="Button" parent="ModalControl/ToolsDock/Margin/VBox"]
-custom_minimum_size = Vector2(104, 110)
+custom_minimum_size = Vector2(88, 88)
 layout_mode = 2
 size_flags_horizontal = 4
 flat = true
@@ -1008,7 +991,7 @@ icon_modulate = Color(0.2, 1, 0.7, 1)
 circle_texture = ExtResource("7_circulo_obj")
 
 [node name="BtnTool5" type="Button" parent="ModalControl/ToolsDock/Margin/VBox"]
-custom_minimum_size = Vector2(104, 110)
+custom_minimum_size = Vector2(88, 88)
 layout_mode = 2
 size_flags_horizontal = 4
 flat = true

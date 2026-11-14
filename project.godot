@@ -22,6 +22,7 @@ run/max_fps=60
 
 [autoload]
 
+ResponsiveScreenManager="*res://scripts/autoload/ResponsiveScreenManager.gd"
 LocalizationManager="*res://scripts/autoload/LocalizationManager.gd"
 GameManager="*res://scripts/autoload/GameManager.gd"
 SaveManager="*res://scripts/autoload/SaveManager.gd"
@@ -31,6 +32,7 @@ SaveManager="*res://scripts/autoload/SaveManager.gd"
 window/size/viewport_width=1280
 window/size/viewport_height=720
 window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
 
 [filesystem]
 

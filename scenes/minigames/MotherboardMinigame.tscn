@@ -129,8 +129,6 @@ offset_right = 580.0
 offset_bottom = 320.0
 grow_horizontal = 2
 grow_vertical = 2
-scale = Vector2(0.80, 0.80)
-pivot_offset = Vector2(580, 320)
 theme_override_styles/panel = SubResource("StyleBoxEmpty_frame")
 
 [node name="CyberBackgroundFrame" parent="ModalControl/Panel" instance=ExtResource("5_bg_frame")]
@@ -401,7 +399,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-pivot_offset = Vector2(14, 14)
 expand_mode = 1
 stretch_mode = 5
 
@@ -426,7 +423,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-pivot_offset = Vector2(14, 14)
 expand_mode = 1
 stretch_mode = 5
 
@@ -451,7 +447,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-pivot_offset = Vector2(14, 14)
 expand_mode = 1
 stretch_mode = 5
 
@@ -477,7 +472,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-pivot_offset = Vector2(14, 14)
 expand_mode = 1
 stretch_mode = 5
 
@@ -784,7 +778,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-pivot_offset = Vector2(16, 16)
 expand_mode = 1
 stretch_mode = 5
 
@@ -803,7 +796,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-pivot_offset = Vector2(16, 16)
 expand_mode = 1
 stretch_mode = 5
 
@@ -822,7 +814,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-pivot_offset = Vector2(16, 16)
 expand_mode = 1
 stretch_mode = 5
 
@@ -841,7 +832,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-pivot_offset = Vector2(16, 16)
 expand_mode = 1
 stretch_mode = 5
 
@@ -860,7 +850,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-pivot_offset = Vector2(16, 16)
 expand_mode = 1
 stretch_mode = 5
 
@@ -879,7 +868,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-pivot_offset = Vector2(16, 16)
 expand_mode = 1
 stretch_mode = 5
 

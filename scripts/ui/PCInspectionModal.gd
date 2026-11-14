@@ -17,7 +17,7 @@ var voltimeter_minigame_scene: PackedScene = preload("res://scenes/minigames/Vol
 var liquid_cooling_scene: PackedScene = preload("res://scenes/minigames/LiquidCoolingMinigame.tscn")
 
 @onready var modal_control: Control = $ModalControl
-@onready var title_label: Label = $ModalControl/Panel/VBox/Header/TitleLabel
+@onready var title_label: Label = get_node_or_null("ModalControl/Panel/VBox/Header/TitleLabel")
 @onready var status_summary: Label = $ModalControl/Panel/VBox/Header/StatusSummary
 @onready var pc_state_badge: Label = $ModalControl/Panel/VBox/BadgeLabel
 @onready var question_text: Label = $ModalControl/Panel/VBox/Header/QuestionPanel/Margin/VBox/QuestionText
@@ -83,7 +83,7 @@ var liquid_cooling_scene: PackedScene = preload("res://scenes/minigames/LiquidCo
 @onready var slot_1: Button = $ModalControl/Panel/VBox/BackpackSection/BackpackSlots/Slot1
 @onready var slot_2: Button = $ModalControl/Panel/VBox/BackpackSection/BackpackSlots/Slot2
 
-@onready var btn_volver: Button = $ModalControl/Panel/VBox/Footer/BtnVolver
+@onready var btn_volver: Button = get_node_or_null("ModalControl/Panel/VBox/BackpackSection/BackpackSlots/BtnVolver")
 
 var slot_buttons: Array[Button] = []
 var comp_cards: Dictionary = {}
@@ -220,11 +220,13 @@ func setup_pc(pc_node) -> void:
 	var is_tutorial_pc: bool = (current_pc and current_pc.has_meta("is_tutorial_pc") and current_pc.get_meta("is_tutorial_pc")) or (get_tree().current_scene and "LevelTutorial" in get_tree().current_scene.name)
 	var pc_id_val = current_pc.get("pc_id") if current_pc.get("pc_id") != null else 1
 	if is_tutorial_pc:
-		title_label.text = "INDUCCIÓN TÉCNICA: PC DE ENTRENAMIENTO"
+		if title_label:
+			title_label.text = "INDUCCIÓN TÉCNICA: PC DE ENTRENAMIENTO"
 		if pc_state_badge:
 			pc_state_badge.text = "[ MODO TUTORIAL: EXTRACCIÓN GUIADA ]"
 	else:
-		title_label.text = "DIAGNÓSTICO TÉCNICO: COMPUTADORA #%d" % pc_id_val
+		if title_label:
+			title_label.text = "DIAGNÓSTICO TÉCNICO: COMPUTADORA #%d" % pc_id_val
 	
 	# Mostrar la pregunta de diagnóstico según el reporte del cliente
 	var q_text = current_pc.get("diagnostic_question") if current_pc.get("diagnostic_question") != null else ""

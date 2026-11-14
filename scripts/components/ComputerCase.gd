@@ -180,7 +180,10 @@ func interact(player) -> void:
 	
 	player.set_movement_enabled(false)
 	if player.hud_node:
-		player.hud_node.visible = false
+		if player.hud_node.has_method("hide_gameplay_hud_for_modal"):
+			player.hud_node.hide_gameplay_hud_for_modal(true)
+		else:
+			player.hud_node.visible = false
 	var modal = inspection_modal_scene.instantiate()
 	get_tree().root.add_child(modal)
 	modal.setup_pc(self)
@@ -190,11 +193,21 @@ func interact(player) -> void:
 		if is_fully_repaired():
 			player.set_movement_enabled(false)
 			if player.hud_node:
-				player.hud_node.visible = true
+				if player.hud_node.has_method("show_gameplay_hud_from_modal"):
+					player.hud_node.show_gameplay_hud_from_modal(true)
+				else:
+					player.hud_node.visible = true
+				if player.hud_node.has_method("ensure_hud_visible"):
+					player.hud_node.ensure_hud_visible()
 			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 		else:
 			player.set_movement_enabled(true)
 			if player.hud_node:
-				player.hud_node.visible = true
+				if player.hud_node.has_method("show_gameplay_hud_from_modal"):
+					player.hud_node.show_gameplay_hud_from_modal(true)
+				else:
+					player.hud_node.visible = true
+				if player.hud_node.has_method("ensure_hud_visible"):
+					player.hud_node.ensure_hud_visible()
 			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	)

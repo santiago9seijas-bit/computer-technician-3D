@@ -127,8 +127,6 @@ offset_right = 520.0
 offset_bottom = 335.0
 grow_horizontal = 2
 grow_vertical = 2
-scale = Vector2(0.80, 0.80)
-pivot_offset = Vector2(520, 335)
 theme_override_styles/panel = SubResource("StyleBoxEmpty_frame")
 
 [node name="CyberBackgroundFrame" parent="ModalControl/Panel" instance=ExtResource("4_bg_frame")]
@@ -360,7 +358,6 @@ offset_left = 152.0
 offset_top = 152.0
 offset_right = 188.0
 offset_bottom = 188.0
-pivot_offset = Vector2(18, 18)
 texture = ExtResource("7_marca_tex")
 expand_mode = 1
 stretch_mode = 5
@@ -372,7 +369,6 @@ offset_left = 158.0
 offset_top = 158.0
 offset_right = 298.0
 offset_bottom = 182.0
-pivot_offset = Vector2(12, 12)
 texture = ExtResource("8_flecha_tex")
 expand_mode = 1
 stretch_mode = 5

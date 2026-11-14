@@ -1,0 +1,35 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/components/MonitorPedidos.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://modelos_3d/escenario_3d/monitor.glb" id="2_monitor"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_monitor"]
+size = Vector3(0.35, 0.55, 0.65)
+
+[node name="MonitorPedidos" type="StaticBody3D"]
+script = ExtResource("1_script")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.275, 0)
+shape = SubResource("BoxShape3D_monitor")
+
+[node name="ModelPivot" type="Node3D" parent="."]
+
+[node name="MonitorModel" parent="ModelPivot" instance=ExtResource("2_monitor")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.669, -1.4899, 2.2059)
+
+[node name="OmniLight3D" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.25, 0.28, 0)
+light_color = Color(0.12, 0.85, 1, 1)
+light_energy = 1.2
+omni_range = 1.6
+
+[node name="Label3D" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.65, 0)
+billboard = 1
+text = "🖥️ TERMINAL DE PEDIDOS
+[ E ] ACCEDER"
+font_size = 20
+outline_size = 6
+outline_modulate = Color(0, 0, 0, 1)
+modulate = Color(0, 0.95, 1, 1)

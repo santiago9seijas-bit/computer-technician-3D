@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://b8eae7f6a5c4"]
+
+[ext_resource type="Script" path="res://tests/test_screen_adapter.gd" id="1_test"]
+
+[node name="TestScreenAdapter" type="Node"]
+script = ExtResource("1_test")

@@ -32,6 +32,13 @@ const BACKPACK_RESTING_RIGHT: float = -30.0
 const BACKPACK_HIDDEN_LEFT: float = 30.0
 const BACKPACK_HIDDEN_RIGHT: float = 260.0
 
+# Animación de ocultamiento/aparición al abrir modales (PC y Pedidos)
+var _modal_hud_tween: Tween = null
+var _orig_top_left_y: float = 20.0
+var _orig_bottom_left_y: float = -74.0
+var _orig_bottom_center_y: float = -128.0
+var _positions_cached: bool = false
+
 func set_infinite_time(enabled: bool = true) -> void:
 	is_infinite_time = enabled
 	if is_infinite_time and lbl_tiempo:
@@ -49,6 +56,9 @@ func _ready() -> void:
 	win_panel.visible = false
 	prompt_label.text = ""
 	
+	# Asegurar que todos los elementos clave del HUD estén completamente visibles
+	ensure_hud_visible()
+	
 	var gm = get_node_or_null("/root/GameManager")
 	if gm:
 		gm.score_updated.connect(_on_score_updated)
@@ -62,6 +72,10 @@ func _ready() -> void:
 			gm.hardware_monitor_changed.connect(_on_hardware_monitor_changed)
 			if gm.has_method("is_hardware_monitor_enabled"):
 				_on_hardware_monitor_changed(gm.is_hardware_monitor_enabled())
+		if "score" in gm:
+			_on_score_updated(gm.score, 0)
+		if "errors" in gm:
+			_on_error_occurred(gm.errors, 0)
 	
 	var init_items: Array = gm.backpack if gm and "backpack" in gm else []
 	_update_backpack_ui(init_items, false)
@@ -193,6 +207,7 @@ func play_optic_boot_transition(callback: Callable = Callable()) -> void:
 		is_cinematic_active = false
 		if cinematic_overlay:
 			cinematic_overlay.visible = false
+		ensure_hud_visible()
 		if callback.is_valid():
 			callback.call()
 	)
@@ -201,10 +216,136 @@ func skip_cinematic() -> void:
 	is_cinematic_active = false
 	if cinematic_overlay:
 		cinematic_overlay.visible = false
+	ensure_hud_visible()
+
+func _cache_hud_positions() -> void:
+	if _positions_cached:
+		return
+	_positions_cached = true
+	if top_left_container:
+		_orig_top_left_y = top_left_container.offset_top
+	var bl = get_node_or_null("BottomLeft") as Control
+	if bl:
+		_orig_bottom_left_y = bl.offset_top
+	if bottom_center_panel:
+		_orig_bottom_center_y = bottom_center_panel.offset_top
+
+func hide_gameplay_hud_for_modal(animated: bool = true) -> void:
+	_cache_hud_positions()
+	if _modal_hud_tween and _modal_hud_tween.is_valid():
+		_modal_hud_tween.kill()
+
+	var panels_to_hide: Array[Control] = []
+	if top_left_container: panels_to_hide.append(top_left_container)
+	var bl = get_node_or_null("BottomLeft") as Control
+	if bl: panels_to_hide.append(bl)
+	if bottom_center_panel: panels_to_hide.append(bottom_center_panel)
+	var center = get_node_or_null("Center") as Control
+	if center: panels_to_hide.append(center)
+	var tr = get_node_or_null("TopRight") as Control
+	if tr: panels_to_hide.append(tr)
+
+	# Asegurar que el contador de tiempo del nivel (TopCenter) permanezca 100% visible
+	if lbl_tiempo and lbl_tiempo.get_parent():
+		var tc = lbl_tiempo.get_parent() as Control
+		tc.visible = true
+		tc.modulate.a = 1.0
+
+	if not animated:
+		for p in panels_to_hide:
+			p.modulate.a = 0.0
+			p.visible = false
+		return
+
+	_modal_hud_tween = create_tween().set_parallel(true)
+	for p in panels_to_hide:
+		_modal_hud_tween.tween_property(p, "modulate:a", 0.0, 0.22).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	
+	if top_left_container:
+		_modal_hud_tween.tween_property(top_left_container, "offset_top", _orig_top_left_y - 18.0, 0.22).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	if bl:
+		_modal_hud_tween.tween_property(bl, "offset_top", _orig_bottom_left_y + 18.0, 0.22).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	if bottom_center_panel:
+		_modal_hud_tween.tween_property(bottom_center_panel, "offset_top", _orig_bottom_center_y + 24.0, 0.22).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+
+	_modal_hud_tween.chain().tween_callback(func():
+		for p in panels_to_hide:
+			p.visible = false
+	)
+
+func show_gameplay_hud_from_modal(animated: bool = true) -> void:
+	_cache_hud_positions()
+	if _modal_hud_tween and _modal_hud_tween.is_valid():
+		_modal_hud_tween.kill()
+
+	var panels_to_show: Array[Control] = []
+	if top_left_container: panels_to_show.append(top_left_container)
+	var bl = get_node_or_null("BottomLeft") as Control
+	if bl: panels_to_show.append(bl)
+	if bottom_center_panel: panels_to_show.append(bottom_center_panel)
+	var center = get_node_or_null("Center") as Control
+	if center: panels_to_show.append(center)
+
+	# Asegurar que el contador de tiempo continúe 100% visible
+	if lbl_tiempo and lbl_tiempo.get_parent():
+		var tc = lbl_tiempo.get_parent() as Control
+		tc.visible = true
+		tc.modulate.a = 1.0
+
+	for p in panels_to_show:
+		p.visible = true
+
+	if not animated:
+		for p in panels_to_show:
+			p.modulate.a = 1.0
+		if top_left_container: top_left_container.offset_top = _orig_top_left_y
+		if bl: bl.offset_top = _orig_bottom_left_y
+		if bottom_center_panel: bottom_center_panel.offset_top = _orig_bottom_center_y
+		return
+
+	# Iniciar desde transparente y animar suavemente hacia adentro
+	for p in panels_to_show:
+		p.modulate.a = 0.0
+
+	_modal_hud_tween = create_tween().set_parallel(true)
+	for p in panels_to_show:
+		_modal_hud_tween.tween_property(p, "modulate:a", 1.0, 0.28).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	
+	if top_left_container:
+		top_left_container.offset_top = _orig_top_left_y - 18.0
+		_modal_hud_tween.tween_property(top_left_container, "offset_top", _orig_top_left_y, 0.28).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	if bl:
+		bl.offset_top = _orig_bottom_left_y + 18.0
+		_modal_hud_tween.tween_property(bl, "offset_top", _orig_bottom_left_y, 0.28).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	if bottom_center_panel:
+		bottom_center_panel.offset_top = _orig_bottom_center_y + 24.0
+		_modal_hud_tween.tween_property(bottom_center_panel, "offset_top", _orig_bottom_center_y, 0.28).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+func ensure_hud_visible() -> void:
+	_cache_hud_positions()
+	is_cinematic_active = false
+	if cinematic_overlay:
+		cinematic_overlay.visible = false
 	for panel_name in ["TopLeft", "TopCenter", "BottomLeft", "TopRight", "Center", "BottomCenter"]:
 		var p = get_node_or_null(panel_name) as Control
 		if p:
 			p.modulate.a = 1.0
+			p.visible = true
+	if top_left_container:
+		top_left_container.offset_top = _orig_top_left_y
+	var bl = get_node_or_null("BottomLeft") as Control
+	if bl:
+		bl.offset_top = _orig_bottom_left_y
+	if bottom_center_panel:
+		bottom_center_panel.visible = true
+		bottom_center_panel.modulate.a = 1.0
+		bottom_center_panel.offset_top = _orig_bottom_center_y
+	if tools_bar:
+		tools_bar.visible = true
+		for i in range(tools_bar.get_child_count()):
+			var btn = tools_bar.get_child(i) as Control
+			if btn:
+				btn.visible = true
 
 var _last_prompt: String = ""
 var _last_displayed_second: int = -1
@@ -333,17 +474,23 @@ func set_visible_tools(count: int) -> void:
 	if not tools_bar:
 		return
 	if bottom_center_panel:
-		bottom_center_panel.visible = (count > 0)
+		bottom_center_panel.visible = true
+		bottom_center_panel.modulate.a = 1.0
 	for i in range(tools_bar.get_child_count()):
 		var btn = tools_bar.get_child(i) as Control
 		if btn:
-			btn.visible = (i < count)
+			btn.visible = (count <= 0 or i < count)
 
 func set_tools_bar_visible(enabled: bool) -> void:
 	if bottom_center_panel:
 		bottom_center_panel.visible = enabled
-	elif tools_bar:
+		bottom_center_panel.modulate.a = 1.0 if enabled else 0.0
+	if tools_bar:
 		tools_bar.visible = enabled
+		for i in range(tools_bar.get_child_count()):
+			var btn = tools_bar.get_child(i) as Control
+			if btn:
+				btn.visible = enabled
 
 func _on_tool_selected(tool_id: int) -> void:
 	_update_tools_ui(tool_id)
