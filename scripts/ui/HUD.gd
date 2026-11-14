@@ -35,7 +35,10 @@ const BACKPACK_HIDDEN_RIGHT: float = 260.0
 func set_infinite_time(enabled: bool = true) -> void:
 	is_infinite_time = enabled
 	if is_infinite_time and lbl_tiempo:
-		lbl_tiempo.text = "Tiempo: Infinito"
+		var txt = "Tiempo: Infinito"
+		if has_node("/root/LocalizationManager"):
+			txt = get_node("/root/LocalizationManager").translate_text(txt)
+		lbl_tiempo.text = txt
 		lbl_tiempo.modulate = Color(0, 0.9, 1, 1)
 
 func _ready() -> void:
@@ -213,11 +216,17 @@ func set_interaction_prompt(text: String) -> void:
 	prompt_label.text = text
 
 func _on_score_updated(new_score: int, _delta: int) -> void:
-	lbl_puntaje.text = "Puntaje: %d" % new_score
+	var prefix = "Puntaje:"
+	if has_node("/root/LocalizationManager"):
+		prefix = get_node("/root/LocalizationManager").translate_text(prefix)
+	lbl_puntaje.text = "%s %d" % [prefix, new_score]
 
 func _on_time_updated(t: float, _delta: float) -> void:
 	if is_infinite_time:
-		lbl_tiempo.text = "Tiempo: Infinito"
+		var txt = "Tiempo: Infinito"
+		if has_node("/root/LocalizationManager"):
+			txt = get_node("/root/LocalizationManager").translate_text(txt)
+		lbl_tiempo.text = txt
 		lbl_tiempo.modulate = Color(0, 0.9, 1, 1)
 		return
 	var total_sec := int(t)
@@ -226,14 +235,20 @@ func _on_time_updated(t: float, _delta: float) -> void:
 	_last_displayed_second = total_sec
 	var mins = total_sec / 60
 	var secs = total_sec % 60
-	lbl_tiempo.text = "Tiempo: %02d:%02d" % [mins, secs]
+	var prefix = "Tiempo:"
+	if has_node("/root/LocalizationManager"):
+		prefix = get_node("/root/LocalizationManager").translate_text(prefix)
+	lbl_tiempo.text = "%s %02d:%02d" % [prefix, mins, secs]
 	if t < 20.0:
 		lbl_tiempo.modulate = Color(1, 0.2, 0.2, 1) # Parpadeo rojo en últimos segundos
 	else:
 		lbl_tiempo.modulate = Color(1, 1, 1, 1)
 
 func _on_error_occurred(new_errors: int, _delta: int) -> void:
-	lbl_errores.text = "Errores: %d / 20" % new_errors
+	var prefix = "Errores:"
+	if has_node("/root/LocalizationManager"):
+		prefix = get_node("/root/LocalizationManager").translate_text(prefix)
+	lbl_errores.text = "%s %d / 20" % [prefix, new_errors]
 
 func _on_backpack_updated(items: Array) -> void:
 	_update_backpack_ui(items, true)
@@ -252,6 +267,10 @@ func _update_backpack_ui(items: Array, animate: bool = true) -> void:
 			var btn = Button.new()
 			var estado = "(Dañada)" if item.get("broken", false) else "(Nueva)"
 			var item_label = item.get("display_name", item.get("name", "Pieza"))
+			if has_node("/root/LocalizationManager"):
+				var loc = get_node("/root/LocalizationManager")
+				estado = loc.translate_text(estado)
+				item_label = loc.translate_text(item_label)
 			btn.text = "%d. %s %s" % [i + 1, item_label, estado]
 			if item.get("broken", false):
 				btn.modulate = Color(1, 0.4, 0.4, 1)

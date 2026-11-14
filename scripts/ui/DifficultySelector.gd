@@ -235,8 +235,21 @@ func select_difficulty(diff_name: String, animate: bool = true) -> void:
 	difficulty_selected.emit(key)
 
 func _update_feedback_text(data: Dictionary, animate: bool) -> void:
+	var loc_title = data["title"]
+	var loc_time = data["time_str"]
+	var loc_desc = data["desc"]
+	var modo_prefix = "MODO:"
+	var limite_prefix = "TIEMPO LÍMITE:"
+	if has_node("/root/LocalizationManager"):
+		var loc = get_node("/root/LocalizationManager")
+		loc_title = loc.translate_text(loc_title)
+		loc_time = loc.translate_text(loc_time)
+		loc_desc = loc.translate_text(loc_desc)
+		modo_prefix = loc.translate_text(modo_prefix)
+		limite_prefix = loc.translate_text(limite_prefix)
+
 	if lbl_selected_mode:
-		lbl_selected_mode.text = "MODO: [ %s ] · %s" % [data["title"], data["time_str"]]
+		lbl_selected_mode.text = "%s [ %s ] · %s" % [modo_prefix, loc_title, loc_time]
 		lbl_selected_mode.add_theme_color_override("font_color", data["color"])
 		lbl_selected_mode.add_theme_color_override("font_shadow_color", data["color"] * Color(0.3, 0.3, 0.3, 0.9))
 		
@@ -247,11 +260,11 @@ func _update_feedback_text(data: Dictionary, animate: bool) -> void:
 			tw.tween_property(lbl_selected_mode, "scale", Vector2.ONE, 0.12)
 			
 	if lbl_desc:
-		lbl_desc.text = data["desc"]
+		lbl_desc.text = loc_desc
 		lbl_desc.add_theme_color_override("font_color", Color(0.85, 0.88, 0.95, 0.95))
 		
 	if lbl_iniciar_sub:
-		lbl_iniciar_sub.text = "[ TIEMPO LÍMITE: %s ]" % data["time_str"]
+		lbl_iniciar_sub.text = "[ %s %s ]" % [limite_prefix, loc_time]
 		lbl_iniciar_sub.add_theme_color_override("font_color", data["color"])
 
 func _on_difficulty_btn_pressed(diff_key: String) -> void:

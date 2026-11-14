@@ -22,7 +22,9 @@ run/max_fps=60
 
 [autoload]
 
+LocalizationManager="*res://scripts/autoload/LocalizationManager.gd"
 GameManager="*res://scripts/autoload/GameManager.gd"
+SaveManager="*res://scripts/autoload/SaveManager.gd"
 
 [display]
 

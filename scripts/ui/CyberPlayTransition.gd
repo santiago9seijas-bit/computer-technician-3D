@@ -18,6 +18,7 @@ var _is_tutorial: bool = false
 var _is_practice: bool = false
 var _mode: String = ""
 var _is_exit: bool = false
+var _transition_type: String = "normal"
 
 static func play(
 	tree: SceneTree,
@@ -117,8 +118,57 @@ static func play_exit(
 
 	play(tree, target_scene_path, title_text, subtitle_text, on_finished, (m == "tutorial"), (m == "practica"), m, true)
 
+static func play_error_glitch(
+	tree: SceneTree,
+	target_scene_path: String = "res://scenes/menus/SaveSlotsMenu.tscn",
+	on_finished: Callable = Callable()
+) -> void:
+	if not tree or not tree.root:
+		return
+	var old = tree.root.get_node_or_null("CyberPlayTransition")
+	if old:
+		old.queue_free()
+	if target_scene_path != "":
+		ResourceLoader.load_threaded_request(target_scene_path)
+	var transition = CyberPlayTransition.new()
+	transition.name = "CyberPlayTransition"
+	transition.layer = 160
+	transition.process_mode = Node.PROCESS_MODE_ALWAYS
+	transition._tree = tree
+	transition._target_scene = target_scene_path
+	transition._on_finished = on_finished
+	transition._transition_type = "error"
+	tree.root.call_deferred("add_child", transition)
+
+static func play_code_restored(
+	tree: SceneTree,
+	target_scene_path: String = "res://scenes/menus/MainMenu.tscn",
+	on_finished: Callable = Callable()
+) -> void:
+	if not tree or not tree.root:
+		return
+	var old = tree.root.get_node_or_null("CyberPlayTransition")
+	if old:
+		old.queue_free()
+	if target_scene_path != "":
+		ResourceLoader.load_threaded_request(target_scene_path)
+	var transition = CyberPlayTransition.new()
+	transition.name = "CyberPlayTransition"
+	transition.layer = 160
+	transition.process_mode = Node.PROCESS_MODE_ALWAYS
+	transition._tree = tree
+	transition._target_scene = target_scene_path
+	transition._on_finished = on_finished
+	transition._transition_type = "restored"
+	tree.root.call_deferred("add_child", transition)
+
 func _ready() -> void:
-	_start_sequence(_tree if _tree else get_tree(), _target_scene, _title_text, _subtitle_text, _on_finished)
+	if _transition_type == "error":
+		_start_error_glitch_sequence(_tree if _tree else get_tree(), _target_scene, _on_finished)
+	elif _transition_type == "restored":
+		_start_code_restored_sequence(_tree if _tree else get_tree(), _target_scene, _on_finished)
+	else:
+		_start_sequence(_tree if _tree else get_tree(), _target_scene, _title_text, _subtitle_text, _on_finished)
 
 func _input(event: InputEvent) -> void:
 	var is_esc = (event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE)
@@ -874,3 +924,295 @@ func _perform_scene_swap_and_reveal(
 		transition_completed.emit()
 		queue_free()
 	)
+
+# =============================================================================
+# CINEMÁTICA DE ERROR / GLITCH AL ENTRAR AL TEST/SET DE PARTIDA
+# =============================================================================
+func _start_error_glitch_sequence(
+	tree: SceneTree,
+	target_scene_path: String,
+	on_finished: Callable
+) -> void:
+	var loc = get_node_or_null("/root/LocalizationManager")
+	var t_err = loc.translate_text("[ ⚠️ SYSTEM ERROR // EXCEPCIÓN DE MEMORIA ]") if loc else "[ ⚠️ SYSTEM ERROR // EXCEPCIÓN DE MEMORIA ]"
+	var t_sub = loc.translate_text("// REDIRIGIENDO AL GESTOR DE PARTIDAS... //") if loc else "// REDIRIGIENDO AL GESTOR DE PARTIDAS... //"
+	
+	var root_ctrl = Control.new()
+	root_ctrl.set_anchors_preset(Control.PRESET_FULL_RECT)
+	root_ctrl.mouse_filter = Control.MOUSE_FILTER_STOP
+	add_child(root_ctrl)
+	
+	var screen_w = root_ctrl.size.x if root_ctrl.size.x > 0 else 1280.0
+	var screen_h = root_ctrl.size.y if root_ctrl.size.y > 0 else 720.0
+	
+	var shake_ctrl = Control.new()
+	shake_ctrl.set_anchors_preset(Control.PRESET_FULL_RECT)
+	shake_ctrl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root_ctrl.add_child(shake_ctrl)
+	
+	var bg = ColorRect.new()
+	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	bg.color = Color(0.08, 0.012, 0.03, 0.96)
+	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	shake_ctrl.add_child(bg)
+	
+	var glitch_bars: Array[ColorRect] = []
+	for i in range(8):
+		var bar = ColorRect.new()
+		var bar_h = randf_range(8.0, 38.0)
+		var bar_y = randf_range(0.0, screen_h - bar_h)
+		bar.size = Vector2(screen_w, bar_h)
+		bar.position = Vector2(0.0, bar_y)
+		bar.color = Color(1.0, 0.05, 0.25, 0.35) if (i % 2 == 0) else Color(0.9, 0.0, 0.8, 0.25)
+		bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		shake_ctrl.add_child(bar)
+		glitch_bars.append(bar)
+		
+	var panel = PanelContainer.new()
+	panel.custom_minimum_size = Vector2(760, 260)
+	panel.position = Vector2((screen_w - 760.0) * 0.5, (screen_h - 260.0) * 0.5)
+	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	
+	var sb = StyleBoxFlat.new()
+	sb.bg_color = Color(0.12, 0.02, 0.05, 0.94)
+	sb.border_color = Color(1.0, 0.1, 0.3, 1.0)
+	sb.set_border_width_all(3)
+	sb.set_corner_radius_all(8)
+	sb.shadow_color = Color(1.0, 0.05, 0.2, 0.6)
+	sb.shadow_size = 12
+	panel.add_theme_stylebox_override("panel", sb)
+	shake_ctrl.add_child(panel)
+	
+	var vbox = VBoxContainer.new()
+	vbox.set_anchors_preset(Control.PRESET_FULL_RECT)
+	vbox.add_theme_constant_override("separation", 10)
+	
+	var margin = MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 24)
+	margin.add_theme_constant_override("margin_right", 24)
+	margin.add_theme_constant_override("margin_top", 18)
+	margin.add_theme_constant_override("margin_bottom", 18)
+	panel.add_child(margin)
+	margin.add_child(vbox)
+	
+	var header_bar = ColorRect.new()
+	header_bar.custom_minimum_size = Vector2(0, 32)
+	header_bar.color = Color(1.0, 0.12, 0.3, 0.85)
+	vbox.add_child(header_bar)
+	
+	var lbl_badge = Label.new()
+	lbl_badge.set_anchors_preset(Control.PRESET_FULL_RECT)
+	lbl_badge.text = t_err
+	lbl_badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lbl_badge.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	lbl_badge.add_theme_font_size_override("font_size", 13)
+	lbl_badge.add_theme_color_override("font_color", Color(0, 0, 0))
+	if ResourceLoader.exists("res://assets/fonts/Bungee-Regular.ttf"):
+		lbl_badge.add_theme_font_override("font", load("res://assets/fonts/Bungee-Regular.ttf"))
+	header_bar.add_child(lbl_badge)
+	
+	var lbl_code = Label.new()
+	lbl_code.text = "EXCEPTION 0x0000007E // CORRUPT_STATE_RECOVERY"
+	lbl_code.add_theme_font_size_override("font_size", 16)
+	lbl_code.add_theme_color_override("font_color", Color(1.0, 0.9, 0.2))
+	lbl_code.add_theme_color_override("font_outline_color", Color(0, 0, 0))
+	lbl_code.add_theme_constant_override("outline_size", 4)
+	lbl_code.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(lbl_code)
+	
+	var lbl_term = Label.new()
+	lbl_term.text = "> ACTIVE SAVE STATE: [NOT DETECTED / UNLINKED]\n> EXCEPTION HANDLER: INVOKING MEMORY RECOVERY MATRIX...\n> OPENING STORAGE SETS GESTOR..."
+	lbl_term.add_theme_font_size_override("font_size", 12)
+	lbl_term.add_theme_color_override("font_color", Color(1.0, 0.7, 0.75, 0.9))
+	vbox.add_child(lbl_term)
+	
+	var lbl_subt = Label.new()
+	lbl_subt.text = t_sub
+	lbl_subt.add_theme_font_size_override("font_size", 13)
+	lbl_subt.add_theme_color_override("font_color", Color(0.2, 0.9, 1.0))
+	lbl_subt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(lbl_subt)
+	
+	_play_glitch_sfx()
+	
+	var tw = tree.create_tween()
+	var shake_steps = 14
+	for s in range(shake_steps):
+		tw.tween_callback(func():
+			if is_instance_valid(shake_ctrl):
+				shake_ctrl.position = Vector2(randf_range(-10.0, 10.0), randf_range(-6.0, 6.0))
+			for b in glitch_bars:
+				if is_instance_valid(b):
+					b.position.x = randf_range(-40.0, 40.0)
+					b.modulate.a = randf_range(0.2, 0.9)
+					b.color = Color(1.0, randf_range(0.0, 0.3), randf_range(0.1, 0.7), randf_range(0.3, 0.7))
+		)
+		tw.tween_interval(0.04)
+		
+	var flash = ColorRect.new()
+	flash.set_anchors_preset(Control.PRESET_FULL_RECT)
+	flash.color = Color(1.0, 0.2, 0.3, 0.0)
+	flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root_ctrl.add_child(flash)
+	
+	tw.chain().tween_property(flash, "color:a", 0.75, 0.08)
+	tw.chain().tween_callback(func():
+		if target_scene_path != "":
+			tree.change_scene_to_file(target_scene_path)
+	)
+	tw.chain().tween_interval(0.05)
+	tw.chain().tween_property(root_ctrl, "modulate:a", 0.0, 0.25)
+	tw.chain().tween_callback(func():
+		if on_finished.is_valid():
+			on_finished.call()
+		transition_completed.emit()
+		queue_free()
+	)
+
+# =============================================================================
+# CINEMÁTICA DE CÓDIGO FUNCIONAL / REPARADO AL VOLVER AL MENÚ PRINCIPAL
+# =============================================================================
+func _start_code_restored_sequence(
+	tree: SceneTree,
+	target_scene_path: String,
+	on_finished: Callable
+) -> void:
+	var loc = get_node_or_null("/root/LocalizationManager")
+	var t_rest = loc.translate_text("[ ✓ CÓDIGO FUNCIONAL // SISTEMA REPARADO ]") if loc else "[ ✓ CÓDIGO FUNCIONAL // SISTEMA REPARADO ]"
+	var t_sub = loc.translate_text("// KERNEL COMPILADO SIN ERRORES // RETORNANDO AL MENÚ //") if loc else "// KERNEL COMPILADO SIN ERRORES // RETORNANDO AL MENÚ //"
+	
+	var root_ctrl = Control.new()
+	root_ctrl.set_anchors_preset(Control.PRESET_FULL_RECT)
+	root_ctrl.mouse_filter = Control.MOUSE_FILTER_STOP
+	add_child(root_ctrl)
+	
+	var screen_w = root_ctrl.size.x if root_ctrl.size.x > 0 else 1280.0
+	var screen_h = root_ctrl.size.y if root_ctrl.size.y > 0 else 720.0
+	
+	var bg = ColorRect.new()
+	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	bg.color = Color(0.01, 0.04, 0.025, 0.96)
+	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root_ctrl.add_child(bg)
+	
+	var scan_beam = ColorRect.new()
+	scan_beam.size = Vector2(screen_w, 4.0)
+	scan_beam.position = Vector2(0.0, -10.0)
+	scan_beam.color = Color(0.0, 1.0, 0.5, 0.8)
+	scan_beam.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root_ctrl.add_child(scan_beam)
+	
+	var panel = PanelContainer.new()
+	panel.custom_minimum_size = Vector2(760, 260)
+	panel.position = Vector2((screen_w - 760.0) * 0.5, (screen_h - 260.0) * 0.5)
+	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	
+	var sb = StyleBoxFlat.new()
+	sb.bg_color = Color(0.02, 0.08, 0.05, 0.94)
+	sb.border_color = Color(0.0, 1.0, 0.5, 1.0)
+	sb.set_border_width_all(3)
+	sb.set_corner_radius_all(8)
+	sb.shadow_color = Color(0.0, 1.0, 0.5, 0.5)
+	sb.shadow_size = 12
+	panel.add_theme_stylebox_override("panel", sb)
+	root_ctrl.add_child(panel)
+	
+	var vbox = VBoxContainer.new()
+	vbox.set_anchors_preset(Control.PRESET_FULL_RECT)
+	vbox.add_theme_constant_override("separation", 10)
+	
+	var margin = MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 24)
+	margin.add_theme_constant_override("margin_right", 24)
+	margin.add_theme_constant_override("margin_top", 18)
+	margin.add_theme_constant_override("margin_bottom", 18)
+	panel.add_child(margin)
+	margin.add_child(vbox)
+	
+	var header_bar = ColorRect.new()
+	header_bar.custom_minimum_size = Vector2(0, 32)
+	header_bar.color = Color(0.0, 1.0, 0.45, 0.85)
+	vbox.add_child(header_bar)
+	
+	var lbl_badge = Label.new()
+	lbl_badge.set_anchors_preset(Control.PRESET_FULL_RECT)
+	lbl_badge.text = t_rest
+	lbl_badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lbl_badge.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	lbl_badge.add_theme_font_size_override("font_size", 13)
+	lbl_badge.add_theme_color_override("font_color", Color(0, 0, 0))
+	if ResourceLoader.exists("res://assets/fonts/Bungee-Regular.ttf"):
+		lbl_badge.add_theme_font_override("font", load("res://assets/fonts/Bungee-Regular.ttf"))
+	header_bar.add_child(lbl_badge)
+	
+	var lbl_status = Label.new()
+	lbl_status.text = "✓ [ STATUS: 200 OK // 0 ERRORS · 0 WARNINGS ]"
+	lbl_status.add_theme_font_size_override("font_size", 16)
+	lbl_status.add_theme_color_override("font_color", Color(0.2, 1.0, 0.6))
+	lbl_status.add_theme_color_override("font_outline_color", Color(0, 0, 0))
+	lbl_status.add_theme_constant_override("outline_size", 4)
+	lbl_status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(lbl_status)
+	
+	var lbl_term = Label.new()
+	lbl_term.text = "> KERNEL COMPILATION: SUCCESSFUL\n> SYNTAX VALIDATION: ALL BRANCHES RESOLVED\n> HARDWARE REPAIR OS WORKSPACE ONLINE"
+	lbl_term.add_theme_font_size_override("font_size", 12)
+	lbl_term.add_theme_color_override("font_color", Color(0.75, 1.0, 0.85, 0.9))
+	vbox.add_child(lbl_term)
+	
+	var lbl_subt = Label.new()
+	lbl_subt.text = t_sub
+	lbl_subt.add_theme_font_size_override("font_size", 13)
+	lbl_subt.add_theme_color_override("font_color", Color(0.0, 0.95, 1.0))
+	lbl_subt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(lbl_subt)
+	
+	_play_restored_sfx()
+	
+	var tw = tree.create_tween()
+	tw.set_parallel(true)
+	tw.tween_property(scan_beam, "position:y", screen_h + 20.0, 0.50).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	
+	var flash = ColorRect.new()
+	flash.set_anchors_preset(Control.PRESET_FULL_RECT)
+	flash.color = Color(0.0, 1.0, 0.6, 0.0)
+	flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root_ctrl.add_child(flash)
+	
+	tw.chain().tween_property(flash, "color:a", 0.70, 0.10)
+	tw.chain().tween_callback(func():
+		if target_scene_path != "":
+			tree.change_scene_to_file(target_scene_path)
+	)
+	tw.chain().tween_interval(0.06)
+	tw.chain().tween_property(root_ctrl, "modulate:a", 0.0, 0.22)
+	tw.chain().tween_callback(func():
+		if on_finished.is_valid():
+			on_finished.call()
+		transition_completed.emit()
+		queue_free()
+	)
+
+func _play_glitch_sfx() -> void:
+	if not ResourceLoader.exists("res://efectos/sonido de entrada.ogg"):
+		return
+	var player = AudioStreamPlayer.new()
+	player.stream = load("res://efectos/sonido de entrada.ogg")
+	player.volume_db = 2.0
+	player.pitch_scale = 0.62
+	player.bus = "Master"
+	add_child(player)
+	player.play()
+	player.finished.connect(player.queue_free)
+
+func _play_restored_sfx() -> void:
+	if not ResourceLoader.exists("res://efectos/sonido de entrada.ogg"):
+		return
+	var player = AudioStreamPlayer.new()
+	player.stream = load("res://efectos/sonido de entrada.ogg")
+	player.volume_db = 0.0
+	player.pitch_scale = 1.25
+	player.bus = "Master"
+	add_child(player)
+	player.play()
+	player.finished.connect(player.queue_free)

@@ -36,6 +36,10 @@ extends Control
 @onready var lbl_consumo_val: Label = $OptionsPanel/Margin/VBox/SettingsList/ConsumoSection/HBox/LblVal
 @onready var btn_fotosensible: Button = get_node_or_null("OptionsPanel/Margin/VBox/SettingsList/FotosensibleSection/BtnFotosensible")
 @onready var lbl_fotosensible_val: Label = get_node_or_null("OptionsPanel/Margin/VBox/SettingsList/FotosensibleSection/HBox/LblVal")
+@onready var lbl_lang_val: Label = get_node_or_null("OptionsPanel/Margin/VBox/SettingsList/LanguageSection/HBox/LblVal")
+@onready var btn_prev_lang: Button = get_node_or_null("OptionsPanel/Margin/VBox/SettingsList/LanguageSection/ControlsHBox/BtnPrevLang")
+@onready var btn_lang: Button = get_node_or_null("OptionsPanel/Margin/VBox/SettingsList/LanguageSection/ControlsHBox/BtnLang")
+@onready var btn_next_lang: Button = get_node_or_null("OptionsPanel/Margin/VBox/SettingsList/LanguageSection/ControlsHBox/BtnNextLang")
 @onready var btn_cerrar_opciones: Button = $OptionsPanel/Margin/VBox/Footer/BtnCerrarOpciones
 
 const BASE_OPTIONS_OFFSET_LEFT: float = -450.0
@@ -83,6 +87,25 @@ func _ready() -> void:
 		btn_consumo.pressed.connect(_on_consumo_toggle)
 	if btn_fotosensible:
 		btn_fotosensible.pressed.connect(_on_fotosensible_toggle)
+	if btn_prev_lang:
+		btn_prev_lang.pressed.connect(func():
+			if has_node("/root/LocalizationManager"):
+				get_node("/root/LocalizationManager").prev_locale()
+		)
+	if btn_next_lang:
+		btn_next_lang.pressed.connect(func():
+			if has_node("/root/LocalizationManager"):
+				get_node("/root/LocalizationManager").next_locale()
+		)
+	if btn_lang:
+		btn_lang.pressed.connect(func():
+			if has_node("/root/LocalizationManager"):
+				get_node("/root/LocalizationManager").next_locale()
+		)
+	if has_node("/root/LocalizationManager"):
+		get_node("/root/LocalizationManager").locale_changed.connect(func(_new_loc: String):
+			_on_locale_changed()
+		)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if (event.is_action_pressed("pause") or (event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE)) and not event.is_echo():
@@ -338,8 +361,26 @@ func _sync_options_controls() -> void:
 	slider_sens.value = mult * 100.0
 	lbl_sens_val.text = "%.1fx" % mult
 
+	_refresh_language_ui()
 	_refresh_consumo_ui()
 	_refresh_fotosensible_ui()
+
+func _on_locale_changed() -> void:
+	_refresh_language_ui()
+	_refresh_consumo_ui()
+	_refresh_fotosensible_ui()
+	var gm = _get_game_manager()
+	var cur_time = gm.time_left if gm and "time_left" in gm else 120.0
+	_update_time_display(cur_time)
+
+func _refresh_language_ui() -> void:
+	var lang_name = "ESPAÑOL"
+	if has_node("/root/LocalizationManager"):
+		lang_name = get_node("/root/LocalizationManager").get_locale_name()
+	if lbl_lang_val:
+		lbl_lang_val.text = lang_name
+	if btn_lang:
+		btn_lang.text = "[ %s ]" % lang_name
 
 func _refresh_consumo_ui() -> void:
 	var gm = _get_game_manager()
@@ -350,7 +391,10 @@ func _refresh_consumo_ui() -> void:
 		lbl_consumo_val.text = "ON" if is_on else "OFF"
 		lbl_consumo_val.modulate = Color(0.1, 1.0, 0.45) if is_on else Color(0.7, 0.7, 0.8)
 	if btn_consumo:
-		btn_consumo.text = "ESTADO: [ ON ]" if is_on else "ESTADO: [ OFF ]"
+		var txt = "ESTADO: [ ON ]" if is_on else "ESTADO: [ OFF ]"
+		if has_node("/root/LocalizationManager"):
+			txt = get_node("/root/LocalizationManager").translate_text(txt)
+		btn_consumo.text = txt
 
 func _on_consumo_toggle() -> void:
 	var gm = _get_game_manager()
@@ -367,7 +411,10 @@ func _refresh_fotosensible_ui() -> void:
 		lbl_fotosensible_val.text = "ON" if is_on else "OFF"
 		lbl_fotosensible_val.modulate = Color(0.1, 1.0, 0.45) if is_on else Color(0.7, 0.7, 0.8)
 	if btn_fotosensible:
-		btn_fotosensible.text = "ESTADO: [ ON ]" if is_on else "ESTADO: [ OFF ]"
+		var txt = "ESTADO: [ ON ]" if is_on else "ESTADO: [ OFF ]"
+		if has_node("/root/LocalizationManager"):
+			txt = get_node("/root/LocalizationManager").translate_text(txt)
+		btn_fotosensible.text = txt
 
 func _on_fotosensible_toggle() -> void:
 	var gm = _get_game_manager()
@@ -418,7 +465,10 @@ func _on_time_updated(t: float, _delta: float) -> void:
 func _update_time_display(t: float) -> void:
 	var mins = int(t) / 60
 	var secs = int(t) % 60
-	lbl_tiempo.text = "TIEMPO: %02d:%02d" % [mins, secs]
+	var prefix = "TIEMPO:"
+	if has_node("/root/LocalizationManager"):
+		prefix = get_node("/root/LocalizationManager").translate_text(prefix)
+	lbl_tiempo.text = "%s %02d:%02d" % [prefix, mins, secs]
 
 func _on_reiniciar_pressed() -> void:
 	if is_animating:

@@ -200,7 +200,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_font_sizes/font_size = 19
-text = "CONFIGURACION"
+text = "CONFIGURACIÓN"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -639,7 +639,7 @@ text = "VOLVER"
 
 [node name="ConfigPanel" type="PanelContainer" parent="." unique_id=1264065880]
 visible = false
-custom_minimum_size = Vector2(800, 580)
+custom_minimum_size = Vector2(800, 600)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -647,12 +647,12 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -400.0
-offset_top = -270.0
+offset_top = -290.0
 offset_right = 400.0
-offset_bottom = 270.0
+offset_bottom = 290.0
 grow_horizontal = 2
 grow_vertical = 2
-pivot_offset = Vector2(400, 270)
+pivot_offset = Vector2(400, 290)
 theme_override_styles/panel = SubResource("StyleBoxEmpty_panel")
 
 [node name="CyberBackgroundFrame" parent="ConfigPanel" unique_id=199358245 instance=ExtResource("13_bg_frame")]
@@ -700,7 +700,7 @@ layout_mode = 2
 [node name="OptionsVBox" type="VBoxContainer" parent="ConfigPanel/Margin/VBox" unique_id=593817099]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/separation = 14
+theme_override_constants/separation = 11
 
 [node name="MasterVolRow" type="HBoxContainer" parent="ConfigPanel/Margin/VBox/OptionsVBox" unique_id=1635298882]
 layout_mode = 2
@@ -775,6 +775,47 @@ text = "PANTALLA: [ MODO VENTANA ]"
 flat = true
 script = ExtResource("14_cbtn")
 slant = 12.0
+
+[node name="LanguageRow" type="HBoxContainer" parent="ConfigPanel/Margin/VBox/OptionsVBox" unique_id=987654340]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Lbl" type="Label" parent="ConfigPanel/Margin/VBox/OptionsVBox/LanguageRow" unique_id=987654341]
+custom_minimum_size = Vector2(230, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 13
+text = "IDIOMA"
+
+[node name="ControlsHBox" type="HBoxContainer" parent="ConfigPanel/Margin/VBox/OptionsVBox/LanguageRow" unique_id=987654342]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="BtnPrevLang" type="Button" parent="ConfigPanel/Margin/VBox/OptionsVBox/LanguageRow/ControlsHBox" unique_id=987654343]
+custom_minimum_size = Vector2(46, 38)
+layout_mode = 2
+text = "◀"
+flat = true
+script = ExtResource("14_cbtn")
+slant = 8.0
+
+[node name="BtnLang" type="Button" parent="ConfigPanel/Margin/VBox/OptionsVBox/LanguageRow/ControlsHBox" unique_id=987654344]
+custom_minimum_size = Vector2(200, 38)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "ESPAÑOL"
+flat = true
+script = ExtResource("14_cbtn")
+slant = 12.0
+
+[node name="BtnNextLang" type="Button" parent="ConfigPanel/Margin/VBox/OptionsVBox/LanguageRow/ControlsHBox" unique_id=987654345]
+custom_minimum_size = Vector2(46, 38)
+layout_mode = 2
+text = "▶"
+flat = true
+script = ExtResource("14_cbtn")
+slant = 8.0
 
 [node name="MouseSensRow" type="HBoxContainer" parent="ConfigPanel/Margin/VBox/OptionsVBox" unique_id=101672272]
 layout_mode = 2

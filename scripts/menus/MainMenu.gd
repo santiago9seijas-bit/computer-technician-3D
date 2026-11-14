@@ -37,6 +37,9 @@ extends Control
 @onready var btn_holo: Button = $ConfigPanel/Margin/VBox/OptionsVBox/HoloRow/BtnHolo
 @onready var btn_consumo: Button = $ConfigPanel/Margin/VBox/OptionsVBox/ConsumoRow/BtnConsumo
 @onready var btn_fotosensible: Button = get_node_or_null("ConfigPanel/Margin/VBox/OptionsVBox/FotosensibleRow/BtnFotosensible")
+@onready var btn_prev_lang: Button = get_node_or_null("ConfigPanel/Margin/VBox/OptionsVBox/LanguageRow/ControlsHBox/BtnPrevLang")
+@onready var btn_lang: Button = get_node_or_null("ConfigPanel/Margin/VBox/OptionsVBox/LanguageRow/ControlsHBox/BtnLang")
+@onready var btn_next_lang: Button = get_node_or_null("ConfigPanel/Margin/VBox/OptionsVBox/LanguageRow/ControlsHBox/BtnNextLang")
 
 var LevelSelectScript = preload("res://scripts/menus/LevelSelect.gd")
 var arcade_scene: PackedScene = preload("res://scenes/minigames/MalwareInvadersMinigame.tscn")
@@ -100,6 +103,7 @@ func _ready() -> void:
 	)
 	
 	_setup_configuration_controls()
+	_refresh_all_ui_texts()
 	
 	if not warning_shown_this_boot:
 		warning_shown_this_boot = true
@@ -257,12 +261,9 @@ func _on_jugar_pressed() -> void:
 	if bottom_right_info:
 		fade_tw.tween_property(bottom_right_info, "modulate:a", 0.0, 0.22)
 		
-	LevelSelectScript.initial_tab = "niveles"
-	CyberPlayTransition.play(
+	CyberPlayTransition.play_error_glitch(
 		get_tree(),
-		"res://scenes/menus/LevelSelect.tscn",
-		"INICIALIZANDO SIMULACIÓN",
-		"// ENLACE NEURONAL CON MATRIZ DE NIVELES //"
+		"res://scenes/menus/SaveSlotsMenu.tscn"
 	)
 
 func _on_tutoriales_pressed() -> void:
@@ -291,6 +292,8 @@ func _open_subview(target_panel: Control) -> void:
 		return
 	is_transitioning = true
 	active_panel = target_panel
+	
+	_refresh_all_ui_texts()
 	
 	# Calcular centrado dinámico según el ancho del panel (Controles compacto vs Config)
 	var panel_w = target_panel.custom_minimum_size.x if target_panel.custom_minimum_size.x > 0 else target_panel.size.x
@@ -367,26 +370,37 @@ func _close_active_subview() -> void:
 		darken_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		active_panel = null
 		is_transitioning = false
+		_refresh_all_ui_texts()
 	)
+
+func _get_game_manager() -> Node:
+	return get_node_or_null("/root/GameManager")
 
 # =============================================================================
 # INTERACTIVIDAD DEL PANEL DE CONFIGURACIÓN
 # =============================================================================
 func _setup_configuration_controls() -> void:
+	var gm = _get_game_manager()
 	if slider_master:
-		slider_master.value = GameManager.master_volume
-		lbl_master_val.text = "%d%%" % int(GameManager.master_volume)
+		var m_vol = gm.master_volume if gm and "master_volume" in gm else 100.0
+		slider_master.value = m_vol
+		lbl_master_val.text = "%d%%" % int(m_vol)
 		slider_master.value_changed.connect(func(val: float):
 			lbl_master_val.text = "%d%%" % int(val)
-			GameManager.set_master_volume_val(val)
+			var g = _get_game_manager()
+			if g and g.has_method("set_master_volume_val"):
+				g.set_master_volume_val(val)
 		)
 		
 	if slider_sfx:
-		slider_sfx.value = GameManager.sfx_volume
-		lbl_sfx_val.text = "%d%%" % int(GameManager.sfx_volume)
+		var s_vol = gm.sfx_volume if gm and "sfx_volume" in gm else 100.0
+		slider_sfx.value = s_vol
+		lbl_sfx_val.text = "%d%%" % int(s_vol)
 		slider_sfx.value_changed.connect(func(val: float):
 			lbl_sfx_val.text = "%d%%" % int(val)
-			GameManager.set_sfx_volume_val(val)
+			var g = _get_game_manager()
+			if g and g.has_method("set_sfx_volume_val"):
+				g.set_sfx_volume_val(val)
 		)
 		
 	if btn_fullscreen:
@@ -401,34 +415,167 @@ func _setup_configuration_controls() -> void:
 		)
 		
 	if slider_sens:
-		slider_sens.value = GameManager.mouse_sensitivity_multiplier * 100.0
-		lbl_sens_val.text = "%.1fx" % GameManager.mouse_sensitivity_multiplier
+		var sens = gm.mouse_sensitivity_multiplier if gm and "mouse_sensitivity_multiplier" in gm else 1.0
+		slider_sens.value = sens * 100.0
+		lbl_sens_val.text = "%.1fx" % sens
 		slider_sens.value_changed.connect(func(val: float):
 			var factor = val / 100.0
 			lbl_sens_val.text = "%.1fx" % factor
-			GameManager.set_mouse_sensitivity(factor)
+			var g = _get_game_manager()
+			if g and g.has_method("set_mouse_sensitivity"):
+				g.set_mouse_sensitivity(factor)
 		)
 		
 	if btn_holo:
 		_refresh_holo_button()
 		btn_holo.pressed.connect(func():
-			GameManager.set_performance_mode(!GameManager.performance_mode)
+			var g = _get_game_manager()
+			if g and "performance_mode" in g and g.has_method("set_performance_mode"):
+				g.set_performance_mode(!g.performance_mode)
 			_refresh_holo_button()
 		)
 
 	if btn_consumo:
 		_refresh_consumo_button()
 		btn_consumo.pressed.connect(func():
-			GameManager.toggle_hardware_monitor()
+			var g = _get_game_manager()
+			if g and g.has_method("toggle_hardware_monitor"):
+				g.toggle_hardware_monitor()
 			_refresh_consumo_button()
 		)
 
 	if btn_fotosensible:
 		_refresh_fotosensible_button()
 		btn_fotosensible.pressed.connect(func():
-			GameManager.toggle_photosensitive_mode()
+			var g = _get_game_manager()
+			if g and g.has_method("toggle_photosensitive_mode"):
+				g.toggle_photosensitive_mode()
 			_refresh_fotosensible_button()
 		)
+
+	_refresh_language_button()
+	if btn_prev_lang:
+		btn_prev_lang.pressed.connect(func():
+			if has_node("/root/LocalizationManager"):
+				get_node("/root/LocalizationManager").prev_locale()
+		)
+	if btn_next_lang:
+		btn_next_lang.pressed.connect(func():
+			if has_node("/root/LocalizationManager"):
+				get_node("/root/LocalizationManager").next_locale()
+		)
+	if btn_lang:
+		btn_lang.pressed.connect(func():
+			if has_node("/root/LocalizationManager"):
+				get_node("/root/LocalizationManager").next_locale()
+		)
+
+	if has_node("/root/LocalizationManager"):
+		get_node("/root/LocalizationManager").locale_changed.connect(func(_new_loc: String):
+			_on_locale_changed()
+		)
+
+func _on_locale_changed() -> void:
+	_refresh_all_ui_texts()
+
+func _refresh_all_ui_texts() -> void:
+	var loc = get_node_or_null("/root/LocalizationManager")
+	if not loc:
+		return
+
+	# 1. Botones principales del menú de inicio
+	if btn_jugar:
+		var lbl = btn_jugar.get_node_or_null("Label")
+		if lbl:
+			lbl.text = loc.translate_text("JUGAR")
+	if btn_configuracion:
+		var lbl = btn_configuracion.get_node_or_null("Label")
+		if lbl:
+			lbl.text = loc.translate_text("CONFIGURACIÓN")
+	if btn_controles:
+		var lbl = btn_controles.get_node_or_null("Label")
+		if lbl:
+			lbl.text = loc.translate_text("CONTROLES")
+	if btn_tutoriales:
+		var lbl = btn_tutoriales.get_node_or_null("Label")
+		if lbl:
+			lbl.text = loc.translate_text("TUTORIALES")
+	if btn_salir:
+		var lbl = btn_salir.get_node_or_null("Label")
+		if lbl:
+			lbl.text = loc.translate_text("SALIR")
+
+	# 2. Cuadro de Configuración (ConfigPanel) - TODO EN EL IDIOMA ACTIVO
+	var cfg_nodes = {
+		"ConfigPanel/Margin/VBox/HeaderVBox/Badge": "[ SISTEMA // PANEL DE CONFIGURACIÓN ]",
+		"ConfigPanel/Margin/VBox/HeaderVBox/Title": "CONFIGURACIÓN DEL SISTEMA",
+		"ConfigPanel/Margin/VBox/HeaderVBox/Sub": "Ajustes de audio, pantalla completa y calibración de periféricos",
+		"ConfigPanel/Margin/VBox/OptionsVBox/MasterVolRow/Lbl": "VOLUMEN MAESTRO",
+		"ConfigPanel/Margin/VBox/OptionsVBox/SFXVolRow/Lbl": "EFECTOS DE SONIDO (SFX)",
+		"ConfigPanel/Margin/VBox/OptionsVBox/FullscreenRow/Lbl": "MODO DE PANTALLA",
+		"ConfigPanel/Margin/VBox/OptionsVBox/LanguageRow/Lbl": "IDIOMA",
+		"ConfigPanel/Margin/VBox/OptionsVBox/MouseSensRow/Lbl": "SENSIBILIDAD DE CÁMARA",
+		"ConfigPanel/Margin/VBox/OptionsVBox/HoloRow/Lbl": "SHADERS HOLOGRÁFICOS",
+		"ConfigPanel/Margin/VBox/OptionsVBox/ConsumoRow/Lbl": "CONSUMO",
+		"ConfigPanel/Margin/VBox/OptionsVBox/FotosensibleRow/Lbl": "FOTOSENSIBILIDAD",
+		"ConfigPanel/Margin/VBox/Footer/BtnVolverConfig": "VOLVER"
+	}
+	for path in cfg_nodes:
+		var n = get_node_or_null(path)
+		if n:
+			n.text = loc.translate_text(cfg_nodes[path])
+			if n.has_method("queue_redraw"):
+				n.queue_redraw()
+
+	_refresh_language_button()
+	_refresh_fullscreen_button()
+	_refresh_holo_button()
+	_refresh_consumo_button()
+	_refresh_fotosensible_button()
+
+	# 3. Cuadro de Controles (ControlsPanel) - TODO EN EL IDIOMA ACTIVO
+	var ctrl_nodes = {
+		"ControlsPanel/Margin/VBox/HeaderVBox/Badge": "[ SISTEMA // GUÍA RÁPIDA ]",
+		"ControlsPanel/Margin/VBox/HeaderVBox/Title": "MAPA DE CONTROLES",
+		"ControlsPanel/Margin/VBox/HeaderVBox/Sub": "Comandos esenciales para el taller y minijuegos",
+		"ControlsPanel/Margin/VBox/ContentHBox/LeftCol/ColTitle": "── MOVIMIENTO ──",
+		"ControlsPanel/Margin/VBox/ContentHBox/LeftCol/Item1/Desc": "Desplazarse",
+		"ControlsPanel/Margin/VBox/ContentHBox/LeftCol/Item2/Desc": "Mirar / Cursor",
+		"ControlsPanel/Margin/VBox/ContentHBox/LeftCol/Item3/Desc": "Correr / Sprint",
+		"ControlsPanel/Margin/VBox/ContentHBox/LeftCol/ItemJump/Desc": "Saltar",
+		"ControlsPanel/Margin/VBox/ContentHBox/LeftCol/Item4/Desc": "Pausa / Ajustes",
+		"ControlsPanel/Margin/VBox/ContentHBox/RightCol/ColTitle": "── HERRAMIENTAS ──",
+		"ControlsPanel/Margin/VBox/ContentHBox/RightCol/Item1/Desc": "Interactuar / Usar",
+		"ControlsPanel/Margin/VBox/ContentHBox/RightCol/Item2/Desc": "Destornillador Cruz (+)",
+		"ControlsPanel/Margin/VBox/ContentHBox/RightCol/Item3/Desc": "Destornillador Pala (-)",
+		"ControlsPanel/Margin/VBox/ContentHBox/RightCol/Item4/Desc": "Cautín, Pinzas, Tester",
+		"ControlsPanel/Margin/VBox/HintBox/Margin/HintLabel": "💡 TIP: Pulsa [1] o [2] para alternar destornilladores en minijuegos.",
+		"ControlsPanel/Margin/VBox/Footer/BtnVolverControles": "VOLVER"
+	}
+	for path in ctrl_nodes:
+		var n = get_node_or_null(path)
+		if n:
+			n.text = loc.translate_text(ctrl_nodes[path])
+			if n.has_method("queue_redraw"):
+				n.queue_redraw()
+
+	# 4. Textos de barra inferior
+	var os_lbl = get_node_or_null("BottomRightInfo/BadgeHBox/BadgeText")
+	if os_lbl:
+		os_lbl.text = loc.translate_text("HARDWARE WORKSHOP // REPAIR OS v2.0")
+	if version_label:
+		var cfg_ver = ProjectSettings.get_setting("application/config/version", "0.0.9")
+		var v_prefix = "Versión" if loc.get_locale() == "es" else loc.translate_text("Version")
+		version_label.text = "%s %s Alpha" % [v_prefix, cfg_ver]
+
+func _refresh_language_button() -> void:
+	if not btn_lang: return
+	var lang_name = "ESPAÑOL"
+	if has_node("/root/LocalizationManager"):
+		lang_name = get_node("/root/LocalizationManager").get_locale_name()
+	btn_lang.text = "[ %s ]" % lang_name
+	if btn_lang.has_method("queue_redraw"):
+		btn_lang.queue_redraw()
 
 func _show_photosensitive_warning() -> void:
 	var modal = WARNING_MODAL_SCENE.instantiate()
@@ -440,23 +587,44 @@ func _show_photosensitive_warning() -> void:
 
 func _refresh_fotosensible_button() -> void:
 	if not btn_fotosensible: return
-	var is_on = GameManager.is_photosensitive_mode_enabled()
-	btn_fotosensible.text = "ESTADO: [ ON ]" if is_on else "ESTADO: [ OFF ]"
+	var gm = _get_game_manager()
+	var is_on = gm.is_photosensitive_mode_enabled() if gm and gm.has_method("is_photosensitive_mode_enabled") else false
+	var txt = "ESTADO: [ ON ]" if is_on else "ESTADO: [ OFF ]"
+	if has_node("/root/LocalizationManager"):
+		txt = get_node("/root/LocalizationManager").translate_text(txt)
+	btn_fotosensible.text = txt
+	if btn_fotosensible.has_method("queue_redraw"):
+		btn_fotosensible.queue_redraw()
 
 func _refresh_holo_button() -> void:
 	if not btn_holo: return
-	if GameManager.performance_mode:
-		btn_holo.text = "ESTADO: [ SUAVE / RENDIMIENTO ]"
-	else:
-		btn_holo.text = "ESTADO: [ ALTA DEFINICIÓN ]"
+	var gm = _get_game_manager()
+	var perf = gm.performance_mode if gm and "performance_mode" in gm else false
+	var txt = "ESTADO: [ SUAVE / RENDIMIENTO ]" if perf else "ESTADO: [ ALTA DEFINICIÓN ]"
+	if has_node("/root/LocalizationManager"):
+		txt = get_node("/root/LocalizationManager").translate_text(txt)
+	btn_holo.text = txt
+	if btn_holo.has_method("queue_redraw"):
+		btn_holo.queue_redraw()
 
 func _refresh_consumo_button() -> void:
 	if not btn_consumo: return
-	var is_on = GameManager.is_hardware_monitor_enabled()
-	btn_consumo.text = "ESTADO: [ ON ]" if is_on else "ESTADO: [ OFF ]"
+	var gm = _get_game_manager()
+	var is_on = gm.is_hardware_monitor_enabled() if gm and gm.has_method("is_hardware_monitor_enabled") else false
+	var txt = "ESTADO: [ ON ]" if is_on else "ESTADO: [ OFF ]"
+	if has_node("/root/LocalizationManager"):
+		txt = get_node("/root/LocalizationManager").translate_text(txt)
+	btn_consumo.text = txt
+	if btn_consumo.has_method("queue_redraw"):
+		btn_consumo.queue_redraw()
 
 func _refresh_fullscreen_button() -> void:
 	if not btn_fullscreen: return
 	var mode = DisplayServer.window_get_mode()
 	var is_fs = (mode == DisplayServer.WINDOW_MODE_FULLSCREEN or mode == DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN)
-	btn_fullscreen.text = "PANTALLA: [ COMPLETA ]" if is_fs else "PANTALLA: [ MODO VENTANA ]"
+	var txt = "PANTALLA: [ COMPLETA ]" if is_fs else "PANTALLA: [ MODO VENTANA ]"
+	if has_node("/root/LocalizationManager"):
+		txt = get_node("/root/LocalizationManager").translate_text(txt)
+	btn_fullscreen.text = txt
+	if btn_fullscreen.has_method("queue_redraw"):
+		btn_fullscreen.queue_redraw()

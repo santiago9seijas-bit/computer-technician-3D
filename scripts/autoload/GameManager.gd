@@ -242,6 +242,7 @@ func set_sfx_volume_val(val: float) -> void:
 func load_settings() -> void:
 	var cfg = ConfigFile.new()
 	var err = cfg.load(SETTINGS_FILE_PATH)
+	var saved_lang = "es"
 	if err == OK:
 		# El monitor de consumo SIEMPRE inicia desactivado (OFF) por defecto en cada sesión
 		show_hardware_monitor = false
@@ -250,6 +251,7 @@ func load_settings() -> void:
 		master_volume = cfg.get_value("audio", "master_volume", 100.0)
 		sfx_volume = cfg.get_value("audio", "sfx_volume", 100.0)
 		mouse_sensitivity_multiplier = cfg.get_value("controls", "mouse_sensitivity", 1.0)
+		saved_lang = cfg.get_value("general", "language", "es")
 	else:
 		show_hardware_monitor = false
 		photosensitive_mode = false
@@ -257,12 +259,16 @@ func load_settings() -> void:
 		master_volume = 100.0
 		sfx_volume = 100.0
 		mouse_sensitivity_multiplier = 1.0
+		saved_lang = "es"
 
 	# Aplicar volumen cargado
 	set_master_volume_val(master_volume)
 	set_sfx_volume_val(sfx_volume)
 	set_performance_mode(performance_mode)
 	_apply_photosensitive_mode()
+	if has_node("/root/LocalizationManager"):
+		var loc = get_node("/root/LocalizationManager")
+		loc.set_locale(saved_lang, false)
 	if hardware_monitor_instance:
 		hardware_monitor_instance.visible = false
 		hardware_monitor_instance.set_process(false)
@@ -275,6 +281,9 @@ func save_settings() -> void:
 	cfg.set_value("audio", "master_volume", master_volume)
 	cfg.set_value("audio", "sfx_volume", sfx_volume)
 	cfg.set_value("controls", "mouse_sensitivity", mouse_sensitivity_multiplier)
+	if has_node("/root/LocalizationManager"):
+		var loc = get_node("/root/LocalizationManager")
+		cfg.set_value("general", "language", loc.get_locale())
 	cfg.save(SETTINGS_FILE_PATH)
 
 func _setup_feedback_layer() -> void:
