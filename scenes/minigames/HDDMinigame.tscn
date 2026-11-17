@@ -1,17 +1,13 @@
-[gd_scene format=3 load_steps=15]
+[gd_scene format=3 load_steps=12]
 
 [ext_resource type="Script" path="res://scripts/minigames/HDDMinigame.gd" id="1_hdd"]
 [ext_resource type="Script" path="res://scripts/menus/CyberButton.gd" id="2_cbtn"]
 [ext_resource type="Theme" path="res://styles/cyberpunk_theme.tres" id="3_theme"]
 [ext_resource type="FontFile" uid="uid://dbcug8887dro7" path="res://assets/fonts/Bungee-Regular.ttf" id="4_title_font"]
 [ext_resource type="PackedScene" path="res://scenes/ui/CyberBackgroundFrame.tscn" id="5_bg_frame"]
-[ext_resource type="Texture2D" uid="uid://cfu6snirrk8ms" path="res://pixel art minijuegos/memoriastipos/soporte para ssd/placa.png" id="6_placa"]
-[ext_resource type="Texture2D" uid="uid://b1pj41xlrukgf" path="res://pixel art minijuegos/memoriastipos/m.2/memoria M.2.png" id="7_m2"]
-[ext_resource type="Texture2D" uid="uid://sipfcv4twukw" path="res://pixel art minijuegos/memoriastipos/ssd/memoria.png" id="8_ssd"]
-[ext_resource type="Texture2D" uid="uid://bdnwy2jt8hh53" path="res://pixel art minijuegos/memoriastipos/soporte para ssd/pines de memoria.png" id="9_pins_c"]
-[ext_resource type="Texture2D" uid="uid://ctmdqifv7ain7" path="res://pixel art minijuegos/memoriastipos/soporte para ssd/pines de memoria abiertos.png" id="10_pins_o"]
-[ext_resource type="Texture2D" uid="uid://0d74wkeefjsa" path="res://pixel art minijuegos/tornillos/tornillo de cruz.png" id="11_screw_cruz"]
-[ext_resource type="Texture2D" uid="uid://bhq6g74hxlnqt" path="res://pixel art minijuegos/tornillos/tornillo de pala.png" id="12_screw_pala"]
+[ext_resource type="Texture2D" uid="uid://cfu6snirrk8ms" path="res://pixel art minijuegos/memoriastipos/hdd/placa de disco hdd.png" id="6_placa"]
+[ext_resource type="Texture2D" uid="uid://b1pj41xlrukgf" path="res://pixel art minijuegos/memoriastipos/hdd/disco hdd.png" id="7_disco"]
+[ext_resource type="Texture2D" uid="uid://0d74wkeefjsa" path="res://pixel art minijuegos/tornillos/tornillo de cruz.png" id="8_screw_cruz"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_frame"]
 content_margin_left = 24.0
@@ -19,19 +15,31 @@ content_margin_top = 20.0
 content_margin_right = 24.0
 content_margin_bottom = 20.0
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pin_highlight"]
-bg_color = Color(0, 0.9, 1, 0.16)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sata_highlight"]
+bg_color = Color(0, 0.9, 1, 0.18)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color(0.1, 1, 0.85, 0.95)
+border_color = Color(1, 0.85, 0.1, 0.95)
 corner_radius_top_left = 6
 corner_radius_top_right = 6
 corner_radius_bottom_right = 6
 corner_radius_bottom_left = 6
-shadow_color = Color(0, 0.95, 1, 0.45)
+shadow_color = Color(1, 0.85, 0, 0.4)
 shadow_size = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_arrow"]
+bg_color = Color(0.05, 0.08, 0.14, 0.92)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.1, 1, 0.85, 0.9)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
 
 [node name="HDDMinigame" type="CanvasLayer"]
 layer = 12
@@ -56,17 +64,17 @@ grow_vertical = 2
 color = Color(0.04, 0.01, 0.08, 0.94)
 
 [node name="Panel" type="PanelContainer" parent="ModalControl"]
-custom_minimum_size = Vector2(960, 560)
+custom_minimum_size = Vector2(940, 520)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -480.0
-offset_top = -280.0
-offset_right = 480.0
-offset_bottom = 280.0
+offset_left = -470.0
+offset_top = -260.0
+offset_right = 470.0
+offset_bottom = 260.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxEmpty_frame")
@@ -83,6 +91,7 @@ layout_mode = 2
 theme_override_constants/separation = 4
 
 [node name="Titulo" type="Label" parent="ModalControl/Panel/VBox/Header"]
+visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.12, 0.25, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
@@ -91,7 +100,7 @@ theme_override_colors/font_shadow_color = Color(0.65, 0.02, 0.85, 0.85)
 theme_override_constants/shadow_outline_size = 8
 theme_override_fonts/font = ExtResource("4_title_font")
 theme_override_font_sizes/font_size = 20
-text = "REPARACIÓN: BAHÍA DE DISCO DURO"
+text = "MANTENIMIENTO: BAHÍA DE DISCO HDD"
 horizontal_alignment = 1
 
 [node name="ToolBar" type="HBoxContainer" parent="ModalControl/Panel/VBox/Header"]
@@ -102,7 +111,7 @@ alignment = 1
 [node name="BtnTool1" type="Button" parent="ModalControl/Panel/VBox/Header/ToolBar"]
 custom_minimum_size = Vector2(210, 36)
 layout_mode = 2
-text = "1. Destornillador Cruz ★"
+text = "[1] Destornillador Cruz ★"
 flat = true
 script = ExtResource("2_cbtn")
 slant = 12.0
@@ -111,7 +120,7 @@ custom_font_size = 12
 [node name="BtnTool2" type="Button" parent="ModalControl/Panel/VBox/Header/ToolBar"]
 custom_minimum_size = Vector2(210, 36)
 layout_mode = 2
-text = "2. Destornillador Pala ▬"
+text = "[2] Destornillador Pala ▬"
 flat = true
 script = ExtResource("2_cbtn")
 slant = 12.0
@@ -121,7 +130,7 @@ custom_font_size = 12
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
 theme_override_font_sizes/font_size = 13
-text = "Paso 1: Equipa el destornillador correcto y quita el tornillo."
+text = "PASO 1: Quita los 4 tornillos de las esquinas con [1] Cruz o [2] Pala."
 horizontal_alignment = 1
 
 [node name="HSeparator" type="HSeparator" parent="ModalControl/Panel/VBox"]
@@ -133,117 +142,29 @@ size_flags_vertical = 3
 theme_override_constants/separation = 14
 
 [node name="DiskAreaContainer" type="PanelContainer" parent="ModalControl/Panel/VBox/ContentHBox"]
-custom_minimum_size = Vector2(600, 320)
+custom_minimum_size = Vector2(580, 310)
 layout_mode = 2
 size_flags_horizontal = 3
 
 [node name="DiskArea" type="Control" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer"]
 layout_mode = 2
 
-[node name="BayBase" type="Panel" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea"]
-custom_minimum_size = Vector2(490, 230)
+[node name="HDDWorkArea" type="Control" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea"]
+custom_minimum_size = Vector2(435, 287)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -245.0
-offset_top = -115.0
-offset_right = 245.0
-offset_bottom = 115.0
+offset_left = -217.5
+offset_top = -143.5
+offset_right = 217.5
+offset_bottom = 143.5
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="EmptyBayLabel" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/BayBase"]
-visible = false
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_colors/font_color = Color(1, 0.75, 0.1, 0.95)
-theme_override_font_sizes/font_size = 14
-text = "[ BAHÍA SATA VACÍA · LISTA PARA DISCO NUEVO ]"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="DiskPanel" type="Panel" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea"]
-custom_minimum_size = Vector2(430, 180)
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -215.0
-offset_top = -90.0
-offset_right = 215.0
-offset_bottom = 90.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="DragHint" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/DiskPanel"]
-layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_top = 18.0
-offset_bottom = 70.0
-grow_horizontal = 2
-mouse_filter = 2
-theme_override_font_sizes/font_size = 15
-text = "SATA SSD 1TB [DAÑADO]
-(Quita el tornillo primero)"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="ScrewContainer" type="HBoxContainer" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/DiskPanel"]
-layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -160.0
-offset_top = -75.0
-offset_right = 160.0
-offset_bottom = -15.0
-grow_horizontal = 2
-grow_vertical = 0
-theme_override_constants/separation = 14
-alignment = 1
-
-[node name="BtnScrew" type="Button" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/DiskPanel/ScrewContainer"]
-custom_minimum_size = Vector2(64, 56)
-layout_mode = 2
-theme_override_font_sizes/font_size = 28
-text = "✚"
-
-[node name="LblScrewType" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/DiskPanel/ScrewContainer"]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
-theme_override_font_sizes/font_size = 14
-text = "Tornillo de Cruz (Tecla 1)"
-vertical_alignment = 1
-
-[node name="LevelDriveArea" type="Control" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea"]
-visible = false
-custom_minimum_size = Vector2(514, 271)
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -257.0
-offset_top = -135.5
-offset_right = 257.0
-offset_bottom = 135.5
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="PlacaBase" type="TextureRect" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/LevelDriveArea"]
+[node name="PlacaSprite" type="TextureRect" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/HDDWorkArea"]
 texture_filter = 1
 layout_mode = 1
 anchors_preset = 15
@@ -256,18 +177,15 @@ texture = ExtResource("6_placa")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="MemoryDrive" type="Control" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/LevelDriveArea"]
-z_index = 1
+[node name="DriveContainer" type="Control" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/HDDWorkArea"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = -17.75
-offset_bottom = -17.75
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="MemorySprite" type="TextureRect" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/LevelDriveArea/MemoryDrive"]
+[node name="HDDSprite" type="TextureRect" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/HDDWorkArea/DriveContainer"]
 texture_filter = 1
 layout_mode = 1
 anchors_preset = 15
@@ -276,42 +194,39 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-texture = ExtResource("7_m2")
+texture = ExtResource("7_disco")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="PinsSprite" type="TextureRect" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/LevelDriveArea"]
-z_index = 2
-texture_filter = 1
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_top = 45.0
-offset_bottom = 45.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-texture = ExtResource("9_pins_c")
-expand_mode = 1
-stretch_mode = 5
+[node name="BtnSataCable" type="Button" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/HDDWorkArea/DriveContainer"]
+layout_mode = 0
+offset_left = 113.0
+offset_top = 76.0
+offset_right = 205.0
+offset_bottom = 210.0
+mouse_default_cursor_shape = 2
+flat = true
 
-[node name="PinHighlightBox" type="Panel" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/LevelDriveArea"]
+[node name="SataHighlight" type="Panel" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/HDDWorkArea/DriveContainer/BtnSataCable"]
 visible = false
-z_index = 3
 layout_mode = 1
-offset_left = 76.0
-offset_top = 74.0
-offset_right = 152.0
-offset_bottom = 174.0
-mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_pin_highlight")
-
-[node name="PinBadge" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/LevelDriveArea/PinHighlightBox"]
-layout_mode = 1
-anchors_preset = 10
+anchors_preset = 15
 anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_sata_highlight")
+
+[node name="SataHintLabel" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/HDDWorkArea/DriveContainer/BtnSataCable"]
+visible = false
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -60.0
 offset_top = -22.0
+offset_right = 60.0
 offset_bottom = -2.0
 grow_horizontal = 2
 theme_override_colors/font_color = Color(1, 0.9, 0.1, 1)
@@ -319,31 +234,29 @@ theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 4
 theme_override_fonts/font = ExtResource("4_title_font")
 theme_override_font_sizes/font_size = 10
-text = "PINES"
+text = "⚡ CABLE SATA"
 horizontal_alignment = 1
 
-[node name="BtnPins" type="Button" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/LevelDriveArea"]
-z_index = 4
+[node name="ScrewsContainer" type="Control" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/HDDWorkArea"]
 layout_mode = 1
-offset_left = 76.0
-offset_top = 74.0
-offset_right = 152.0
-offset_bottom = 174.0
-focus_mode = 0
-flat = true
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
 
-[node name="RearScrewBtn" type="Button" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/LevelDriveArea"]
-z_index = 5
+[node name="ScrewTL" type="Button" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/HDDWorkArea/ScrewsContainer"]
 custom_minimum_size = Vector2(34, 34)
-layout_mode = 1
-offset_left = 384.0
-offset_top = 108.0
-offset_right = 418.0
-offset_bottom = 142.0
-focus_mode = 0
+layout_mode = 0
+offset_left = 180.0
+offset_top = 72.0
+offset_right = 214.0
+offset_bottom = 106.0
+mouse_default_cursor_shape = 2
 flat = true
 
-[node name="ScrewIcon" type="TextureRect" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/LevelDriveArea/RearScrewBtn"]
+[node name="Icon" type="TextureRect" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/HDDWorkArea/ScrewsContainer/ScrewTL"]
 texture_filter = 1
 layout_mode = 1
 anchors_preset = 15
@@ -352,55 +265,123 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-texture = ExtResource("11_screw_cruz")
+texture = ExtResource("8_screw_cruz")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="DragArrowIndicator" type="PanelContainer" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/LevelDriveArea"]
+[node name="ScrewTR" type="Button" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/HDDWorkArea/ScrewsContainer"]
+custom_minimum_size = Vector2(34, 34)
+layout_mode = 0
+offset_left = 350.0
+offset_top = 72.0
+offset_right = 384.0
+offset_bottom = 106.0
+mouse_default_cursor_shape = 2
+flat = true
+
+[node name="Icon" type="TextureRect" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/HDDWorkArea/ScrewsContainer/ScrewTR"]
+texture_filter = 1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("8_screw_cruz")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ScrewBL" type="Button" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/HDDWorkArea/ScrewsContainer"]
+custom_minimum_size = Vector2(34, 34)
+layout_mode = 0
+offset_left = 180.0
+offset_top = 178.0
+offset_right = 214.0
+offset_bottom = 212.0
+mouse_default_cursor_shape = 2
+flat = true
+
+[node name="Icon" type="TextureRect" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/HDDWorkArea/ScrewsContainer/ScrewBL"]
+texture_filter = 1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("8_screw_cruz")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ScrewBR" type="Button" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/HDDWorkArea/ScrewsContainer"]
+custom_minimum_size = Vector2(34, 34)
+layout_mode = 0
+offset_left = 350.0
+offset_top = 178.0
+offset_right = 384.0
+offset_bottom = 212.0
+mouse_default_cursor_shape = 2
+flat = true
+
+[node name="Icon" type="TextureRect" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/HDDWorkArea/ScrewsContainer/ScrewBR"]
+texture_filter = 1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("8_screw_cruz")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="DragArrowIndicator" type="PanelContainer" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/HDDWorkArea"]
 visible = false
-z_index = 4
-custom_minimum_size = Vector2(340, 36)
+z_index = 5
+custom_minimum_size = Vector2(380, 38)
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -170.0
-offset_top = -46.0
-offset_right = 170.0
-offset_bottom = -10.0
+offset_left = -190.0
+offset_top = -42.0
+offset_right = 190.0
+offset_bottom = -4.0
 grow_horizontal = 2
 grow_vertical = 0
 mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_arrow")
 
-[node name="ArrowLabel" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/LevelDriveArea/DragArrowIndicator"]
+[node name="ArrowLabel" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/HDDWorkArea/DragArrowIndicator"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.9, 0.1, 1)
-theme_override_font_sizes/font_size = 13
-text = "➔ ➔ ARRASTRA A LA DERECHA PARA EXTRAER ➔ ➔"
+theme_override_font_sizes/font_size = 12
+text = "➔ ➔ ARRASTRA EL DISCO A LA DERECHA PARA EXTRAER ➔ ➔"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="BtnToggleModel" type="Button" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/LevelDriveArea"]
-visible = false
-z_index = 5
-custom_minimum_size = Vector2(280, 32)
+[node name="WarningLabel" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/DiskAreaContainer/DiskArea/HDDWorkArea"]
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -140.0
-offset_top = 6.0
-offset_right = 140.0
-offset_bottom = 38.0
+offset_left = -210.0
+offset_top = 8.0
+offset_right = 210.0
+offset_bottom = 32.0
 grow_horizontal = 2
-theme_override_colors/font_color = Color(0.1, 1, 0.85, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 12
-text = "🔀 CAMBIAR MODELO: M.2 NVMe ⇄ SSD SATA"
+horizontal_alignment = 1
 
 [node name="BackpackPanel" type="PanelContainer" parent="ModalControl/Panel/VBox/ContentHBox"]
-custom_minimum_size = Vector2(300, 260)
+custom_minimum_size = Vector2(280, 240)
 layout_mode = 2
 
 [node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/ContentHBox/BackpackPanel"]
@@ -415,32 +396,54 @@ layout_mode = 2
 theme_override_constants/separation = 10
 
 [node name="Title" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox"]
+visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.08, 0.45, 1)
-theme_override_font_sizes/font_size = 14
-text = "GUÍA DE PROCEDIMIENTO"
+theme_override_fonts/font = ExtResource("4_title_font")
+theme_override_font_sizes/font_size = 13
+text = ""
 horizontal_alignment = 1
 
 [node name="TabsBox" type="HBoxContainer" parent="ModalControl/Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox"]
+visible = false
 layout_mode = 2
 theme_override_constants/separation = 6
 
 [node name="BtnTabQuitar" type="Button" parent="ModalControl/Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox/TabsBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "🔻 1. QUITAR"
+text = "🔻 CÓMO QUITAR"
 
 [node name="BtnTabPoner" type="Button" parent="ModalControl/Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox/TabsBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "🔺 2. PONER"
+text = "🔺 CÓMO PONER"
 
 [node name="GuideText" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.85, 0.9, 1.0, 0.9)
+theme_override_colors/font_color = Color(0.85, 0.9, 1, 0.9)
 theme_override_font_sizes/font_size = 11
-text = "FASE 1: Retira el tornillo con Cruz [1] o Pala [2] y arrastra el disco hacia arriba."
+text = "FASE 1: Retira los 4 tornillos de las esquinas, luego clic en cable SATA y arrastra a la derecha."
 autowrap_mode = 2
+
+[node name="Checklist" type="VBoxContainer" parent="ModalControl/Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="ChkScrews" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox/Checklist"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "○ 1. Retirar 4 tornillos de esquinas (0/4)"
+
+[node name="ChkSata" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox/Checklist"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "○ 2. Desconectar Cable SATA"
+
+[node name="ChkExtract" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox/Checklist"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "○ 3. Arrastrar hacia la derecha"
 
 [node name="SlotsContainer" type="VBoxContainer" parent="ModalControl/Panel/VBox/ContentHBox/BackpackPanel/Margin/VBox"]
 visible = false

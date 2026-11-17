@@ -153,7 +153,7 @@ func _create_part_card(data: Dictionary) -> PanelContainer:
 	hbox_bot.add_child(lbl_stock)
 	
 	var btn_take = Button.new()
-	btn_take.text = "ELEGIR" if (key == "RAM" or key == "Disco Duro") else "TOMAR"
+	btn_take.text = "ELEGIR" if (key == "RAM" or key == "Disco Duro" or key == "Grafica") else "TOMAR"
 	btn_take.custom_minimum_size = Vector2(85, 26)
 	btn_take.disabled = (stock <= 0)
 	btn_take.pressed.connect(_on_take_part.bind(key))
@@ -182,6 +182,12 @@ func _on_take_part(key: String) -> void:
 		close_modal()
 		if spares_box_ref and spares_box_ref.has_method("_open_storage_selection"):
 			spares_box_ref._open_storage_selection(player_ref)
+		return
+		
+	if key == "Grafica":
+		close_modal()
+		if spares_box_ref and spares_box_ref.has_method("_open_gpu_selection"):
+			spares_box_ref._open_gpu_selection(player_ref)
 		return
 		
 	# Para el resto de componentes se añaden directo a la mochila

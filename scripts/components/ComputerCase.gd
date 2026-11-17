@@ -50,6 +50,7 @@ var components: Dictionary = {
 var saved_screw_type: String = ""
 var ram_type: String = "ddr4"
 var drive_type: String = "m2"
+var gpu_type: String = "monocooler"
 @export var cpu_brand: String = ""
 var is_completed: bool = false
 var has_player_inspected: bool = false
@@ -109,6 +110,12 @@ func _process(delta: float) -> void:
 
 func is_fully_repaired() -> bool:
 	if get_meta("is_tutorial_pc", false):
+		if not diagnostic_faulty_parts.is_empty():
+			for target in diagnostic_faulty_parts:
+				var st = components.get(target, "")
+				if st != "ok" and st != "fixed":
+					return false
+			return true
 		for target in ["RAM", "Fuente", "Disco Duro"]:
 			var st = components.get(target, "")
 			if st != "ok" and st != "fixed":

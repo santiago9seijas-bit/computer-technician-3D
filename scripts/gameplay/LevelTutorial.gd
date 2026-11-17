@@ -30,6 +30,9 @@ enum ReparacionStep {
 	WAIT_FETCH_RAM,
 	WAIT_INSTALL_RAM,
 	WAIT_HANDLE_SSD,
+	WAIT_HANDLE_GPU,
+	WAIT_HANDLE_COOLER,
+	WAIT_HANDLE_CPU,
 	WAIT_HANDLE_PSU,
 	COMPLETED
 }
@@ -69,6 +72,9 @@ var is_dialog_active: bool = false
 var is_esc_interrupt_active: bool = false
 var active_minigame: Node = null
 
+static var target_component: String = "general"
+@export var tutorial_component: String = "general"
+
 # Estados según el modo
 var rep_step: ReparacionStep = ReparacionStep.INTRO
 var sys_step: SistemasStep = SistemasStep.INTRO
@@ -87,6 +93,13 @@ func _ready() -> void:
 		current_mode = str(gm.current_mode).to_lower()
 	else:
 		current_mode = "reparacion"
+
+	if tutorial_component != "" and tutorial_component != "general":
+		target_component = tutorial_component
+	elif gm and "tutorial_target_component" in gm and str(gm.tutorial_target_component) != "":
+		target_component = str(gm.tutorial_target_component).to_lower()
+	elif target_component == "":
+		target_component = "general"
 
 	var btn_reintentar = hud.get_node_or_null("GameOverPanel/VBox/BtnReiniciarGO") as Button
 	if btn_reintentar:
@@ -155,7 +168,9 @@ func _input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 			_trigger_character_esc_interruption()
 
-func _process(_delta: float) -> void:
+var _rep_trans_timer: float = 0.0
+
+func _process(delta: float) -> void:
 	if is_dialog_active or is_esc_interrupt_active or (is_instance_valid(victory_modal) and victory_modal.visible) or is_instance_valid(active_minigame):
 		if player and player.has_method("set_movement_enabled") and player.can_move:
 			player.set_movement_enabled(false)
@@ -164,7 +179,10 @@ func _process(_delta: float) -> void:
 		return
 
 	if current_mode == "reparacion":
-		_check_reparacion_transitions()
+		_rep_trans_timer += delta
+		if _rep_trans_timer >= 0.15:
+			_rep_trans_timer = 0.0
+			_check_reparacion_transitions()
 
 # =============================================================================
 # CONFIGURACIÓN DEL ENTORNO SEGÚN EL MODO
@@ -187,30 +205,70 @@ func _setup_reparacion_environment() -> void:
 	if hud and hud.has_method("set_visible_tools"):
 		hud.set_visible_tools(2)
 
-	# Configurar la PC del tutorial para que solo tenga RAM, Fuente y Memorias SSD/HDD
+	var banner_title = "INDUCCIÓN INTEGRAL DE HARDWARE // TALLER 3D"
+	var diag_question = "INDUCCIÓN INTEGRAL DE HARDWARE CON JOA:\nAprende a diagnosticar, desmontar y ensamblar cada pieza:\n• Memoria RAM · • Almacenamiento HDD/SSD · • Tarjeta GPU · • Fan Cooler · • Procesador CPU · • Fuente PSU"
+	var faulty_parts: Array[String] = ["RAM", "Disco Duro", "Grafica", "Fan Cooler", "CPU", "Fuente"]
+	var comp_dict = {
+		"RAM": "broken",
+		"Disco Duro": "broken",
+		"Grafica": "broken",
+		"Fan Cooler": "broken",
+		"CPU": "broken",
+		"Fuente": "broken",
+		"Placa Madre": "ok"
+	}
+
+	match target_component:
+		"ram":
+			banner_title = "TUTORIAL DE HARDWARE // BANCO DE MEMORIAS RAM"
+			diag_question = "TUTORIAL DE MEMORIA RAM CON JOA:\nAprende el desacople de trabas laterales, extracción y alineación de la muesca central."
+			faulty_parts = ["RAM"]
+			comp_dict = {"RAM": "broken", "Disco Duro": "ok", "Grafica": "ok", "Fan Cooler": "ok", "CPU": "ok", "Fuente": "ok", "Placa Madre": "ok"}
+		"hdd":
+			banner_title = "TUTORIAL DE HARDWARE // ALMACENAMIENTO (SSD M.2 Y DISCO HDD)"
+			diag_question = "TUTORIAL DE ALMACENAMIENTO (2 PARTES) CON JOA:\nParte 1: Extracción diagonal de SSD M.2 NVMe.\nParte 2: Desmontaje y montaje de Disco HDD 3.5\" mecánico."
+			faulty_parts = ["Disco Duro"]
+			comp_dict = {"RAM": "ok", "Disco Duro": "broken", "Grafica": "ok", "Fan Cooler": "ok", "CPU": "ok", "Fuente": "ok", "Placa Madre": "ok"}
+		"gpu":
+			banner_title = "TUTORIAL DE HARDWARE // TARJETA GRÁFICA (GPU)"
+			diag_question = "TUTORIAL DE TARJETA GRÁFICA CON JOA:\nAprende la desconexión PCIe para frenar ventiladores, tornillos de bracket HDMI y extracción."
+			faulty_parts = ["Grafica"]
+			comp_dict = {"RAM": "ok", "Disco Duro": "ok", "Grafica": "broken", "Fan Cooler": "ok", "CPU": "ok", "Fuente": "ok", "Placa Madre": "ok"}
+		"cooler":
+			banner_title = "TUTORIAL DE HARDWARE // FAN COOLER (DISIPADOR)"
+			diag_question = "TUTORIAL DE FAN COOLER CON JOA:\nAprende la desconexión del cable PWM y el aflojado en cruz de los 4 tornillos."
+			faulty_parts = ["Fan Cooler"]
+			comp_dict = {"RAM": "ok", "Disco Duro": "ok", "Grafica": "ok", "Fan Cooler": "broken", "CPU": "ok", "Fuente": "ok", "Placa Madre": "ok"}
+		"psu":
+			banner_title = "TUTORIAL DE HARDWARE // FUENTE DE PODER (PSU)"
+			diag_question = "TUTORIAL DE FUENTE DE PODER CON JOA:\nAprende a desconectar los pestillos del conector ATX 24 pines y cable auxiliar EPS."
+			faulty_parts = ["Fuente"]
+			comp_dict = {"RAM": "ok", "Disco Duro": "ok", "Grafica": "ok", "Fan Cooler": "ok", "CPU": "ok", "Fuente": "broken", "Placa Madre": "ok"}
+		"cpu":
+			banner_title = "TUTORIAL DE HARDWARE // PROCESADOR (CPU)"
+			diag_question = "TUTORIAL DE PROCESADOR CPU CON JOA:\nAprende la palanca de retención del socket LGA y alineación del triángulo de pines."
+			faulty_parts = ["CPU"]
+			comp_dict = {"RAM": "ok", "Disco Duro": "ok", "Grafica": "ok", "Fan Cooler": "ok", "CPU": "broken", "Fuente": "ok", "Placa Madre": "ok"}
+
+	_set_holo_banner_text(banner_title)
+
 	if pc:
 		pc.set_meta("is_tutorial_pc", true)
-		pc.diagnostic_question = "INDUCCIÓN BÁSICA: Aprende a retirar e inspeccionar los componentes fundamentales:\n• Memoria RAM · • Fuente de Poder (PSU) · • Almacenamiento SSD / HDD"
-		pc.diagnostic_faulty_parts.assign(["RAM", "Fuente", "Disco Duro"])
-		pc.components = {
-			"RAM": "broken",
-			"Fuente": "broken",
-			"Disco Duro": "broken",
-			"Grafica": "empty",
-			"Placa Madre": "ok",
-			"Fan Cooler": "empty",
-			"CPU": "empty"
-		}
+		pc.set_meta("tutorial_component", target_component)
+		if target_component == "hdd":
+			pc.set_meta("storage_part", 1)
+			pc.drive_type = "m2"
+		pc.diagnostic_question = diag_question
+		pc.diagnostic_faulty_parts.assign(faulty_parts)
+		pc.components = comp_dict
 		if pc.has_method("update_3d_state"):
 			pc.update_3d_state()
 
 	# Escuchar eventos de modales de hardware
-	get_tree().node_added.connect(_on_tree_node_added)
-	get_tree().node_removed.connect(func(_n):
-		if not is_dialog_active:
-			_check_reparacion_transitions()
-	)
-	GameManager.backpack_updated.connect(_on_backpack_updated)
+	if not get_tree().node_added.is_connected(_on_tree_node_added):
+		get_tree().node_added.connect(_on_tree_node_added)
+	if not GameManager.backpack_updated.is_connected(_on_backpack_updated):
+		GameManager.backpack_updated.connect(_on_backpack_updated)
 
 func _setup_sistemas_environment() -> void:
 	_set_holo_banner_text("LABORATORIO DE SOFTWARE // SISTEMAS OPERATIVOS")
@@ -258,14 +316,15 @@ func _setup_servidor_environment() -> void:
 		pc.collision_layer = 0
 		pc.collision_mask = 0
 
-	var mesa_mesh = work_bench.get_node_or_null("MesaReparacion") as Node3D
-	if mesa_mesh:
-		mesa_mesh.visible = false
-	var bench_col = work_bench.get_node_or_null("CollisionShape3D") as CollisionShape3D
-	if bench_col:
-		bench_col.disabled = true
-	work_bench.collision_layer = 0
-	work_bench.collision_mask = 0
+	if is_instance_valid(work_bench):
+		work_bench.visible = false
+		work_bench.collision_layer = 0
+		work_bench.collision_mask = 0
+		for child in work_bench.get_children():
+			if child is VisualInstance3D or child is Node3D:
+				child.visible = false
+			if child is CollisionShape3D:
+				child.disabled = true
 
 	if holo_banner:
 		holo_banner.position = Vector3(0, 3.4, -0.4)
@@ -367,8 +426,34 @@ func _is_modal_currently_open() -> bool:
 			return true
 	return false
 
+func _play_tutorial_entrance_animation() -> void:
+	var sfx_path = "res://efectos/sonido de entrada.ogg"
+	if ResourceLoader.exists(sfx_path):
+		var audio = AudioStreamPlayer.new()
+		audio.stream = load(sfx_path)
+		audio.volume_db = -8.0
+		add_child(audio)
+		audio.play()
+		audio.finished.connect(audio.queue_free)
+		
+	if player and player.get_node_or_null("Camera3D"):
+		var cam = player.get_node_or_null("Camera3D") as Camera3D
+		var orig_fov = cam.fov
+		cam.fov = orig_fov + 6.0
+		var tw_cam = create_tween()
+		tw_cam.tween_property(cam, "fov", orig_fov, 0.6).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+		
+	if holo_banner:
+		var orig_y = holo_banner.position.y
+		holo_banner.position.y = orig_y + 0.35
+		holo_banner.scale = Vector3(0.8, 0.8, 0.8)
+		var tw_b = create_tween().set_parallel(true)
+		tw_b.tween_property(holo_banner, "position:y", orig_y, 0.55).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		tw_b.tween_property(holo_banner, "scale", Vector3.ONE, 0.55).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
 func _start_current_mode_intro() -> void:
 	GameManager.timer_active = false
+	_play_tutorial_entrance_animation()
 	match current_mode:
 		"sistema":
 			_start_sistemas_intro()
@@ -401,7 +486,7 @@ func _trigger_character_esc_interruption() -> void:
 
 func _show_joa_esc_interruption() -> void:
 	var speaker = "[JOA // TÉCNICA DE HARDWARE]"
-	var text = "¿E-eh...? ¿T-te vas tan pronto? *(se acomoda los lentes con timidez y tristeza)*...\n¿Acaso... te aburrió mi explicación? L-lo siento mucho si hablo muy despacio o si soy aburrida...\n¿De verdad quieres salir al menú o podemos seguir practicando juntos?"
+	var text = "¿E-eh...? ¿T-te vas tan pronto? *(se le llenan los ojos de lágrimas y se acomoda los lentes con tristeza)*...\n¿Acaso... te aburrió mi explicación? L-lo siento mucho si hablo muy despacio o si soy aburrida...\n¿De verdad quieres salir al menú o podemos seguir practicando juntos?"
 	var stay_txt = "[ ⌨ [E] QUEDARME CON JOA ]"
 	var exit_txt = "[ ❌ [ESC] SALIR AL MENÚ ]"
 
@@ -427,8 +512,8 @@ func _show_joa_esc_interruption() -> void:
 			is_esc_interrupt_active = false
 			var bye_dialog = [
 				{
-					"speaker": "[JOA // DESPEDIDA]",
-					"text": "B-bueno... entiendo. Espero no haberte molestado mucho. Vuelve cuando quieras, aquí estaré..."
+					"speaker": "[JOA // DESPEDIDA LLORANDO]",
+					"text": "B-bueno... entiendo. *(se limpia las lágrimas con tristeza mientras baja la mirada)*. Espero no haberte molestado mucho. Vuelve cuando quieras a practicar, aquí estaré esperándote..."
 				}
 			]
 			_show_dialog_sequence(bye_dialog, func():
@@ -562,24 +647,94 @@ func _get_ram_type_name() -> String:
 
 func _start_reparacion_intro() -> void:
 	rep_step = ReparacionStep.INTRO
-	var intro_dialogs: Array = [
-		{
-			"speaker": "[JOA // TÉCNICA DE HARDWARE]",
-			"text": "H-hola... b-bueno, bienvenido al taller de hardware... *(se acomoda los lentes con timidez)*. Yo... soy Joa. Te voy a acompañar paso a paso para que no te sientas abrumado, ¿de acuerdo?"
-		},
-		{
-			"speaker": "[JOA // MOVIMIENTO & CONTROLES]",
-			"text": "Para moverte puedes usar [W, A, S, D], con el ratón miras alrededor y con [Espacio] saltas... Ah, y si mantienes [Shift] corres un poco más rápido... sólo ten cuidado de no tropezar con las herramientas."
-		},
-		{
-			"speaker": "[JOA // TUS HERRAMIENTAS]",
-			"text": "E-en la parte inferior verás tus herramientas... De momento sólo te habilité las dos primeras: el destornillador Phillips [ 1 ] y el de pala [ 2 ]... *(se ajusta los lentes nerviosa)*. Con esas dos tenemos más que suficiente para empezar sin que te compliques."
-		},
-		{
-			"speaker": "[JOA // OBJETIVO 1]",
-			"text": "P-paso 1: Por favor, acércate a la mesa central donde está el gabinete... y presiona la tecla [E] para abrirlo e inspeccionarlo por dentro."
-		}
-	]
+	var intro_dialogs: Array = []
+
+	match target_component:
+		"ram":
+			intro_dialogs = [
+				{
+					"speaker": "JOA",
+					"text": "H-hola... bienvenida al Tutorial de Memoria RAM... *(se acomoda los lentes con timidez)*. Yo soy Joa. Te enseñaré a liberar las trabas laterales y reemplazar el módulo DDR sin dañar las pistas de contacto."
+				},
+				{
+					"speaker": "JOA",
+					"text": "Paso 1: Acércate a la computadora central y presiona la tecla [E] para inspeccionar los zócalos de memoria RAM."
+				}
+			]
+		"hdd":
+			intro_dialogs = [
+				{
+					"speaker": "JOA",
+					"text": "¡Hola!... *(te sonríe dulcemente mientras se acomoda los lentes)*. Bienvenida al Tutorial de Almacenamiento. Hoy aprenderemos a manipular dos tipos de unidades: SSD M.2 NVMe y discos mecánicos HDD."
+				},
+				{
+					"speaker": "JOA",
+					"text": "Este tutorial consta de 2 partes: primero veremos la extracción de un SSD M.2 de la placa base, y luego el desmontaje y montaje de un HDD. ¡Acércate a la computadora y presiona [E]!"
+				}
+			]
+		"gpu":
+			intro_dialogs = [
+				{
+					"speaker": "JOA",
+					"text": "H-hola... *(se ajusta los lentes con admiración y nervios)*. Bienvenida al Tutorial de Tarjeta Gráfica (GPU). Esta es la pieza de procesamiento 3D más potente de la máquina."
+				},
+				{
+					"speaker": "JOA",
+					"text": "Paso 1: Por favor, acércate al gabinete central y presiona [E] para ver la GPU conectada al puerto PCIe x16."
+				}
+			]
+		"cooler":
+			intro_dialogs = [
+				{
+					"speaker": "JOA",
+					"text": "¡B-bienvenida al Tutorial de Fan Cooler!... *(se acomoda los lentes meticulosamente)*. El procesador genera mucho calor y el disipador activo con ventilador PWM lo mantiene seguro bajo los 70°C."
+				},
+				{
+					"speaker": "JOA",
+					"text": "Paso 1: Acércate a la computadora central y presiona [E] para examinar el anclaje del disipador sobre la placa madre."
+				}
+			]
+		"psu":
+			intro_dialogs = [
+				{
+					"speaker": "JOA",
+					"text": "H-hola... *(te saluda con una tímida inclinación de cabeza)*. Bienvenida al Tutorial de Fuente de Poder (PSU). Es el corazón eléctrico que distribuye voltajes regulados a todos los componentes."
+				},
+				{
+					"speaker": "JOA",
+					"text": "Paso 1: Acércate al equipo y presiona [E] para inspeccionar los arneses de potencia principal y auxiliar."
+				}
+			]
+		"cpu":
+			intro_dialogs = [
+				{
+					"speaker": "JOA",
+					"text": "¡Hola!... *(respira hondo y se ajusta los lentes con emoción)*. Bienvenida al Tutorial de Procesador (CPU). El zócalo LGA es el componente de mayor precisión del taller."
+				},
+				{
+					"speaker": "JOA",
+					"text": "Paso 1: Acércate a la PC central y presiona [E] para abrir el chasis y acceder a la compuerta del procesador."
+				}
+			]
+		_: # General
+			intro_dialogs = [
+				{
+					"speaker": "JOA",
+					"text": "H-hola... b-bueno, bienvenido al taller de hardware... *(se acomoda los lentes con timidez)*. Yo... soy Joa. Te voy a acompañar paso a paso para que no te sientas abrumado, ¿de acuerdo?"
+				},
+				{
+					"speaker": "JOA",
+					"text": "Para moverte puedes usar [W, A, S, D], con el ratón miras alrededor y con [Espacio] saltas... Ah, y si mantienes [Shift] corres un poco más rápido... sólo ten cuidado de no tropezar con las herramientas."
+				},
+				{
+					"speaker": "JOA",
+					"text": "E-en la parte inferior verás tus herramientas... Tienes habilitados el destornillador Phillips [ 1 ] y el de pala [ 2 ]... Con esas dos tenemos más que suficiente para empezar."
+				},
+				{
+					"speaker": "JOA",
+					"text": "P-paso 1: Por favor, acércate a la mesa central donde está el gabinete... y presiona la tecla [E] para abrirlo e inspeccionarlo por dentro."
+				}
+			]
 
 	_show_dialog_sequence(intro_dialogs, func():
 		rep_step = ReparacionStep.WAIT_INSPECT_PC
@@ -645,36 +800,203 @@ func _advance_to_install_ram() -> void:
 
 func _advance_to_handle_ssd() -> void:
 	rep_step = ReparacionStep.WAIT_HANDLE_SSD
-	_set_holo_sub_text("[PASO 5] DESMONTA EL DISCO DURO (SSD) Y COLOCA EL REPUESTO NUEVO")
-	GameManager.spawn_floating_text("Paso 5: Ahora desmonta y coloca el Disco Duro (SSD)", true)
+	var storage_part = pc.get_meta("storage_part", 1) if is_instance_valid(pc) else 1
+	var step_num = "2" if target_component == "hdd" else "5"
 
-	var ssd_dialogs: Array = [
+	var ssd_dialogs: Array = []
+	if target_component == "hdd":
+		if storage_part == 1:
+			_set_holo_sub_text("[PARTE 1/2] DESMONTA LA UNIDAD SSD M.2 NVMe DE LA PLACA MADRE")
+			GameManager.spawn_floating_text("Parte 1: Desmonta el SSD M.2", true)
+			ssd_dialogs = [
+				{
+					"speaker": "JOA",
+					"text": "M-muy bien... *(apunta hacia la placa)*. Empecemos con la Parte 1: El SSD M.2 NVMe. Este módulo ultrarrápido va insertado directamente sobre la placa madre bajo una armadura térmica."
+				},
+				{
+					"speaker": "JOA",
+					"text": "Paso 1: Haz clic en 'SACAR' en Almacenamiento. En el minijuego, usa el Destornillador Phillips [1] para retirar el disipador, luego el micro-tornillo del standoff, observa la elevación a 30° y desliza el SSD en diagonal."
+				}
+			]
+		else:
+			_set_holo_sub_text("[PARTE 2/2] DESMONTA EL DISCO HDD Y COLOCA EL REPUESTO NUEVO")
+			GameManager.spawn_floating_text("Parte 2: Desmonta y coloca el Disco HDD", true)
+			ssd_dialogs = [
+				{
+					"speaker": "JOA",
+					"text": "Paso 2: Ahora haz clic en 'SACAR' en el Disco HDD. Retira los 4 tornillos de las esquinas con el destornillador, desconecta el cable SATA y arrástralo a la derecha. Luego busca el repuesto nuevo en la caja para instalarlo."
+				}
+			]
+	else:
+		_set_holo_sub_text("[PASO %s] DESMONTA EL ALMACENAMIENTO (DISCO HDD / SSD) Y COLOCA EL REPUESTO NUEVO" % step_num)
+		GameManager.spawn_floating_text("Paso %s: Ahora desmonta y coloca el Almacenamiento" % step_num, true)
+		ssd_dialogs = [
+			{
+				"speaker": "[JOA // RAM INSTALADA]",
+				"text": "¡L-lo hiciste de maravilla! La Memoria RAM encajó a la perfección y el zócalo ya está completamente operativo."
+			},
+			{
+				"speaker": "[JOA // ALMACENAMIENTO HDD / SSD]",
+				"text": "Paso 5: Ahora debemos cambiar la unidad de Almacenamiento [❌]. Haz clic en 'SACAR'. Si es un Disco HDD, retira primero los 4 tornillos de las esquinas con el destornillador, luego clic en el cable SATA para desconectarlo, y arrástralo a la derecha para extraerlo."
+			}
+		]
+	_show_dialog_sequence(ssd_dialogs)
+
+func _on_m2_tutorial_part_completed() -> void:
+	if target_component != "hdd":
+		return
+	if is_instance_valid(pc):
+		pc.set_meta("storage_part", 2)
+		pc.drive_type = "hdd"
+		pc.components["Disco Duro"] = "broken"
+		if pc.has_method("update_3d_state"):
+			pc.update_3d_state()
+
+	_set_holo_sub_text("[PARTE 2/2] DESMONTA EL DISCO HDD Y COLOCA EL REPUESTO NUEVO")
+	GameManager.spawn_floating_text("Parte 2: Ahora desmonta el Disco HDD", true)
+
+	var transition_dialogs: Array = [
 		{
-			"speaker": "[JOA // RAM INSTALADA]",
-			"text": "¡L-lo hiciste de maravilla! La Memoria RAM encajó a la perfección y el zócalo ya está completamente operativo."
+			"speaker": "JOA",
+			"text": "Bueno, esa es la explicación de las unidades SSD y cómo se instalan... *(te sonríe dulcemente mientras se acomoda los lentes)*. Ahora te voy a explicar sobre los discos mecánicos HDD."
 		},
 		{
-			"speaker": "[JOA // ALMACENAMIENTO SSD]",
-			"text": "Paso 5: Ahora debemos cambiar el almacenamiento (SSD). Está marcado con [❌]. Haz clic en 'SACAR'. Usa el destornillador para el tornillito, desconecta los pines con cuidado, retira el disco averiado y monta el nuevo SSD."
+			"speaker": "JOA",
+			"text": "Los discos HDD son unidades de almacenamiento magnéticas con platos giratorios y cabezales electromagnéticos que leen y guardan datos. Son muy comunes y económicos para almacenar grandes volúmenes de información. Ahora debemos colocar uno en la bahía SATA."
+		},
+		{
+			"speaker": "JOA",
+			"text": "Paso 2: Haz clic en 'SACAR' en Almacenamiento, retira con el destornillador los 4 tornillos de las esquinas, desconecta el cable SATA y arrastra el disco hacia la derecha. Luego ve a la caja de repuestos para buscar uno nuevo e instalarlo."
 		}
 	]
-	_show_dialog_sequence(ssd_dialogs)
+	_show_dialog_sequence(transition_dialogs)
+
+func _advance_to_handle_gpu() -> void:
+	rep_step = ReparacionStep.WAIT_HANDLE_GPU
+	var step_num = "2" if target_component == "gpu" else "6"
+	_set_holo_sub_text("[PASO %s] DESMONTA LA TARJETA GRÁFICA (GPU) Y COLOCA EL REPUESTO NUEVO" % step_num)
+	GameManager.spawn_floating_text("Paso %s: Ahora reemplaza la Tarjeta Gráfica (GPU)" % step_num, true)
+
+	var gpu_dialogs: Array = []
+	if target_component == "gpu":
+		gpu_dialogs = [
+			{
+				"speaker": "JOA",
+				"text": "E-eso es... muy bien... *(se acomoda los lentes)*. Aquí dentro puedes ver la Tarjeta Gráfica (GPU) con la cruz roja [❌]... sus ventiladores están fallando y necesita reemplazo inmediato."
+			},
+			{
+				"speaker": "JOA",
+				"text": "Paso 2: Haz clic en el botón 'SACAR' de la GPU. En el minijuego, haz clic en el conector PCIe para desconectarla y frenar los ventiladores. Luego retira con el destornillador los 2 tornillos del bracket HDMI y arrastra la GPU hacia ARRIBA. ¡El soporte se quedará firme en el gabinete!"
+			},
+			{
+				"speaker": "JOA",
+				"text": "Paso 3: Después ve a la caja de Gráficas para elegir tu modelo preferido (Monocooler o Dual Cooler con sus VRAM) e instálala en la ranura PCIe."
+			}
+		]
+	else:
+		gpu_dialogs = [
+			{
+				"speaker": "[JOA // DISCO INSTALADO]",
+				"text": "Uff... q-qué alivio, el almacenamiento quedó firme y seguro con sus cables bien acoplados..."
+			},
+			{
+				"speaker": "[JOA // TARJETA GRÁFICA (GPU)]",
+				"text": "Paso 6: Ahora observemos la Tarjeta Gráfica (GPU) [❌]... *(sus ojos brillan detrás de sus lentes)*. Primero haz clic en el cable PCIe para frenar los ventiladores (de a poco hasta detenerse). Luego retira los 2 tornillos del bracket HDMI y arrastra la GPU hacia ARRIBA. ¡El soporte se quedará en su sitio!"
+			}
+		]
+	_show_dialog_sequence(gpu_dialogs)
+
+func _advance_to_handle_cooler() -> void:
+	rep_step = ReparacionStep.WAIT_HANDLE_COOLER
+	var step_num = "2" if target_component == "cooler" else "7"
+	_set_holo_sub_text("[PASO %s] DESMONTA EL FAN COOLER Y COLOCA EL REPUESTO NUEVO" % step_num)
+	GameManager.spawn_floating_text("Paso %s: Ahora desmonta y coloca el Fan Cooler" % step_num, true)
+
+	var cooler_dialogs: Array = []
+	if target_component == "cooler":
+		cooler_dialogs = [
+			{
+				"speaker": "JOA",
+				"text": "E-excelente... *(mira fijamente el gabinete)*. El Fan Cooler sobre el procesador tiene la cruz roja [❌]... la turbina está bloqueada y el CPU se recalienta."
+			},
+			{
+				"speaker": "JOA",
+				"text": "Paso 2: Haz clic en 'SACAR' en el Fan Cooler. En el minijuego, desconecta el cable PWM de 4 pines, retira en cruz los 4 tornillos con el destornillador y levanta el disipador. Luego ve a la caja de Fan Cooler por el repuesto e instálalo."
+			}
+		]
+	else:
+		cooler_dialogs = [
+			{
+				"speaker": "[JOA // GPU INSTALADA]",
+				"text": "¡M-maravilloso! La GPU encajó como un guante en el zócalo PCIe y sus ventiladores ya giran seguros."
+			},
+			{
+				"speaker": "[JOA // FAN COOLER (DISIPADOR)]",
+				"text": "Paso 7: Ahora revisemos el Fan Cooler sobre el procesador [❌]. Desconecta el cable PWM de 4 pines, retira los 4 tornillos en cruz y levanta el disipador para renovar la refrigeración térmica del procesador."
+			}
+		]
+	_show_dialog_sequence(cooler_dialogs)
+
+func _advance_to_handle_cpu() -> void:
+	rep_step = ReparacionStep.WAIT_HANDLE_CPU
+	var step_num = "2" if target_component == "cpu" else "8"
+	_set_holo_sub_text("[PASO %s] DESMONTA EL PROCESADOR (CPU) LIBERANDO LA PALANCA DEL ZÓCALO LGA" % step_num)
+	GameManager.spawn_floating_text("Paso %s: Ahora inspecciona y sustituye el Procesador (CPU)" % step_num, true)
+
+	var cpu_dialogs: Array = []
+	if target_component == "cpu":
+		cpu_dialogs = [
+			{
+				"speaker": "JOA",
+				"text": "L-llegamos al núcleo de todo... *(se acomoda los lentes con emoción)*. El Procesador (CPU) está marcado con [❌] en el socket LGA."
+			},
+			{
+				"speaker": "JOA",
+				"text": "Paso 2: Haz clic en 'SACAR'. Destraba la palanca metálica lateral hacia abajo y hacia afuera para levantar la compuerta. Retira el procesador dañado, ve a la caja de CPU por el repuesto nuevo, alinea las muescas doradas sin forzar los pines y baja la palanca para fijarlo."
+			}
+		]
+	else:
+		cpu_dialogs = [
+			{
+				"speaker": "[JOA // DISIPADOR RETIRADO]",
+				"text": "¡Uff, qué bien!... Sin el disipador podemos ver el die del microprocesador."
+			},
+			{
+				"speaker": "[JOA // PROCESADOR (CPU)]",
+				"text": "Paso 8: Observa el zócalo del Procesador (CPU) [❌]... *(se acomoda los lentes con reverencia y emoción)*. Arrastra la palanca lateral metálica hacia abajo para destrabar la compuerta de retención. Luego extrae el CPU defectuoso y coloca el procesador nuevo alineando las muescas doradas sin forzar los pines. ¡Al final vuelve a asegurar la palanca!"
+			}
+		]
+	_show_dialog_sequence(cpu_dialogs)
 
 func _advance_to_handle_psu() -> void:
 	rep_step = ReparacionStep.WAIT_HANDLE_PSU
-	_set_holo_sub_text("[PASO 6] DESMONTA LA FUENTE DE PODER (PSU) Y COLOCA EL REPUESTO NUEVO")
-	GameManager.spawn_floating_text("Paso 6: Ahora desmonta y coloca la Fuente de Poder", true)
+	var step_num = "2" if target_component == "psu" else "9"
+	_set_holo_sub_text("[PASO %s] DESMONTA LA FUENTE DE PODER (PSU) Y COLOCA EL REPUESTO NUEVO" % step_num)
+	GameManager.spawn_floating_text("Paso %s: Ahora desmonta y coloca la Fuente de Poder" % step_num, true)
 
-	var psu_dialogs: Array = [
-		{
-			"speaker": "[JOA // SSD INSTALADO]",
-			"text": "Uff... q-qué alivio, el almacenamiento SSD quedó firme y seguro. Lo estás haciendo de verdad muy bien..."
-		},
-		{
-			"speaker": "[JOA // FUENTE DE PODER]",
-			"text": "Paso 6: Por último nos falta la Fuente de Poder (PSU). Ubica 'FUENTE DE PODER' averiada [❌], haz clic en 'SACAR', desconecta los cables del conector ATX y la CPU sin tirar con brusquedad... e instala la nueva fuente."
-		}
-	]
+	var psu_dialogs: Array = []
+	if target_component == "psu":
+		psu_dialogs = [
+			{
+				"speaker": "JOA",
+				"text": "C-cuidado con la estática aquí... *(respira hondo)*. La Fuente de Poder (PSU) [❌] no entrega voltajes estables en la línea de +12V."
+			},
+			{
+				"speaker": "JOA",
+				"text": "Paso 2: Haz clic en 'SACAR'. Presiona los pestillos de seguridad y desconecta el arnés principal ATX de 24 pines y el auxiliar EPS de la CPU sin doblar los cables. Luego toma una fuente nueva de la caja de repuestos e instálala."
+			}
+		]
+	else:
+		psu_dialogs = [
+			{
+				"speaker": "[JOA // PROCESADOR ASENTADO]",
+				"text": "¡P-perfecto! Los pines del socket quedaron intactos y la palanca bien asegurada."
+			},
+			{
+				"speaker": "[JOA // FUENTE DE PODER (PSU)]",
+				"text": "Paso 9: Por último nos falta la Fuente de Poder (PSU) [❌]. Haz clic en 'SACAR', desconecta los cables del conector principal ATX y la CPU sin tirar con brusquedad... e instala la nueva fuente para suministrar energía limpia."
+			}
+		]
 	_show_dialog_sequence(psu_dialogs)
 
 func _advance_to_reparacion_completed() -> void:
@@ -687,18 +1009,28 @@ func _advance_to_reparacion_completed() -> void:
 		if child.name.begins_with("PCInspectionModal") \
 			or child.name.begins_with("RAMSelectionModal") \
 			or child.name.begins_with("SSDSelectionModal") \
+			or child.name.begins_with("GPUSelectionModal") \
 			or child.name.ends_with("Minigame") \
 			or child.is_in_group("minigames"):
 			child.queue_free()
 
+	var comp_title = "HARDWARE INTEGRAL"
+	match target_component:
+		"ram": comp_title = "MEMORIA RAM"
+		"hdd": comp_title = "ALMACENAMIENTO (HDD / SSD)"
+		"gpu": comp_title = "TARJETA GRÁFICA (GPU)"
+		"cooler": comp_title = "FAN COOLER (DISIPADOR)"
+		"cpu": comp_title = "PROCESADOR (CPU)"
+		"psu": comp_title = "FUENTE DE PODER (PSU)"
+
 	var completed_dialogs: Array = [
 		{
-			"speaker": "[JOA // TUTORIAL COMPLETADO]",
-			"text": "¡L-lo lograste! *(sonríe aliviada y se acomoda los lentes)*. Todas las piezas están en perfecto estado y la computadora encendió sin un solo error."
+			"speaker": "JOA",
+			"text": "¡L-lo lograste todo! *(sonríe aliviada con emoción y se acomoda los lentes)*. Has completado con éxito el tutorial técnico de %s." % comp_title
 		},
 		{
-			"speaker": "[JOA // CERTIFICACIÓN OFICIAL]",
-			"text": "E-eres realmente talentoso para esto... Ya dominas el reemplazo de Memoria RAM, Almacenamiento SSD y Fuente de Poder.\n¡Tu certificación técnica está aprobada! Presiona [E] para continuar."
+			"speaker": "JOA",
+			"text": "E-eres realmente talentoso para esto... Ya dominas el desmontaje y ensamblaje correcto de %s.\n¡Tu certificación técnica está aprobada! Presiona [E] para continuar." % comp_title
 		}
 	]
 	_show_dialog_sequence(completed_dialogs, func():
@@ -712,7 +1044,19 @@ func _on_tree_node_added(node: Node) -> void:
 		if node.name.begins_with("PCInspectionModal") or node.has_method("setup_pc"):
 			get_tree().create_timer(0.12).timeout.connect(func():
 				if rep_step == ReparacionStep.WAIT_INSPECT_PC:
-					_advance_to_remove_ram()
+					match target_component:
+						"hdd":
+							_advance_to_handle_ssd()
+						"gpu":
+							_advance_to_handle_gpu()
+						"cooler":
+							_advance_to_handle_cooler()
+						"cpu":
+							_advance_to_handle_cpu()
+						"psu":
+							_advance_to_handle_psu()
+						_:
+							_advance_to_remove_ram()
 			)
 
 func _on_backpack_updated(_items: Array) -> void:
@@ -726,9 +1070,73 @@ func _check_reparacion_transitions() -> void:
 
 	var ram_ok = pc.components.get("RAM", "") in ["ok", "fixed"]
 	var ssd_ok = pc.components.get("Disco Duro", "") in ["ok", "fixed"]
+	var gpu_ok = pc.components.get("Grafica", "") in ["ok", "fixed", "empty"]
+	var cooler_ok = pc.components.get("Fan Cooler", "") in ["ok", "fixed", "empty"]
+	var cpu_ok = pc.components.get("CPU", "") in ["ok", "fixed", "empty"]
 	var psu_ok = pc.components.get("Fuente", "") in ["ok", "fixed"]
 
-	if (ram_ok and ssd_ok and psu_ok) or pc.is_fully_repaired():
+	# Casos para tutoriales individuales
+	match target_component:
+		"ram":
+			if pc.components.get("RAM", "") == "empty" and rep_step == ReparacionStep.WAIT_REMOVE_RAM:
+				_advance_to_fetch_ram()
+			elif _has_functional_ram_in_backpack() and rep_step == ReparacionStep.WAIT_FETCH_RAM and not _is_modal_currently_open():
+				_advance_to_install_ram()
+			elif ram_ok and rep_step == ReparacionStep.WAIT_INSTALL_RAM:
+				_advance_to_reparacion_completed()
+			return
+		"hdd":
+			if is_instance_valid(pc) and pc.get_meta("storage_part", 1) == 1:
+				if pc.components.get("Disco Duro", "") == "empty":
+					var has_ssd = false
+					for it in GameManager.backpack:
+						if (it.get("name") == "Disco Duro" or it.get("type") == "Disco Duro") and not it.get("broken", true):
+							has_ssd = true
+							break
+					if has_ssd:
+						_set_holo_sub_text("[PARTE 1/2] TIENES EL SSD EN LA MOCHILA. VUELVE A LA PC PARA INSTALARLO")
+					else:
+						_set_holo_sub_text("[PARTE 1/2] VE A LA CAJA DE ALMACENAMIENTO, TOMA EL REPUESTO SSD Y REGRESA A INSTALARLO")
+				return
+			if pc.components.get("Disco Duro", "") == "empty":
+				var has_hdd = false
+				for it in GameManager.backpack:
+					if (it.get("name") == "Disco Duro" or it.get("type") == "Disco Duro") and not it.get("broken", true):
+						has_hdd = true
+						break
+				if has_hdd:
+					_set_holo_sub_text("[PARTE 2/2] TIENES EL DISCO HDD EN LA MOCHILA. VUELVE A LA PC PARA INSTALARLO")
+				else:
+					_set_holo_sub_text("[PARTE 2/2] VE A LA CAJA DE ALMACENAMIENTO, TOMA EL REPUESTO HDD Y REGRESA A INSTALARLO")
+			elif ssd_ok and pc.components.get("Disco Duro", "") != "empty":
+				_advance_to_reparacion_completed()
+			return
+		"gpu":
+			if pc.components.get("Grafica", "") == "empty":
+				_set_holo_sub_text("[PASO 3] VE A LA CAJA DE TARJETAS GRÁFICAS, ELIGE TU MODELO Y REGRESA A INSTALARLA")
+			elif gpu_ok and pc.components.get("Grafica", "") != "empty":
+				_advance_to_reparacion_completed()
+			return
+		"cooler":
+			if pc.components.get("Fan Cooler", "") == "empty":
+				_set_holo_sub_text("[PASO 3] VE A LA CAJA DE FAN COOLERS, TOMA EL REPUESTO Y REGRESA A INSTALARLO")
+			elif cooler_ok and pc.components.get("Fan Cooler", "") != "empty":
+				_advance_to_reparacion_completed()
+			return
+		"cpu":
+			if pc.components.get("CPU", "") == "empty":
+				_set_holo_sub_text("[PASO 3] VE A LA CAJA DE PROCESADORES, TOMA EL REPUESTO Y REGRESA A INSTALARLO")
+			elif cpu_ok and pc.components.get("CPU", "") != "empty":
+				_advance_to_reparacion_completed()
+			return
+		"psu":
+			if pc.components.get("Fuente", "") == "empty":
+				_set_holo_sub_text("[PASO 3] VE A LA CAJA DE FUENTES DE PODER, TOMA EL REPUESTO Y REGRESA A INSTALARLO")
+			elif psu_ok and pc.components.get("Fuente", "") != "empty":
+				_advance_to_reparacion_completed()
+			return
+
+	if pc.is_fully_repaired() or (ram_ok and ssd_ok and gpu_ok and cooler_ok and cpu_ok and psu_ok):
 		_advance_to_reparacion_completed()
 		return
 
@@ -747,6 +1155,33 @@ func _check_reparacion_transitions() -> void:
 
 		ReparacionStep.WAIT_HANDLE_SSD:
 			if ssd_ok:
+				if pc.components.has("Grafica") and pc.components.get("Grafica", "") == "broken":
+					_advance_to_handle_gpu()
+				elif pc.components.has("Fan Cooler") and pc.components.get("Fan Cooler", "") == "broken":
+					_advance_to_handle_cooler()
+				elif pc.components.has("CPU") and pc.components.get("CPU", "") == "broken":
+					_advance_to_handle_cpu()
+				else:
+					_advance_to_handle_psu()
+
+		ReparacionStep.WAIT_HANDLE_GPU:
+			if gpu_ok:
+				if pc.components.has("Fan Cooler") and pc.components.get("Fan Cooler", "") == "broken":
+					_advance_to_handle_cooler()
+				elif pc.components.has("CPU") and pc.components.get("CPU", "") == "broken":
+					_advance_to_handle_cpu()
+				else:
+					_advance_to_handle_psu()
+
+		ReparacionStep.WAIT_HANDLE_COOLER:
+			if cooler_ok:
+				if pc.components.has("CPU") and pc.components.get("CPU", "") == "broken":
+					_advance_to_handle_cpu()
+				else:
+					_advance_to_handle_psu()
+
+		ReparacionStep.WAIT_HANDLE_CPU:
+			if cpu_ok:
 				_advance_to_handle_psu()
 
 		ReparacionStep.WAIT_HANDLE_PSU:

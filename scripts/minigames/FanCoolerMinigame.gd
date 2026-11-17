@@ -694,28 +694,9 @@ func _on_extract_cooler_pressed() -> void:
 	tw.chain().tween_callback(func():
 		GameManager.add_item_to_backpack({"name": "Fan Cooler", "type": "Fan Cooler", "broken": true, "functional": false})
 		old_part_extracted.emit()
-		
-		if not is_tutorial_mode:
-			_show_floating_feedback("✓ Fan Cooler averiado extraído. Busca el repuesto en el taller.", Color(0.2, 1.0, 0.5))
-			await get_tree().create_timer(1.2).timeout
-			minigame_finished.emit(true)
-			return
-		
-		# Modo tutorial:
-		var has_new = false
-		for it in GameManager.backpack:
-			if it.get("name") == "Fan Cooler" and not it.get("broken", true):
-				has_new = true
-				break
-		if not has_new:
-			GameManager.add_item_to_backpack({"name": "Fan Cooler", "type": "Fan Cooler", "broken": false, "functional": true})
-			
-		current_state = State.EMPTY_SOCKET
-		_setup_empty_socket_visual()
-		_select_tab(1)
-		_show_floating_feedback("✓ FASE 1 (QUITAR) COMPLETADA ➔ AHORA FASE 2: MONTAJE INVERSO (PONER)", Color(0.2, 1.0, 0.5))
-		_update_status()
-		_refresh_backpack_ui()
+		_show_floating_feedback("✓ Fan Cooler averiado extraído. Ve a la caja de repuestos en el taller a buscar el nuevo.", Color(0.2, 1.0, 0.5))
+		await get_tree().create_timer(1.0).timeout
+		minigame_finished.emit(true)
 	)
 
 func _show_victory_panel() -> void:

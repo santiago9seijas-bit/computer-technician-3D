@@ -534,30 +534,9 @@ func _on_slide_psu_pressed() -> void:
 	GameManager.add_item_to_backpack({"name": "Fuente", "broken": true})
 	old_part_extracted.emit()
 	
-	if not is_tutorial_mode:
-		_show_warning("✓ Fuente averiada extraída. Busca el repuesto nuevo en el taller.", Color(0.2, 1.0, 0.4))
-		await get_tree().create_timer(1.2).timeout
-		minigame_finished.emit(true)
-		return
-	
-	# Modo tutorial:
-	var has_new = false
-	for it in GameManager.backpack:
-		if it.get("name") == "Fuente" and not it.get("broken", true):
-			has_new = true
-			break
-	if not has_new:
-		GameManager.add_item_to_backpack({"name": "Fuente", "broken": false})
-		
-	psu_body.visible = true
-	psu_body.position.x = default_psu_x + 200.0
-	psu_body.modulate = Color(0.3, 0.9, 1.0, 0.65)
-	current_state = State.EMPTY_TUNNEL
-	_select_guide_tab(1)
-	
-	btn_slide_psu.visible = true
-	btn_slide_psu.disabled = false
-	btn_slide_psu.text = "⇪ INSTALAR FUENTE NUEVA (ARRASTRA O CLIC)"
+	_show_warning("✓ Fuente averiada extraída. Ve a la caja de repuestos en el taller a buscar la nueva.", Color(0.2, 1.0, 0.4))
+	await get_tree().create_timer(1.0).timeout
+	minigame_finished.emit(true)
 	if btn_slide_psu.pressed.is_connected(_on_slide_psu_pressed):
 		btn_slide_psu.pressed.disconnect(_on_slide_psu_pressed)
 	if not btn_slide_psu.pressed.is_connected(_seat_new_psu):

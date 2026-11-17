@@ -25,9 +25,15 @@ var mode_switch_pulse: float = 0.0
 var transition_sweep_angle: float = 0.0
 var _mode_tween: Tween = null
 
-# Micro-animación de zoom táctil sobre los círculos de nivel (16 nodos: 0 tutorial, 1-12 niveles, 13-15 práctica)
-var node_zoom_scales: Array[float] = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
-var node_ripples: Array[float] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+# Micro-animación de zoom táctil sobre los círculos de nivel (hasta 32 nodos dinámicos)
+var node_zoom_scales: Array[float] = [
+	1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+	1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0
+]
+var node_ripples: Array[float] = [
+	0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+	0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
+]
 var node_press_tweens: Dictionary = {}
 
 func trigger_node_click_zoom(index: int) -> void:
@@ -123,22 +129,39 @@ var initialized_fx: bool = false
 # RAÍZ PRINCIPAL AL NIVEL 1 EN EL OESTE/NOROESTE CONECTADA DIRECTA AL NÚCLEO
 # =============================================================================
 var MODE_NODES: Dictionary = {
-	# 1. REPARACIÓN: Telaraña Octagonal de Hardware y Placa Madre Ampliada
+	# 1. REPARACIÓN: Telaraña Expandida (Tutoriales Azules 🎓, Niveles 1-12 Rojos ▶️/🔒 y Práctica Naranja 🛠️)
 	"reparacion": [
-		Vector2(580, 395), # [0] TUTORIAL: Núcleo Central de Inducción Técnica (AZUL)
-		Vector2(380, 395), # [1] NIVEL 1: Montaje Fan Cooler (Raíz Primaria Oeste, ROJO)
-		Vector2(580, 195), # [2] NIVEL 2: Diagnóstico Banco RAM (Spoke Norte)
-		Vector2(780, 395), # [3] NIVEL 3: Unidad SATA y Buses (Spoke Este)
-		Vector2(580, 595), # [4] NIVEL 4: Pasta Térmica CPU (Spoke Sur)
-		Vector2(210, 395), # [5] NIVEL 5: Tarjeta Gráfica PCIe (Anillo Medio Oeste)
-		Vector2(830, 145), # [6] NIVEL 6: Bahía M.2 NVMe (Anillo Medio Noreste)
-		Vector2(350, 640), # [7] NIVEL 7: Fuente de Poder ATX (Anillo Medio Suroeste)
-		Vector2(850, 640), # [8] NIVEL 8: Módulos VRM MOSFETs (Anillo Medio Sureste)
-		Vector2(190, 135), # [9] NIVEL 9: Refrigeración Líquida (Anillo Exterior Noroeste)
-		Vector2(580, 65),  # [10] NIVEL 10: Multímetro y Cortos (Anillo Exterior Norte)
-		Vector2(80, 605),  # [11] NIVEL 11: Estación Multi-GPU (Anillo Exterior Suroeste)
-		Vector2(1080, 395),# [12] NIVEL 12: Jefe de Taller Supreme (Vértice Maestro Este)
-		Vector2(320, 260)  # [13] SALA DE PRÁCTICA: Banco Libre (Distanciada, NARANJA NEÓN)
+		# --- NÚCLEO Y TUTORIALES (AZUL ELÉCTRICO NEÓN 🎓) [0 - 6] ---
+		Vector2(600, 395), # [0] NÚCLEO TUTORIAL: Inducción Central al Hardware
+		Vector2(460, 395), # [1] TUTORIAL 3D: Fan Cooler (Spoke Oeste)
+		Vector2(530, 275), # [2] TUTORIAL 3D: Memoria RAM (Spoke Noroeste)
+		Vector2(670, 275), # [3] TUTORIAL 3D: Disco HDD / SSD (Spoke Noreste)
+		Vector2(740, 395), # [4] TUTORIAL 3D: Tarjeta Gráfica GPU (Spoke Este)
+		Vector2(670, 515), # [5] TUTORIAL 3D: Fuente de Poder PSU (Spoke Sureste)
+		Vector2(530, 515), # [6] TUTORIAL 3D: Procesador CPU (Spoke Suroeste)
+
+		# --- NIVELES DE REPARACIÓN (TALLER 3D) [7 - 18] ---
+		Vector2(310, 395), # [7] NIVEL 1 · MONTAJE FAN COOLER (DESBLOQUEADO ▶️ ROJO NEÓN)
+		Vector2(350, 250), # [8] NIVEL 2 · DIAGNÓSTICO BANCO RAM (🔒 BLOQUEADO)
+		Vector2(455, 145), # [9] NIVEL 3 · UNIDAD SATA Y TORNILLOS (HDD / SSD) (🔒 BLOQUEADO)
+		Vector2(600, 105), # [10] NIVEL 4 · PASTA TÉRMICA Y CONTACTO (🔒 BLOQUEADO)
+		Vector2(745, 145), # [11] NIVEL 5 · TARJETA GRÁFICA PCIE (🔒 BLOQUEADO)
+		Vector2(850, 250), # [12] NIVEL 6 · FUENTE DE PODER ATX (🔒 BLOQUEADO)
+		Vector2(890, 395), # [13] NIVEL 7 · ZÓCALO DE PROCESADOR CPU (🔒 BLOQUEADO)
+		Vector2(850, 540), # [14] NIVEL 8 · ARQUITECTURA TÉRMICA COMPLETA (🔒 BLOQUEADO)
+		Vector2(745, 645), # [15] NIVEL 9 · DIAGNÓSTICO INTEGRADO (🔒 BLOQUEADO)
+		Vector2(600, 685), # [16] NIVEL 10 · WORKSTATION GAMING & RENDER (🔒 BLOQUEADO)
+		Vector2(455, 645), # [17] NIVEL 11 · OVERCLOCKING & CALIBRACIÓN (🔒 BLOQUEADO)
+		Vector2(350, 540), # [18] NIVEL 12 · CERTIFICACIÓN TÉCNICA MAESTRA (🔒 BLOQUEADO)
+
+		# --- ZONAS DE PRÁCTICA LIBRE (NARANJA NEÓN 🛠️) [19 - 25] ---
+		Vector2(140, 395), # [19] PRÁCTICA: Banco Fan Cooler (Oeste Exterior)
+		Vector2(200, 170), # [20] PRÁCTICA: Banco Memoria RAM (Noroeste Exterior)
+		Vector2(950, 100), # [21] PRÁCTICA: Banco Discos HDD/SSD (Noreste Exterior)
+		Vector2(1060, 395),# [22] PRÁCTICA: Banco Tarjeta Gráfica GPU (Este Exterior)
+		Vector2(1000, 660),# [23] PRÁCTICA: Banco Fuente de Poder PSU (Sureste Exterior)
+		Vector2(200, 620), # [24] PRÁCTICA: Banco Procesador CPU (Suroeste Exterior)
+		Vector2(210, 270)  # [25] SALA DE PRÁCTICA MAESTRA 3D (TODAS LAS PIEZAS)
 	],
 	# 2. SISTEMA: Telaraña de Diamante Cibernético y Matriz de Kernel Ampliada
 	"sistema": [
@@ -179,22 +202,21 @@ var MODE_NODES: Dictionary = {
 # Conexiones estructuradas de telaraña: Núcleo Central -> Raíces -> Anillos -> Vértices
 var MODE_CONNECTIONS: Dictionary = {
 	"reparacion": [
-		# Raíces directas desde el núcleo tutorial (0)
-		Vector2i(0, 1), Vector2i(0, 2), Vector2i(0, 3), Vector2i(0, 4),
-		# Conexión satélite de práctica (Naranja Neón)
-		Vector2i(0, 13), Vector2i(1, 13),
-		# Anillo de telaraña interno
-		Vector2i(1, 2), Vector2i(2, 3), Vector2i(3, 4), Vector2i(4, 1),
-		# Filamentos radiales de conexión a anillo medio
-		Vector2i(1, 5), Vector2i(2, 6), Vector2i(3, 6), Vector2i(3, 8),
-		Vector2i(4, 7), Vector2i(4, 8), Vector2i(5, 7),
-		# Anillo de telaraña medio
-		Vector2i(5, 6), Vector2i(6, 8), Vector2i(8, 7), Vector2i(7, 5),
-		# Filamentos hacia anillo exterior
-		Vector2i(5, 9), Vector2i(2, 10), Vector2i(6, 10), Vector2i(7, 11),
-		Vector2i(6, 12), Vector2i(8, 12),
-		# Perímetro de telaraña exterior
-		Vector2i(9, 10), Vector2i(9, 11), Vector2i(10, 12), Vector2i(11, 7)
+		# 1. Raíces directas desde el núcleo central a los 6 tutoriales
+		Vector2i(0, 1), Vector2i(0, 2), Vector2i(0, 3), Vector2i(0, 4), Vector2i(0, 5), Vector2i(0, 6),
+		# 2. Anillo hexagonal de tutoriales 3D
+		Vector2i(1, 2), Vector2i(2, 3), Vector2i(3, 4), Vector2i(4, 5), Vector2i(5, 6), Vector2i(6, 1),
+		# 3. Filamentos desde tutoriales a sus niveles respectivos
+		Vector2i(1, 7), Vector2i(2, 8), Vector2i(3, 9), Vector2i(1, 10),
+		Vector2i(4, 11), Vector2i(5, 12), Vector2i(6, 13),
+		# 4. Anillo perimetral completo de Niveles 1 al 12
+		Vector2i(7, 8), Vector2i(8, 9), Vector2i(9, 10), Vector2i(10, 11), Vector2i(11, 12), Vector2i(12, 13),
+		Vector2i(13, 14), Vector2i(14, 15), Vector2i(15, 16), Vector2i(16, 17), Vector2i(17, 18), Vector2i(18, 7),
+		# 5. Enlaces radiales a las zonas de práctica libre
+		Vector2i(7, 19), Vector2i(8, 20), Vector2i(9, 21),
+		Vector2i(11, 22), Vector2i(12, 23), Vector2i(13, 24),
+		# 6. Enlaces a la Sala de Práctica Maestra 3D
+		Vector2i(0, 25), Vector2i(1, 25), Vector2i(7, 25)
 	],
 	"sistema": [
 		# Raíces directas desde el núcleo tutorial (0)
@@ -274,7 +296,9 @@ func transition_to_mode(new_mode: String) -> void:
 	if transition_start_nodes.size() != transition_target_nodes.size():
 		transition_start_nodes = transition_target_nodes.duplicate()
 		nodes = transition_target_nodes.duplicate()
+		_setup_cached_node_labels()
 		_rebuild_dynamic_traces()
+		queue_redraw()
 		return
 		
 	# Iniciar micro-animación de transición fluida y diferenciada de alto impacto
@@ -348,6 +372,10 @@ func _update_nodes_for_mode() -> void:
 	var raw_list = MODE_NODES.get(current_mode, [])
 	for pt in raw_list:
 		nodes.append(pt as Vector2)
+	while node_zoom_scales.size() < nodes.size():
+		node_zoom_scales.append(1.0)
+	while node_ripples.size() < nodes.size():
+		node_ripples.append(0.0)
 	_update_label_positions()
 
 func _setup_cached_node_labels() -> void:
@@ -362,7 +390,8 @@ func _setup_cached_node_labels() -> void:
 	elif ResourceLoader.exists("res://assets/fonts/Bungee-Regular.ttf"):
 		font = load("res://assets/fonts/Bungee-Regular.ttf")
 
-	for i in range(14):
+	var total_nodes = nodes.size() if not nodes.is_empty() else MODE_NODES.get(current_mode, []).size()
+	for i in range(total_nodes):
 		var lbl = Label.new()
 		lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -372,7 +401,53 @@ func _setup_cached_node_labels() -> void:
 		lbl.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.95))
 		lbl.add_theme_constant_override("outline_size", 4)
 		
-		if i == 0:
+		if current_mode == "reparacion":
+			if i == 0:
+				lbl.text = "INDUCCIÓN"
+				lbl.add_theme_font_size_override("font_size", 9)
+				lbl.add_theme_color_override("font_color", Color(0.2, 0.95, 1.0, 1.0))
+				lbl.size = Vector2(80, 20)
+			elif i in [1, 2, 3, 4, 5, 6]:
+				var tut_names = {
+					1: "COOLER",
+					2: "RAM",
+					3: "HDD / SSD",
+					4: "GPU",
+					5: "PSU",
+					6: "CPU"
+				}
+				lbl.text = "TUT " + tut_names.get(i, str(i))
+				lbl.add_theme_font_size_override("font_size", 8)
+				lbl.add_theme_color_override("font_color", Color(0.2, 0.95, 1.0, 1.0))
+				lbl.size = Vector2(80, 20)
+			elif i in range(7, 19):
+				var lvl_num = i - 6 # 1 al 12
+				lbl.text = str(lvl_num)
+				lbl.add_theme_font_size_override("font_size", 11)
+				lbl.size = Vector2(30, 20)
+				if lvl_num == 1:
+					lbl.add_theme_color_override("font_color", Color(1.0, 0.92, 0.95, 1.0))
+				else:
+					lbl.add_theme_color_override("font_color", Color(0.55, 0.7, 0.82, 0.75))
+			elif i in range(19, 25):
+				var prac_names = {
+					19: "COOLER",
+					20: "RAM",
+					21: "HDD",
+					22: "GPU",
+					23: "PSU",
+					24: "CPU"
+				}
+				lbl.text = "PRÁC " + prac_names.get(i, str(i))
+				lbl.add_theme_font_size_override("font_size", 8)
+				lbl.add_theme_color_override("font_color", Color(1.0, 0.65, 0.15, 1.0))
+				lbl.size = Vector2(80, 20)
+			elif i == 25:
+				lbl.text = "PRÁCTICA"
+				lbl.add_theme_font_size_override("font_size", 9)
+				lbl.add_theme_color_override("font_color", Color(1.0, 0.65, 0.15, 1.0))
+				lbl.size = Vector2(80, 20)
+		elif i == 0:
 			lbl.text = "TUTORIAL"
 			lbl.add_theme_font_size_override("font_size", 10)
 			lbl.add_theme_color_override("font_color", Color(0.2, 0.95, 1.0, 1.0))
@@ -402,7 +477,8 @@ func _update_label_positions() -> void:
 			continue
 		var np = nodes[i]
 		var zoom_scale = node_zoom_scales[i] if i < node_zoom_scales.size() else 1.0
-		if i == 0 or i == 13:
+		var is_special = (i <= 6 or i >= 19) if current_mode == "reparacion" else (i == 0 or i == 13)
+		if is_special:
 			lbl.position = np + Vector2(-40, -40 * zoom_scale)
 		else:
 			lbl.position = np + Vector2(-15, -34 * zoom_scale)
@@ -423,20 +499,39 @@ func _rebuild_dynamic_traces() -> void:
 	var hub = nodes[0]
 
 	# Pistas dinámicas generadas estrictamente desde los filamentos de la telaraña actual
-	var raw_traces: Array[PackedVector2Array] = [
-		# 1. Filamento Raíz Principal (Núcleo Tutorial -> Nivel 1 -> Ramas externas)
-		PackedVector2Array([hub, nodes[1], nodes[5], nodes[9]]),
-		# 2. Filamento Raíz Norte (Núcleo Tutorial -> Nivel 2 -> Nivel 10)
-		PackedVector2Array([hub, nodes[2], nodes[10]]),
-		# 3. Filamento Raíz Este (Núcleo Tutorial -> Nivel 3 -> Nivel 6 -> Nivel 12)
-		PackedVector2Array([hub, nodes[3], nodes[6], nodes[12]]),
-		# 4. Filamento Raíz Sur (Núcleo Tutorial -> Nivel 4 -> Nivel 7 -> Nivel 11)
-		PackedVector2Array([hub, nodes[4], nodes[7], nodes[11]]),
-		# 5. Anillo de Telaraña Interno cerrado
-		PackedVector2Array([nodes[1], nodes[2], nodes[3], nodes[4], nodes[1]]),
-		# 6. Anillo de Telaraña Medio cerrado
-		PackedVector2Array([nodes[5], nodes[6], nodes[8], nodes[7], nodes[5]])
-	]
+	var raw_traces: Array[PackedVector2Array] = []
+	if current_mode == "reparacion":
+		if nodes.size() >= 26:
+			raw_traces = [
+				PackedVector2Array([hub, nodes[1], nodes[7], nodes[19]]),
+				PackedVector2Array([hub, nodes[2], nodes[8], nodes[20]]),
+				PackedVector2Array([hub, nodes[3], nodes[9], nodes[21]]),
+				PackedVector2Array([hub, nodes[4], nodes[11], nodes[22]]),
+				PackedVector2Array([hub, nodes[5], nodes[12], nodes[23]]),
+				PackedVector2Array([hub, nodes[6], nodes[13], nodes[24]]),
+				PackedVector2Array([nodes[1], nodes[2], nodes[3], nodes[4], nodes[5], nodes[6], nodes[1]]),
+				PackedVector2Array([hub, nodes[25]])
+			]
+		else:
+			raw_traces = [
+				PackedVector2Array([hub, nodes[1]]),
+				PackedVector2Array([hub, nodes[2]])
+			]
+	else:
+		raw_traces = [
+			# 1. Filamento Raíz Principal (Núcleo Tutorial -> Nivel 1 -> Ramas externas)
+			PackedVector2Array([hub, nodes[1], nodes[5], nodes[9]]),
+			# 2. Filamento Raíz Norte (Núcleo Tutorial -> Nivel 2 -> Nivel 10)
+			PackedVector2Array([hub, nodes[2], nodes[10]]),
+			# 3. Filamento Raíz Este (Núcleo Tutorial -> Nivel 3 -> Nivel 6 -> Nivel 12)
+			PackedVector2Array([hub, nodes[3], nodes[6], nodes[12]]),
+			# 4. Filamento Raíz Sur (Núcleo Tutorial -> Nivel 4 -> Nivel 7 -> Nivel 11)
+			PackedVector2Array([hub, nodes[4], nodes[7], nodes[11]]),
+			# 5. Anillo de Telaraña Interno cerrado
+			PackedVector2Array([nodes[1], nodes[2], nodes[3], nodes[4], nodes[1]]),
+			# 6. Anillo de Telaraña Medio cerrado
+			PackedVector2Array([nodes[5], nodes[6], nodes[8], nodes[7], nodes[5]])
+		]
 
 	while circuit_traces.size() < raw_traces.size():
 		circuit_traces.append(CircuitTrace.new(PackedVector2Array()))
@@ -510,13 +605,23 @@ func _rebuild_grid_cache(w: float, h: float) -> void:
 			_cached_grid_lines.append(Vector2(gx, gy - cross_len))
 			_cached_grid_lines.append(Vector2(gx, gy + cross_len))
 
+var _redraw_throttle_accum: float = 0.0
+
 func _process(delta: float) -> void:
 	if not is_visible_in_tree():
 		return
+
+	_redraw_throttle_accum += delta
+	var min_step = 0.016 if is_transitioning else 0.024
+	if _redraw_throttle_accum < min_step:
+		return
+	var eff_delta = _redraw_throttle_accum
+	_redraw_throttle_accum = 0.0
+
 	var gm = get_node_or_null("/root/GameManager")
 	var is_photo = gm and gm.has_method("is_photosensitive_mode_enabled") and gm.is_photosensitive_mode_enabled()
 	var time_scale = 0.8 if is_photo else 2.2
-	anim_offset += delta * time_scale
+	anim_offset += eff_delta * time_scale
 
 	if not initialized_fx:
 		_init_cyber_fx()
@@ -541,12 +646,12 @@ func _process(delta: float) -> void:
 	# Acelerar los paquetes de datos durante la transición de telaraña ("data surge")
 	var speed_mult = (1.2 if is_photo else 2.4) if is_transitioning else (0.6 if is_photo else 1.0)
 	for p in data_pulses:
-		p.progress += p.speed * delta * speed_mult
+		p.progress += p.speed * eff_delta * speed_mult
 		if p.progress > 1.0:
 			p.progress -= 1.0
 
 	for m in cyber_motes:
-		m.pos += m.drift * delta
+		m.pos += m.drift * eff_delta
 		if m.pos.x < 0.0: m.pos.x += w
 		elif m.pos.x > w: m.pos.x -= w
 		if m.pos.y < 90.0: m.pos.y += (h - 110.0)
@@ -616,8 +721,19 @@ func _draw() -> void:
 
 	for conn in conns:
 		if conn.x < nodes.size() and conn.y < nodes.size():
-			var is_primary_root = (conn.x == 0 and conn.y == 1) or (conn.x == 1 and conn.y == 0)
-			var is_practice_link = (conn.x == 13 or conn.y == 13)
+			var is_primary_root = false
+			var is_practice_link = false
+			if current_mode == "reparacion":
+				var is_tut_conn = (conn.x <= 6 and conn.y <= 6)
+				var is_lvl1_conn = (conn.x == 7 or conn.y == 7)
+				if is_tut_conn or is_lvl1_conn:
+					is_primary_root = true
+				elif conn.x >= 19 or conn.y >= 19:
+					is_practice_link = true
+			else:
+				is_primary_root = (conn.x == 0 and conn.y == 1) or (conn.x == 1 and conn.y == 0)
+				is_practice_link = (conn.x == 13 or conn.y == 13)
+
 			if is_primary_root or is_practice_link:
 				_draw_circuit_line(nodes[conn.x], nodes[conn.y], 0.95, conn.x + conn.y, is_primary_root, is_practice_link)
 			else:
@@ -648,14 +764,22 @@ func _draw() -> void:
 			draw_circle(p_mid, 3.0 * trail_factor, Color.WHITE)
 
 	# =========================================================================
-	# 8. RENDERIZADO OPTIMIZADO DE LOS 14 NODOS DE LA TELARAÑA
+	# 8. RENDERIZADO OPTIMIZADO DE LOS NODOS DE LA TELARAÑA
 	# =========================================================================
 	for i in range(nodes.size()):
 		var np = nodes[i]
 		var is_hovered = (hovered_node_index == i)
-		var is_tutorial = (i == 0)
-		var is_practice = (i == 13)
-		var is_playable = (i == 1)
+		var is_tutorial = false
+		var is_practice = false
+		var is_playable = false
+		if current_mode == "reparacion":
+			is_tutorial = (i >= 0 and i <= 6)
+			is_practice = (i >= 19 and i <= 25)
+			is_playable = (i == 7) # NIVEL 1 de reparación (desbloqueado ▶️)
+		else:
+			is_tutorial = (i == 0)
+			is_practice = (i == 13)
+			is_playable = (i == 1)
 		var is_active_node = is_tutorial or is_practice or is_playable or is_hovered
 		var zoom_scale = node_zoom_scales[i] if i < node_zoom_scales.size() else 1.0
 		var ripple = node_ripples[i] if i < node_ripples.size() else 0.0

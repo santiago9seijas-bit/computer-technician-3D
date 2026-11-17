@@ -109,6 +109,7 @@ const MAX_MAP_ZOOM: float = 1.6
 @onready var deployed_badge: Label = $DeployedModal/DeployedCard/Margin/VBox/Header/TitleVBox/Badge
 @onready var deployed_preview: TextureRect = $DeployedModal/DeployedCard/Margin/VBox/ContentHBox/LeftCol/PreviewBox/Preview
 @onready var deployed_btn_play: Button = $DeployedModal/DeployedCard/Margin/VBox/ContentHBox/LeftCol/BtnPlayMinigame
+@onready var deployed_btn_tutorial_3d: Button = get_node_or_null("DeployedModal/DeployedCard/Margin/VBox/ContentHBox/LeftCol/BtnPlayTutorial3D")
 @onready var lbl_que_es: Label = $DeployedModal/DeployedCard/Margin/VBox/ContentHBox/RightCol/Margin/Scroll/TextVBox/LblQueEs
 @onready var lbl_importancia: Label = $DeployedModal/DeployedCard/Margin/VBox/ContentHBox/RightCol/Margin/Scroll/TextVBox/LblImportancia
 @onready var lbl_que_hace: Label = $DeployedModal/DeployedCard/Margin/VBox/ContentHBox/RightCol/Margin/Scroll/TextVBox/LblQueHace
@@ -149,6 +150,17 @@ var _cpu_pins_scene = null
 var _dust_cleaner_scene = null
 var _voltimeter_scene = null
 
+const TUTORIAL_SCENES: Dictionary = {
+	"cooler": "res://scenes/gameplay/LevelTutorialCooler.tscn",
+	"ram": "res://scenes/gameplay/LevelTutorialRAM.tscn",
+	"hdd": "res://scenes/gameplay/LevelTutorialHDD.tscn",
+	"m2": "res://scenes/gameplay/LevelTutorialHDD.tscn",
+	"gpu": "res://scenes/gameplay/LevelTutorialGPU.tscn",
+	"psu": "res://scenes/gameplay/LevelTutorialPSU.tscn",
+	"cpu": "res://scenes/gameplay/LevelTutorialCPU.tscn",
+	"general": "res://scenes/gameplay/LevelTutorial.tscn"
+}
+
 # --- Variables de Estado ---
 var current_tab: String = "niveles"
 var current_mode: String = "reparacion"
@@ -167,9 +179,12 @@ var is_exiting_scene: bool = false
 # =============================================================================
 var LEVELS_DATA: Dictionary = {
 	"reparacion": [
+		# --- TUTORIALES 3D (BURBUJAS AZULES NEÓN 🎓) [0 - 6] ---
 		{
 			"number": 0,
 			"is_tutorial": true,
+			"tutorial_component": "general",
+			"target_scene": "res://scenes/gameplay/LevelTutorial.tscn",
 			"title": "NÚCLEO TUTORIAL · INDUCCIÓN AL HARDWARE",
 			"stage": "CENTRO NEURONAL // TUTORIAL",
 			"mode_name": "REPARACIÓN",
@@ -180,6 +195,88 @@ var LEVELS_DATA: Dictionary = {
 		},
 		{
 			"number": 1,
+			"is_tutorial": true,
+			"tutorial_component": "cooler",
+			"target_scene": "res://scenes/gameplay/LevelTutorialCooler.tscn",
+			"title": "TUTORIAL 3D · DISIPACIÓN TÉRMICA & FAN COOLER",
+			"stage": "TUTORIAL DE HARDWARE // GUIADO POR JOA",
+			"mode_name": "REPARACIÓN",
+			"color_accent": Color(0.0, 0.88, 1.0),
+			"description": "Taller guiado paso a paso con Joa.\nAprende a desconectar el conector PWM de 4 pines, desatornillar en patrón en cruz y retirar el bloque del disipador de forma segura.",
+			"requirements": "HERRAMIENTAS: Destornillador Cruz · MODO TUTORIAL GUIADO",
+			"can_play": true
+		},
+		{
+			"number": 2,
+			"is_tutorial": true,
+			"tutorial_component": "ram",
+			"target_scene": "res://scenes/gameplay/LevelTutorialRAM.tscn",
+			"title": "TUTORIAL 3D · BANCO DE MEMORIA RAM",
+			"stage": "TUTORIAL DE HARDWARE // GUIADO POR JOA",
+			"mode_name": "REPARACIÓN",
+			"color_accent": Color(0.0, 0.88, 1.0),
+			"description": "Taller guiado paso a paso con Joa.\nAprende a abrir los seguros laterales (clips) de la ranura DIMM, alinear la muesca y encajar firmemente el módulo DDR.",
+			"requirements": "HERRAMIENTAS: Manos libres / Guantes antiestáticos · MODO TUTORIAL GUIADO",
+			"can_play": true
+		},
+		{
+			"number": 3,
+			"is_tutorial": true,
+			"tutorial_component": "hdd",
+			"target_scene": "res://scenes/gameplay/LevelTutorialHDD.tscn",
+			"title": "TUTORIAL 3D · ALMACENAMIENTO HDD / SSD & SATA",
+			"stage": "TUTORIAL DE HARDWARE // GUIADO POR JOA",
+			"mode_name": "REPARACIÓN",
+			"color_accent": Color(0.0, 0.88, 1.0),
+			"description": "Taller guiado paso a paso con Joa.\nRetira los 4 tornillos de las esquinas del soporte, desconecta el cable SATA de datos y desliza suavemente el disco hacia la derecha.",
+			"requirements": "HERRAMIENTAS: Destornillador de precisión · MODO TUTORIAL GUIADO",
+			"can_play": true
+		},
+		{
+			"number": 4,
+			"is_tutorial": true,
+			"tutorial_component": "gpu",
+			"target_scene": "res://scenes/gameplay/LevelTutorialGPU.tscn",
+			"title": "TUTORIAL 3D · TARJETA GRÁFICA GPU PCIE",
+			"stage": "TUTORIAL DE HARDWARE // GUIADO POR JOA",
+			"mode_name": "REPARACIÓN",
+			"color_accent": Color(0.0, 0.88, 1.0),
+			"description": "Taller guiado paso a paso con Joa.\nDesconecta la alimentación PCIe para detener ventiladores, retira los tornillos del soporte HDMI y levanta la tarjeta manteniendo el soporte en su sitio.",
+			"requirements": "HERRAMIENTAS: Destornillador Cruz y extractor PCIe · MODO TUTORIAL GUIADO",
+			"can_play": true
+		},
+		{
+			"number": 5,
+			"is_tutorial": true,
+			"tutorial_component": "psu",
+			"target_scene": "res://scenes/gameplay/LevelTutorialPSU.tscn",
+			"title": "TUTORIAL 3D · FUENTE DE PODER ATX & ARNESES",
+			"stage": "TUTORIAL DE HARDWARE // GUIADO POR JOA",
+			"mode_name": "REPARACIÓN",
+			"color_accent": Color(0.0, 0.88, 1.0),
+			"description": "Taller guiado paso a paso con Joa.\nIdentifica el conector ATX principal de 24 pines y la toma auxiliar EPS de CPU, liberando las pestañas plásticas sin forzar la placa.",
+			"requirements": "HERRAMIENTAS: Manos libres y extractor de cables · MODO TUTORIAL GUIADO",
+			"can_play": true
+		},
+		{
+			"number": 6,
+			"is_tutorial": true,
+			"tutorial_component": "cpu",
+			"target_scene": "res://scenes/gameplay/LevelTutorialCPU.tscn",
+			"title": "TUTORIAL 3D · ZÓCALO & PROCESADOR CPU",
+			"stage": "TUTORIAL DE HARDWARE // GUIADO POR JOA",
+			"mode_name": "REPARACIÓN",
+			"color_accent": Color(0.0, 0.88, 1.0),
+			"description": "Taller guiado paso a paso con Joa.\nLevanta la palanca de retención metálica del socket, retira el procesador con máxima suavidad respetando las esquinas doradas y monta el nuevo CPU.",
+			"requirements": "HERRAMIENTAS: Pinzas de precisión · MODO TUTORIAL GUIADO",
+			"can_play": true
+		},
+
+		# --- NIVELES DE JUEGO DEL TALLER (1 AL 12) [7 - 18] ---
+		{
+			"number": 1,
+			"is_level": true,
+			"level_number": 1,
 			"title": "NIVEL 1 · MONTAJE FAN COOLER",
 			"stage": "ETAPA I: TALLER BÁSICO",
 			"mode_name": "REPARACIÓN",
@@ -190,6 +287,8 @@ var LEVELS_DATA: Dictionary = {
 		},
 		{
 			"number": 2,
+			"is_level": true,
+			"level_number": 2,
 			"title": "NIVEL 2 · DIAGNÓSTICO BANCO RAM",
 			"stage": "ETAPA I: TALLER BÁSICO",
 			"mode_name": "REPARACIÓN",
@@ -200,16 +299,20 @@ var LEVELS_DATA: Dictionary = {
 		},
 		{
 			"number": 3,
-			"title": "NIVEL 3 · UNIDAD SATA Y TORNILLOS",
+			"is_level": true,
+			"level_number": 3,
+			"title": "NIVEL 3 · UNIDAD SATA Y TORNILLOS (HDD / SSD)",
 			"stage": "ETAPA I: TALLER BÁSICO",
 			"mode_name": "REPARACIÓN",
 			"color_accent": Color(1.0, 0.2, 0.45),
-			"description": "Equipos que no detectan disco duro en bahías frontales.\nRetira tornillo de seguridad, desconecta bus de datos SATA e instala disco funcional desde la mochila técnica.",
+			"description": "Equipos que no detectan disco duro en bahías frontales.\nRetira los 4 tornillos de retención, desconecta el cable SATA e instala un nuevo disco HDD o SSD.",
 			"requirements": "HERRAMIENTAS: Destornilladores y repuestos · LÍMITE: 100s · RECOMPENSA: 150 PTS",
 			"can_play": false
 		},
 		{
 			"number": 4,
+			"is_level": true,
+			"level_number": 4,
 			"title": "NIVEL 4 · PASTA TÉRMICA Y CONTACTO",
 			"stage": "ETAPA I: TALLER BÁSICO",
 			"mode_name": "REPARACIÓN",
@@ -220,92 +323,183 @@ var LEVELS_DATA: Dictionary = {
 		},
 		{
 			"number": 5,
+			"is_level": true,
+			"level_number": 5,
 			"title": "NIVEL 5 · TARJETA GRÁFICA PCIE",
 			"stage": "ETAPA II: HARDWARE AVANZADO",
 			"mode_name": "REPARACIÓN",
 			"color_accent": Color(0.9, 0.1, 0.7),
-			"description": "Artefactos visuales y pérdida de señal HDMI/DP bajo carga 3D.\nDesacopla traba PCIe x16, desconecta arnés de 8 pines y sustituye por GPU operativa.",
-			"requirements": "HERRAMIENTAS: Extractor PCIe · LÍMITE: 90s · RECOMPENSA: 220 PTS",
+			"description": "Artefactos visuales y pérdida de señal HDMI/DP bajo carga 3D.\nDesconecta alimentación PCIe para frenar ventiladores, retira tornillos HDMI y sustituye por GPU operativa.",
+			"requirements": "HERRAMIENTAS: Destornilladores y extractor PCIe · LÍMITE: 90s · RECOMPENSA: 220 PTS",
 			"can_play": false
 		},
 		{
 			"number": 6,
+			"is_level": true,
+			"level_number": 6,
 			"title": "NIVEL 6 · FUENTE DE PODER ATX",
 			"stage": "ETAPA II: HARDWARE AVANZADO",
 			"mode_name": "REPARACIÓN",
 			"color_accent": Color(0.9, 0.1, 0.7),
-			"description": "Cortocircuito en rieles de 12V. La máquina se apaga a los 2 segundos.\nComprueba continuidad con multímetro e instala fuente conmutada 80 Plus Gold.",
-			"requirements": "HERRAMIENTAS: Multímetro digital · LÍMITE: 85s · RECOMPENSA: 250 PTS",
+			"description": "Cortocircuito en rieles de 12V. La máquina se apaga a los 2 segundos.\nDesconecta conector ATX 24 pines y CPU auxiliar, sustituyendo por fuente 80 Plus.",
+			"requirements": "HERRAMIENTAS: Multímetro digital y destornillador · LÍMITE: 85s · RECOMPENSA: 250 PTS",
 			"can_play": false
 		},
 		{
 			"number": 7,
-			"title": "NIVEL 7 · PLACA MADRE VRM",
+			"is_level": true,
+			"level_number": 7,
+			"title": "NIVEL 7 · ZÓCALO DE PROCESADOR (CPU)",
 			"stage": "ETAPA II: HARDWARE AVANZADO",
 			"mode_name": "REPARACIÓN",
 			"color_accent": Color(0.85, 0.05, 0.85),
-			"description": "Fase de alimentación VRM con condensadores sólidos en corto.\nDesmontaje completo del chasis y sustitución modular con torque controlado.",
-			"requirements": "HERRAMIENTAS: Llaves hexagonales · LÍMITE: 80s · RECOMPENSA: 300 PTS",
+			"description": "Zócalo LGA con palanca de retención metálica. Desbloquea la compuerta de carga y monta el procesador con muescas alineadas sin doblar pines.",
+			"requirements": "HERRAMIENTAS: Acceso Total · LÍMITE: 80s · RECOMPENSA: 300 PTS",
 			"can_play": false
 		},
 		{
 			"number": 8,
-			"title": "NIVEL 8 · PUERTOS FRONTALES Y CORTO",
+			"is_level": true,
+			"level_number": 8,
+			"title": "NIVEL 8 · ARQUITECTURA TÉRMICA COMPLETA",
 			"stage": "ETAPA II: HARDWARE AVANZADO",
 			"mode_name": "REPARACIÓN",
-			"color_accent": Color(0.85, 0.05, 0.85),
-			"description": "Pines doblados en cabezal USB 3.2 interno que disparan protección por sobrecorriente en chipset.",
-			"requirements": "HERRAMIENTAS: Lupa técnica · LÍMITE: 75s · RECOMPENSA: 350 PTS",
+			"color_accent": Color(0.8, 0.05, 0.85),
+			"description": "Optimización del flujo de aire positivo en chasis gaming.\nConfigura curvas de ventiladores y sustituye pads térmicos degradados en VRMs.",
+			"requirements": "HERRAMIENTAS: Sonda térmica · LÍMITE: 75s · RECOMPENSA: 350 PTS",
 			"can_play": false
 		},
 		{
 			"number": 9,
-			"title": "NIVEL 9 · REFRIGERACIÓN LÍQUIDA AIO",
-			"stage": "ETAPA III: MAESTRÍA DE DIAGNÓSTICO",
+			"is_level": true,
+			"level_number": 9,
+			"title": "NIVEL 9 · DIAGNÓSTICO INTEGRADO",
+			"stage": "ETAPA III: LABORATORIO FORENSE",
 			"mode_name": "REPARACIÓN",
-			"color_accent": Color(0.75, 0.05, 0.95),
-			"description": "Bomba AIO bloqueada con burbujas de aire y obstrucción de microcanales.\nPurga de refrigerante dieléctrico y recalibración de bomba en cabezal AIO_PUMP.",
-			"requirements": "HERRAMIENTAS: Kit purga y refrigerante · LÍMITE: 70s · RECOMPENSA: 400 PTS",
+			"color_accent": Color(0.75, 0.05, 0.85),
+			"description": "Fallas intermitentes y reinicios espontáneos.\nAísla componentes defectuosos en banco de pruebas utilizando tarjeta POST con display de códigos hexadecimales.",
+			"requirements": "HERRAMIENTAS: Tarjeta POST PCI-e · LÍMITE: 70s · RECOMPENSA: 400 PTS",
 			"can_play": false
 		},
 		{
 			"number": 10,
-			"title": "NIVEL 10 · BACKPLATE CPU & ANCLAJES",
-			"stage": "ETAPA III: MAESTRÍA DE DIAGNÓSTICO",
+			"is_level": true,
+			"level_number": 10,
+			"title": "NIVEL 10 · WORKSTATION GAMING & RENDER",
+			"stage": "ETAPA III: LABORATORIO FORENSE",
 			"mode_name": "REPARACIÓN",
-			"color_accent": Color(0.75, 0.05, 0.95),
-			"description": "Placa trasera deformada por torsión térmica causando falso contacto en pines del socket LGA.",
-			"requirements": "HERRAMIENTAS: Dinamómetro de precisión · LÍMITE: 65s · RECOMPENSA: 450 PTS",
+			"color_accent": Color(0.7, 0.05, 0.9),
+			"description": "Ensamble y validación de plataforma multi-GPU y almacenamiento NVMe RAID 0.\nComprueba estabilidad térmica bajo estrés sostenido.",
+			"requirements": "HERRAMIENTAS: Medidor de consumo y banco de carga · LÍMITE: 65s · RECOMPENSA: 450 PTS",
 			"can_play": false
 		},
 		{
 			"number": 11,
-			"title": "NIVEL 11 · BANCO DE MEMORIAS QUAD-CHANNEL",
-			"stage": "ETAPA III: MAESTRÍA DE DIAGNÓSTICO",
+			"is_level": true,
+			"level_number": 11,
+			"title": "NIVEL 11 · OVERCLOCKING & CALIBRACIÓN",
+			"stage": "ETAPA III: LABORATORIO FORENSE",
 			"mode_name": "REPARACIÓN",
-			"color_accent": Color(0.65, 0.05, 1.0),
-			"description": "Configuración de 4 módulos en bus entrelazado. Errores intermitentes a 6400 MT/s bajo perfil XMP.",
-			"requirements": "HERRAMIENTAS: Analizador de bus DDR · LÍMITE: 60s · RECOMPENSA: 500 PTS",
+			"color_accent": Color(0.65, 0.05, 0.95),
+			"description": "Ajuste fino de voltajes LLC y frecuencias de bus sin inducir inestabilidad en silicio.\nMonitorea temperaturas de die en tiempo real.",
+			"requirements": "HERRAMIENTAS: Osciloscopio y multímetro true-RMS · LÍMITE: 60s · RECOMPENSA: 500 PTS",
 			"can_play": false
 		},
 		{
 			"number": 12,
-			"title": "NIVEL 12 · MASTER DE RESTAURACIÓN",
-			"stage": "ETAPA III: MAESTRÍA DE DIAGNÓSTICO",
+			"is_level": true,
+			"level_number": 12,
+			"title": "NIVEL 12 · CERTIFICACIÓN TÉCNICA MAESTRA",
+			"stage": "ETAPA III: LABORATORIO FORENSE",
 			"mode_name": "REPARACIÓN",
-			"color_accent": Color(1.0, 0.1, 0.4),
-			"description": "Estación de trabajo de ingeniería completamente inerte. Diagnóstico holístico de 7 fallas simultáneas en cadena.",
-			"requirements": "EQUIPO COMPLETO DE LABORATORIO · LÍMITE: 150s · RECOMPENSA: 1000 PTS ★",
+			"color_accent": Color(0.6, 0.05, 1.0),
+			"description": "Prueba final de maestría de hardware integral.\nDiagnostica, desensambla, repara y calibra 5 equipos de alta gama en una sola sesión contra el cronómetro.",
+			"requirements": "HERRAMIENTAS: Acceso Total y banco de estrés · LÍMITE: 180s · RECOMPENSA: 1000 PTS",
 			"can_play": false
 		},
+
+		# --- ZONAS DE PRÁCTICA LIBRE (BURBUJAS NARANJAS 🛠️) [19 - 25] ---
 		{
-			"number": 13,
+			"number": 19,
 			"is_practice": true,
-			"title": "SALA DE PRÁCTICA 3D",
+			"practice_id": "cooler",
+			"title": "ZONA DE PRÁCTICA: BANCO DE REFRIGERACIÓN (FAN COOLER)",
+			"stage": "ZONA DE PRÁCTICA // ENTRENAMIENTO",
+			"mode_name": "REPARACIÓN",
+			"color_accent": Color(1.0, 0.55, 0.05),
+			"description": "Banco de trabajo libre sin límite de tiempo.\nPractica la desconexión PWM y aflojado en patrón diagonal de 4 tornillos de cooler con Joa.",
+			"requirements": "HERRAMIENTAS: Acceso Total · MODO PRÁCTICA LIBRE · SIN TIEMPO",
+			"can_play": true
+		},
+		{
+			"number": 20,
+			"is_practice": true,
+			"practice_id": "ram",
+			"title": "ZONA DE PRÁCTICA: BANCO DE MEMORIAS RAM",
+			"stage": "ZONA DE PRÁCTICA // ENTRENAMIENTO",
+			"mode_name": "REPARACIÓN",
+			"color_accent": Color(1.0, 0.55, 0.05),
+			"description": "Banco de trabajo libre sin límite de tiempo.\nPractica la apertura de trabas laterales, extracción y montaje de módulos DDR con Joa.",
+			"requirements": "HERRAMIENTAS: Acceso Total · MODO PRÁCTICA LIBRE · SIN TIEMPO",
+			"can_play": true
+		},
+		{
+			"number": 21,
+			"is_practice": true,
+			"practice_id": "hdd",
+			"title": "ZONA DE PRÁCTICA: BANCO DE ALMACENAMIENTO (HDD / SSD)",
+			"stage": "ZONA DE PRÁCTICA // ENTRENAMIENTO",
+			"mode_name": "REPARACIÓN",
+			"color_accent": Color(1.0, 0.55, 0.05),
+			"description": "Banco de trabajo libre sin límite de tiempo.\nPractica los 4 tornillos de esquinas, desconexión de cables SATA y extracción a la derecha con Joa.",
+			"requirements": "HERRAMIENTAS: Acceso Total · MODO PRÁCTICA LIBRE · SIN TIEMPO",
+			"can_play": true
+		},
+		{
+			"number": 22,
+			"is_practice": true,
+			"practice_id": "gpu",
+			"title": "ZONA DE PRÁCTICA: BANCO DE TARJETAS GRÁFICAS (GPU)",
+			"stage": "ZONA DE PRÁCTICA // ENTRENAMIENTO",
+			"mode_name": "REPARACIÓN",
+			"color_accent": Color(1.0, 0.55, 0.05),
+			"description": "Banco de trabajo libre sin límite de tiempo.\nPractica la desconexión PCIe para frenar ventiladores, tornillos en bracket HDMI y soporte fijo con Joa.",
+			"requirements": "HERRAMIENTAS: Acceso Total · MODO PRÁCTICA LIBRE · SIN TIEMPO",
+			"can_play": true
+		},
+		{
+			"number": 23,
+			"is_practice": true,
+			"practice_id": "psu",
+			"title": "ZONA DE PRÁCTICA: BANCO DE ENERGÍA (PSU)",
+			"stage": "ZONA DE PRÁCTICA // ENTRENAMIENTO",
+			"mode_name": "REPARACIÓN",
+			"color_accent": Color(1.0, 0.55, 0.05),
+			"description": "Banco de trabajo libre sin límite de tiempo.\nPractica la desconexión de arneses ATX 24 pines y arneses auxiliares de poder con Joa.",
+			"requirements": "HERRAMIENTAS: Acceso Total · MODO PRÁCTICA LIBRE · SIN TIEMPO",
+			"can_play": true
+		},
+		{
+			"number": 24,
+			"is_practice": true,
+			"practice_id": "cpu",
+			"title": "ZONA DE PRÁCTICA: BANCO DE PROCESADOR (CPU)",
+			"stage": "ZONA DE PRÁCTICA // ENTRENAMIENTO",
+			"mode_name": "REPARACIÓN",
+			"color_accent": Color(1.0, 0.55, 0.05),
+			"description": "Banco de trabajo libre sin límite de tiempo.\nPractica la apertura de palanca de retención y alineación de procesador en zócalo sin doblar pines con Joa.",
+			"requirements": "HERRAMIENTAS: Acceso Total · MODO PRÁCTICA LIBRE · SIN TIEMPO",
+			"can_play": true
+		},
+		{
+			"number": 25,
+			"is_practice": true,
+			"practice_id": "maestra",
+			"title": "SALA DE PRÁCTICA 3D MAESTRA (TODAS LAS PIEZAS)",
 			"stage": "LABORATORIO PRÁCTICO // ENTRENAMIENTO",
 			"mode_name": "REPARACIÓN",
 			"color_accent": Color(1.0, 0.55, 0.05),
-			"description": "Banco de trabajo libre sin límite de tiempo.\nPractica la extracción, sustitución y ensamblaje de componentes (Memoria RAM, Fuente ATX, Almacenamiento SSD/HDD) las veces que desees.",
+			"description": "Banco de trabajo libre sin límite de tiempo.\nPractica la extracción, sustitución y ensamblaje de todas las piezas (RAM, Discos HDD/SSD, GPU, Cooler, Fuente y CPU) con Joa.",
 			"requirements": "HERRAMIENTAS: Acceso Total · MODO PRÁCTICA LIBRE · SIN TIEMPO",
 			"can_play": true
 		}
@@ -714,15 +908,15 @@ var ALL_TUTORIAL_CARDS: Array[Dictionary] = [
 		"division": "reparacion",
 		"id": "motherboard",
 		"title": "PLACA MADRE",
-		"subtitle": "DESMONTAJE MAESTRO DEL CHASIS",
+		"subtitle": "EN DESARROLLO (PRÓXIMAMENTE)",
 		"category": "ARQUITECTURA & DESARME",
 		"texture_path": "",
-		"color_accent": Color(0.9, 0.15, 0.6, 1.0),
-		"que_es": "Circuito impreso principal que interconecta todos los módulos. Su extracción requiere retirar primero todos los componentes anclados a sus ranuras y los cables de alimentación.",
-		"importancia": "CRÍTICA: Jamás intentes desatornillar la placa madre con la GPU, el cooler o la fuente conectados; el peso y la tensión de los cables pueden quebrar las pistas de cobre internas.",
-		"que_hace": "Desafío maestro de taller: sintetiza la secuencia lógica completa para desensamblar una computadora desde cero hasta dejar el gabinete vacío.",
-		"pasos": "🔻 FASE 1: DESMONTAJE (QUITAR):\n1. Desmonta las piezas instaladas (Cables ATX/EPS, GPU, Cooler, M.2, RAM).\n2. Desatornilla los 6 tornillos Standoff del chasis con [1] Cruz o [2] Pala.\n3. Desencastra del I/O Shield y levanta la placa madre.\n\n🔺 FASE 2: MONTAJE INVERSO (PONER):\n1. Posiciona la placa madre nueva alineándola con el I/O Shield.\n2. Ajusta los 6 tornillos Standoff con Cruz [1] o Pala [2].\n3. Conecta los arneses de alimentación ATX 24P y EPS 8P.",
-		"is_ready": true,
+		"color_accent": Color(0.5, 0.5, 0.6, 0.7),
+		"que_es": "Desafío maestro de taller en desarrollo. Este módulo estará disponible en la próxima actualización del taller.",
+		"importancia": "AVISO: Módulo en fase de calibración técnica.",
+		"que_hace": "Interconecta todos los buses de hardware del sistema.",
+		"pasos": "Próximamente disponible.",
+		"is_ready": false,
 		"handler": "launch_mobo"
 	},
 	{
@@ -1101,6 +1295,8 @@ func _ready() -> void:
 		
 	btn_close_deployed.pressed.connect(_close_deployed_card)
 	deployed_btn_play.pressed.connect(_on_deployed_play_pressed)
+	if deployed_btn_tutorial_3d:
+		deployed_btn_tutorial_3d.pressed.connect(_on_deployed_tutorial_3d_pressed)
 	if btn_play_level1:
 		btn_play_level1.pressed.connect(_on_btn_play_level_pressed)
 	if difficulty_selector:
@@ -1379,6 +1575,7 @@ func _switch_mode(mode_name: String, spin_dir: int = 0) -> void:
 		_update_headers_for_mode()
 		if graph_lines and graph_lines.has_method("transition_to_mode"):
 			graph_lines.transition_to_mode(current_mode)
+		_create_node_hitboxes()
 		_update_node_hitboxes_positions()
 	else:
 		_filter_tutorial_cards()
@@ -1539,29 +1736,24 @@ func _on_node_clicked(index: int) -> void:
 		btn_play_level1.visible = false
 		
 	# Paneles laterales según el tipo de nodo (Tutorial o Nivel)
-	if index == 0:
-		# NÚCLEO TUTORIAL (AZUL ELÉCTRICO NEÓN) - Mostrar Panel de Información del Tutorial
+	if data.get("is_tutorial", false):
+		# BURBUJA AZUL TUTORIAL - Mostrar Panel de Información del Tutorial
 		if difficulty_selector and difficulty_selector.visible:
 			difficulty_selector.play_exit_animation()
 		if tutorial_info_panel:
-			tutorial_info_panel.open_for_tutorial(current_mode)
-	elif index == 13:
+			tutorial_info_panel.open_for_tutorial_node(data)
+	elif data.get("is_practice", false):
 		# SALA DE PRÁCTICA (NARANJA NEÓN) - Mostrar Panel en modo práctica libre
 		if difficulty_selector and difficulty_selector.visible:
 			difficulty_selector.play_exit_animation()
 		if tutorial_info_panel:
 			tutorial_info_panel.open_for_practice(data)
-	elif index >= 1 and index <= 12 and (current_mode == "reparacion" or current_mode == "sistema" or current_mode == "servidor"):
-		# NIVEL JUGABLE: El botón antiguo se oculta y se sustituye por el Selector de Dificultad
+	else:
+		# NIVEL JUGABLE (Nivel 1 al 12)
 		if tutorial_info_panel and tutorial_info_panel.visible:
 			tutorial_info_panel.play_exit_animation()
 		if difficulty_selector:
 			difficulty_selector.open_for_level()
-	else:
-		if tutorial_info_panel and tutorial_info_panel.visible:
-			tutorial_info_panel.play_exit_animation()
-		if difficulty_selector and difficulty_selector.visible:
-			difficulty_selector.play_exit_animation()
 		
 	# Habilitar el overlay invisible de captura de clics fuera de la tarjeta
 	if card_dim_overlay:
@@ -1569,6 +1761,7 @@ func _on_node_clicked(index: int) -> void:
 		card_dim_overlay.color = Color(0, 0, 0, 0)
 
 func _unzoom_camera() -> void:
+	is_launching_level = false
 	if not is_level_zoomed:
 		return
 	is_level_zoomed = false
@@ -1679,20 +1872,44 @@ func _fade_menu_chrome(visible_state: bool) -> void:
 func _update_btn_play_level1_visibility() -> void:
 	if btn_play_level1:
 		btn_play_level1.visible = false
-	if difficulty_selector and not (is_level_zoomed and active_zoomed_index >= 1 and active_zoomed_index <= 12 and current_tab == "niveles"):
+	var list = LEVELS_DATA.get(current_mode, [])
+	var node_data: Dictionary = {}
+	if active_zoomed_index >= 0 and active_zoomed_index < list.size():
+		node_data = list[active_zoomed_index]
+	var is_tut = node_data.get("is_tutorial", false)
+	var is_prac = node_data.get("is_practice", false)
+
+	if difficulty_selector and not (is_level_zoomed and not is_tut and not is_prac and current_tab == "niveles"):
 		difficulty_selector.visible = false
-	if tutorial_info_panel and not (is_level_zoomed and (active_zoomed_index == 0 or active_zoomed_index == 13) and current_tab == "niveles"):
+	if tutorial_info_panel and not (is_level_zoomed and (is_tut or is_prac) and current_tab == "niveles"):
 		tutorial_info_panel.visible = false
 
 func _on_btn_play_level_pressed() -> void:
-	if active_zoomed_index == 0:
-		_play_tutorial_level()
-	elif active_zoomed_index == 13:
-		_play_practice_level()
-	elif active_zoomed_index >= 1:
-		_play_level_1()
+	var list = LEVELS_DATA.get(current_mode, [])
+	var node_data: Dictionary = {}
+	if active_zoomed_index >= 0 and active_zoomed_index < list.size():
+		node_data = list[active_zoomed_index]
 
-func _play_practice_level() -> void:
+	if node_data.get("is_tutorial", false):
+		var target_comp = node_data.get("tutorial_component", "general")
+		var target_scene = node_data.get("target_scene", "")
+		if target_scene == "" and TUTORIAL_SCENES.has(target_comp):
+			target_scene = TUTORIAL_SCENES[target_comp]
+		elif target_scene == "":
+			target_scene = "res://scenes/gameplay/LevelTutorial.tscn"
+		_play_tutorial_level(target_comp, target_scene, node_data.get("title", ""))
+	elif node_data.get("is_practice", false):
+		var practice_id = node_data.get("practice_id", "maestra")
+		_play_practice_level(practice_id)
+	else:
+		# NIVEL DE JUEGO (Nivel 1 al 12)
+		if node_data.get("can_play", false):
+			_play_level_1()
+		else:
+			is_launching_level = false
+			_show_toast("🔒 Este nivel está bloqueado. Supera el nivel anterior para desbloquearlo.")
+
+func _play_practice_level(practice_id: String = "") -> void:
 	if is_launching_level:
 		return
 	is_launching_level = true
@@ -1704,11 +1921,35 @@ func _play_practice_level() -> void:
 	if gm and gm.has_method("start_level"):
 		gm.start_level(999.0)
 		gm.timer_active = false
+
+	var chosen_zone = practice_id
+	var list = LEVELS_DATA.get(current_mode, [])
+	if chosen_zone == "" and active_zoomed_index >= 0 and active_zoomed_index < list.size():
+		chosen_zone = list[active_zoomed_index].get("practice_id", "maestra")
+	if chosen_zone == "":
+		chosen_zone = "maestra"
+
+	var LevelPracticeScript = load("res://scripts/gameplay/LevelPractice.gd")
+	if LevelPracticeScript:
+		LevelPracticeScript.practice_zone = chosen_zone
+	if gm:
+		gm.practice_target_mode = chosen_zone
+
+	var zone_titles: Dictionary = {
+		"ram": "BANCO DE PRÁCTICA: MEMORIAS RAM",
+		"hdd": "BANCO DE PRÁCTICA: DISCOS HDD/SSD",
+		"gpu": "BANCO DE PRÁCTICA: TARJETAS GPU",
+		"cooler": "BANCO DE PRÁCTICA: FAN COOLER",
+		"psu": "BANCO DE PRÁCTICA: FUENTES Y CPU",
+		"cpu": "BANCO DE PRÁCTICA: PROCESADOR CPU",
+		"maestra": "SALA DE PRÁCTICA 3D MAESTRA"
+	}
+	var title_text = zone_titles.get(chosen_zone, "SALA DE PRÁCTICA 3D")
 		
 	CyberPlayTransition.play(
 		get_tree(),
 		"res://scenes/gameplay/LevelPractice.tscn",
-		"SALA DE PRÁCTICA 3D",
+		title_text,
 		"// ENTRENAMIENTO TÉCNICO · BANCO DE TRABAJO LIBRE //",
 		Callable(),
 		false,
@@ -1716,7 +1957,7 @@ func _play_practice_level() -> void:
 		current_mode
 	)
 
-func _play_tutorial_level() -> void:
+func _play_tutorial_level(target_component: String = "general", scene_path: String = "", custom_title: String = "") -> void:
 	if is_launching_level:
 		return
 	is_launching_level = true
@@ -1727,21 +1968,36 @@ func _play_tutorial_level() -> void:
 	var gm = get_node_or_null("/root/GameManager")
 	if gm:
 		gm.current_mode = current_mode
+		gm.tutorial_target_component = target_component
 		if gm.has_method("start_level"):
 			gm.start_level(999.0)
+
+	var LevelTutorialScript = load("res://scripts/gameplay/LevelTutorial.gd")
+	if LevelTutorialScript:
+		LevelTutorialScript.target_component = target_component
+
+	var final_scene = scene_path
+	if final_scene == "":
+		if TUTORIAL_SCENES.has(target_component):
+			final_scene = TUTORIAL_SCENES[target_component]
+		else:
+			final_scene = "res://scenes/gameplay/LevelTutorial.tscn"
 		
-	var tut_title = "NÚCLEO TUTORIAL: REPARACIÓN 3D"
-	var tut_sub = "// INDUCCIÓN TÉCNICA · TALLER DE HARDWARE //"
-	if current_mode == "sistema":
-		tut_title = "NÚCLEO TUTORIAL: SISTEMAS 3D"
-		tut_sub = "// INDUCCIÓN TÉCNICA · KERNEL & SOFTWARE //"
-	elif current_mode == "servidor":
-		tut_title = "NÚCLEO TUTORIAL: SERVIDOR 3D"
-		tut_sub = "// INDUCCIÓN TÉCNICA · INFRAESTRUCTURA DATACENTER //"
+	var tut_title = custom_title if custom_title != "" else "NÚCLEO TUTORIAL: REPARACIÓN 3D"
+	var tut_sub = "// APRENDIZAJE TÉCNICO GUIADO CON JOA //"
+	if custom_title == "":
+		if target_component != "general" and target_component != "":
+			tut_title = "TUTORIAL 3D: %s" % target_component.to_upper()
+		elif current_mode == "sistema":
+			tut_title = "NÚCLEO TUTORIAL: SISTEMAS 3D"
+			tut_sub = "// INDUCCIÓN TÉCNICA · KERNEL & SOFTWARE //"
+		elif current_mode == "servidor":
+			tut_title = "NÚCLEO TUTORIAL: SERVIDOR 3D"
+			tut_sub = "// INDUCCIÓN TÉCNICA · INFRAESTRUCTURA DATACENTER //"
 
 	CyberPlayTransition.play(
 		get_tree(),
-		"res://scenes/gameplay/LevelTutorial.tscn",
+		final_scene,
 		tut_title,
 		tut_sub,
 		Callable(),
@@ -2058,13 +2314,19 @@ func _open_deployed_card(data: Dictionary) -> void:
 	lbl_pasos.text = "🛠️ MECÁNICA DE SERVICIO / PROCEDIMIENTO:\n%s" % data["pasos"]
 	
 	if data["is_ready"]:
-		deployed_btn_play.text = "▶ PROBAR MINIJUEGO"
+		deployed_btn_play.text = "⚡ SIMULADOR 2D"
 		deployed_btn_play.disabled = false
 		deployed_btn_play.modulate = Color(1, 1, 1, 1)
 	else:
 		deployed_btn_play.text = "🔒 SIMULADOR EN CALIBRACIÓN"
 		deployed_btn_play.disabled = true
 		deployed_btn_play.modulate = Color(0.6, 0.6, 0.6, 0.7)
+
+	if deployed_btn_tutorial_3d:
+		var is_hardware = data.get("division", "") in ["reparacion", "reparacion_fondo"]
+		var can_tut_3d = is_hardware and data.get("is_ready", false) and data.get("id", "") != "motherboard"
+		deployed_btn_tutorial_3d.visible = can_tut_3d
+		deployed_btn_tutorial_3d.text = "🎓 TUTORIAL 3D CON JOA"
 		
 	deployed_modal.visible = true
 	deployed_card.scale = Vector2(0.85, 0.85)
@@ -2082,6 +2344,13 @@ func _close_deployed_card() -> void:
 		deployed_modal.visible = false
 		active_card_data = {}
 	)
+
+func _on_deployed_tutorial_3d_pressed() -> void:
+	if active_card_data.is_empty():
+		return
+	var comp_id = active_card_data.get("id", "general")
+	_close_deployed_card()
+	_play_tutorial_level(comp_id)
 
 func _on_deployed_play_pressed() -> void:
 	if active_card_data.is_empty():

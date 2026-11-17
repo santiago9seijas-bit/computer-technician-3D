@@ -26,6 +26,8 @@ const DIFFICULTY_TIMES: Dictionary = {
 
 var current_difficulty: String = "normal"
 var current_mode: String = "reparacion"
+var tutorial_target_component: String = "general"
+var practice_target_mode: String = "maestra"
 var santiago_esc_count: int = 0
 
 func set_difficulty(diff: String) -> void:

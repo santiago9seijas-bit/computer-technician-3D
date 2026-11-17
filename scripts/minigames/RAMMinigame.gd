@@ -477,31 +477,9 @@ func _complete_ram_removal() -> void:
 			"functional": false
 		})
 		old_part_extracted.emit()
-		
-		if not is_tutorial_mode:
-			_show_floating_feedback("✓ Módulo RAM %s averiado extraído. Busca el repuesto en el taller." % current_ram_type.to_upper(), COLOR_GREEN)
-			await get_tree().create_timer(1.0).timeout
-			_finish_minigame_with_slide(true)
-			return
-		
-		# Modo tutorial:
-		var has_new = false
-		for it in GameManager.backpack:
-			if it.get("name") == "RAM" and not it.get("broken", true):
-				has_new = true
-				break
-		if not has_new:
-			GameManager.add_item_to_backpack({
-				"name": "RAM",
-				"type": "RAM",
-				"ram_type": current_ram_type,
-				"display_name": "RAM " + current_ram_type.to_upper(),
-				"broken": false,
-				"functional": true
-			})
-			
-		_select_guide_tab(1)
-		_start_install_drag_phase()
+		_show_floating_feedback("✓ Módulo RAM %s averiado extraído. Ve a la caja de repuestos en el taller a buscar el nuevo." % current_ram_type.to_upper(), COLOR_GREEN)
+		await get_tree().create_timer(1.0).timeout
+		_finish_minigame_with_slide(true)
 	)
 
 # =============================================================================

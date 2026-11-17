@@ -12,6 +12,7 @@ signal launch_requested
 
 var btn_shader_mat: ShaderMaterial = null
 var idle_tween: Tween = null
+var _panel_tween: Tween = null
 var is_hovered: bool = false
 
 const LAUNCH_SHADER = preload("res://styles/cyber_launch_button.gdshader")
@@ -61,6 +62,8 @@ func _start_idle_pulse() -> void:
 		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
 func open_for_tutorial(mode: String = "reparacion") -> void:
+	if _panel_tween and _panel_tween.is_valid():
+		_panel_tween.kill()
 	visible = true
 	modulate.a = 0.0
 	pivot_offset = size * 0.5
@@ -82,14 +85,69 @@ func open_for_tutorial(mode: String = "reparacion") -> void:
 		btn_shader_mat.set_shader_parameter("hover_color", Color(0.65, 1.0, 1.0, 1.0))
 		btn_shader_mat.set_shader_parameter("glass_tint", Color(0.01, 0.06, 0.18, 0.9))
 	
-	var tw = create_tween().set_parallel(true)
-	tw.tween_property(self, "scale", Vector2.ONE, 0.24)\
+	_panel_tween = create_tween().set_parallel(true)
+	_panel_tween.tween_property(self, "scale", Vector2.ONE, 0.24)\
 		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	tw.tween_property(self, "modulate:a", 1.0, 0.22)
+	_panel_tween.tween_property(self, "modulate:a", 1.0, 0.22)
+	
+	_start_idle_pulse()
+
+func open_for_tutorial_node(data: Dictionary) -> void:
+	if _panel_tween and _panel_tween.is_valid():
+		_panel_tween.kill()
+	visible = true
+	modulate.a = 0.0
+	pivot_offset = size * 0.5
+	scale = Vector2(0.96, 0.96)
+	
+	if card_panel:
+		var sb = card_panel.get_theme_stylebox("panel")
+		if sb is StyleBoxFlat:
+			var nsb = sb.duplicate() as StyleBoxFlat
+			nsb.border_color = Color(0.0, 0.88, 1.0, 0.95)
+			nsb.shadow_color = Color(0.0, 0.65, 1.0, 0.35)
+			card_panel.add_theme_stylebox_override("panel", nsb)
+	
+	if title_label:
+		title_label.text = data.get("title", "NÚCLEO TUTORIAL")
+	if sub_label:
+		sub_label.text = data.get("stage", "// APRENDIZAJE TÉCNICO GUIADO CON JOA //")
+		
+	if pieces_container:
+		for ch in pieces_container.get_children():
+			ch.queue_free()
+		var desc_lbl = Label.new()
+		desc_lbl.text = data.get("description", "Aprende los protocolos paso a paso con la asistencia técnica de Joa.")
+		desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		desc_lbl.add_theme_font_size_override("font_size", 11)
+		desc_lbl.add_theme_color_override("font_color", Color(0.85, 0.95, 1.0, 0.9))
+		pieces_container.add_child(desc_lbl)
+		
+		if data.has("requirements"):
+			var req_lbl = Label.new()
+			req_lbl.text = data.get("requirements", "")
+			req_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			req_lbl.add_theme_font_size_override("font_size", 10)
+			req_lbl.add_theme_color_override("font_color", Color(0.2, 0.95, 1.0, 0.8))
+			pieces_container.add_child(req_lbl)
+		
+	if btn_label:
+		btn_label.text = "▶ INICIAR TUTORIAL"
+	if btn_shader_mat:
+		btn_shader_mat.set_shader_parameter("border_color", Color(0.0, 0.88, 1.0, 1.0))
+		btn_shader_mat.set_shader_parameter("hover_color", Color(0.65, 1.0, 1.0, 1.0))
+		btn_shader_mat.set_shader_parameter("glass_tint", Color(0.01, 0.06, 0.18, 0.9))
+	
+	_panel_tween = create_tween().set_parallel(true)
+	_panel_tween.tween_property(self, "scale", Vector2.ONE, 0.24)\
+		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	_panel_tween.tween_property(self, "modulate:a", 1.0, 0.22)
 	
 	_start_idle_pulse()
 
 func open_for_practice(data: Dictionary = {}) -> void:
+	if _panel_tween and _panel_tween.is_valid():
+		_panel_tween.kill()
 	visible = true
 	modulate.a = 0.0
 	pivot_offset = size * 0.5
@@ -106,7 +164,26 @@ func open_for_practice(data: Dictionary = {}) -> void:
 	if title_label:
 		title_label.text = data.get("title", "SALA DE PRÁCTICA 3D")
 	if sub_label:
-		sub_label.text = "// MODO ENTRENAMIENTO LIBRE · TIEMPO ILIMITADO //"
+		sub_label.text = data.get("stage", "// MODO ENTRENAMIENTO LIBRE · TIEMPO ILIMITADO //")
+		
+	if pieces_container:
+		for ch in pieces_container.get_children():
+			ch.queue_free()
+		var desc_lbl = Label.new()
+		desc_lbl.text = data.get("description", "Banco de trabajo libre sin límite de tiempo.")
+		desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		desc_lbl.add_theme_font_size_override("font_size", 11)
+		desc_lbl.add_theme_color_override("font_color", Color(1.0, 0.9, 0.8, 0.9))
+		pieces_container.add_child(desc_lbl)
+		
+		if data.has("requirements"):
+			var req_lbl = Label.new()
+			req_lbl.text = data.get("requirements", "")
+			req_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			req_lbl.add_theme_font_size_override("font_size", 10)
+			req_lbl.add_theme_color_override("font_color", Color(1.0, 0.75, 0.2, 0.8))
+			pieces_container.add_child(req_lbl)
+		
 	if btn_label:
 		btn_label.text = "▶ INICIAR PRÁCTICA"
 	if btn_shader_mat:
@@ -114,10 +191,10 @@ func open_for_practice(data: Dictionary = {}) -> void:
 		btn_shader_mat.set_shader_parameter("hover_color", Color(1.0, 0.85, 0.4, 1.0))
 		btn_shader_mat.set_shader_parameter("glass_tint", Color(0.18, 0.08, 0.01, 0.9))
 		
-	var tw = create_tween().set_parallel(true)
-	tw.tween_property(self, "scale", Vector2.ONE, 0.24)\
+	_panel_tween = create_tween().set_parallel(true)
+	_panel_tween.tween_property(self, "scale", Vector2.ONE, 0.24)\
 		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	tw.tween_property(self, "modulate:a", 1.0, 0.22)
+	_panel_tween.tween_property(self, "modulate:a", 1.0, 0.22)
 	
 	_start_idle_pulse()
 
@@ -144,12 +221,14 @@ func play_exit_animation() -> void:
 		return
 	if idle_tween and idle_tween.is_valid():
 		idle_tween.kill()
+	if _panel_tween and _panel_tween.is_valid():
+		_panel_tween.kill()
 		
-	var tw = create_tween().set_parallel(true)
-	tw.tween_property(self, "scale", Vector2(0.96, 0.96), 0.18)\
+	_panel_tween = create_tween().set_parallel(true)
+	_panel_tween.tween_property(self, "scale", Vector2(0.96, 0.96), 0.18)\
 		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
-	tw.tween_property(self, "modulate:a", 0.0, 0.16)
-	tw.chain().tween_callback(func():
+	_panel_tween.tween_property(self, "modulate:a", 0.0, 0.16)
+	_panel_tween.chain().tween_callback(func():
 		visible = false
 		scale = Vector2.ONE
 	)

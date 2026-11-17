@@ -6,6 +6,7 @@ extends StaticBody3D
 
 var ram_selection_modal_scene: PackedScene = preload("res://scenes/ui/RAMSelectionModal.tscn")
 var ssd_selection_modal_scene: PackedScene = preload("res://scenes/ui/SSDSelectionModal.tscn")
+var gpu_selection_modal_scene: PackedScene = preload("res://scenes/ui/GPUSelectionModal.tscn")
 var spares_modal_scene: PackedScene = preload("res://scenes/ui/SparesSelectionModal.tscn")
 
 func _ready() -> void:
@@ -59,6 +60,8 @@ func get_interaction_prompt() -> String:
 		return "[E] Abrir caja de RAM: Elegir modelo (Disponibles: %d)" % stock
 	if spare_type == "Disco Duro":
 		return "[E] Abrir caja de Almacenamiento SSD/HDD: Elegir modelo (Disponibles: %d)" % stock
+	if spare_type == "Grafica":
+		return "[E] Abrir caja de GPU: Elegir modelo y VRAM (Disponibles: %d)" % stock
 	return "[E] Tomar repuesto nuevo de %s (Disponibles: %d)" % [d_name, stock]
 
 func interact(player) -> void:
@@ -80,6 +83,9 @@ func interact(player) -> void:
 		return
 	if spare_type == "Disco Duro":
 		_open_storage_selection(player)
+		return
+	if spare_type == "Grafica":
+		_open_gpu_selection(player)
 		return
 		
 	if GameManager.add_item_to_backpack({"name": spare_type, "type": spare_type, "broken": false, "functional": true}):
@@ -111,5 +117,14 @@ func _open_storage_selection(player) -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	
 	var modal = ssd_selection_modal_scene.instantiate()
+	get_tree().root.add_child(modal)
+	modal.setup(self, player)
+
+func _open_gpu_selection(player) -> void:
+	if player and player.has_method("set_movement_enabled"):
+		player.set_movement_enabled(false)
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	
+	var modal = gpu_selection_modal_scene.instantiate()
 	get_tree().root.add_child(modal)
 	modal.setup(self, player)

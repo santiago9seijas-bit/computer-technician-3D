@@ -1,9 +1,11 @@
-[gd_scene format=3 load_steps=9]
+[gd_scene format=3 load_steps=12]
 
 [ext_resource type="Script" path="res://scripts/ui/DialogBox.gd" id="1_dlg"]
 [ext_resource type="Theme" path="res://styles/cyberpunk_theme.tres" id="2_theme"]
 [ext_resource type="PackedScene" path="res://scenes/ui/CyberBackgroundFrame.tscn" id="3_bg_frame"]
 [ext_resource type="FontFile" uid="uid://dbcug8887dro7" path="res://assets/fonts/Bungee-Regular.ttf" id="4_font"]
+[ext_resource type="Texture2D" path="res://sprite de dialogos/joa normal.png" id="5_joa_normal"]
+[ext_resource type="AudioStream" path="res://effects/teclado_loop.wav" id="6_sfx_typing"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_box"]
 
@@ -71,15 +73,41 @@ mouse_filter = 1
 theme = ExtResource("2_theme")
 script = ExtResource("1_dlg")
 
+[node name="PortraitRoot" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -540.0
+offset_bottom = -25.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+
+[node name="PortraitTexture" type="TextureRect" parent="PortraitRoot"]
+layout_mode = 1
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_left = 50.0
+offset_top = 0.0
+offset_right = 430.0
+offset_bottom = 0.0
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("5_joa_normal")
+expand_mode = 1
+stretch_mode = 5
+
 [node name="BoxMargin" type="MarginContainer" parent="."]
 layout_mode = 1
 anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 60.0
-offset_top = -195.0
-offset_right = -60.0
+offset_left = 50.0
+offset_top = -205.0
+offset_right = -50.0
 offset_bottom = -25.0
 grow_horizontal = 2
 grow_vertical = 0
@@ -87,7 +115,7 @@ mouse_filter = 1
 
 [node name="Panel" type="PanelContainer" parent="BoxMargin"]
 layout_mode = 2
-pivot_offset = Vector2(580, 85)
+pivot_offset = Vector2(590, 90)
 mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxEmpty_box")
 
@@ -97,9 +125,9 @@ layout_mode = 2
 [node name="Margin" type="MarginContainer" parent="BoxMargin/Panel"]
 layout_mode = 2
 mouse_filter = 1
-theme_override_constants/margin_left = 28
-theme_override_constants/margin_top = 16
-theme_override_constants/margin_right = 28
+theme_override_constants/margin_left = 36
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 32
 theme_override_constants/margin_bottom = 14
 
 [node name="VBox" type="VBoxContainer" parent="BoxMargin/Panel/Margin"]
@@ -114,8 +142,8 @@ theme_override_colors/font_color = Color(0.2, 0.95, 1, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 6
 theme_override_fonts/font = ExtResource("4_font")
-theme_override_font_sizes/font_size = 15
-text = "[SISTEMA // TUTORIAL]"
+theme_override_font_sizes/font_size = 16
+text = "JOA"
 
 [node name="MessageLabel" type="Label" parent="BoxMargin/Panel/Margin/VBox"]
 layout_mode = 2
@@ -150,3 +178,8 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
 theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
 text = "[ ⌨ PRESIONA 'E' PARA CONTINUAR ▶ ]"
+
+[node name="TypingAudio" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("6_sfx_typing")
+volume_db = -9.0
+bus = &"Master"

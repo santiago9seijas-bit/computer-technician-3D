@@ -21,6 +21,13 @@ extends CanvasLayer
 signal minigame_finished(success: bool)
 signal old_part_extracted()
 
+const TEX_PLACA = preload("res://pixel art minijuegos/procesador/placa de procesador.png")
+const TEX_INTEL_CERRADO = preload("res://pixel art minijuegos/procesador/intel/intel 5 cerrado.png")
+const TEX_INTEL_ABIERTO = preload("res://pixel art minijuegos/procesador/intel/abiertos/intel 5 abierto.png")
+const TEX_AMD_CERRADO = preload("res://pixel art minijuegos/procesador/amd/ amd ryzen 3.png")
+const TEX_AMD_ABIERTO = preload("res://pixel art minijuegos/procesador/amd/abiertos/ amd ryzen 3 abierto.png")
+
+@export var cpu_brand: String = "intel"
 @export var start_as_empty_slot: bool = false
 @export var is_tutorial_mode: bool = false
 @export var require_screws_sequence: bool = false
@@ -60,14 +67,19 @@ var current_phase: Phase = Phase.EXTRACT_LEVER_DOWN
 @onready var btn_slot_1: Button = get_node_or_null("ModalControl/Panel/VBox/ContentHBox/RightPanel/Margin/VBox/SlotsContainer/BtnSlot1")
 @onready var btn_slot_2: Button = get_node_or_null("ModalControl/Panel/VBox/ContentHBox/RightPanel/Margin/VBox/SlotsContainer/BtnSlot2")
 
-# Área del Socket
+# Área del Socket y Sprites Pixel Art
 @onready var socket_base: Panel = $ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase
-@onready var socket_grid_pattern: Panel = $ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase/PinsMatrix
+@onready var placa_base_sprite: TextureRect = get_node_or_null("ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase/PlacaBaseSprite")
+@onready var cpu_sprite: TextureRect = get_node_or_null("ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase/CPUSprite")
+@onready var socket_grid_pattern: Control = $ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase/PinsMatrix
+@onready var matrix_text: Label = get_node_or_null("ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase/PinsMatrix/MatrixText")
 @onready var cpu_chip: Button = $ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase/CPUChip
-@onready var notch_indicator: Label = $ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase/CPUChip/NotchIndicator
-@onready var load_plate: Panel = $ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase/LoadPlate
+@onready var cpu_label: Label = get_node_or_null("ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase/CPUChip/CPULabel")
+@onready var notch_indicator: Label = get_node_or_null("ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase/CPUChip/NotchIndicator")
+@onready var load_plate: Panel = get_node_or_null("ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase/LoadPlate")
+@onready var btn_brand_toggle: Button = get_node_or_null("ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase/BtnBrandToggle")
 
-# Tornillos de sujeción (para área de servidor: orden 3 -> 1 -> 2)
+# Tornillos de sujeción (para área de servidor: orden 2 -> 3 -> 1)
 @onready var screw_1: Button = get_node_or_null("ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase/Screw1")
 @onready var screw_2: Button = get_node_or_null("ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase/Screw2")
 @onready var screw_3: Button = get_node_or_null("ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase/Screw3")
@@ -94,6 +106,10 @@ var drag_start_lever_y: float = 0.0
 func _ready() -> void:
 	layer = 12
 	btn_cancel.pressed.connect(_on_cancel_pressed)
+	
+	if btn_brand_toggle:
+		btn_brand_toggle.pressed.connect(_on_brand_toggle_pressed)
+		_update_brand_toggle_label()
 	
 	# Configurar eventos de la palanca
 	lever_handle.gui_input.connect(_on_lever_gui_input)
@@ -159,17 +175,11 @@ func _setup_extract_mode() -> void:
 	lever_status_text.text = "PALANCA:\nTRABADA [0°]"
 	lever_status_text.modulate = Color(1.0, 0.35, 0.35, 1.0)
 	
-	# Placa protectora cerrada sobre el procesador
-	load_plate.visible = true
-	load_plate.position.y = 20.0
-	load_plate.modulate.a = 1.0
-	load_plate.scale = Vector2(1.0, 1.0)
+	if is_instance_valid(load_plate):
+		load_plate.visible = false
 	
-	# CPU visible pero protegido
-	cpu_chip.visible = true
-	cpu_chip.disabled = true
-	cpu_chip.mouse_default_cursor_shape = Control.CURSOR_ARROW
-	
+	_update_brand_toggle_label()
+	_update_cpu_visuals()
 	_update_ui_state()
 	_show_feedback("Arrastra la palanca hacia abajo ↓ para liberar el seguro del socket.", Color(1.0, 0.85, 0.2))
 
@@ -187,17 +197,11 @@ func _setup_insert_mode() -> void:
 	lever_status_text.text = "PALANCA:\nLIBERADA [90°]"
 	lever_status_text.modulate = Color(0.2, 1.0, 0.5, 1.0)
 	
-	# Placa de protección abierta (plegada hacia arriba)
-	load_plate.visible = true
-	load_plate.position.y = -70.0
-	load_plate.modulate.a = 0.25
-	load_plate.scale = Vector2(1.0, 0.2)
+	if is_instance_valid(load_plate):
+		load_plate.visible = false
 	
-	# Socket vacío (sin CPU aún)
-	cpu_chip.visible = false
-	cpu_chip.disabled = false
-	cpu_chip.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	
+	_update_brand_toggle_label()
+	_update_cpu_visuals()
 	_update_ui_state()
 	_show_feedback("Haz clic en el socket para asentar el nuevo procesador.", Color(0.2, 0.95, 1.0))
 
@@ -208,15 +212,12 @@ func _setup_server_mode() -> void:
 	current_phase = Phase.INSERT_CPU_CLICK
 	current_screw_step = 0
 	screws_removed.clear()
-	title_label.text = "MONTAJE INDUSTRIAL: DUAL CPU ENTERPRISE (SOCKET #%d)" % (current_cpu_index + 1)
+	title_label.text = "MONTAJE INDUSTRIAL: MULTI CPU ENTERPRISE (SOCKET #%d)" % (current_cpu_index + 1)
 	
 	_apply_screws_visibility(false)
 	
-	# Placa protectora abierta (plegada hacia arriba)
-	load_plate.visible = true
-	load_plate.position.y = -70.0
-	load_plate.modulate.a = 0.25
-	load_plate.scale = Vector2(1.0, 0.2)
+	if is_instance_valid(load_plate):
+		load_plate.visible = false
 	
 	# Palanca abierta abajo
 	lever_handle.position.y = LEVER_BOTTOM_Y
@@ -225,11 +226,8 @@ func _setup_server_mode() -> void:
 	lever_status_text.text = "PALANCA:\nLIBERADA [90°]"
 	lever_status_text.modulate = Color(0.2, 1.0, 0.5, 1.0)
 	
-	# Socket listo para insertar CPU
-	cpu_chip.visible = false
-	cpu_chip.disabled = false
-	cpu_chip.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	
+	_update_brand_toggle_label()
+	_update_cpu_visuals()
 	_update_ui_state()
 	_show_feedback("PASO 1: Haz clic en el socket para asentar el procesador Enterprise #%d." % (current_cpu_index + 1), Color(0.2, 0.95, 1.0))
 
@@ -409,27 +407,33 @@ func _evaluate_lever_release() -> void:
 # FASE EXTRACCIÓN: PALANCA ABAJO Y RETIRO DE PROTECCIÓN
 # =============================================================================
 func _complete_lever_down() -> void:
-	lever_handle.position.y = LEVER_BOTTOM_Y
-	lever_status_text.text = "PALANCA:\nLIBERADA [90°]"
-	lever_status_text.modulate = Color(0.2, 1.0, 0.5, 1.0)
-	lever_arrow.visible = false
+	if lever_handle:
+		lever_handle.position.y = LEVER_BOTTOM_Y
+	if lever_status_text:
+		lever_status_text.text = "PALANCA:\nLIBERADA [90°]"
+		lever_status_text.modulate = Color(0.2, 1.0, 0.5, 1.0)
+	if lever_arrow:
+		lever_arrow.visible = false
 	
 	current_phase = Phase.EXTRACT_CPU_CLICK
-	cpu_chip.disabled = false
-	cpu_chip.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	_update_cpu_visuals()
 	_update_ui_state()
-	_show_feedback("✓ ¡Protección retirada! Haz clic en el CPU para extraerlo.", Color(0.0, 0.95, 1.0))
+	_show_feedback("✓ ¡Compuerta abierta! Haz clic en el procesador para extraerlo.", Color(0.0, 0.95, 1.0))
 	
-	# Quitar la protección con animación fluida
-	var tw = create_tween().set_parallel(true)
-	tw.tween_property(load_plate, "position:y", -70.0, 0.45).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	tw.tween_property(load_plate, "scale", Vector2(1.0, 0.2), 0.45)
-	tw.tween_property(load_plate, "modulate:a", 0.25, 0.45)
+	# Animación pop en el sprite
+	if is_instance_valid(cpu_sprite):
+		var tw_pop = create_tween()
+		if tw_pop:
+			tw_pop.tween_property(cpu_sprite, "scale", Vector2(1.04, 1.04), 0.1)
+			tw_pop.tween_property(cpu_sprite, "scale", Vector2(1.0, 1.0), 0.1)
 	
-	# Efecto de pulso en el CPU para indicar que es clickeable
-	var tw_pulse = create_tween().set_loops(4)
-	tw_pulse.tween_property(cpu_chip, "modulate", Color(1.2, 1.2, 0.6), 0.2)
-	tw_pulse.tween_property(cpu_chip, "modulate", Color(1.0, 1.0, 1.0), 0.2)
+	# Efecto de pulso en el botón de CPU para indicar que es clickeable
+	if is_instance_valid(cpu_chip):
+		var tw_pulse = create_tween()
+		if tw_pulse:
+			tw_pulse.set_loops(4)
+			tw_pulse.tween_property(cpu_chip, "modulate", Color(1.2, 1.2, 0.6), 0.2)
+			tw_pulse.tween_property(cpu_chip, "modulate", Color(1.0, 1.0, 1.0), 0.2)
 
 # =============================================================================
 # FASE EXTRACCIÓN: CLIC EN CPU PARA QUITARLO
@@ -442,19 +446,27 @@ func _on_cpu_clicked() -> void:
 	cpu_chip.disabled = true
 	var gm = get_node_or_null("/root/GameManager")
 	if gm and gm.has_method("add_item_to_backpack"):
-		gm.add_item_to_backpack({"name": "CPU", "broken": true})
+		gm.add_item_to_backpack({"name": "CPU", "type": "CPU", "broken": true})
 	old_part_extracted.emit()
 	
-	_show_feedback("✓ ¡CPU retirado con éxito! El socket está listo para el repuesto.", Color(0.0, 1.0, 0.5))
+	_show_feedback("✓ ¡CPU retirado con éxito! El zócalo queda listo para el repuesto.", Color(0.0, 1.0, 0.5))
 	
-	# Animación de elevación y retiro del CPU
+	# Animación de elevación y retiro del CPU sprite
 	var tw = create_tween().set_parallel(true)
-	tw.tween_property(cpu_chip, "position:y", cpu_chip.position.y - 100.0, 0.45).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	tw.tween_property(cpu_chip, "scale", Vector2(1.25, 1.25), 0.45)
-	tw.tween_property(cpu_chip, "modulate:a", 0.0, 0.45)
+	if is_instance_valid(cpu_sprite):
+		tw.tween_property(cpu_sprite, "position:y", cpu_sprite.position.y - 80.0, 0.45).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		tw.tween_property(cpu_sprite, "scale", Vector2(1.2, 1.2), 0.45)
+		tw.tween_property(cpu_sprite, "modulate:a", 0.0, 0.45)
+	if is_instance_valid(cpu_chip):
+		tw.tween_property(cpu_chip, "position:y", cpu_chip.position.y - 80.0, 0.45).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		tw.tween_property(cpu_chip, "modulate:a", 0.0, 0.45)
 	await tw.finished
 	
-	cpu_chip.visible = false
+	if is_instance_valid(cpu_sprite):
+		cpu_sprite.visible = false
+	if is_instance_valid(cpu_chip):
+		cpu_chip.visible = false
+		
 	if get_tree():
 		await get_tree().create_timer(0.8).timeout
 	minigame_finished.emit(true)
@@ -483,33 +495,21 @@ func _insert_cpu() -> void:
 		return
 
 	current_phase = Phase.INSERT_LEVER_UP
-	cpu_chip.visible = true
-	cpu_chip.disabled = true
+	_update_cpu_visuals()
 	
 	_show_feedback("✓ Asentando procesador en el zócalo...", Color(0.2, 0.95, 1.0))
 	
-	# Animación de caída e inserción del CPU
-	cpu_chip.position.y = -80.0
-	cpu_chip.scale = Vector2(1.25, 1.25)
-	cpu_chip.modulate.a = 0.0
-	
-	var tw = create_tween().set_parallel(true)
-	tw.tween_property(cpu_chip, "position:y", 25.0, 0.45).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	tw.tween_property(cpu_chip, "scale", Vector2(1.0, 1.0), 0.45)
-	tw.tween_property(cpu_chip, "modulate:a", 1.0, 0.35)
-	await tw.finished
-	
-	# Destello del notch de alineación
-	var tw_notch = create_tween().set_loops(3)
-	tw_notch.tween_property(notch_indicator, "modulate", Color(0.0, 1.0, 0.5), 0.15)
-	tw_notch.tween_property(notch_indicator, "modulate", Color(1.0, 0.85, 0.2), 0.15)
-	
-	# Bajar la placa de protección sobre el procesador
-	var tw_plate = create_tween().set_parallel(true)
-	tw_plate.tween_property(load_plate, "position:y", 20.0, 0.35).set_trans(Tween.TRANS_QUAD)
-	tw_plate.tween_property(load_plate, "scale", Vector2(1.0, 1.0), 0.35)
-	tw_plate.tween_property(load_plate, "modulate:a", 1.0, 0.35)
-	await tw_plate.finished
+	# Animación de caída e inserción del CPU sprite
+	if is_instance_valid(cpu_sprite):
+		var base_pos_y = -140.0
+		cpu_sprite.position.y = base_pos_y - 80.0
+		cpu_sprite.scale = Vector2(1.2, 1.2)
+		cpu_sprite.modulate.a = 0.0
+		var tw = create_tween().set_parallel(true)
+		tw.tween_property(cpu_sprite, "position:y", base_pos_y, 0.45).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		tw.tween_property(cpu_sprite, "scale", Vector2(1.0, 1.0), 0.45)
+		tw.tween_property(cpu_sprite, "modulate:a", 1.0, 0.35)
+		await tw.finished
 	
 	lever_arrow.visible = true
 	lever_arrow.text = "▲\nARRASTRA\nARRIBA"
@@ -522,10 +522,14 @@ func _insert_cpu() -> void:
 # FASE MONTAJE: PALANCA ARRIBA (LADO CONTRARIO) PARA TRABAR
 # =============================================================================
 func _complete_lever_up() -> void:
-	lever_handle.position.y = LEVER_TOP_Y
-	lever_status_text.text = "PALANCA:\nTRABADA [0°]"
-	lever_status_text.modulate = Color(0.2, 1.0, 0.5, 1.0)
-	lever_arrow.visible = false
+	if lever_handle:
+		lever_handle.position.y = LEVER_TOP_Y
+	if lever_status_text:
+		lever_status_text.text = "PALANCA:\nTRABADA [0°]"
+		lever_status_text.modulate = Color(0.2, 1.0, 0.5, 1.0)
+	if lever_arrow:
+		lever_arrow.visible = false
+	_update_cpu_visuals()
 	
 	# Retirar el repuesto nuevo de la mochila si el jugador tenía uno
 	var gm_up = get_node_or_null("/root/GameManager")
@@ -560,7 +564,7 @@ func _complete_lever_up() -> void:
 		_update_slots_ui()
 	else:
 		current_phase = Phase.COMPLETED
-		_show_feedback("✓ ¡Palanca trabada y protección asegurada con éxito!", Color(0.0, 1.0, 0.5))
+		_show_feedback("✓ ¡Palanca trabada y compuerta asegurada con éxito!", Color(0.0, 1.0, 0.5))
 		_update_ui_state()
 		_update_slots_ui()
 		
@@ -577,25 +581,17 @@ func _prepare_next_cpu_socket() -> void:
 	screws_removed.clear()
 	_apply_screws_visibility(false)
 	
-	# Placa protectora abierta (plegada hacia arriba)
-	load_plate.visible = true
-	load_plate.position.y = -70.0
-	load_plate.scale = Vector2(1.0, 0.2)
-	load_plate.modulate.a = 0.25
+	if is_instance_valid(load_plate):
+		load_plate.visible = false
 	
-	# CPU oculto
-	cpu_chip.visible = false
-	cpu_chip.disabled = false
-	cpu_chip.modulate.a = 1.0
-	cpu_chip.scale = Vector2(1.0, 1.0)
+	current_phase = Phase.INSERT_CPU_CLICK
+	_update_cpu_visuals()
 	
 	# Palanca abierta abajo
 	lever_handle.position.y = LEVER_BOTTOM_Y
 	lever_status_text.text = "PALANCA:\nLIBERADA [90°]"
 	lever_status_text.modulate = Color(0.2, 1.0, 0.5, 1.0)
 	lever_arrow.visible = false
-	
-	current_phase = Phase.INSERT_CPU_CLICK
 	
 	var has_cpu = false
 	var gm = get_node_or_null("/root/GameManager")
@@ -613,6 +609,85 @@ func _prepare_next_cpu_socket() -> void:
 		_show_feedback("PASO 1: Haz clic en el socket para asentar el procesador Enterprise #%d." % (current_cpu_index + 1), Color(0.2, 0.95, 1.0))
 		_update_ui_state()
 	_update_slots_ui()
+
+func set_cpu_brand_by_name(brand: String) -> void:
+	if "amd" in brand.to_lower() or "ryzen" in brand.to_lower():
+		cpu_brand = "amd"
+	else:
+		cpu_brand = "intel"
+	_update_brand_toggle_label()
+	_update_cpu_visuals()
+
+func _on_brand_toggle_pressed() -> void:
+	if cpu_brand == "intel":
+		cpu_brand = "amd"
+	else:
+		cpu_brand = "intel"
+	_update_brand_toggle_label()
+	_update_cpu_visuals()
+
+func _update_brand_toggle_label() -> void:
+	if btn_brand_toggle == null:
+		btn_brand_toggle = get_node_or_null("ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase/BtnBrandToggle")
+	if not is_instance_valid(btn_brand_toggle):
+		return
+	if cpu_brand == "amd":
+		btn_brand_toggle.text = "🔄 MARCA: AMD RYZEN 3"
+		btn_brand_toggle.modulate = Color(1.0, 0.5, 0.2, 1.0)
+	else:
+		btn_brand_toggle.text = "🔄 MARCA: INTEL CORE i5"
+		btn_brand_toggle.modulate = Color(0.2, 0.95, 1.0, 1.0)
+
+func _update_cpu_visuals() -> void:
+	if cpu_sprite == null:
+		cpu_sprite = get_node_or_null("ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase/CPUSprite")
+	if cpu_chip == null:
+		cpu_chip = get_node_or_null("ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase/CPUChip")
+	if matrix_text == null:
+		matrix_text = get_node_or_null("ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase/PinsMatrix/MatrixText")
+	if not is_instance_valid(cpu_sprite):
+		return
+	var is_intel = (cpu_brand == "intel")
+	match current_phase:
+		Phase.EXTRACT_LEVER_DOWN:
+			cpu_sprite.visible = true
+			cpu_sprite.texture = TEX_INTEL_CERRADO if is_intel else TEX_AMD_CERRADO
+			if is_instance_valid(cpu_chip):
+				cpu_chip.visible = true
+				cpu_chip.disabled = true
+			if is_instance_valid(matrix_text):
+				matrix_text.visible = false
+		Phase.EXTRACT_CPU_CLICK:
+			cpu_sprite.visible = true
+			cpu_sprite.texture = TEX_INTEL_ABIERTO if is_intel else TEX_AMD_ABIERTO
+			if is_instance_valid(cpu_chip):
+				cpu_chip.visible = true
+				cpu_chip.disabled = false
+			if is_instance_valid(matrix_text):
+				matrix_text.visible = false
+		Phase.INSERT_CPU_CLICK:
+			cpu_sprite.visible = false
+			if is_instance_valid(cpu_chip):
+				cpu_chip.visible = false
+				cpu_chip.disabled = true
+			if is_instance_valid(matrix_text):
+				matrix_text.visible = true
+		Phase.INSERT_LEVER_UP:
+			cpu_sprite.visible = true
+			cpu_sprite.texture = TEX_INTEL_ABIERTO if is_intel else TEX_AMD_ABIERTO
+			if is_instance_valid(cpu_chip):
+				cpu_chip.visible = true
+				cpu_chip.disabled = true
+			if is_instance_valid(matrix_text):
+				matrix_text.visible = false
+		Phase.FASTEN_SCREWS, Phase.COMPLETED:
+			cpu_sprite.visible = true
+			cpu_sprite.texture = TEX_INTEL_CERRADO if is_intel else TEX_AMD_CERRADO
+			if is_instance_valid(cpu_chip):
+				cpu_chip.visible = true
+				cpu_chip.disabled = true
+			if is_instance_valid(matrix_text):
+				matrix_text.visible = false
 
 func _update_slots_ui() -> void:
 	if target_cpu_count <= 1 or not is_instance_valid(slots_container):
@@ -657,10 +732,12 @@ func _update_ui_state() -> void:
 			guide_text.text = "INSTRUCCIONES DE MONTAJE:\n\n1. Haz clic en el socket abierto para asentar el procesador Enterprise.\n2. Arrastra la palanca hacia arriba ↑ para trabar el socket.\n3. Atornilla la sujeción en orden estricto de apriete: [ 2 ➔ 3 ➔ 1 ].\n4. Repite la secuencia para los 3 procesadores del servidor."
 		else:
 			var has_cpu = false
-			for it in GameManager.backpack:
-				if it.get("name") == "CPU" and not it.get("broken", true):
-					has_cpu = true
-					break
+			var gm = get_node_or_null("/root/GameManager")
+			if gm and "backpack" in gm:
+				for it in gm.backpack:
+					if it.get("name") == "CPU" and not it.get("broken", true):
+						has_cpu = true
+						break
 			var spare_msg = "✓ Procesador de repuesto detectado en inventario.\n\n" if has_cpu else "⚠️ Listo para montar procesador.\n\n"
 			guide_text.text = "INSTRUCCIONES DE MONTAJE:\n\n" + spare_msg + "1. Haz clic en el socket para asentar el procesador.\n2. Arrastra la palanca hacia arriba ↑ para trabar la placa de carga."
 
@@ -701,10 +778,14 @@ func _update_ui_state() -> void:
 			instruction_badge.modulate = Color(0.0, 1.0, 0.5, 1.0)
 
 func _show_feedback(msg: String, col: Color) -> void:
-	if col.r > 0.7 and col.g < 0.5:
-		GameManager.register_error(2.0)
-	elif col.g > 0.6:
-		GameManager.register_repair(25, 2.0)
+	var gm = get_node_or_null("/root/GameManager")
+	if gm:
+		if col.r > 0.7 and col.g < 0.5:
+			if gm.has_method("register_error"):
+				gm.register_error(2.0)
+		elif col.g > 0.6:
+			if gm.has_method("register_repair"):
+				gm.register_repair(25, 2.0)
 		
 	feedback_label.text = msg
 	feedback_label.modulate = col

@@ -1273,25 +1273,9 @@ func _on_extract_mobo_pressed() -> void:
 	GameManager.add_item_to_backpack({"name": "Placa Madre", "broken": true})
 	old_part_extracted.emit()
 	
-	if not is_tutorial_mode:
-		_show_warning("✓ Placa Madre averiada extraída. Busca el repuesto nuevo en el taller.", Color(0.2, 1.0, 0.5))
-		await get_tree().create_timer(1.2).timeout
-		minigame_finished.emit(true)
-		return
-	
-	# Modo tutorial:
-	var has_new = false
-	for it in GameManager.backpack:
-		if it.get("name") == "Placa Madre" and not it.get("broken", true):
-			has_new = true
-			break
-	if not has_new:
-		GameManager.add_item_to_backpack({"name": "Placa Madre", "broken": false})
-		
-	_setup_empty_tray_phase()
-	_select_guide_tab(1)
-	_show_warning("✓ FASE 1 (QUITAR) SUPERADA ➔ AHORA FASE 2: MONTAJE DEL REPUESTO (INVERSO)", Color(0.2, 1.0, 0.5))
-	_update_status()
+	_show_warning("✓ Placa Madre averiada extraída. Ve a la caja de repuestos en el taller a buscar la nueva.", Color(0.2, 1.0, 0.5))
+	await get_tree().create_timer(1.0).timeout
+	minigame_finished.emit(true)
 
 func _show_warning(msg: String, col: Color) -> void:
 	if col.r > 0.7 and col.g < 0.5:

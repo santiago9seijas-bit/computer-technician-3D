@@ -870,9 +870,17 @@ text = "● LABORATORIO ACTIVO · SIMULADOR LISTO"
 horizontal_alignment = 1
 
 [node name="BtnPlayMinigame" type="Button" parent="DeployedModal/DeployedCard/Margin/VBox/ContentHBox/LeftCol"]
-custom_minimum_size = Vector2(0, 48)
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
-text = "▶ PROBAR MINIJUEGO"
+text = "⚡ SIMULADOR 2D"
+flat = true
+script = ExtResource("3_cbtn")
+slant = 16.0
+
+[node name="BtnPlayTutorial3D" type="Button" parent="DeployedModal/DeployedCard/Margin/VBox/ContentHBox/LeftCol"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "🎓 TUTORIAL 3D CON JOA"
 flat = true
 script = ExtResource("3_cbtn")
 slant = 16.0

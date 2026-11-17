@@ -1,10 +1,13 @@
-[gd_scene format=3 load_steps=15]
+[gd_scene format=3 load_steps=18]
 
 [ext_resource type="Script" path="res://scripts/minigames/CPUMinigame.gd" id="1_cpu"]
 [ext_resource type="Script" path="res://scripts/menus/CyberButton.gd" id="2_cbtn"]
 [ext_resource type="Theme" path="res://styles/cyberpunk_theme.tres" id="3_theme"]
 [ext_resource type="FontFile" uid="uid://dbcug8887dro7" path="res://assets/fonts/Bungee-Regular.ttf" id="4_title_font"]
 [ext_resource type="PackedScene" path="res://scenes/ui/CyberBackgroundFrame.tscn" id="5_bg_frame"]
+[ext_resource type="Texture2D" uid="uid://43y6u2hk1ihl" path="res://pixel art minijuegos/procesador/placa de procesador.png" id="6_placa"]
+[ext_resource type="Texture2D" uid="uid://derdnyfcjwceu" path="res://pixel art minijuegos/procesador/intel/intel 5 cerrado.png" id="7_intel_cerrado"]
+[ext_resource type="Texture2D" uid="uid://0d74wkeefjsa" path="res://pixel art minijuegos/tornillos/tornillo de cruz.png" id="8_screw_icon"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_frame"]
 content_margin_left = 24.0
@@ -13,54 +16,54 @@ content_margin_right = 24.0
 content_margin_bottom = 18.0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_socket"]
-bg_color = Color(0.08, 0.07, 0.12, 0.98)
-border_width_left = 4
-border_width_top = 4
-border_width_right = 4
-border_width_bottom = 4
+bg_color = Color(0.06, 0.06, 0.1, 0.98)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
 border_color = Color(0.75, 0.1, 0.85, 0.85)
 corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
-shadow_color = Color(0, 0, 0, 0.45)
+shadow_color = Color(0, 0, 0, 0.5)
 shadow_size = 10
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_matrix"]
-bg_color = Color(0.12, 0.1, 0.05, 0.95)
+bg_color = Color(0.12, 0.1, 0.05, 0.85)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color(0.85, 0.7, 0.15, 0.7)
+border_color = Color(0.85, 0.7, 0.15, 0.8)
 corner_radius_top_left = 6
 corner_radius_top_right = 6
 corner_radius_bottom_right = 6
 corner_radius_bottom_left = 6
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ihs"]
-bg_color = Color(0.24, 0.26, 0.3, 1)
-border_width_left = 4
-border_width_top = 4
-border_width_right = 4
-border_width_bottom = 4
-border_color = Color(0.7, 0.75, 0.8, 1)
+bg_color = Color(0.24, 0.26, 0.3, 0.1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0, 0.95, 1, 0.6)
 corner_radius_top_left = 8
 corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_plate"]
-bg_color = Color(0.14, 0.16, 0.22, 0.65)
-border_width_left = 14
-border_width_top = 14
-border_width_right = 14
-border_width_bottom = 14
-border_color = Color(0.5, 0.55, 0.65, 0.95)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
+bg_color = Color(0.14, 0.16, 0.22, 0.3)
+border_width_left = 6
+border_width_top = 6
+border_width_right = 6
+border_width_bottom = 6
+border_color = Color(0.5, 0.55, 0.65, 0.7)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lever_handle"]
 bg_color = Color(0.25, 0.28, 0.35, 1)
@@ -180,7 +183,7 @@ horizontal_alignment = 1
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
 theme_override_font_sizes/font_size = 13
-text = "PASO 1: Arrastra la palanca hacia abajo para liberar la tensión de sujeción."
+text = "PASO 1: Arrastra la palanca hacia abajo para liberar la compuerta del socket."
 horizontal_alignment = 1
 
 [node name="InstructionBadge" type="Label" parent="ModalControl/Panel/VBox/Header"]
@@ -195,7 +198,7 @@ visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
 theme_override_font_sizes/font_size = 13
-text = "ORDEN DE TORNILLOS:  [ 3 ]  ➔  [ 1 ]  ➔  [ 2 ]"
+text = "ORDEN DE TORNILLOS:  [ 2 ]  ➔  [ 3 ]  ➔  [ 1 ]"
 horizontal_alignment = 1
 
 [node name="HSeparator" type="HSeparator" parent="ModalControl/Panel/VBox"]
@@ -225,30 +228,65 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -210.0
-offset_top = -150.0
-offset_right = 210.0
-offset_bottom = 150.0
+offset_left = -220.0
+offset_top = -155.0
+offset_right = 220.0
+offset_bottom = 155.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_socket")
 
-[node name="PinsMatrix" type="Panel" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase"]
+[node name="PlacaBaseSprite" type="TextureRect" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase"]
+texture_filter = 1
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -115.0
-offset_top = -115.0
-offset_right = 85.0
-offset_bottom = 85.0
+offset_left = -175.0
+offset_top = -140.0
+offset_right = 135.0
+offset_bottom = 140.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 1
+texture = ExtResource("6_placa")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="CPUSprite" type="TextureRect" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase"]
+texture_filter = 1
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -175.0
+offset_top = -140.0
+offset_right = 135.0
+offset_bottom = 140.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("7_intel_cerrado")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="PinsMatrix" type="Button" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -100.0
+offset_top = -95.0
+offset_right = 65.0
+offset_bottom = 75.0
+grow_horizontal = 2
+grow_vertical = 2
 mouse_default_cursor_shape = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_matrix")
+flat = true
 
 [node name="MatrixText" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase/PinsMatrix"]
 layout_mode = 1
@@ -257,34 +295,30 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -80.0
+offset_left = -90.0
 offset_top = -30.0
-offset_right = 80.0
+offset_right = 90.0
 offset_bottom = 30.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_colors/font_color = Color(1, 0.85, 0.25, 0.9)
+theme_override_colors/font_color = Color(1, 0.85, 0.25, 0.95)
 theme_override_font_sizes/font_size = 11
-text = "MATRIZ DE PINES (LGA)
-[ ZÓCALO ABIERTO ]
-▶ Clic aquí para insertar"
+text = "[ ZÓCALO ABIERTO ]\n▶ Clic para asentar procesador"
 horizontal_alignment = 1
 
 [node name="CPUChip" type="Button" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase"]
-custom_minimum_size = Vector2(190, 190)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -110.0
-offset_top = -110.0
-offset_right = 80.0
-offset_bottom = 80.0
+offset_left = -100.0
+offset_top = -95.0
+offset_right = 65.0
+offset_bottom = 75.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 1
 mouse_default_cursor_shape = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_ihs")
 theme_override_styles/hover = SubResource("StyleBoxFlat_ihs")
@@ -297,20 +331,19 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -80.0
-offset_top = -28.0
-offset_right = 80.0
-offset_bottom = 28.0
+offset_left = -85.0
+offset_top = -24.0
+offset_right = 85.0
+offset_bottom = 24.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_colors/font_color = Color(0.9, 0.95, 1, 1)
 theme_override_font_sizes/font_size = 11
-text = "CYBER_CORE i9-14900K
-LGA 1700 OCTA-CORE
-[ CLIC PARA EXTRAER ]"
+text = "[ CLIC PARA EXTRAER ]"
 horizontal_alignment = 1
 
 [node name="NotchIndicator" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase/CPUChip"]
+visible = false
 layout_mode = 1
 anchors_preset = 2
 anchor_top = 1.0
@@ -325,6 +358,7 @@ theme_override_font_sizes/font_size = 16
 text = "▲"
 
 [node name="LoadPlate" type="Panel" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase"]
+visible = false
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -355,83 +389,147 @@ theme_override_font_sizes/font_size = 10
 text = "[ PROTECCIÓN METÁLICA ]"
 horizontal_alignment = 1
 
+[node name="BtnBrandToggle" type="Button" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase"]
+custom_minimum_size = Vector2(210, 26)
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -160.0
+offset_top = -32.0
+offset_right = 50.0
+offset_bottom = -6.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_default_cursor_shape = 2
+theme_override_colors/font_color = Color(0.2, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 10
+text = "🔄 MARCA: INTEL CORE i5"
+
 [node name="Screw1" type="Button" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase"]
 visible = false
-custom_minimum_size = Vector2(44, 44)
+custom_minimum_size = Vector2(40, 40)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -116.0
-offset_top = -116.0
-offset_right = -72.0
-offset_bottom = -72.0
+offset_left = -135.0
+offset_top = -125.0
+offset_right = -95.0
+offset_bottom = -85.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 1
 mouse_default_cursor_shape = 2
 theme_override_colors/font_color = Color(0, 0.95, 1, 1)
-theme_override_colors/font_hover_color = Color(1, 0.85, 0.2, 1)
 theme_override_fonts/font = ExtResource("4_title_font")
-theme_override_font_sizes/font_size = 15
+theme_override_font_sizes/font_size = 14
 theme_override_styles/normal = SubResource("StyleBoxFlat_screw")
 theme_override_styles/hover = SubResource("StyleBoxFlat_screw_hover")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_screw_pressed")
 text = "1"
 
+[node name="Icon" type="TextureRect" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase/Screw1"]
+texture_filter = 1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 6.0
+offset_top = 6.0
+offset_right = -6.0
+offset_bottom = -6.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("8_screw_icon")
+expand_mode = 1
+stretch_mode = 5
+
 [node name="Screw2" type="Button" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase"]
 visible = false
-custom_minimum_size = Vector2(44, 44)
+custom_minimum_size = Vector2(40, 40)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = 46.0
-offset_top = -116.0
-offset_right = 90.0
-offset_bottom = -72.0
+offset_left = 55.0
+offset_top = -125.0
+offset_right = 95.0
+offset_bottom = -85.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 1
 mouse_default_cursor_shape = 2
 theme_override_colors/font_color = Color(0, 0.95, 1, 1)
-theme_override_colors/font_hover_color = Color(1, 0.85, 0.2, 1)
 theme_override_fonts/font = ExtResource("4_title_font")
-theme_override_font_sizes/font_size = 15
+theme_override_font_sizes/font_size = 14
 theme_override_styles/normal = SubResource("StyleBoxFlat_screw")
 theme_override_styles/hover = SubResource("StyleBoxFlat_screw_hover")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_screw_pressed")
 text = "2"
 
+[node name="Icon" type="TextureRect" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase/Screw2"]
+texture_filter = 1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 6.0
+offset_top = 6.0
+offset_right = -6.0
+offset_bottom = -6.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("8_screw_icon")
+expand_mode = 1
+stretch_mode = 5
+
 [node name="Screw3" type="Button" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase"]
 visible = false
-custom_minimum_size = Vector2(44, 44)
+custom_minimum_size = Vector2(40, 40)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -35.0
-offset_top = 46.0
-offset_right = 9.0
-offset_bottom = 90.0
+offset_left = -40.0
+offset_top = 55.0
+offset_right = 0.0
+offset_bottom = 95.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 1
 mouse_default_cursor_shape = 2
 theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
-theme_override_colors/font_hover_color = Color(0.2, 1, 0.5, 1)
 theme_override_fonts/font = ExtResource("4_title_font")
-theme_override_font_sizes/font_size = 15
+theme_override_font_sizes/font_size = 14
 theme_override_styles/normal = SubResource("StyleBoxFlat_screw")
 theme_override_styles/hover = SubResource("StyleBoxFlat_screw_hover")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_screw_pressed")
 text = "3"
+
+[node name="Icon" type="TextureRect" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase/Screw3"]
+texture_filter = 1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 6.0
+offset_top = 6.0
+offset_right = -6.0
+offset_bottom = -6.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("8_screw_icon")
+expand_mode = 1
+stretch_mode = 5
 
 [node name="LeverArea" type="Control" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase"]
 layout_mode = 1
@@ -440,9 +538,9 @@ anchor_left = 1.0
 anchor_top = 0.5
 anchor_right = 1.0
 anchor_bottom = 0.5
-offset_left = -90.0
+offset_left = -80.0
 offset_top = -115.0
-offset_right = -10.0
+offset_right = -5.0
 offset_bottom = 115.0
 grow_horizontal = 0
 grow_vertical = 2
@@ -473,8 +571,7 @@ offset_bottom = 1.0
 grow_horizontal = 2
 theme_override_colors/font_color = Color(1, 0.35, 0.35, 1)
 theme_override_font_sizes/font_size = 10
-text = "PALANCA:
-TRABADA [0°]"
+text = "PALANCA:\nTRABADA [0°]"
 horizontal_alignment = 1
 
 [node name="LeverArrow" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase/LeverArea"]
@@ -492,9 +589,7 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
 theme_override_font_sizes/font_size = 11
-text = "▼
-ARRASTRA
-ABAJO"
+text = "▼\nARRASTRA\nABAJO"
 horizontal_alignment = 1
 
 [node name="LeverHandle" type="Button" parent="ModalControl/Panel/VBox/ContentHBox/WorkArea/SocketBase/LeverArea"]
@@ -507,7 +602,6 @@ offset_left = -18.0
 offset_right = 18.0
 offset_bottom = 50.0
 grow_horizontal = 2
-mouse_filter = 1
 mouse_default_cursor_shape = 13
 theme_override_styles/normal = SubResource("StyleBoxFlat_lever_handle")
 theme_override_styles/hover = SubResource("StyleBoxFlat_lever_handle")
@@ -538,9 +632,9 @@ horizontal_alignment = 1
 
 [node name="GuideText" type="Label" parent="ModalControl/Panel/VBox/ContentHBox/RightPanel/Margin/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.85, 0.9, 1.0, 0.9)
+theme_override_colors/font_color = Color(0.85, 0.9, 1, 0.9)
 theme_override_font_sizes/font_size = 11
-text = "FASE DE MONTAJE:\n1. Desatornilla los 3 pernos en orden (3 -> 1 -> 2).\n2. Haz clic en el socket para asentar el procesador.\n3. Arrastra la palanca hacia arriba para trabar el socket."
+text = "FASE DE MONTAJE:\n1. Desatornilla los 3 pernos en orden (2 -> 3 -> 1).\n2. Haz clic en el socket para asentar el procesador.\n3. Arrastra la palanca hacia arriba para trabar el socket."
 autowrap_mode = 2
 
 [node name="SlotsContainer" type="VBoxContainer" parent="ModalControl/Panel/VBox/ContentHBox/RightPanel/Margin/VBox"]

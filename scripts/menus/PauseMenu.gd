@@ -366,6 +366,8 @@ func _sync_options_controls() -> void:
 	_refresh_fotosensible_ui()
 
 func _on_locale_changed() -> void:
+	if has_node("/root/LocalizationManager"):
+		get_node("/root/LocalizationManager").update_tree_translations(self)
 	_refresh_language_ui()
 	_refresh_consumo_ui()
 	_refresh_fotosensible_ui()

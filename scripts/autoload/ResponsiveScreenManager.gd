@@ -121,14 +121,11 @@ func _apply_adaptation(panel: Control, options: Dictionary = {}) -> void:
 	var available_w = max(100.0, vp_size.x - (margin_x * 2.0))
 	var available_h = max(100.0, vp_size.y - (margin_y * 2.0))
 	
-	# Cálculo de escala de ajuste para que NUNCA se salga de los bordes
+	# Cálculo de escala de ajuste para que NUNCA se salga de los bordes ni quede diminuto
 	var fit_scale_x = available_w / base_size.x
 	var fit_scale_y = available_h / base_size.y
-	var fit_scale = min(fit_scale_x, fit_scale_y)
-	
-	# Tope máximo: permitir hasta 1.05 para mantener nitidez
-	var max_scale = options.get("max_scale", 1.05)
-	fit_scale = min(fit_scale, max_scale)
+	var fit_scale = min(fit_scale_x, fit_scale_y, 1.0)
+	fit_scale = clampf(fit_scale, 0.65, 1.0)
 	
 	# Ajuste de geometría y pivote para centrado perfecto
 	panel.pivot_offset = base_size * 0.5
@@ -156,28 +153,28 @@ func _adapt_pc_inspection_modal(modal: Node) -> void:
 		title_lbl.visible = false
 		
 	var vp_size = get_current_viewport_size()
-	var margin_x = max(MIN_BORDER_MARGIN_X, vp_size.x * 0.04)
-	var margin_y = max(MIN_BORDER_MARGIN_Y, vp_size.y * 0.04)
+	var margin_x = max(MIN_BORDER_MARGIN_X, vp_size.x * 0.02)
+	var margin_y = max(MIN_BORDER_MARGIN_Y, vp_size.y * 0.02)
 	var available_w = max(100.0, vp_size.x - (margin_x * 2.0))
 	var available_h = max(100.0, vp_size.y - (margin_y * 2.0))
 	
-	# Dimensiones base compactas
-	var base_panel_w = 960.0
-	var base_panel_h = 500.0
+	# Dimensiones base optimizadas
+	var base_panel_w = 950.0
+	var base_panel_h = 510.0
 	var base_dock_w = 120.0
-	var base_dock_h = 500.0
+	var base_dock_h = 510.0
 	var sep = 12.0
 	
-	var total_w = base_panel_w + sep + base_dock_w # 1092.0
+	var total_w = base_panel_w + sep + base_dock_w # 1082.0
 	var total_h = base_panel_h
 	
-	# Escala compacta para que el menú de la PC quede bien holgado y nunca se salga
-	var fit_scale = min(available_w / total_w, available_h / total_h) * 0.82
-	fit_scale = clampf(fit_scale, 0.60, 0.85)
+	# Escala homogénea y legible: nunca menor a 0.82 ni mayor a 1.0
+	var fit_scale = min(available_w / total_w, available_h / total_h, 1.0)
+	fit_scale = clampf(fit_scale, 0.82, 1.0)
 	
 	# Centrado conjunto exacto de Panel + ToolsDock
-	var panel_center_offset = (-total_w * 0.5 + base_panel_w * 0.5) * fit_scale
-	var dock_center_offset = (total_w * 0.5 - base_dock_w * 0.5) * fit_scale
+	var panel_center_offset = (-total_w * 0.5 + base_panel_w * 0.5)
+	var dock_center_offset = (total_w * 0.5 - base_dock_w * 0.5)
 	
 	panel.pivot_offset = Vector2(base_panel_w * 0.5, base_panel_h * 0.5)
 	panel.scale = Vector2(fit_scale, fit_scale)
@@ -337,8 +334,8 @@ func _on_node_added(node: Node) -> void:
 		# Ejecutar en el próximo frame tras el _ready del nodo para tener dimensiones finales
 		call_deferred("_try_auto_adapt_node", node)
 
-func _try_auto_adapt_node(node: Node) -> void:
-	if not is_instance_valid(node) or not node.is_inside_tree():
+func _try_auto_adapt_node(node: Variant = null) -> void:
+	if not is_instance_valid(node) or not (node is Node) or not node.is_inside_tree():
 		return
 		
 	if node.name == "HUD" and node is Control:

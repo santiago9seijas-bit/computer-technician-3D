@@ -6,6 +6,7 @@ var current_pc = null
 var cooler_minigame_scene: PackedScene = preload("res://scenes/minigames/FanCoolerMinigame.tscn")
 var ram_minigame_scene: PackedScene = preload("res://scenes/minigames/RAMMinigame.tscn")
 var hdd_minigame_scene: PackedScene = preload("res://scenes/minigames/HDDMinigame.tscn")
+var m2_minigame_scene: PackedScene = preload("res://scenes/minigames/M2Minigame.tscn")
 var gpu_minigame_scene: PackedScene = preload("res://scenes/minigames/GPUMinigame.tscn")
 var psu_minigame_scene: PackedScene = preload("res://scenes/minigames/PSUMinigame.tscn")
 var mobo_minigame_scene: PackedScene = preload("res://scenes/minigames/MotherboardMinigame.tscn")
@@ -30,6 +31,8 @@ var liquid_cooling_scene: PackedScene = preload("res://scenes/minigames/LiquidCo
 @onready var card_hdd: PanelContainer = $ModalControl/Panel/VBox/ComponentsContainer/RowMiddle/CardHDD
 @onready var card_mobo: PanelContainer = $ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardMOBO
 @onready var card_psu: PanelContainer = $ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardPSU
+@onready var row_top: Container = get_node_or_null("ModalControl/Panel/VBox/ComponentsContainer/RowTop")
+@onready var row_middle: Container = get_node_or_null("ModalControl/Panel/VBox/ComponentsContainer/RowMiddle")
 @onready var row_bottom: Container = $ModalControl/Panel/VBox/ComponentsContainer/RowBottom
 
 # Etiquetas de estado
@@ -38,6 +41,7 @@ var liquid_cooling_scene: PackedScene = preload("res://scenes/minigames/LiquidCo
 @onready var lbl_status_ram: Label = $ModalControl/Panel/VBox/ComponentsContainer/RowTop/CardRAM/Margin/VBox/Status
 @onready var lbl_status_gpu: Label = $ModalControl/Panel/VBox/ComponentsContainer/RowMiddle/CardGPU/Margin/VBox/Status
 @onready var lbl_status_hdd: Label = $ModalControl/Panel/VBox/ComponentsContainer/RowMiddle/CardHDD/Margin/VBox/Status
+@onready var lbl_title_hdd: Label = get_node_or_null("ModalControl/Panel/VBox/ComponentsContainer/RowMiddle/CardHDD/Margin/VBox/Title")
 @onready var lbl_status_mobo: Label = $ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardMOBO/Margin/VBox/Status
 @onready var lbl_status_psu: Label = $ModalControl/Panel/VBox/ComponentsContainer/RowBottom/CardPSU/Margin/VBox/Status
 
@@ -396,8 +400,33 @@ func _on_slot_clicked(idx: int) -> void:
 	_show_feedback("👉 Repuesto [%s] seleccionado. Haz clic en el cuadro del componente o en 'MONTAR' para instalarlo." % it.get("name", ""), true)
 	_refresh_ui()
 
+func _get_current_tutorial_component() -> String:
+	if current_pc and current_pc.has_meta("tutorial_component"):
+		var tc = str(current_pc.get_meta("tutorial_component")).to_lower()
+		if tc != "":
+			return tc
+	if get_tree() and get_tree().current_scene:
+		var scene_name = get_tree().current_scene.name
+		if "LevelTutorialGPU" in scene_name: return "gpu"
+		elif "LevelTutorialCPU" in scene_name: return "cpu"
+		elif "LevelTutorialCooler" in scene_name: return "cooler"
+		elif "LevelTutorialHDD" in scene_name: return "hdd"
+		elif "LevelTutorialRAM" in scene_name: return "ram"
+		elif "LevelTutorialPSU" in scene_name: return "psu"
+		elif "LevelTutorial" in scene_name and "tutorial_component" in get_tree().current_scene:
+			return str(get_tree().current_scene.tutorial_component).to_lower()
+	var gm = get_node_or_null("/root/GameManager")
+	if gm and "tutorial_target_component" in gm:
+		var tc2 = str(gm.tutorial_target_component).to_lower()
+		if tc2 != "":
+			return tc2
+	return "general"
+
 func _is_component_locked_for_tutorial(comp_name: String) -> bool:
 	if current_pc == null or not current_pc.get_meta("is_tutorial_pc", false):
+		return false
+	var tut_comp = _get_current_tutorial_component()
+	if tut_comp != "" and tut_comp != "general":
 		return false
 		
 	var ram_done = current_pc.components.get("RAM", "") in ["ok", "fixed"]
@@ -444,6 +473,8 @@ func _try_install_spare(backpack_idx: int, target_comp: String) -> void:
 		_open_ram_minigame(true, item.get("ram_type", ""))
 	elif target_comp == "Disco Duro":
 		_open_hdd_minigame(true, item.get("drive_type", ""))
+	elif target_comp == "Grafica":
+		_open_gpu_minigame(true, item.get("gpu_type", ""))
 	else:
 		_open_minigame_by_name(target_comp, true)
 
@@ -818,6 +849,24 @@ func _refresh_ui() -> void:
 	var ram_spec = ("%s 16GB · 1.35V · DIMM_A2" % current_pc.ram_type.to_upper()) if (current_pc and "ram_type" in current_pc) else "DDR5 16GB · 1.35V · DIMM_A2"
 	var drive_spec = ("NVMe PCIe 4.0 x4 · M2_0" if current_pc.get("drive_type") == "m2" else "SATA 6Gbps · PORT_0") if (current_pc and "drive_type" in current_pc) else "NVMe PCIe 4.0 x4 · M2_0"
 	var cpu_spec = ("AMD RYZEN 3 · AM4 · 65W TDP" if (current_pc and current_pc.get("cpu_brand") == "amd") else "INTEL CORE I5 · LGA1700 · 125W TDP") if (current_pc and "cpu_brand" in current_pc) else "INTEL CORE I5 · LGA1700 · 125W TDP"
+
+	var is_tut_pc: bool = (current_pc and current_pc.has_meta("is_tutorial_pc") and current_pc.get_meta("is_tutorial_pc")) or (get_tree().current_scene and "LevelTutorial" in get_tree().current_scene.name)
+	var tut_comp: String = _get_current_tutorial_component() if is_tut_pc else ""
+
+	if is_tut_pc and tut_comp == "hdd" and is_instance_valid(current_pc):
+		var s_part = current_pc.get_meta("storage_part", 1)
+		if s_part == 1:
+			drive_spec = "SSD M.2 NVMe (Parte 1: Desmontaje de Placa)"
+			if is_instance_valid(lbl_title_hdd):
+				lbl_title_hdd.text = "💾 ALMACENAMIENTO // SSD M.2 (PARTE 1)"
+		else:
+			drive_spec = "Disco HDD 3.5\" Mecánico (Parte 2: Bahía SATA)"
+			if is_instance_valid(lbl_title_hdd):
+				lbl_title_hdd.text = "💾 ALMACENAMIENTO // DISCO HDD (PARTE 2)"
+	else:
+		if is_instance_valid(lbl_title_hdd):
+			lbl_title_hdd.text = "💾 ALMACENAMIENTO M.2/SATA"
+
 	var comp_subtitles = {
 		"RAM": ram_spec,
 		"Disco Duro": drive_spec,
@@ -836,8 +885,6 @@ func _refresh_ui() -> void:
 			has_liquid_kit = true
 			break
 
-	var is_tut_pc: bool = (current_pc and current_pc.has_meta("is_tutorial_pc") and current_pc.get_meta("is_tutorial_pc")) or (get_tree().current_scene and "LevelTutorial" in get_tree().current_scene.name)
-
 	for comp_name in comp_cards.keys():
 		var status = comps_dict.get(comp_name, "ok")
 		var sb: StyleBoxFlat = card_styleboxes[comp_name]
@@ -855,12 +902,13 @@ func _refresh_ui() -> void:
 		match status:
 			"empty":
 				var spare_idx = _find_spare_in_backpack(comp_name)
+				var loc = get_node_or_null("/root/LocalizationManager")
 				if spare_idx != -1:
 					var spare_item = GameManager.backpack[spare_idx]
 					var spare_name = spare_item.get("name", comp_name)
 					lbl.text = "%s\n[ ⚡ REPUESTO DETECTADO EN MOCHILA ]\n(Pulsa 'PONER' o haz clic para instalar)" % sub
 					lbl.modulate = Color(0.2, 1.0, 0.65, 1.0)
-					btn_sacar.text = "⬆ PONER"
+					btn_sacar.text = loc.translate_text("⬆ PONER") if loc else "⬆ PONER"
 					btn_sacar.disabled = false
 					btn_sacar.modulate = Color(0.2, 1.0, 0.65, 1.0)
 				else:
@@ -870,17 +918,19 @@ func _refresh_ui() -> void:
 					else:
 						lbl.text = "%s\n[ ⚠️ ZÓCALO VACÍO ]\n(Consigue el repuesto en las cajas del taller)" % sub
 						lbl.modulate = Color(1.0, 0.72, 0.22, 1.0)
-					btn_sacar.text = "⚠️ VACÍO"
+					btn_sacar.text = loc.translate_text("⚠️ VACÍO") if loc else "⚠️ VACÍO"
 					btn_sacar.disabled = true
 					btn_sacar.modulate = Color(0.6, 0.6, 0.6, 0.6)
 			"fixed":
 				lbl.text = "%s\n[ ✓ COMPONENTE OPERATIVO AL 100%% ]" % sub
 				lbl.modulate = Color(0.0, 1.0, 0.55, 1.0)
-				btn_sacar.text = "⬇ SACAR"
+				var loc = get_node_or_null("/root/LocalizationManager")
+				btn_sacar.text = loc.translate_text("⬇ SACAR") if loc else "⬇ SACAR"
 				btn_sacar.disabled = false
 				btn_sacar.modulate = Color(0.7, 0.9, 1.0, 0.9)
 			_:
-				btn_sacar.text = "⬇ SACAR"
+				var loc = get_node_or_null("/root/LocalizationManager")
+				btn_sacar.text = loc.translate_text("⬇ SACAR") if loc else "⬇ SACAR"
 				btn_sacar.disabled = false
 				if examined_st == "broken":
 					lbl.text = "%s\n[ ❌ DEFECTUOSO // FALLA DETECTADA ]\n(Pulsa 'SACAR' para desmontar)" % sub
@@ -895,8 +945,8 @@ func _refresh_ui() -> void:
 					lbl.modulate = Color(1.0, 0.75, 0.2, 1.0)
 					btn_sacar.modulate = Color(1.0, 1.0, 1.0, 1.0)
 
-		# Bloqueo visual progresivo exclusivo para el tutorial
-		if is_tut_pc:
+		# Bloqueo visual progresivo exclusivo para el tutorial general (cuando tut_comp == "general")
+		if is_tut_pc and (tut_comp == "" or tut_comp == "general"):
 			var ram_done = current_pc.components.get("RAM", "") in ["ok", "fixed"]
 			var ssd_done = current_pc.components.get("Disco Duro", "") in ["ok", "fixed"]
 			if not ram_done and comp_name != "RAM":
@@ -931,47 +981,58 @@ func _refresh_ui() -> void:
 					btn_ex.text = "🔍 EXAMINAR"
 					btn_ex.modulate = Color(1.0, 1.0, 1.0, 1.0)
 
-	# En el tutorial solo se muestra RAM, Fuente de Poder y Almacenamiento (SSD/HDD)
-	if is_tut_pc:
-		if card_cpu:
-			card_cpu.visible = false
-		if card_cooler:
-			card_cooler.visible = false
-		if card_ram:
-			card_ram.visible = true
-		if card_gpu:
-			card_gpu.visible = false
+	# Visibilidad de tarjetas según modo (tutorial específico, tutorial general o nivel normal)
+	if is_tut_pc and tut_comp != "" and tut_comp != "general":
+		if card_cpu: card_cpu.visible = (tut_comp == "cpu")
+		if card_cooler: card_cooler.visible = (tut_comp == "cooler")
+		if card_ram: card_ram.visible = (tut_comp == "ram")
+		if card_gpu: card_gpu.visible = (tut_comp == "gpu")
+		if card_hdd:
+			card_hdd.visible = (tut_comp == "hdd")
+			var hdd_title = card_hdd.get_node_or_null("Margin/VBox/Title") as Label
+			if hdd_title:
+				if is_instance_valid(current_pc) and current_pc.get_meta("storage_part", 1) == 1:
+					hdd_title.text = "💾 ALMACENAMIENTO // SSD M.2 (PARTE 1)"
+				else:
+					hdd_title.text = "💾 ALMACENAMIENTO // DISCO HDD (PARTE 2)"
+		if card_mobo: card_mobo.visible = false
+		if card_psu: card_psu.visible = (tut_comp == "psu")
+		
+		if row_top: row_top.visible = (tut_comp in ["cpu", "cooler", "ram"])
+		if row_middle: row_middle.visible = (tut_comp in ["gpu", "hdd"])
+		if row_bottom: row_bottom.visible = (tut_comp in ["psu"])
+	elif is_tut_pc:
+		# Tutorial general / inducción completa
+		if card_cpu: card_cpu.visible = true
+		if card_cooler: card_cooler.visible = true
+		if card_ram: card_ram.visible = true
+		if card_gpu: card_gpu.visible = true
 		if card_hdd:
 			card_hdd.visible = true
 			var hdd_title = card_hdd.get_node_or_null("Margin/VBox/Title") as Label
 			if hdd_title:
 				hdd_title.text = "ALMACENAMIENTO (SSD / HDD)"
-		if card_mobo:
-			card_mobo.visible = false
-		if card_psu:
-			card_psu.visible = true
-		if row_bottom:
-			row_bottom.visible = true
+		if card_mobo: card_mobo.visible = false
+		if card_psu: card_psu.visible = true
+		if row_top: row_top.visible = true
+		if row_middle: row_middle.visible = true
+		if row_bottom: row_bottom.visible = true
 	else:
-		if card_cpu:
-			card_cpu.visible = true
-		if card_cooler:
-			card_cooler.visible = true
-		if card_ram:
-			card_ram.visible = true
-		if card_gpu:
-			card_gpu.visible = true
+		# Niveles normales de juego (Nivel 1 al 12)
+		if card_cpu: card_cpu.visible = true
+		if card_cooler: card_cooler.visible = true
+		if card_ram: card_ram.visible = true
+		if card_gpu: card_gpu.visible = true
 		if card_hdd:
 			card_hdd.visible = true
 			var hdd_title = card_hdd.get_node_or_null("Margin/VBox/Title") as Label
 			if hdd_title:
 				hdd_title.text = "ALMACENAMIENTO (M.2 / SATA)"
-		if card_mobo:
-			card_mobo.visible = true
-		if card_psu:
-			card_psu.visible = true
-		if row_bottom:
-			row_bottom.visible = true
+		if card_mobo: card_mobo.visible = true
+		if card_psu: card_psu.visible = true
+		if row_top: row_top.visible = true
+		if row_middle: row_middle.visible = true
+		if row_bottom: row_bottom.visible = true
 	
 	# Actualizar slots de mochila
 	for i in range(slot_buttons.size()):
@@ -1093,7 +1154,7 @@ func _open_cooler_minigame(is_empty: bool) -> void:
 	modal_control.visible = false
 	var minigame = cooler_minigame_scene.instantiate()
 	minigame.start_as_empty_slot = is_empty
-	minigame.set("is_tutorial_mode", false)
+	minigame.set("is_tutorial_mode", _get_current_tutorial_component() == "cooler")
 	get_tree().root.add_child(minigame)
 	
 	minigame.connect("old_part_extracted", func():
@@ -1120,7 +1181,7 @@ func _open_ram_minigame(is_empty: bool, preferred_ram_type: String = "") -> void
 	modal_control.visible = false
 	var minigame = ram_minigame_scene.instantiate()
 	minigame.start_as_empty_slot = is_empty
-	minigame.set("is_tutorial_mode", false)
+	minigame.set("is_tutorial_mode", _get_current_tutorial_component() == "ram")
 	if preferred_ram_type != "":
 		minigame.set_ram_type(preferred_ram_type)
 	elif not is_empty and current_pc and "ram_type" in current_pc:
@@ -1151,10 +1212,15 @@ func _open_ram_minigame(is_empty: bool, preferred_ram_type: String = "") -> void
 	)
 
 func _open_hdd_minigame(is_empty: bool, preferred_drive_type: String = "") -> void:
+	var is_tut_storage = (_get_current_tutorial_component() == "hdd")
+	if is_tut_storage and is_instance_valid(current_pc) and current_pc.get_meta("storage_part", 1) == 1:
+		_open_m2_tutorial_minigame(is_empty)
+		return
+
 	modal_control.visible = false
 	var minigame = hdd_minigame_scene.instantiate()
 	minigame.start_as_empty_slot = is_empty
-	minigame.set("is_tutorial_mode", false)
+	minigame.set("is_tutorial_mode", is_tut_storage)
 	if current_pc and "saved_screw_type" in current_pc and current_pc.saved_screw_type != "":
 		minigame.screw_type = current_pc.saved_screw_type
 	if preferred_drive_type != "":
@@ -1176,8 +1242,8 @@ func _open_hdd_minigame(is_empty: bool, preferred_drive_type: String = "") -> vo
 		minigame.queue_free()
 		modal_control.visible = true
 		if success and current_pc:
-			var d_type = minigame.get("current_drive_type") if minigame.get("current_drive_type") != null else "m2"
-			var d_lbl = "SSD M.2 NVMe" if d_type == "m2" else "SSD SATA"
+			var d_type = minigame.get("current_drive_type") if minigame.get("current_drive_type") != null else "hdd"
+			var d_lbl = "Disco HDD" if d_type == "hdd" else ("SSD M.2 NVMe" if d_type == "m2" else "SSD SATA")
 			if is_empty:
 				current_pc.components["Disco Duro"] = "fixed"
 				if "drive_type" in current_pc:
@@ -1187,20 +1253,91 @@ func _open_hdd_minigame(is_empty: bool, preferred_drive_type: String = "") -> vo
 				GameManager.register_repair(100, 10.0)
 				_show_feedback("✓ ¡Unidad %s nueva instalada y testeada!" % d_lbl, true)
 			else:
-				_show_feedback("✓ Unidad %s averiada retirada. Puerto libre para repuesto." % d_lbl, true)
+				_show_feedback("✓ Unidad %s averiada retirada. Bahía libre para repuesto." % d_lbl, true)
 		_refresh_ui()
 	)
 
-func _open_gpu_minigame(is_empty: bool) -> void:
+func _open_m2_tutorial_minigame(is_empty: bool = false) -> void:
+	modal_control.visible = false
+	var minigame = m2_minigame_scene.instantiate()
+	minigame.start_as_empty_slot = is_empty
+	get_tree().root.add_child(minigame)
+	
+	minigame.connect("minigame_finished", func(success: bool):
+		minigame.queue_free()
+		modal_control.visible = true
+		if success and is_instance_valid(current_pc):
+			if not is_empty:
+				# Extracción de SSD averiado completada -> Zócalo vacío
+				current_pc.components["Disco Duro"] = "empty"
+				_clear_examined_status("Disco Duro")
+				current_pc.update_3d_state()
+				_show_feedback("✓ ¡SSD averiado extraído! Ve a la caja de repuestos en el taller a recoger uno nuevo.", true)
+			else:
+				# Instalación de SSD nuevo completada -> Ahora pasamos a Parte 2 (Disco HDD)
+				current_pc.components["Disco Duro"] = "fixed"
+				_set_examined_status("Disco Duro", "ok")
+				current_pc.set_meta("storage_part", 2)
+				current_pc.drive_type = "hdd"
+				current_pc.components["Disco Duro"] = "broken"
+				_clear_examined_status("Disco Duro")
+				current_pc.update_3d_state()
+				_show_feedback("✓ ¡SSD nuevo instalado con éxito! Iniciando Parte 2: Disco HDD...", true)
+				
+				var tut_found = false
+				var p = current_pc.get_parent()
+				while p != null:
+					if p.has_method("_on_m2_tutorial_part_completed"):
+						p._on_m2_tutorial_part_completed()
+						tut_found = true
+						break
+					p = p.get_parent()
+				if not tut_found:
+					var tut_scene = get_tree().current_scene
+					if tut_scene and tut_scene.has_method("_on_m2_tutorial_part_completed"):
+						tut_scene._on_m2_tutorial_part_completed()
+					else:
+						for child in get_tree().root.get_children():
+							if child.has_method("_on_m2_tutorial_part_completed"):
+								child._on_m2_tutorial_part_completed()
+								break
+		_refresh_ui()
+	)
+
+func _open_gpu_minigame(is_empty: bool, preferred_gpu_type: String = "") -> void:
 	modal_control.visible = false
 	var minigame = gpu_minigame_scene.instantiate()
 	minigame.start_as_empty_slot = is_empty
-	minigame.set("is_tutorial_mode", false)
+	var is_tut = (_get_current_tutorial_component() == "gpu")
+	minigame.is_tutorial_mode = is_tut
+	if is_tut:
+		preferred_gpu_type = "monocooler"
+	if preferred_gpu_type == "":
+		if not is_empty and is_instance_valid(current_pc) and "gpu_type" in current_pc and current_pc.gpu_type != "":
+			preferred_gpu_type = current_pc.gpu_type
+		else:
+			var sp_idx = _find_spare_in_backpack("Grafica")
+			if sp_idx != -1:
+				var sp_item = GameManager.backpack[sp_idx]
+				if sp_item is Dictionary and "gpu_type" in sp_item:
+					preferred_gpu_type = str(sp_item.get("gpu_type", ""))
+			elif is_instance_valid(current_pc) and "gpu_type" in current_pc and current_pc.gpu_type != "":
+				preferred_gpu_type = current_pc.gpu_type
+				
+	if preferred_gpu_type != "" and minigame.has_method("set_gpu_type_by_name"):
+		minigame.set_gpu_type_by_name(preferred_gpu_type)
+	elif is_instance_valid(current_pc) and "gpu_type" in current_pc and current_pc.gpu_type != "":
+		minigame.set_gpu_type_by_name(current_pc.gpu_type)
 	get_tree().root.add_child(minigame)
 	
 	minigame.connect("old_part_extracted", func():
 		current_pc.components["Grafica"] = "empty"
 		_clear_examined_status("Grafica")
+		if is_instance_valid(current_pc):
+			var t_str = "monocooler" if minigame.current_gpu_type == minigame.GPUType.MONO_COOLER else "dual_cooler"
+			if "gpu_type" in current_pc:
+				current_pc.gpu_type = t_str
+			current_pc.set_meta("gpu_type", t_str)
 		current_pc.update_3d_state()
 	)
 	minigame.connect("minigame_finished", func(success: bool):
@@ -1210,11 +1347,17 @@ func _open_gpu_minigame(is_empty: bool) -> void:
 			if is_empty:
 				current_pc.components["Grafica"] = "fixed"
 				_set_examined_status("Grafica", "ok")
+				var t_str = "monocooler" if minigame.current_gpu_type == minigame.GPUType.MONO_COOLER else "dual_cooler"
+				if is_instance_valid(current_pc):
+					if "gpu_type" in current_pc:
+						current_pc.gpu_type = t_str
+					current_pc.set_meta("gpu_type", t_str)
 				current_pc.update_3d_state()
 				GameManager.register_repair(100, 10.0)
 				_show_feedback("✓ ¡Tarjeta Gráfica nueva instalada y testeada!", true)
 			else:
-				_show_feedback("✓ Tarjeta Gráfica averiada retirada. Slot PCIe libre para repuesto.", true)
+				var exact_gpu = "Monocooler" if minigame.current_gpu_type == minigame.GPUType.MONO_COOLER else "Dual Cooler"
+				_show_feedback("✓ Tarjeta Gráfica (%s) averiada retirada. Ranura PCIe lista." % exact_gpu, true)
 		_refresh_ui()
 	)
 
@@ -1222,7 +1365,7 @@ func _open_psu_minigame(is_empty: bool) -> void:
 	modal_control.visible = false
 	var minigame = psu_minigame_scene.instantiate()
 	minigame.start_as_empty_slot = is_empty
-	minigame.set("is_tutorial_mode", false)
+	minigame.set("is_tutorial_mode", _get_current_tutorial_component() == "psu")
 	get_tree().root.add_child(minigame)
 	
 	minigame.connect("old_part_extracted", func():
@@ -1249,7 +1392,7 @@ func _open_mobo_minigame(is_empty: bool) -> void:
 	modal_control.visible = false
 	var minigame = mobo_minigame_scene.instantiate()
 	minigame.start_as_empty_slot = is_empty
-	minigame.set("is_tutorial_mode", false)
+	minigame.set("is_tutorial_mode", _get_current_tutorial_component() == "mobo")
 	get_tree().root.add_child(minigame)
 	
 	minigame.connect("old_part_extracted", func():
@@ -1276,7 +1419,9 @@ func _open_cpu_minigame(is_empty: bool) -> void:
 	modal_control.visible = false
 	var minigame = cpu_minigame_scene.instantiate()
 	minigame.start_as_empty_slot = is_empty
-	minigame.set("is_tutorial_mode", false)
+	minigame.set("is_tutorial_mode", _get_current_tutorial_component() == "cpu")
+	if current_pc and "cpu_brand" in current_pc and current_pc.cpu_brand != "":
+		minigame.set("cpu_brand", current_pc.cpu_brand)
 	get_tree().root.add_child(minigame)
 	
 	minigame.connect("old_part_extracted", func():

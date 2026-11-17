@@ -7,7 +7,7 @@
 [ext_resource type="FontFile" uid="uid://dbcug8887dro7" path="res://assets/fonts/Bungee-Regular.ttf" id="5_title_font"]
 [ext_resource type="Texture2D" uid="uid://sipfcv4twukw" path="res://pixel art minijuegos/memoriastipos/ssd/memoria.png" id="6_sata"]
 [ext_resource type="Texture2D" uid="uid://b1pj41xlrukgf" path="res://pixel art minijuegos/memoriastipos/m.2/memoria M.2.png" id="7_m2"]
-[ext_resource type="Texture2D" uid="uid://cfu6snirrk8ms" path="res://pixel art minijuegos/memoriastipos/soporte para ssd/placa.png" id="8_hdd"]
+[ext_resource type="Texture2D" path="res://pixel art minijuegos/memoriastipos/hdd/disco_hdd_caja.png" id="8_hdd"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_main"]
 

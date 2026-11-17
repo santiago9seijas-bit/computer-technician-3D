@@ -298,6 +298,22 @@ spare_type = "Disco Duro"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.6, 0.1, 1.2)
 spare_type = "Fuente"
 
+[node name="SparesGPU" parent="." instance=ExtResource("7_spares")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.6, 0.1, 0.0)
+spare_type = "Grafica"
+
+[node name="SparesCooler" parent="." instance=ExtResource("7_spares")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.6, 0.1, 1.2)
+spare_type = "Fan Cooler"
+
+[node name="SparesCPU" parent="." instance=ExtResource("7_spares")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.6, 0.1, 2.4)
+spare_type = "CPU"
+
+[node name="SparesMaster" parent="." instance=ExtResource("7_spares")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.6, 0.1, 2.4)
+spare_type = "TODOS"
+
 [node name="Player" parent="." instance=ExtResource("2_player")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.15, 0.9)
 
