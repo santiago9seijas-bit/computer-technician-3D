@@ -224,6 +224,9 @@ func reset_slot(slot_index: int) -> Dictionary:
 	return fresh_data
 
 func is_node_unlocked(mode: String, node_idx: int) -> bool:
+	# El nivel de introducción (nodo 0) de reparación, sistemas y servidor siempre está desbloqueado
+	if node_idx == 0:
+		return true
 	var data = get_slot(current_slot)
 	var unl_dict = data.get("unlocked_nodes", {})
 	var list = unl_dict.get(mode, [0])

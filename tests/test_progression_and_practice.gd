@@ -31,13 +31,23 @@ func _test_level_select_initial_locks() -> void:
 
 	var rep_list = ls.LEVELS_DATA.get("reparacion", [])
 	assert(rep_list.size() == 26, "Reparación debe tener 26 nodos")
-	assert(rep_list[0]["can_play"] == true, "Tutorial 0 (Introducción) debe ser el ÚNICO desbloqueado al inicio")
+	assert(rep_list[0]["can_play"] == true, "Tutorial 0 (Introducción) de Reparación debe estar siempre desbloqueado")
+
+	var sis_list_init = ls.LEVELS_DATA.get("sistema", [])
+	assert(sis_list_init.size() == 26, "Sistemas debe tener 26 nodos")
+	assert(sis_list_init[0]["can_play"] == true, "Tutorial 0 (Introducción) de Sistemas debe estar siempre desbloqueado")
+
+	var srv_list_init = ls.LEVELS_DATA.get("servidor", [])
+	assert(srv_list_init[0]["can_play"] == true, "Tutorial 0 (Introducción) de Servidor debe estar siempre desbloqueado")
 
 	# Todos los demás nodos deben estar bloqueados
 	for i in range(1, rep_list.size()):
-		assert(rep_list[i]["can_play"] == false, "Nodo %d debe estar bloqueado al inicio" % i)
+		assert(rep_list[i]["can_play"] == false, "Nodo %d de reparación debe estar bloqueado al inicio" % i)
 
-	print("  ✓ Tutorial 0 desbloqueado, los 25 nodos restantes están estrictamente bloqueados")
+	for i in range(1, sis_list_init.size()):
+		assert(sis_list_init[i]["can_play"] == false, "Nodo %d de sistemas debe estar bloqueado al inicio" % i)
+
+	print("  ✓ Niveles de introducción de Reparación, Sistemas y Servidor siempre desbloqueados")
 	ls.queue_free()
 	await get_tree().process_frame
 

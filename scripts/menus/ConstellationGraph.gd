@@ -51,6 +51,8 @@ func set_all_unlocked(unlocked: bool) -> void:
 	queue_redraw()
 
 func is_node_unlocked(index: int) -> bool:
+	if index == 0:
+		return true # El nivel de introducción siempre está desbloqueado
 	if node_unlocked_states.has(index):
 		return node_unlocked_states[index]
 	var sm = get_node_or_null("/root/SaveManager")

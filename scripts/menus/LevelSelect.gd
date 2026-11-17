@@ -2923,7 +2923,9 @@ func _sync_progression_from_save() -> void:
 	var list = LEVELS_DATA.get(current_mode, [])
 	for i in range(list.size()):
 		var is_unl = false
-		if sm and sm.has_method("is_node_unlocked"):
+		if i == 0:
+			is_unl = true # Nivel de introducción (reparación, sistemas y servidor) siempre desbloqueado
+		elif sm and sm.has_method("is_node_unlocked"):
 			is_unl = sm.is_node_unlocked(current_mode, i)
 		else:
 			is_unl = (i == 0)
@@ -2962,34 +2964,33 @@ func _check_and_play_pending_unlock() -> void:
 				_show_toast("⚡ ¡NUEVO RETO DESBLOQUEADO EN EL MAPA!")
 
 # =============================================================================
-# CONSOLA DE DESARROLLADOR // ARCH LINUX TERMINAL (CTRL + SHIFT + R & /levels)
+# CONSOLA DE DESARROLLADOR // ANDROMEDA OS TERMINAL (CTRL + SHIFT + R & /levels)
 # =============================================================================
-const ARCH_BANNER_TEXT: String = """[color=#1793d1]       /\\         [/color]  [color=#1793d1][b]user@archlinux[/b][/color]
-[color=#1793d1]      /  \\        [/color]  [color=#6272a4]--------------[/color]
-[color=#1793d1]     /\\   \\       [/color]  [color=#1793d1]OS:[/color] Arch Linux x86_64
-[color=#1793d1]    /      \\      [/color]  [color=#1793d1]Host:[/color] Computer Technician 3D Workstation
-[color=#1793d1]   /   ,,   \\     [/color]  [color=#1793d1]Kernel:[/color] 6.12.9-arch1-1-zen
-[color=#1793d1]  /   |  |  -\\    [/color]  [color=#1793d1]Uptime:[/color] 42 mins
-[color=#1793d1] /_-''    ''-_\\   [/color]  [color=#1793d1]Packages:[/color] 1337 (pacman)
-                    [color=#1793d1]Shell:[/color] zsh 5.9 / bash 5.2
-                    [color=#1793d1]WM:[/color] Hyprland (Wayland)
-                    [color=#1793d1]Terminal:[/color] alacritty (xterm-256color)
-                    [color=#1793d1]CPU:[/color] AMD Ryzen 9 7950X (32) @ 5.70GHz
-                    [color=#1793d1]GPU:[/color] NVIDIA GeForce RTX 4090 24GB
-                    [color=#1793d1]Memory:[/color] 32768MiB / 65536MiB
+const ANDROMEDA_BANNER_TEXT: String = """[color=#00e5ff]       /\\         [/color]  [color=#00e5ff][b]user@andromeda[/b][/color]
+[color=#00e5ff]      /  \\        [/color]  [color=#6272a4]-------------------------[/color]
+[color=#00e5ff]     / /\\ \\       [/color]  [color=#00e5ff]OS:[/color] Andromeda OS v2.5 (Cyber Linux)
+[color=#00e5ff]    / ____ \\      [/color]  [color=#00e5ff]Host:[/color] Computer Technician 3D Workstation
+[color=#00e5ff]   /_/    \\_\\     [/color]  [color=#00e5ff]Kernel:[/color] 2.5.0-andromeda-core
+                    [color=#00e5ff]Uptime:[/color] 42 mins
+                    [color=#00e5ff]Packages:[/color] 1337 (andromeda-pkg)
+                    [color=#00e5ff]Shell:[/color] andromeda-sh / zsh
+                    [color=#00e5ff]Terminal:[/color] Andromeda CyberTerminal
+                    [color=#00e5ff]CPU:[/color] Andromeda Quantum Core (32) @ 5.70GHz
+                    [color=#00e5ff]GPU:[/color] NVIDIA GeForce RTX 4090 24GB
+                    [color=#00e5ff]Memory:[/color] 32768MiB / 65536MiB
 
-[color=#50fa7b]user@archlinux[/color]:[color=#1793d1]~[/color]$ [color=#f8f8f2]systemctl status technician3d.service[/color]
-[color=#50fa7b]● technician3d.service - Computer Technician 3D System Core[/color]
-   Loaded: loaded (/etc/systemd/system/technician3d.service; enabled)
+[color=#50fa7b]user@andromeda[/color]:[color=#00e5ff]~[/color]$ [color=#f8f8f2]systemctl status andromeda-kernel.service[/color]
+[color=#50fa7b]● andromeda-kernel.service - Andromeda OS Core Engine[/color]
+   Loaded: loaded (/etc/systemd/system/andromeda-kernel.service; enabled)
    Active: [color=#50fa7b]active (running)[/color] since Mon 2026-11-17 02:30:00 UTC
 
-[color=#f1fa8c]💡 Comandos disponibles en Arch:[/color]
-  [color=#1793d1]/levels[/color]   (o [color=#50fa7b]pacman -S levels[/color])    : Desbloquea todos los niveles y modos al instante
-  [color=#1793d1]/reset[/color]    (o [color=#ff5555]pacman -R progression[/color]) : Restablece progreso al estado inicial
-  [color=#1793d1]/neofetch[/color] (o [color=#50fa7b]fastfetch[/color])             : Muestra el logo y specs de Arch Linux
-  [color=#1793d1]/clear[/color]    (o [color=#50fa7b]clear[/color])                 : Limpia la terminal
-  [color=#1793d1]/help[/color]     (o [color=#50fa7b]man[/color])                   : Manual de comandos
-  [color=#1793d1]/exit[/color]     (o [color=#ff5555]exit[/color])                  : Cerrar terminal
+[color=#f1fa8c]💡 Comandos disponibles en Andromeda OS:[/color]
+  [color=#00e5ff]/levels[/color]   (o [color=#50fa7b]andromeda unlock[/color] / [color=#50fa7b]pacman -S levels[/color]) : Desbloquea todos los niveles y modos
+  [color=#00e5ff]/reset[/color]    (o [color=#ff5555]andromeda reset[/color] / [color=#ff5555]pacman -R all[/color])     : Restablece progreso al estado inicial
+  [color=#00e5ff]/neofetch[/color] (o [color=#50fa7b]fastfetch[/color])                                : Muestra el logo y specs de Andromeda OS
+  [color=#00e5ff]/clear[/color]    (o [color=#50fa7b]clear[/color])                                    : Limpia la terminal
+  [color=#00e5ff]/help[/color]     (o [color=#50fa7b]man[/color])                                      : Manual de comandos
+  [color=#00e5ff]/exit[/color]     (o [color=#ff5555]exit[/color])                                     : Cerrar terminal
 """
 
 func _toggle_dev_console() -> void:
@@ -3019,13 +3020,13 @@ func _build_dev_console() -> void:
 	dim.mouse_filter = Control.MOUSE_FILTER_STOP
 	dev_console_overlay.add_child(dim)
 	
-	# Ventana principal tipo Alacritty / Arch Terminal
+	# Ventana principal Andromeda CyberTerminal
 	var panel = PanelContainer.new()
 	panel.custom_minimum_size = Vector2(780, 480)
 	panel.position = Vector2((1280 - 780) * 0.5, (720 - 480) * 0.5)
 	var sb = StyleBoxFlat.new()
-	sb.bg_color = Color(0.07, 0.09, 0.14, 0.97) # Arch Slate
-	sb.border_color = Color(0.09, 0.58, 0.82, 0.95) # Arch Blue / Cyan (#1793d1)
+	sb.bg_color = Color(0.05, 0.08, 0.13, 0.97) # Andromeda Dark Slate
+	sb.border_color = Color(0.0, 0.88, 1.0, 0.95) # Andromeda Cyan (#00e5ff)
 	sb.border_width_left = 2
 	sb.border_width_top = 2
 	sb.border_width_right = 2
@@ -3034,7 +3035,7 @@ func _build_dev_console() -> void:
 	sb.corner_radius_top_right = 8
 	sb.corner_radius_bottom_left = 8
 	sb.corner_radius_bottom_right = 8
-	sb.shadow_color = Color(0.09, 0.58, 0.82, 0.28)
+	sb.shadow_color = Color(0.0, 0.88, 1.0, 0.28)
 	sb.shadow_size = 24
 	panel.add_theme_stylebox_override("panel", sb)
 	dev_console_overlay.add_child(panel)
@@ -3046,7 +3047,7 @@ func _build_dev_console() -> void:
 	# Barra de título de ventana de Linux/Unix
 	var titlebar = PanelContainer.new()
 	var sb_tb = StyleBoxFlat.new()
-	sb_tb.bg_color = Color(0.05, 0.07, 0.10, 1.0)
+	sb_tb.bg_color = Color(0.03, 0.05, 0.09, 1.0)
 	sb_tb.corner_radius_top_left = 6
 	sb_tb.corner_radius_top_right = 6
 	titlebar.add_theme_stylebox_override("panel", sb_tb)
@@ -3083,9 +3084,9 @@ func _build_dev_console() -> void:
 	hbox_tb.add_child(title_spacer)
 	
 	var lbl_title = Label.new()
-	lbl_title.text = "󰣇 archlinux: ~/andromeda (bash - 80x24)"
+	lbl_title.text = "⚡ andromeda-os: ~/kernel (terminal - 80x24)"
 	lbl_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	lbl_title.add_theme_color_override("font_color", Color(0.09, 0.58, 0.82)) # Arch Blue
+	lbl_title.add_theme_color_override("font_color", Color(0.0, 0.88, 1.0)) # Andromeda Cyan
 	lbl_title.add_theme_font_size_override("font_size", 12)
 	hbox_tb.add_child(lbl_title)
 	
@@ -3116,32 +3117,32 @@ func _build_dev_console() -> void:
 	dev_console_output.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	dev_console_output.add_theme_color_override("default_color", Color(0.9, 0.92, 0.95))
 	dev_console_output.add_theme_font_size_override("normal_font_size", 11)
-	dev_console_output.text = ARCH_BANNER_TEXT
+	dev_console_output.text = ANDROMEDA_BANNER_TEXT
 	body_vbox.add_child(dev_console_output)
 	
 	var hbox_in = HBoxContainer.new()
 	hbox_in.add_theme_constant_override("separation", 6)
 	
 	var prompt_user = Label.new()
-	prompt_user.text = "user@archlinux:"
+	prompt_user.text = "user@andromeda:"
 	prompt_user.add_theme_color_override("font_color", Color(0.31, 0.98, 0.48)) # Green
 	prompt_user.add_theme_font_size_override("font_size", 12)
 	hbox_in.add_child(prompt_user)
 	
 	var prompt_dir = Label.new()
 	prompt_dir.text = "~$ "
-	prompt_dir.add_theme_color_override("font_color", Color(0.09, 0.58, 0.82)) # Arch Blue
+	prompt_dir.add_theme_color_override("font_color", Color(0.0, 0.88, 1.0)) # Andromeda Cyan
 	prompt_dir.add_theme_font_size_override("font_size", 12)
 	hbox_in.add_child(prompt_dir)
 	
 	dev_console_input = LineEdit.new()
 	dev_console_input.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	dev_console_input.placeholder_text = "pacman -S levels (o escribe /levels)..."
+	dev_console_input.placeholder_text = "andromeda unlock (o escribe /levels)..."
 	dev_console_input.text_submitted.connect(_on_dev_command_submitted)
 	dev_console_input.caret_blink = true
 	var sb_input = StyleBoxFlat.new()
-	sb_input.bg_color = Color(0.04, 0.06, 0.09, 0.8)
-	sb_input.border_color = Color(0.09, 0.58, 0.82, 0.6)
+	sb_input.bg_color = Color(0.03, 0.05, 0.08, 0.85)
+	sb_input.border_color = Color(0.0, 0.88, 1.0, 0.6)
 	sb_input.border_width_left = 1
 	sb_input.border_width_top = 1
 	sb_input.border_width_right = 1
@@ -3159,7 +3160,7 @@ func _build_dev_console() -> void:
 	btn_exec.text = " EJECUTAR "
 	btn_exec.pressed.connect(func(): _on_dev_command_submitted(dev_console_input.text))
 	var sb_btn = StyleBoxFlat.new()
-	sb_btn.bg_color = Color(0.09, 0.45, 0.65, 0.9)
+	sb_btn.bg_color = Color(0.0, 0.55, 0.75, 0.9)
 	sb_btn.corner_radius_top_left = 4
 	sb_btn.corner_radius_top_right = 4
 	sb_btn.corner_radius_bottom_left = 4
@@ -3178,33 +3179,32 @@ func _on_dev_command_submitted(cmd: String) -> void:
 	if text_in == "":
 		return
 	
-	_print_dev_console("\n[color=#50fa7b]user@archlinux[/color]:[color=#1793d1]~[/color]$ [color=#f8f8f2]" + text_in + "[/color]")
+	_print_dev_console("\n[color=#50fa7b]user@andromeda[/color]:[color=#00e5ff]~[/color]$ [color=#f8f8f2]" + text_in + "[/color]")
 	var lower = text_in.to_lower()
 	
-	if lower in ["/levels", "/desbloquear", "levels", "pacman -s levels", "pacman -s all-levels", "pacman -syu"]:
+	if lower in ["/levels", "/desbloquear", "levels", "andromeda unlock", "pacman -s levels", "pacman -s all-levels", "pacman -syu"]:
 		_cmd_unlock_all_levels()
-	elif lower in ["/reset", "reset", "pacman -r progression", "pacman -r all"]:
+	elif lower in ["/reset", "reset", "andromeda reset", "pacman -r progression", "pacman -r all"]:
 		_cmd_reset_locks()
 	elif lower in ["/neofetch", "neofetch", "fastfetch"]:
-		_print_dev_console(ARCH_BANNER_TEXT)
+		_print_dev_console(ANDROMEDA_BANNER_TEXT)
 	elif lower in ["/help", "help", "man"]:
-		_print_dev_console("""[color=#1793d1]ARCH LINUX CHEAT UTILITY MANUAL (8)[/color]
-[color=#6272a4]===================================[/color]
+		_print_dev_console("""[color=#00e5ff]ANDROMEDA OS UTILITY MANUAL (8)[/color]
+[color=#6272a4]==============================[/color]
 [b]NOMBRE[/b]
   levels - Desbloqueador de progresión de Computer Technician 3D
 
 [b]SINOPSIS[/b]
-  [color=#1793d1]/levels[/color]                Desbloquea instantáneamente los 26 niveles de Reparación,
+  [color=#00e5ff]/levels[/color]                Desbloquea instantáneamente los 26 niveles de Reparación,
                          26 de Sistemas y 14 de Servidor.
-  [color=#1793d1]/reset[/color]                 Restaura la progresión al estado inicial (solo Tutorial 0).
-  [color=#1793d1]/neofetch[/color]              Muestra información del sistema Arch Linux.
-  [color=#1793d1]/clear[/color]                 Limpia el búfer de la terminal.
-  [color=#1793d1]/exit[/color]                  Cierra la ventana de la terminal.
+  [color=#00e5ff]/reset[/color]                 Restaura la progresión al estado inicial (tutoriales de introducción desbloqueados).
+  [color=#00e5ff]/neofetch[/color]              Muestra información del sistema Andromeda OS.
+  [color=#00e5ff]/clear[/color]                 Limpia el búfer de la terminal.
+  [color=#00e5ff]/exit[/color]                  Cierra la ventana de la terminal.
 
-[b]SOPORTE PACMAN[/b]
-  También puedes ejecutar comandos al estilo Arch:
-  [color=#50fa7b]pacman -S levels[/color]
-  [color=#ff5555]pacman -R progression[/color]""")
+[b]COMANDOS ALTERNATIVOS[/b]
+  [color=#50fa7b]andromeda unlock[/color]   (o pacman -S levels)
+  [color=#ff5555]andromeda reset[/color]    (o pacman -R all)""")
 	elif lower in ["/clear", "clear"]:
 		if dev_console_output:
 			dev_console_output.text = ""
@@ -3212,7 +3212,7 @@ func _on_dev_command_submitted(cmd: String) -> void:
 		if dev_console_overlay:
 			dev_console_overlay.visible = false
 	else:
-		_print_dev_console("[color=#ff5555]zsh: command not found: " + text_in + "[/color]\n[color=#aaaaaa]Escribe [b]/levels[/b] o [b]/help[/b] para ver las opciones disponibles.[/color]")
+		_print_dev_console("[color=#ff5555]andromeda-sh: command not found: " + text_in + "[/color]\n[color=#aaaaaa]Escribe [b]/levels[/b] o [b]/help[/b] para ver las opciones disponibles.[/color]")
 
 func _print_dev_console(msg: String) -> void:
 	if dev_console_output:
@@ -3227,20 +3227,16 @@ func _cmd_unlock_all_levels() -> void:
 		sm.unlock_all_levels()
 	if graph_lines and graph_lines.has_method("set_all_unlocked"):
 		graph_lines.set_all_unlocked(true)
-	_print_dev_console("""[color=#1793d1]:: Sincronizando bases de datos de paquetes...[/color]
- core                                   154.2 KiB   420 KiB/s 00:00 [####################################] 100%
- extra                                    8.9 MiB  12.4 MiB/s 00:01 [####################################] 100%
- multilib                               142.0 KiB   510 KiB/s 00:00 [####################################] 100%
-[color=#1793d1]:: Iniciando actualización completa del sistema...[/color]
+	_print_dev_console("""[color=#00e5ff]:: Sincronizando repositorios de Andromeda OS...[/color]
+ andromeda-core                         154.2 KiB   420 KiB/s 00:00 [####################################] 100%
+ andromeda-hardware                       8.9 MiB  12.4 MiB/s 00:01 [####################################] 100%
+ andromeda-enterprise                   142.0 KiB   510 KiB/s 00:00 [####################################] 100%
+[color=#00e5ff]:: Desplegando módulos del sistema...[/color]
 resolviendo dependencias...
-verificando conflictos...
+verificando integridad de kernel...
 
 Paquetes (3) [color=#50fa7b]reparacion-master-1.0[/color]  [color=#50fa7b]sistema-master-1.0[/color]  [color=#50fa7b]servidor-master-1.0[/color]
 
-Total tamaño de descarga:    0.00 MiB
-Total tamaño de instalación: 100.00 MiB
-
-[color=#50fa7b]:: ¿Continuar con la instalación? [S/n] S[/color]
 (1/3) Desbloqueando Modo Reparación   [####################################] 100%
 (2/3) Desbloqueando Modo Sistemas     [####################################] 100%
 (3/3) Desbloqueando Modo Servidores   [####################################] 100%
@@ -3254,9 +3250,9 @@ func _cmd_reset_locks() -> void:
 	if sm and sm.has_method("reset_progression_lock"):
 		sm.reset_progression_lock()
 	_sync_progression_from_save()
-	_print_dev_console("""[color=#ff5555]:: Eliminando paquetes de progresión avanzada...[/color]
-(1/3) Bloqueando Modo Reparación     [####################################] 100%
-(2/3) Bloqueando Modo Sistemas       [####################################] 100%
-(3/3) Bloqueando Modo Servidores     [####################################] 100%
-[color=#ffaa00]✓ Progreso restablecido: Solo el Tutorial de Introducción está desbloqueado.[/color]""")
+	_print_dev_console("""[color=#ff5555]:: Restableciendo bloqueos de progresión a estado inicial...[/color]
+(1/3) Área de Reparación: Tutorial 0 activo (25 bloqueados) [####################################] 100%
+(2/3) Área de Sistemas:   Tutorial 0 activo (25 bloqueados) [####################################] 100%
+(3/3) Área de Servidor:   Tutorial 0 activo (13 bloqueados) [####################################] 100%
+[color=#ffaa00]✓ Progreso restablecido: Los niveles de introducción de Reparación, Sistemas y Servidor están desbloqueados.[/color]""")
 	_show_toast("Progreso restablecido.")
