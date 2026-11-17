@@ -18,6 +18,8 @@ const SERVER_RACK_SCENE: PackedScene = preload("res://scenes/components/ServerRa
 const OS_MINIGAME_SCENE: PackedScene = preload("res://scenes/minigames/OSInstallMinigame.tscn")
 const MALWARE_MINIGAME_SCENE: PackedScene = preload("res://scenes/minigames/MalwareScannerMinigame.tscn")
 const DRIVER_MINIGAME_SCENE: PackedScene = preload("res://scenes/minigames/DriverUpdaterMinigame.tscn")
+const ADWARE_MINIGAME_SCENE: PackedScene = preload("res://scenes/minigames/AdwareCleanerMinigame.tscn")
+const USB_MINIGAME_SCENE: PackedScene = preload("res://scenes/minigames/UsbPendriveMinigame.tscn")
 
 # Minijuegos para Servidor (2 minijuegos finales)
 const DEBUGGER_MINIGAME_SCENE: PackedScene = preload("res://scenes/minigames/CodeDebuggerMinigame.tscn")
@@ -1203,6 +1205,10 @@ func _has_functional_ram_in_backpack() -> bool:
 # =============================================================================
 
 func _start_sistemas_intro() -> void:
+	if target_component != "general" and target_component != "":
+		_start_targeted_sistemas_tutorial()
+		return
+
 	sys_step = SistemasStep.INTRO
 	var intro_dialogs: Array = [
 		{
@@ -1229,6 +1235,83 @@ func _start_sistemas_intro() -> void:
 		GameManager.spawn_floating_text("Paso 1: Camina a la terminal y presiona [E]", true)
 		if is_instance_valid(systems_pc_inst):
 			systems_pc_inst.custom_prompt = "[E] Instalar Andromeda OS (Partición GPT)"
+		_restore_player_free_movement()
+	)
+
+func _start_targeted_sistemas_tutorial() -> void:
+	var tut_configs: Dictionary = {
+		"os_install": {
+			"sub": "TUTORIAL // INSTALACIÓN DE SISTEMAS & GPT",
+			"prompt": "[E] Instalar Andromeda OS (Partición GPT)",
+			"dialog": "¡A ver esa agilidad con las particiones, crack! Camina a la terminal y presiona [E] para crear la tabla GPT e instalar Andromeda OS.",
+			"scene": OS_MINIGAME_SCENE,
+			"key": "Sistema Operativo"
+		},
+		"malware_scan": {
+			"sub": "TUTORIAL // CIBERDEFENSA & ESCANEO DE MALWARE",
+			"prompt": "[E] Ejecutar Escáner de Malware ClamAV",
+			"dialog": "¡Cuidado que hay gusanos sueltos en memoria, fiera! Camina a la terminal y presiona [E] para pasar el antivirus heurístico.",
+			"scene": MALWARE_MINIGAME_SCENE,
+			"key": "Malware"
+		},
+		"driver_install": {
+			"sub": "TUTORIAL // CONTROLADORES WHQL & MÓDULOS DE KERNEL",
+			"prompt": "[E] Actualizar Controladores WHQL",
+			"dialog": "¡A calibrar esa gráfica y red sin pantallas azules! Camina a la terminal y presiona [E] para instalar los drivers certificados.",
+			"scene": DRIVER_MINIGAME_SCENE,
+			"key": "Drivers"
+		},
+		"adware_cleaner": {
+			"sub": "TUTORIAL // DESINFECCIÓN DE ADWARE & POP-UPS",
+			"prompt": "[E] Iniciar Limpieza de Adware",
+			"dialog": "¡El navegador está infestado de pop-ups engañosos, fiera! Camina a la terminal y presiona [E] para activar el escudo Ad-Blocker.",
+			"scene": ADWARE_MINIGAME_SCENE,
+			"key": "Adware"
+		},
+		"code_debugger": {
+			"sub": "TUTORIAL // PROGRAMACIÓN & DEPURADOR DE CÓDIGO",
+			"prompt": "[E] Abrir IDE de Depuración y Corregir Bugs",
+			"dialog": "¡Se rompió el script de arranque, fiera! Camina a la terminal y presiona [E] para cazar los bugs en el IDE y pasar los tests.",
+			"scene": DEBUGGER_MINIGAME_SCENE,
+			"key": "Debugger"
+		},
+		"usb_backup": {
+			"sub": "TUTORIAL // UNIDADES BOOTEABLES USB & RESPALDO",
+			"prompt": "[E] Crear Unidad USB Booteable de Rescate",
+			"dialog": "¡Hora de preparar el pendrive salvavidas, crack! Camina a la terminal y presiona [E] para flashear la ISO con dd/Ventoy.",
+			"scene": USB_MINIGAME_SCENE,
+			"key": "Pendrive USB"
+		}
+	}
+
+	var conf = tut_configs.get(target_component, tut_configs["os_install"])
+	_set_holo_sub_text(conf["sub"])
+	var dialogs: Array = [
+		{
+			"speaker": "[JEREMIAS // ENTRENAMIENTO GUIADO]",
+			"text": conf["dialog"]
+		}
+	]
+	_show_dialog_sequence(dialogs, func():
+		_set_holo_sub_text(conf["sub"])
+		GameManager.spawn_floating_text("Camina a la terminal y presiona [E]", true)
+		if is_instance_valid(systems_pc_inst):
+			systems_pc_inst.custom_prompt = conf["prompt"]
+			systems_pc_inst.custom_interact_callback = func(_p):
+				_launch_minigame_sistemas(conf["scene"], conf["key"], func(success: bool):
+					if success:
+						var win_dialogs: Array = [
+							{
+								"speaker": "[JEREMIAS // ¡EXCELENTE TRABAJO!]",
+								"text": "¡Naaaaah, qué crack! Protocolo completado al 100%. Reclama tu certificación técnica."
+							}
+						]
+						_show_dialog_sequence(win_dialogs, func():
+							_show_tutorial_victory()
+						)
+					else:
+						_on_sistemas_minigame_failed("¡Casi, fiera! Respira hondo, acércate a la terminal y presiona [E] para intentarlo de nuevo.")
+				)
 		_restore_player_free_movement()
 	)
 
@@ -1526,22 +1609,32 @@ func _show_tutorial_victory() -> void:
 		"psu": 5,
 		"cpu": 6
 	}
-	var current_node_idx = tut_comp_to_node.get(target_component, 0)
+	var tut_comp_to_node_sis: Dictionary = {
+		"general": 0,
+		"os_install": 1,
+		"malware_scan": 2,
+		"driver_install": 3,
+		"adware_cleaner": 4,
+		"code_debugger": 5,
+		"usb_backup": 6
+	}
+	var effective_mode = current_mode if current_mode in ["reparacion", "sistema", "servidor"] else "reparacion"
+	var current_node_idx = tut_comp_to_node_sis.get(target_component, 0) if effective_mode == "sistema" else tut_comp_to_node.get(target_component, 0)
 	var tut_to_practice: Dictionary = {
 		0: 25, # Intro -> Práctica Reto 0
-		1: 19, # Cooler -> Práctica Cooler
-		2: 20, # RAM -> Práctica RAM
-		3: 21, # HDD -> Práctica HDD
-		4: 22, # GPU -> Práctica GPU
-		5: 23, # PSU -> Práctica PSU
-		6: 24  # CPU -> Práctica CPU
+		1: 19, # Módulo 1 -> Práctica 1
+		2: 20, # Módulo 2 -> Práctica 2
+		3: 21, # Módulo 3 -> Práctica 3
+		4: 22, # Módulo 4 -> Práctica 4
+		5: 23, # Módulo 5 -> Práctica 5
+		6: 24  # Módulo 6 -> Práctica 6
 	}
 	var sm = get_node_or_null("/root/SaveManager")
 	if sm:
-		sm.mark_node_completed("reparacion", current_node_idx)
+		sm.mark_node_completed(effective_mode, current_node_idx)
 		if tut_to_practice.has(current_node_idx):
 			var prac_node = tut_to_practice[current_node_idx]
-			sm.unlock_node("reparacion", prac_node)
+			sm.unlock_node(effective_mode, prac_node)
 			SaveManager.just_unlocked_node = prac_node
 
 	if is_instance_valid(victory_modal):

@@ -213,22 +213,41 @@ var MODE_NODES: Dictionary = {
 		Vector2(940, 600), # [24] RETO PRÁCTICA: Procesador CPU (Exterior Sureste)
 		Vector2(680, 360)  # [25] RETO PRÁCTICA: Inducción / 3 PCs Inicial (Centro Este)
 	],
-	# 2. SISTEMA: Telaraña de Diamante Cibernético y Matriz de Kernel Ampliada
+	# 2. SISTEMA: Telaraña de Diamante Cibernético y Matriz de Kernel Ampliada (26 Nodos)
 	"sistema": [
-		Vector2(580, 395), # [0] TUTORIAL: Núcleo Central de Boot & BIOS (AZUL)
-		Vector2(420, 235), # [1] NIVEL 1: Cold Boot POST (Raíz Primaria Noroeste, ROJO)
-		Vector2(740, 235), # [2] NIVEL 2: Firmware Diagnostics (Raíz Noreste)
-		Vector2(740, 555), # [3] NIVEL 3: BIOS Flash (Raíz Sureste)
-		Vector2(420, 555), # [4] NIVEL 4: Secure Boot (Raíz Suroeste)
-		Vector2(580, 85),  # [5] NIVEL 5: Tabla GPT (Ápice Medio Norte)
-		Vector2(960, 395), # [6] NIVEL 6: Cargador GRUB/BCD (Ápice Medio Este)
-		Vector2(580, 690), # [7] NIVEL 7: Kernel Ring 0 (Ápice Medio Sur)
-		Vector2(200, 395), # [8] NIVEL 8: Sandbox Malware (Ápice Medio Oeste)
-		Vector2(180, 85),  # [9] NIVEL 9: Registro HKLM (Vértice Exterior Noroeste)
-		Vector2(980, 85),  # [10] NIVEL 10: Protección ASLR (Vértice Exterior Noreste)
-		Vector2(980, 690), # [11] NIVEL 11: Rescate BitLocker (Vértice Exterior Sureste)
-		Vector2(180, 690), # [12] NIVEL 12: SysAdmin Master (Vértice Exterior Suroeste)
-		Vector2(300, 260)  # [13] SALA DE PRÁCTICA: Distanciada del Nivel 1 (NARANJA NEÓN)
+		# --- NÚCLEO CENTRAL TUTORIAL [0] ---
+		Vector2(500, 360), # [0] TUTORIAL: Protocolo de Boot & BIOS // Andromeda OS (AZUL)
+
+		# --- TUTORIALES ESPECÍFICOS DE SISTEMAS [1 - 6] (Anillo Hexagonal Interior) ---
+		Vector2(380, 240), # [1] TUTORIAL: Instalación de Sistemas & Tabla GPT
+		Vector2(620, 210), # [2] TUTORIAL: Ciberdefensa & Escaneo de Malware ClamAV
+		Vector2(780, 270), # [3] TUTORIAL: Controladores WHQL & Módulos de Kernel
+		Vector2(780, 450), # [4] TUTORIAL: Desinfección de Adware & Escudo Pop-ups
+		Vector2(620, 510), # [5] TUTORIAL: Programación & Depurador de Código
+		Vector2(380, 480), # [6] TUTORIAL: Unidades Booteables USB & Respaldo dd
+
+		# --- NIVELES DE CAMPAÑA DE SISTEMAS (1 AL 12) [7 - 18] (Perímetro Exterior) ---
+		Vector2(140, 360), # [7]  NIVEL 1 · TERMINAL DE SISTEMAS Y SOFTWARE (ROJO/CIAN)
+		Vector2(140, 230), # [8]  NIVEL 2 · FLASH DE FIRMWARE BIOS
+		Vector2(200, 100), # [9]  NIVEL 3 · SECTORES MBR & GPT CORRUPTOS
+		Vector2(430, 50),  # [10] NIVEL 4 · CONFIGURACIÓN RESIZABLE-BAR
+		Vector2(770, 50),  # [11] NIVEL 5 · DESINFECCIÓN DE ROOTKIT
+		Vector2(1000, 100),# [12] NIVEL 6 · CONFLICTO DE CONTROLADORES IRQ
+		Vector2(1060, 250),# [13] NIVEL 7 · PURGA DE REGISTRO DAÑADO
+		Vector2(1060, 470),# [14] NIVEL 8 · RECUPERACIÓN VOLUMEN BITLOCKER
+		Vector2(1000, 620),# [15] NIVEL 9 · CLONACIÓN FORENSE SECTOR A SECTOR
+		Vector2(770, 670), # [16] NIVEL 10 · ANÁLISIS DE VOLCADO MEMORY.DMP
+		Vector2(430, 670), # [17] NIVEL 11 · AISLAMIENTO DE RANSOMWARE
+		Vector2(140, 490), # [18] NIVEL 12 · ARQUITECTO SUPREMO DE SO
+
+		# --- RETOS DE PRÁCTICA CRONOMETRADOS (3 TERMINALES / 8 MINUTOS) [19 - 25] ---
+		Vector2(260, 160), # [19] RETO PRÁCTICA: Despliegue Masivo de SO & GPT (Noroeste)
+		Vector2(620, 90),  # [20] RETO PRÁCTICA: Purga Heurística de Malware (Norte)
+		Vector2(920, 170), # [21] RETO PRÁCTICA: Controladores WHQL & DMA (Noreste)
+		Vector2(920, 550), # [22] RETO PRÁCTICA: Filtrado Defensivo de Adware (Sureste)
+		Vector2(620, 630), # [23] RETO PRÁCTICA: Parcheo de Kernel & Debugging (Sur)
+		Vector2(260, 560), # [24] RETO PRÁCTICA: Clonación y Pendrives Booteables (Suroeste)
+		Vector2(660, 360)  # [25] RETO PRÁCTICA: Inducción / 3 Terminales Inicial (Centro Este, NARANJA NEÓN)
 	],
 	# 3. SERVIDOR: Hiper-Malla Circular de Datacenter y Anillos de Fibra Óptica Ampliada
 	"servidor": [
@@ -278,22 +297,30 @@ var MODE_CONNECTIONS: Dictionary = {
 		Vector2i(19, 20), Vector2i(20, 21), Vector2i(21, 22), Vector2i(22, 23), Vector2i(23, 24)
 	],
 	"sistema": [
-		# Raíces directas desde el núcleo tutorial (0)
-		Vector2i(0, 1), Vector2i(0, 2), Vector2i(0, 3), Vector2i(0, 4),
-		# Conexión satélite de práctica (Naranja Neón)
-		Vector2i(0, 13), Vector2i(1, 13),
-		# Diamante de telaraña interno
-		Vector2i(1, 2), Vector2i(2, 3), Vector2i(3, 4), Vector2i(4, 1),
-		# Filamentos radiales a ápices de diamante medio
-		Vector2i(1, 5), Vector2i(2, 5), Vector2i(2, 6), Vector2i(3, 6),
-		Vector2i(3, 7), Vector2i(4, 7), Vector2i(4, 8), Vector2i(1, 8),
-		# Diamante de telaraña medio
-		Vector2i(5, 6), Vector2i(6, 7), Vector2i(7, 8), Vector2i(8, 5),
-		# Filamentos hacia matriz exterior
-		Vector2i(8, 9), Vector2i(5, 9), Vector2i(5, 10), Vector2i(6, 10),
-		Vector2i(6, 11), Vector2i(7, 11), Vector2i(7, 12), Vector2i(8, 12),
-		# Perímetro de telaraña exterior
-		Vector2i(9, 10), Vector2i(10, 11), Vector2i(11, 12), Vector2i(12, 9)
+		# 1. Cadena de progresión principal: Tutorial -> Reto de Práctica -> Siguiente Tutorial
+		Vector2i(0, 25), # Tut 0 (Inducción) -> Reto Práctica 0 (3 Terminales Inicial)
+		Vector2i(25, 1), # Reto Práctica 0 -> Tut 1 (OS Install)
+		Vector2i(1, 19), # Tut 1 -> Reto Práctica 1 (OS Install)
+		Vector2i(19, 2), # Reto Práctica 1 -> Tut 2 (Malware)
+		Vector2i(2, 20), # Tut 2 -> Reto Práctica 2 (Malware)
+		Vector2i(20, 3), # Reto Práctica 2 -> Tut 3 (Drivers)
+		Vector2i(3, 21), # Tut 3 -> Reto Práctica 3 (Drivers)
+		Vector2i(21, 4), # Reto Práctica 3 -> Tut 4 (Adware)
+		Vector2i(4, 22), # Tut 4 -> Reto Práctica 4 (Adware)
+		Vector2i(22, 5), # Reto Práctica 4 -> Tut 5 (Debugger)
+		Vector2i(5, 23), # Tut 5 -> Reto Práctica 5 (Debugger)
+		Vector2i(23, 6), # Reto Práctica 5 -> Tut 6 (USB Backup)
+		Vector2i(6, 24), # Tut 6 -> Reto Práctica 6 (USB Backup)
+		Vector2i(24, 7), # Reto Práctica 6 -> ¡NIVEL 1 DE SISTEMAS! (Desbloqueo de campaña)
+
+		# 2. Vía perimetral de Campaña: Niveles 1 al 12
+		Vector2i(7, 8), Vector2i(8, 9), Vector2i(9, 10), Vector2i(10, 11), Vector2i(11, 12), Vector2i(12, 13),
+		Vector2i(13, 14), Vector2i(14, 15), Vector2i(15, 16), Vector2i(16, 17), Vector2i(17, 18),
+
+		# 3. Malla cibernética de diamante entre subsistemas
+		Vector2i(0, 1), Vector2i(0, 2), Vector2i(0, 3), Vector2i(0, 4), Vector2i(0, 5), Vector2i(0, 6),
+		Vector2i(1, 2), Vector2i(2, 3), Vector2i(3, 4), Vector2i(4, 5), Vector2i(5, 6), Vector2i(6, 25),
+		Vector2i(19, 20), Vector2i(20, 21), Vector2i(21, 22), Vector2i(22, 23), Vector2i(23, 24)
 	],
 	"servidor": [
 		# Raíces orbitales directas desde el núcleo tutorial (0)
@@ -498,6 +525,52 @@ func _setup_cached_node_labels() -> void:
 					24: "CPU"
 				}
 				lbl.text = "PRÁC " + prac_names.get(i, str(i))
+				lbl.add_theme_font_size_override("font_size", 8)
+				lbl.add_theme_color_override("font_color", Color(1.0, 0.65, 0.15, 1.0))
+				lbl.size = Vector2(80, 20)
+			elif i == 25:
+				lbl.text = "PRÁCTICA"
+				lbl.add_theme_font_size_override("font_size", 9)
+				lbl.add_theme_color_override("font_color", Color(1.0, 0.65, 0.15, 1.0))
+				lbl.size = Vector2(80, 20)
+		elif current_mode == "sistema":
+			if i == 0:
+				lbl.text = "BOOT/BIOS"
+				lbl.add_theme_font_size_override("font_size", 9)
+				lbl.add_theme_color_override("font_color", Color(0.0, 0.95, 1.0, 1.0))
+				lbl.size = Vector2(80, 20)
+			elif i in [1, 2, 3, 4, 5, 6]:
+				var sis_tut_names = {
+					1: "OS/GPT",
+					2: "MALWARE",
+					3: "DRIVERS",
+					4: "ADWARE",
+					5: "DEBUG",
+					6: "USB"
+				}
+				lbl.text = "TUT " + sis_tut_names.get(i, str(i))
+				lbl.add_theme_font_size_override("font_size", 8)
+				lbl.add_theme_color_override("font_color", Color(0.0, 0.95, 1.0, 1.0))
+				lbl.size = Vector2(80, 20)
+			elif i in range(7, 19):
+				var lvl_num = i - 6 # 1 al 12
+				lbl.text = str(lvl_num)
+				lbl.add_theme_font_size_override("font_size", 11)
+				lbl.size = Vector2(30, 20)
+				if lvl_num == 1:
+					lbl.add_theme_color_override("font_color", Color(0.1, 0.98, 1.0, 1.0))
+				else:
+					lbl.add_theme_color_override("font_color", Color(0.55, 0.75, 0.95, 0.75))
+			elif i in range(19, 25):
+				var sis_prac_names = {
+					19: "OS/GPT",
+					20: "MALWARE",
+					21: "DRIVERS",
+					22: "ADWARE",
+					23: "DEBUG",
+					24: "USB"
+				}
+				lbl.text = "PRÁC " + sis_prac_names.get(i, str(i))
 				lbl.add_theme_font_size_override("font_size", 8)
 				lbl.add_theme_color_override("font_color", Color(1.0, 0.65, 0.15, 1.0))
 				lbl.size = Vector2(80, 20)
@@ -815,6 +888,14 @@ func _draw() -> void:
 	# =========================================================================
 	if is_transitioning and transition_start_nodes.size() == nodes.size():
 		var trail_factor = sin(transition_progress * PI)
+		var hub_center = Vector2(580, 360)
+		var beam_len = 720.0
+		var beam_end = hub_center + Vector2.RIGHT.rotated(transition_sweep_angle) * beam_len
+		var beam_col = Color(0.0, 0.88, 1.0, trail_factor * 0.45) if (current_mode == "sistema") else Color(1.0, 0.2, 0.4, trail_factor * 0.45)
+		draw_line(hub_center, beam_end, beam_col, 2.4)
+		draw_arc(hub_center, transition_progress * 620.0, 0, TAU, 36, beam_col, 2.0)
+		draw_arc(hub_center, transition_progress * 380.0, 0, TAU, 28, Color(beam_col.r, beam_col.g, beam_col.b, trail_factor * 0.3), 1.4)
+
 		for i in range(nodes.size()):
 			var p_start = transition_start_nodes[i]
 			var p_cur = nodes[i]
@@ -834,7 +915,7 @@ func _draw() -> void:
 		var is_tutorial = false
 		var is_practice = false
 		var is_campaign = false
-		if current_mode == "reparacion":
+		if current_mode == "reparacion" or current_mode == "sistema":
 			is_tutorial = (i >= 0 and i <= 6)
 			is_practice = (i >= 19 and i <= 25)
 			is_campaign = (i >= 7 and i <= 18)

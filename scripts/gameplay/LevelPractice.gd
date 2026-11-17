@@ -156,6 +156,147 @@ const PRACTICE_ZONE_CONFIG: Dictionary = {
 			"parts": ["Disco Duro"],
 			"components": {"RAM": "ok", "Disco Duro": "broken", "Grafica": "ok", "Fan Cooler": "ok", "Fuente": "ok", "CPU": "ok", "Placa Madre": "ok"}
 		}
+	},
+	# --- RETOS DE PRÁCTICA DEL ÁREA DE SISTEMAS ---
+	"systems_intro": {
+		"title": "RETO DE PRÁCTICA // 3 TERMINALES DE SISTEMAS",
+		"sub": "ESTACIONES ALFA, BETA Y GAMMA · LÍMITE: 8 MINUTOS",
+		"desc": "¡Reto cronometrado de software y ciberseguridad con Jeremías!\n3 terminales de sistemas con fallas simultáneas en las 3 mesas.\nEstación #1: Partición GPT y booteo EFI corruptos.\nEstación #2: Infección crítica de malware en memoria.\nEstación #3: Controladores obsoletos generando pantallas azules.\nRepara las 3 estaciones antes de que el reloj llegue a 00:00.",
+		"pc1": {
+			"question": "Terminal #1: El equipo muestra 'Boot device not found' y el sector de arranque está destruido. ¿Qué módulo requiere reinstalación?",
+			"parts": ["Disco Duro"],
+			"components": {"RAM": "ok", "Disco Duro": "broken", "Grafica": "ok", "Fan Cooler": "ok", "Fuente": "ok", "CPU": "ok", "Placa Madre": "ok"}
+		},
+		"pc2": {
+			"question": "Terminal #2: Múltiples gusanos y troyanos consumiendo 100% de CPU y memoria. ¿Qué módulo debes desinfectar?",
+			"parts": ["RAM"],
+			"components": {"RAM": "broken", "Disco Duro": "ok", "Grafica": "ok", "Fan Cooler": "ok", "Fuente": "ok", "CPU": "ok", "Placa Madre": "ok"}
+		},
+		"pc3": {
+			"question": "Terminal #3: Controladores de pantalla desactualizados y artefactos en entorno gráfico. ¿Qué subsistema requiere calibración?",
+			"parts": ["Grafica"],
+			"components": {"RAM": "ok", "Disco Duro": "ok", "Grafica": "broken", "Fan Cooler": "ok", "Fuente": "ok", "CPU": "ok", "Placa Madre": "ok"}
+		}
+	},
+	"os_install": {
+		"title": "RETO DE PRÁCTICA // DESPLIEGUE MASIVO DE SO & GPT",
+		"sub": "3 ESTACIONES DE TRABAJO · LÍMITE DE TIEMPO: 8 MINUTOS",
+		"desc": "¡Despliegue rápido de sistemas!\n3 terminales con tablas de particiones dañadas.\nConfigura particiones GPT y monta el sistema en las 3 mesas en 8 minutos.",
+		"pc1": {
+			"question": "Terminal #1: Partición EFI corrupta que impide el arranque. ¿Qué unidad debe reconstruirse?",
+			"parts": ["Disco Duro"],
+			"components": {"RAM": "ok", "Disco Duro": "broken", "Grafica": "ok", "Fan Cooler": "ok", "Fuente": "ok", "CPU": "ok", "Placa Madre": "ok"}
+		},
+		"pc2": {
+			"question": "Terminal #2: Tabla GPT inválida y memoria RAM con errores de direccionamiento. ¿Qué piezas debes intervenir?",
+			"parts": ["Disco Duro", "RAM"],
+			"components": {"RAM": "broken", "Disco Duro": "broken", "Grafica": "ok", "Fan Cooler": "ok", "Fuente": "ok", "CPU": "ok", "Placa Madre": "ok"}
+		},
+		"pc3": {
+			"question": "Terminal #3: Fallo de arranque de SO y ventilador detenido por firmware. ¿Qué componentes presentan falla?",
+			"parts": ["Disco Duro", "Fan Cooler"],
+			"components": {"RAM": "ok", "Disco Duro": "broken", "Grafica": "ok", "Fan Cooler": "broken", "Fuente": "ok", "CPU": "ok", "Placa Madre": "ok"}
+		}
+	},
+	"malware_scan": {
+		"title": "RETO DE PRÁCTICA // PURGA HEURÍSTICA DE MALWARE",
+		"sub": "3 ESTACIONES DE TRABAJO · LÍMITE DE TIEMPO: 8 MINUTOS",
+		"desc": "¡Ataque coordinado de malware!\n3 terminales infectadas por troyanos y spyware en memoria.\nAísla y purga los procesos en las 3 mesas en menos de 8 minutos.",
+		"pc1": {
+			"question": "Terminal #1: Inyección de código malicioso en el spooler de memoria. ¿Qué componente requiere purga?",
+			"parts": ["RAM"],
+			"components": {"RAM": "broken", "Disco Duro": "ok", "Grafica": "ok", "Fan Cooler": "ok", "Fuente": "ok", "CPU": "ok", "Placa Madre": "ok"}
+		},
+		"pc2": {
+			"question": "Terminal #2: Rootkit oculto en sector MBR y desvío de video en pantalla. ¿Qué módulos están comprometidos?",
+			"parts": ["RAM", "Grafica"],
+			"components": {"RAM": "broken", "Disco Duro": "ok", "Grafica": "broken", "Fan Cooler": "ok", "Fuente": "ok", "CPU": "ok", "Placa Madre": "ok"}
+		},
+		"pc3": {
+			"question": "Terminal #3: Ransomware cifrando archivos en disco y proceso de minería que colapsa la CPU. ¿Qué piezas debes atender?",
+			"parts": ["RAM", "Disco Duro"],
+			"components": {"RAM": "broken", "Disco Duro": "broken", "Grafica": "ok", "Fan Cooler": "ok", "Fuente": "ok", "CPU": "ok", "Placa Madre": "ok"}
+		}
+	},
+	"driver_install": {
+		"title": "RETO DE PRÁCTICA // CONTROLADORES WHQL & DRIVERS",
+		"sub": "3 ESTACIONES DE TRABAJO · LÍMITE DE TIEMPO: 8 MINUTOS",
+		"desc": "¡Inestabilidad de controladores!\n3 terminales con pantallas azules continuas por drivers de GPU y buses DMA desactualizados.\nActualiza los paquetes oficiales en las 3 estaciones en 8 minutos.",
+		"pc1": {
+			"question": "Terminal #1: Controlador gráfico no firmado que provoca cuelgues al renderizar 3D. ¿Qué subsistema requiere actualización?",
+			"parts": ["Grafica"],
+			"components": {"RAM": "ok", "Disco Duro": "ok", "Grafica": "broken", "Fan Cooler": "ok", "Fuente": "ok", "CPU": "ok", "Placa Madre": "ok"}
+		},
+		"pc2": {
+			"question": "Terminal #2: Conflicto IRQ entre la GPU y el almacenamiento SATA. ¿Qué componentes debes intervenir?",
+			"parts": ["Grafica", "Disco Duro"],
+			"components": {"RAM": "ok", "Disco Duro": "broken", "Grafica": "broken", "Fan Cooler": "ok", "Fuente": "ok", "CPU": "ok", "Placa Madre": "ok"}
+		},
+		"pc3": {
+			"question": "Terminal #3: Pérdida de señal HDMI y módulo de memoria que arroja fallas BSOD de controlador. ¿Qué piezas requieren cambio?",
+			"parts": ["Grafica", "RAM"],
+			"components": {"RAM": "broken", "Disco Duro": "ok", "Grafica": "broken", "Fan Cooler": "ok", "Fuente": "ok", "CPU": "ok", "Placa Madre": "ok"}
+		}
+	},
+	"adware_cleaner": {
+		"title": "RETO DE PRÁCTICA // FILTRADO DEFENSIVO DE ADWARE",
+		"sub": "3 ESTACIONES DE TRABAJO · LÍMITE DE TIEMPO: 8 MINUTOS",
+		"desc": "¡Saturación por spam y adware!\n3 terminales secuestradas por ventanas emergentes engañosas.\nDesactiva trampas y despliega el Ad-Blocker en las 3 mesas antes de los 8 minutos.",
+		"pc1": {
+			"question": "Terminal #1: Pop-ups fraudulentos de falsos antivirus colapsando el navegador. ¿Qué componente requiere desinfección?",
+			"parts": ["RAM"],
+			"components": {"RAM": "broken", "Disco Duro": "ok", "Grafica": "ok", "Fan Cooler": "ok", "Fuente": "ok", "CPU": "ok", "Placa Madre": "ok"}
+		},
+		"pc2": {
+			"question": "Terminal #2: Extensiones maliciosas inyectadas en la partición y pantalla con spam continuo. ¿Qué piezas debes purgar?",
+			"parts": ["RAM", "Disco Duro"],
+			"components": {"RAM": "broken", "Disco Duro": "broken", "Grafica": "ok", "Fan Cooler": "ok", "Fuente": "ok", "CPU": "ok", "Placa Madre": "ok"}
+		},
+		"pc3": {
+			"question": "Terminal #3: Miner web oculto en pestañas que eleva la temperatura del Fan Cooler al máximo. ¿Qué componentes debes estabilizar?",
+			"parts": ["RAM", "Fan Cooler"],
+			"components": {"RAM": "broken", "Disco Duro": "ok", "Grafica": "ok", "Fan Cooler": "broken", "Fuente": "ok", "CPU": "ok", "Placa Madre": "ok"}
+		}
+	},
+	"code_debugger": {
+		"title": "RETO DE PRÁCTICA // PARCHEO DE KERNEL & DEBUGGING",
+		"sub": "3 ESTACIONES DE TRABAJO · LÍMITE DE TIEMPO: 8 MINUTOS",
+		"desc": "¡Errores críticos de scripts de sistema!\n3 terminales con bucles infinitos y sintaxis rota impidiendo el booteo.\nAplica parches y valida tests unitarios en las 3 mesas en 8 minutos.",
+		"pc1": {
+			"question": "Terminal #1: Script de inicialización congelado por bucle infinito en el procesador. ¿Qué componente presenta la falla?",
+			"parts": ["CPU"],
+			"components": {"RAM": "ok", "Disco Duro": "ok", "Grafica": "ok", "Fan Cooler": "ok", "Fuente": "ok", "CPU": "broken", "Placa Madre": "ok"}
+		},
+		"pc2": {
+			"question": "Terminal #2: Fallo de compilación en módulos de memoria y kernel panic. ¿Qué piezas requieren depuración?",
+			"parts": ["CPU", "RAM"],
+			"components": {"RAM": "broken", "Disco Duro": "ok", "Grafica": "ok", "Fan Cooler": "ok", "Fuente": "ok", "CPU": "broken", "Placa Madre": "ok"}
+		},
+		"pc3": {
+			"question": "Terminal #3: Error de sintaxis en lectura de disco de arranque y sobrecarga térmica. ¿Qué piezas debes solucionar?",
+			"parts": ["CPU", "Disco Duro"],
+			"components": {"RAM": "ok", "Disco Duro": "broken", "Grafica": "ok", "Fan Cooler": "ok", "Fuente": "ok", "CPU": "broken", "Placa Madre": "ok"}
+		}
+	},
+	"usb_backup": {
+		"title": "RETO DE PRÁCTICA // CLONACIÓN Y PENDRIVES BOOTEABLES",
+		"sub": "3 ESTACIONES DE TRABAJO · LÍMITE DE TIEMPO: 8 MINUTOS",
+		"desc": "¡Respaldo y clonación de emergencia!\n3 terminales que requieren flasheo urgente de medios booteables USB.\nPrepara las 3 unidades en las mesas dentro del límite de 8 minutos.",
+		"pc1": {
+			"question": "Terminal #1: Unidad de rescate booteable no reconocida por la BIOS. ¿Qué almacenamiento requiere flasheo?",
+			"parts": ["Disco Duro"],
+			"components": {"RAM": "ok", "Disco Duro": "broken", "Grafica": "ok", "Fan Cooler": "ok", "Fuente": "ok", "CPU": "ok", "Placa Madre": "ok"}
+		},
+		"pc2": {
+			"question": "Terminal #2: Fallo de suma de verificación al escribir la ISO en la memoria del pendrive. ¿Qué piezas debes restaurar?",
+			"parts": ["Disco Duro", "RAM"],
+			"components": {"RAM": "broken", "Disco Duro": "broken", "Grafica": "ok", "Fan Cooler": "ok", "Fuente": "ok", "CPU": "ok", "Placa Madre": "ok"}
+		},
+		"pc3": {
+			"question": "Terminal #3: Corrupción de bloques de datos durante la clonación y suministro inestable. ¿Qué módulos debes solucionar?",
+			"parts": ["Disco Duro", "Fuente"],
+			"components": {"RAM": "ok", "Disco Duro": "broken", "Grafica": "ok", "Fan Cooler": "ok", "Fuente": "broken", "CPU": "ok", "Placa Madre": "ok"}
+		}
 	}
 }
 
@@ -224,12 +365,23 @@ func _show_initial_dialog() -> void:
 		player.set_movement_enabled(false)
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
-	var joa_text = "¡H-hola!... *(se acomoda las gafas con entusiasmo y una tierna sonrisa)*. ¡Bienvenido al Reto Cronometrado de Práctica!\nTienes enfrente 3 mesas de trabajo, cada una con una computadora que sufre una falla de hardware diferente.\nTienes un límite estricto de 8 minutos para diagnosticar los 3 equipos, buscar los repuestos en las cajas del taller y dejarlas 100% operativos. ¡Sé meticuloso y administra bien tu tiempo!"
+	var is_systems = (current_zone in ["systems_intro", "os_install", "malware_scan", "driver_install", "adware_cleaner", "code_debugger", "usb_backup"])
+	if not is_systems:
+		var gm = get_node_or_null("/root/GameManager")
+		if gm and "current_mode" in gm and gm.current_mode == "sistema":
+			is_systems = true
+
+	var speaker_name = "JEREMIAS" if is_systems else "JOA"
+	var dialog_text = ""
+	if is_systems:
+		dialog_text = "¡Epaaa, fiera! Bienvenido al Reto Cronometrado de Práctica de Sistemas.\nTienes enfrente 3 terminales en las mesas esperando por ti con fallas críticas de software, particiones y ciberdefensa.\nTienes un límite estricto de 8 minutos para diagnosticar y restaurar las 3 estaciones antes de que colapse la red. ¡A romperla en el teclado!"
+	else:
+		dialog_text = "¡H-hola!... *(se acomoda las gafas con entusiasmo y una tierna sonrisa)*. ¡Bienvenido al Reto Cronometrado de Práctica!\nTienes enfrente 3 mesas de trabajo, cada una con una computadora que sufre una falla de hardware diferente.\nTienes un límite estricto de 8 minutos para diagnosticar los 3 equipos, buscar los repuestos en las cajas del taller y dejarlas 100% operativos. ¡Sé meticuloso y administra bien tu tiempo!"
 
 	if dialog_box and dialog_box.has_method("show_message"):
 		dialog_box.show_message(
-			"JOA",
-			joa_text,
+			speaker_name,
+			dialog_text,
 			func():
 				_show_practice_briefing()
 		)
@@ -292,22 +444,36 @@ func _on_all_pcs_repaired() -> void:
 		"hdd": 21,
 		"gpu": 22,
 		"psu": 23,
-		"cpu": 24
+		"cpu": 24,
+		"systems_intro": 25,
+		"os_install": 19,
+		"malware_scan": 20,
+		"driver_install": 21,
+		"adware_cleaner": 22,
+		"code_debugger": 23,
+		"usb_backup": 24
 	}
 	var current_node_idx = zone_to_practice_node.get(current_zone, 25)
 	
+	var gm = get_node_or_null("/root/GameManager")
+	var effective_mode = "reparacion"
+	if current_zone in ["systems_intro", "os_install", "malware_scan", "driver_install", "adware_cleaner", "code_debugger", "usb_backup"]:
+		effective_mode = "sistema"
+	elif gm and "current_mode" in gm and gm.current_mode in ["reparacion", "sistema", "servidor"]:
+		effective_mode = gm.current_mode
+
 	# Registrar progreso en SaveManager
 	var sm = get_node_or_null("/root/SaveManager")
 	if sm:
-		sm.mark_node_completed("reparacion", current_node_idx)
+		sm.mark_node_completed(effective_mode, current_node_idx)
 		# Desbloquear siguiente paso según la cadena:
-		# 25 (Práctica Intro) -> 1 (Tut Cooler)
-		# 19 (Práctica Cooler) -> 2 (Tut RAM)
-		# 20 (Práctica RAM) -> 3 (Tut HDD)
-		# 21 (Práctica HDD) -> 4 (Tut GPU)
-		# 22 (Práctica GPU) -> 5 (Tut PSU)
-		# 23 (Práctica PSU) -> 6 (Tut CPU)
-		# 24 (Práctica CPU) -> 7 (NIVEL 1 ¡Desbloqueo de campaña!)
+		# 25 (Práctica Intro) -> 1 (Tut 1)
+		# 19 (Práctica 1) -> 2 (Tut 2)
+		# 20 (Práctica 2) -> 3 (Tut 3)
+		# 21 (Práctica 3) -> 4 (Tut 4)
+		# 22 (Práctica 4) -> 5 (Tut 5)
+		# 23 (Práctica 5) -> 6 (Tut 6)
+		# 24 (Práctica 6) -> 7 (NIVEL 1 ¡Desbloqueo de campaña!)
 		var next_unlock: Dictionary = {
 			25: 1,
 			19: 2,
@@ -319,7 +485,7 @@ func _on_all_pcs_repaired() -> void:
 		}
 		if next_unlock.has(current_node_idx):
 			var next_node = next_unlock[current_node_idx]
-			sm.unlock_node("reparacion", next_node)
+			sm.unlock_node(effective_mode, next_node)
 			SaveManager.just_unlocked_node = next_node
 			
 	GameManager.win_level()

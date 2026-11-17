@@ -272,7 +272,7 @@ func unlock_all_levels() -> void:
 	for i in range(26):
 		all_rep.append(i)
 	var all_sis: Array = []
-	for i in range(14):
+	for i in range(26):
 		all_sis.append(i)
 	var all_srv: Array = []
 	for i in range(14):

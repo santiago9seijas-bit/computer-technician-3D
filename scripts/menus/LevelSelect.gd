@@ -515,29 +515,117 @@ var LEVELS_DATA: Dictionary = {
 		}
 	],
 	"sistema": [
+		# --- NÚCLEO TUTORIAL CENTRAL [0] ---
 		{
 			"number": 0,
 			"is_tutorial": true,
-			"title": "NÚCLEO TUTORIAL · PROTOCOLO DE BOOT & BIOS",
-			"stage": "CENTRO NEURONAL // TUTORIAL",
+			"tutorial_component": "general",
+			"title": "NÚCLEO TUTORIAL · PROTOCOLO DE BOOT & BIOS // ANDROMEDA OS",
+			"stage": "CENTRO NEURONAL // TUTORIAL CON JEREMÍAS",
 			"mode_name": "SISTEMA",
 			"color_accent": Color(0.0, 0.88, 1.0),
-			"description": "Inducción al diagnóstico y rescate de sistemas operativos.\nAprende los ciclos POST de firmware, configuración UEFI y aislamiento seguro de amenazas informáticas en entorno sandbox.",
-			"requirements": "HERRAMIENTAS: Consola / BIOS · MODO GUIADO · ACCESO LIBRE",
+			"description": "Inducción completa al diagnóstico y rescate de sistemas con Jeremías.\nAprende a particionar en GPT, desplegar Andromeda OS, purgar malware con ClamAV y actualizar módulos de controladores WHQL.",
+			"requirements": "HERRAMIENTAS: Teclado y Mouse · MODO GUIADO CON JEREMÍAS · ACCESO LIBRE",
 			"can_play": true
 		},
+
+		# --- TUTORIALES ESPECÍFICOS DE SISTEMAS [1 - 6] ---
 		{
 			"number": 1,
+			"is_tutorial": true,
+			"tutorial_component": "os_install",
+			"handler": "launch_os_install",
+			"title": "TUTORIAL // INSTALACIÓN DE SISTEMA OPERATIVO & GPT",
+			"stage": "TUTORIAL DE SOFTWARE // GUIADO POR JEREMÍAS",
+			"mode_name": "SISTEMA",
+			"color_accent": Color(0.0, 0.88, 1.0),
+			"description": "Taller guiado paso a paso con Jeremías.\nPrepara la tabla de particiones GPT, asigna partición EFI FAT32, volumen raíz ext4 y swap antes de instalar el gestor de arranque.",
+			"requirements": "CONSOLA DE PARTICIONADO · MODO GUIADO",
+			"can_play": false
+		},
+		{
+			"number": 2,
+			"is_tutorial": true,
+			"tutorial_component": "malware_scan",
+			"handler": "launch_malware_scan",
+			"title": "TUTORIAL // CIBERDEFENSA & ESCANEO DE MALWARE",
+			"stage": "TUTORIAL DE SOFTWARE // GUIADO POR JEREMÍAS",
+			"mode_name": "SISTEMA",
+			"color_accent": Color(0.0, 0.88, 1.0),
+			"description": "Taller guiado paso a paso con Jeremías.\nInspecciona procesos en tiempo real, verifica firmas SHA-256 de archivos sospechosos, aísla en Sandbox y purga troyanos activos.",
+			"requirements": "CLAMAV & SANDBOX LIVE · MODO GUIADO",
+			"can_play": false
+		},
+		{
+			"number": 3,
+			"is_tutorial": true,
+			"tutorial_component": "driver_install",
+			"handler": "launch_driver_install",
+			"title": "TUTORIAL // CONTROLADORES WHQL & MÓDULOS DE KERNEL",
+			"stage": "TUTORIAL DE SOFTWARE // GUIADO POR JEREMÍAS",
+			"mode_name": "SISTEMA",
+			"color_accent": Color(0.0, 0.88, 1.0),
+			"description": "Taller guiado paso a paso con Jeremías.\nDetecta dispositivos con conflicto o sin firmar, descarga paquetes oficiales WHQL y compila módulos de kernel sin pantallas azules.",
+			"requirements": "GESTOR DE PAQUETES DE CONTROLADORES · MODO GUIADO",
+			"can_play": false
+		},
+		{
+			"number": 4,
+			"is_tutorial": true,
+			"tutorial_component": "adware_cleaner",
+			"handler": "launch_adware_cleaner",
+			"title": "TUTORIAL // DESINFECCIÓN DE ADWARE & POP-UPS",
+			"stage": "TUTORIAL DE SOFTWARE // GUIADO POR JEREMÍAS",
+			"mode_name": "SISTEMA",
+			"color_accent": Color(0.0, 0.88, 1.0),
+			"description": "Taller guiado paso a paso con Jeremías.\nIdentifica falsas alertas de virus en el navegador, cierra pop-ups engañosos y activa el pulso electromagnético del Ad-Blocker.",
+			"requirements": "ESCUDO DEFENSIVO AD-BLOCKER · MODO GUIADO",
+			"can_play": false
+		},
+		{
+			"number": 5,
+			"is_tutorial": true,
+			"tutorial_component": "code_debugger",
+			"handler": "launch_code_debugger",
+			"title": "TUTORIAL // PROGRAMACIÓN & DEPURADOR DE CÓDIGO",
+			"stage": "TUTORIAL DE SOFTWARE // GUIADO POR JEREMÍAS",
+			"mode_name": "SISTEMA",
+			"color_accent": Color(0.0, 0.88, 1.0),
+			"description": "Taller guiado paso a paso con Jeremías.\nExamina scripts rotos de inicio de sistema, diagnostica errores de sintaxis y aplica parches en tiempo real validando suites de pruebas.",
+			"requirements": "IDE DE DEPURACIÓN EN TERMINAL · MODO GUIADO",
+			"can_play": false
+		},
+		{
+			"number": 6,
+			"is_tutorial": true,
+			"tutorial_component": "usb_backup",
+			"handler": "launch_usb_backup",
+			"title": "TUTORIAL // UNIDADES BOOTEABLES USB & RESPALDO",
+			"stage": "TUTORIAL DE SOFTWARE // GUIADO POR JEREMÍAS",
+			"mode_name": "SISTEMA",
+			"color_accent": Color(0.0, 0.88, 1.0),
+			"description": "Taller guiado paso a paso con Jeremías.\nPrepara pendrives de rescate booteables con dd/Ventoy, respalda configuraciones críticas del sistema y restaura imágenes ISO.",
+			"requirements": "PENDRIVE DE SERVICIO LIVE · MODO GUIADO",
+			"can_play": false
+		},
+
+		# --- NIVELES DE JUEGO DE CAMPAÑA (1 AL 12) [7 - 18] ---
+		{
+			"number": 1,
+			"is_level": true,
+			"level_number": 1,
 			"title": "NIVEL 1 · TERMINAL DE SISTEMAS Y SOFTWARE",
 			"stage": "ETAPA I: SISTEMAS & CIBERSEGURIDAD",
 			"mode_name": "SISTEMA",
 			"color_accent": Color(0.0, 0.95, 1.0),
 			"description": "Estación de trabajo con fallas críticas de software.\nAccede a la PC y restaura los 7 módulos (Instalación de SO, Drivers, Malware, Adware, Debugger, USB Booteable y Ciberdefensa Arcade).",
 			"requirements": "CONSOLA DE SISTEMAS · LÍMITE: 900s · RECOMPENSA: 100 PTS",
-			"can_play": true
+			"can_play": false
 		},
 		{
 			"number": 2,
+			"is_level": true,
+			"level_number": 2,
 			"title": "NIVEL 2 · FLASH DE FIRMWARE BIOS",
 			"stage": "ETAPA I: BIOS & BOOT",
 			"mode_name": "SISTEMA",
@@ -548,6 +636,8 @@ var LEVELS_DATA: Dictionary = {
 		},
 		{
 			"number": 3,
+			"is_level": true,
+			"level_number": 3,
 			"title": "NIVEL 3 · SECTORES MBR & GPT CORRUPTOS",
 			"stage": "ETAPA I: BIOS & BOOT",
 			"mode_name": "SISTEMA",
@@ -558,6 +648,8 @@ var LEVELS_DATA: Dictionary = {
 		},
 		{
 			"number": 4,
+			"is_level": true,
+			"level_number": 4,
 			"title": "NIVEL 4 · CONFIGURACIÓN RESIZABLE-BAR",
 			"stage": "ETAPA I: BIOS & BOOT",
 			"mode_name": "SISTEMA",
@@ -568,6 +660,8 @@ var LEVELS_DATA: Dictionary = {
 		},
 		{
 			"number": 5,
+			"is_level": true,
+			"level_number": 5,
 			"title": "NIVEL 5 · DESINFECCIÓN DE ROOTKIT",
 			"stage": "ETAPA II: KERNEL & DRIVERS",
 			"mode_name": "SISTEMA",
@@ -578,6 +672,8 @@ var LEVELS_DATA: Dictionary = {
 		},
 		{
 			"number": 6,
+			"is_level": true,
+			"level_number": 6,
 			"title": "NIVEL 6 · CONFLICTO DE CONTROLADORES IRQ",
 			"stage": "ETAPA II: KERNEL & DRIVERS",
 			"mode_name": "SISTEMA",
@@ -588,6 +684,8 @@ var LEVELS_DATA: Dictionary = {
 		},
 		{
 			"number": 7,
+			"is_level": true,
+			"level_number": 7,
 			"title": "NIVEL 7 · PURGA DE REGISTRO DAÑADO",
 			"stage": "ETAPA II: KERNEL & DRIVERS",
 			"mode_name": "SISTEMA",
@@ -598,6 +696,8 @@ var LEVELS_DATA: Dictionary = {
 		},
 		{
 			"number": 8,
+			"is_level": true,
+			"level_number": 8,
 			"title": "NIVEL 8 · RECUPERACIÓN VOLUMEN BITLOCKER",
 			"stage": "ETAPA II: KERNEL & DRIVERS",
 			"mode_name": "SISTEMA",
@@ -608,6 +708,8 @@ var LEVELS_DATA: Dictionary = {
 		},
 		{
 			"number": 9,
+			"is_level": true,
+			"level_number": 9,
 			"title": "NIVEL 9 · CLONACIÓN FORENSE SECTOR A SECTOR",
 			"stage": "ETAPA III: CIBERSEGURIDAD & RESCATE",
 			"mode_name": "SISTEMA",
@@ -618,6 +720,8 @@ var LEVELS_DATA: Dictionary = {
 		},
 		{
 			"number": 10,
+			"is_level": true,
+			"level_number": 10,
 			"title": "NIVEL 10 · ANÁLISIS DE VOLCADO MEMORY.DMP",
 			"stage": "ETAPA III: CIBERSEGURIDAD & RESCATE",
 			"mode_name": "SISTEMA",
@@ -628,6 +732,8 @@ var LEVELS_DATA: Dictionary = {
 		},
 		{
 			"number": 11,
+			"is_level": true,
+			"level_number": 11,
 			"title": "NIVEL 11 · AISLAMIENTO DE RANSOMWARE",
 			"stage": "ETAPA III: CIBERSEGURIDAD & RESCATE",
 			"mode_name": "SISTEMA",
@@ -638,6 +744,8 @@ var LEVELS_DATA: Dictionary = {
 		},
 		{
 			"number": 12,
+			"is_level": true,
+			"level_number": 12,
 			"title": "NIVEL 12 · ARQUITECTO SUPREMO DE SO",
 			"stage": "ETAPA III: CIBERSEGURIDAD & RESCATE",
 			"mode_name": "SISTEMA",
@@ -646,16 +754,91 @@ var LEVELS_DATA: Dictionary = {
 			"requirements": "MASTER SYSTEM ADMINISTRATOR · LÍMITE: 150s · RECOMPENSA: 1000 PTS ★",
 			"can_play": false
 		},
+
+		# --- RETOS DE PRÁCTICA CRONOMETRADOS (3 TERMINALES CON FALLAS / 8 MINUTOS) [19 - 25] ---
 		{
-			"number": 13,
+			"number": 19,
 			"is_practice": true,
-			"title": "SALA DE PRÁCTICA 3D",
-			"stage": "LABORATORIO PRÁCTICO // ENTRENAMIENTO",
+			"practice_id": "os_install",
+			"title": "RETO DE PRÁCTICA // DESPLIEGUE MASIVO DE SO & GPT",
+			"stage": "ZONA DE PRÁCTICA // RETO CRONOMETRADO",
 			"mode_name": "SISTEMA",
 			"color_accent": Color(1.0, 0.55, 0.05),
-			"description": "Entorno libre de pruebas sin presión de tiempo.\nPractica la interacción con terminales y software en el banco de trabajo.",
-			"requirements": "HERRAMIENTAS: Consola / BIOS · MODO PRÁCTICA LIBRE · SIN TIEMPO",
-			"can_play": true
+			"description": "3 terminales con particiones dañadas y arranques destruidos.\nParticiona e instala el sistema en las 3 estaciones antes de los 8 minutos.",
+			"requirements": "CONSOLA DE SISTEMAS · 3 TERMINALES · LÍMITE: 8 MINUTOS",
+			"can_play": false
+		},
+		{
+			"number": 20,
+			"is_practice": true,
+			"practice_id": "malware_scan",
+			"title": "RETO DE PRÁCTICA // PURGA HEURÍSTICA DE MALWARE",
+			"stage": "ZONA DE PRÁCTICA // RETO CRONOMETRADO",
+			"mode_name": "SISTEMA",
+			"color_accent": Color(1.0, 0.55, 0.05),
+			"description": "3 terminales bajo infección masiva de troyanos y spyware.\nAísla y purga los procesos infecciosos en las 3 estaciones en 8 minutos.",
+			"requirements": "CLAMAV LIVE · 3 TERMINALES · LÍMITE: 8 MINUTOS",
+			"can_play": false
+		},
+		{
+			"number": 21,
+			"is_practice": true,
+			"practice_id": "driver_install",
+			"title": "RETO DE PRÁCTICA // CONTROLADORES WHQL & DRIVERS",
+			"stage": "ZONA DE PRÁCTICA // RETO CRONOMETRADO",
+			"mode_name": "SISTEMA",
+			"color_accent": Color(1.0, 0.55, 0.05),
+			"description": "3 terminales con pantallas azules por fallas de controladores gráficos y de red.\nActualiza a controladores WHQL en las 3 mesas antes de 8 minutos.",
+			"requirements": "CONTROLADORES WHQL · 3 TERMINALES · LÍMITE: 8 MINUTOS",
+			"can_play": false
+		},
+		{
+			"number": 22,
+			"is_practice": true,
+			"practice_id": "adware_cleaner",
+			"title": "RETO DE PRÁCTICA // FILTRADO DEFENSIVO DE ADWARE",
+			"stage": "ZONA DE PRÁCTICA // RETO CRONOMETRADO",
+			"mode_name": "SISTEMA",
+			"color_accent": Color(1.0, 0.55, 0.05),
+			"description": "3 terminales saturadas de pop-ups engañosos y mineros web.\nDesactiva trampas y activa el escudo Ad-Blocker en menos de 8 minutos.",
+			"requirements": "ESCUDO AD-BLOCKER · 3 TERMINALES · LÍMITE: 8 MINUTOS",
+			"can_play": false
+		},
+		{
+			"number": 23,
+			"is_practice": true,
+			"practice_id": "code_debugger",
+			"title": "RETO DE PRÁCTICA // PARCHEO DE KERNEL & DEBUGGING",
+			"stage": "ZONA DE PRÁCTICA // RETO CRONOMETRADO",
+			"mode_name": "SISTEMA",
+			"color_accent": Color(1.0, 0.55, 0.05),
+			"description": "3 terminales con scripts de seguridad rotos y bucles infinitos.\nCorrige la sintaxis y valida los tests unitarios dentro del límite de 8 minutos.",
+			"requirements": "DEBUGGER IDE · 3 TERMINALES · LÍMITE: 8 MINUTOS",
+			"can_play": false
+		},
+		{
+			"number": 24,
+			"is_practice": true,
+			"practice_id": "usb_backup",
+			"title": "RETO DE PRÁCTICA // CLONACIÓN Y PENDRIVES BOOTEABLES",
+			"stage": "ZONA DE PRÁCTICA // RETO CRONOMETRADO",
+			"mode_name": "SISTEMA",
+			"color_accent": Color(1.0, 0.55, 0.05),
+			"description": "3 terminales que requieren flasheo urgente de medios booteables y copia de seguridad.\nCompleta las 3 unidades USB en menos de 8 minutos.",
+			"requirements": "HERRAMIENTA USB · 3 TERMINALES · LÍMITE: 8 MINUTOS",
+			"can_play": false
+		},
+		{
+			"number": 25,
+			"is_practice": true,
+			"practice_id": "systems_intro",
+			"title": "RETO CRONOMETRADO // SALA DE PRÁCTICA DE SISTEMAS (3 TERMINALES)",
+			"stage": "LABORATORIO PRÁCTICO // RETO CRONOMETRADO CON JEREMÍAS",
+			"mode_name": "SISTEMA",
+			"color_accent": Color(1.0, 0.55, 0.05),
+			"description": "Primer reto cronometrado de software y ciberseguridad.\n3 terminales con fallas simultáneas de partición GPT, malware y drivers.\nRepara las 3 estaciones de trabajo antes de que se agoten los 8 minutos.",
+			"requirements": "CONSOLA DE SISTEMAS · 3 TERMINALES · LÍMITE: 8 MINUTOS",
+			"can_play": false
 		}
 	],
 	"servidor": [
@@ -1579,6 +1762,7 @@ func _switch_mode(mode_name: String, spin_dir: int = 0) -> void:
 		tw_arr.tween_property(btn_down_arrow, "scale", Vector2.ONE, 0.12)
 
 	_apply_mode_palette(current_mode, false)
+	_play_mode_switch_animation(current_mode)
 	_update_mode_buttons()
 	_update_tab_buttons_visuals()
 	_update_btn_play_level1_visibility()
@@ -1596,6 +1780,25 @@ func _switch_mode(mode_name: String, spin_dir: int = 0) -> void:
 		cards_grid.modulate.a = 0.5
 		var tw = create_tween()
 		tw.tween_property(cards_grid, "modulate:a", 1.0, 0.1)
+
+func _play_mode_switch_animation(mode_name: String) -> void:
+	if constellation_area:
+		var tw = create_tween()
+		constellation_area.modulate = Color(1.8, 1.8, 2.3, 1.0)
+		tw.tween_property(constellation_area, "modulate", Color.WHITE, 0.32).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	
+	if banner_label:
+		banner_label.pivot_offset = banner_label.size * 0.5
+		var tw_b = create_tween()
+		banner_label.scale = Vector2(1.06, 1.06)
+		tw_b.tween_property(banner_label, "scale", Vector2.ONE, 0.24).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		
+	if mode_name == "sistema":
+		_show_toast("⚡ [SISTEMAS] ACCEDIENDO A KERNEL & MATRIZ DE SOFTWARE")
+	elif mode_name == "reparacion":
+		_show_toast("🛠️ [REPARACIÓN] ACCEDIENDO A TALLER & BANCO DE HARDWARE")
+	elif mode_name == "servidor":
+		_show_toast("🌐 [SERVIDOR] ACCEDIENDO A DATACENTER & FIBRA ÓPTICA")
 
 func _update_mode_buttons() -> void:
 	var tabs = [
@@ -2746,15 +2949,49 @@ func _check_and_play_pending_unlock() -> void:
 			if graph_lines and graph_lines.has_method("play_unlock_animation"):
 				graph_lines.play_unlock_animation(just_unl)
 			if just_unl == 7:
-				_show_toast("🏆 ¡ENTRENAMIENTO COMPLETADO! NIVEL 1 DESBLOQUEADO · COMIENZA LA CAMPAÑA")
+				if current_mode == "sistema":
+					_show_toast("🏆 ¡ENTRENAMIENTO DE SISTEMAS COMPLETADO! NIVEL 1 DESBLOQUEADO · COMIENZA LA CAMPAÑA")
+				else:
+					_show_toast("🏆 ¡ENTRENAMIENTO DE HARDWARE COMPLETADO! NIVEL 1 DESBLOQUEADO · COMIENZA LA CAMPAÑA")
 			elif just_unl == 25:
-				_show_toast("⚡ ¡TUTORIAL DE INDUCCIÓN SUPERADO! RETO DE PRÁCTICA DESBLOQUEADO")
+				if current_mode == "sistema":
+					_show_toast("⚡ ¡TUTORIAL DE BOOT & BIOS SUPERADO! RETO DE PRÁCTICA DESBLOQUEADO")
+				else:
+					_show_toast("⚡ ¡TUTORIAL DE INDUCCIÓN SUPERADO! RETO DE PRÁCTICA DESBLOQUEADO")
 			else:
 				_show_toast("⚡ ¡NUEVO RETO DESBLOQUEADO EN EL MAPA!")
 
 # =============================================================================
-# CONSOLA DE DESARROLLADOR // ANDROMEDA OS (CTRL + SHIFT + R & /levels)
+# CONSOLA DE DESARROLLADOR // ARCH LINUX TERMINAL (CTRL + SHIFT + R & /levels)
 # =============================================================================
+const ARCH_BANNER_TEXT: String = """[color=#1793d1]       /\\         [/color]  [color=#1793d1][b]user@archlinux[/b][/color]
+[color=#1793d1]      /  \\        [/color]  [color=#6272a4]--------------[/color]
+[color=#1793d1]     /\\   \\       [/color]  [color=#1793d1]OS:[/color] Arch Linux x86_64
+[color=#1793d1]    /      \\      [/color]  [color=#1793d1]Host:[/color] Computer Technician 3D Workstation
+[color=#1793d1]   /   ,,   \\     [/color]  [color=#1793d1]Kernel:[/color] 6.12.9-arch1-1-zen
+[color=#1793d1]  /   |  |  -\\    [/color]  [color=#1793d1]Uptime:[/color] 42 mins
+[color=#1793d1] /_-''    ''-_\\   [/color]  [color=#1793d1]Packages:[/color] 1337 (pacman)
+                    [color=#1793d1]Shell:[/color] zsh 5.9 / bash 5.2
+                    [color=#1793d1]WM:[/color] Hyprland (Wayland)
+                    [color=#1793d1]Terminal:[/color] alacritty (xterm-256color)
+                    [color=#1793d1]CPU:[/color] AMD Ryzen 9 7950X (32) @ 5.70GHz
+                    [color=#1793d1]GPU:[/color] NVIDIA GeForce RTX 4090 24GB
+                    [color=#1793d1]Memory:[/color] 32768MiB / 65536MiB
+
+[color=#50fa7b]user@archlinux[/color]:[color=#1793d1]~[/color]$ [color=#f8f8f2]systemctl status technician3d.service[/color]
+[color=#50fa7b]● technician3d.service - Computer Technician 3D System Core[/color]
+   Loaded: loaded (/etc/systemd/system/technician3d.service; enabled)
+   Active: [color=#50fa7b]active (running)[/color] since Mon 2026-11-17 02:30:00 UTC
+
+[color=#f1fa8c]💡 Comandos disponibles en Arch:[/color]
+  [color=#1793d1]/levels[/color]   (o [color=#50fa7b]pacman -S levels[/color])    : Desbloquea todos los niveles y modos al instante
+  [color=#1793d1]/reset[/color]    (o [color=#ff5555]pacman -R progression[/color]) : Restablece progreso al estado inicial
+  [color=#1793d1]/neofetch[/color] (o [color=#50fa7b]fastfetch[/color])             : Muestra el logo y specs de Arch Linux
+  [color=#1793d1]/clear[/color]    (o [color=#50fa7b]clear[/color])                 : Limpia la terminal
+  [color=#1793d1]/help[/color]     (o [color=#50fa7b]man[/color])                   : Manual de comandos
+  [color=#1793d1]/exit[/color]     (o [color=#ff5555]exit[/color])                  : Cerrar terminal
+"""
+
 func _toggle_dev_console() -> void:
 	if not dev_console_overlay:
 		_build_dev_console()
@@ -2775,18 +3012,20 @@ func _build_dev_console() -> void:
 	dev_console_overlay.z_index = 100
 	dev_console_overlay.visible = false
 	
+	# Fondo oscurecido con leve traslúcido
 	var dim = ColorRect.new()
 	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
-	dim.color = Color(0.01, 0.02, 0.05, 0.82)
+	dim.color = Color(0.02, 0.03, 0.06, 0.85)
 	dim.mouse_filter = Control.MOUSE_FILTER_STOP
 	dev_console_overlay.add_child(dim)
 	
+	# Ventana principal tipo Alacritty / Arch Terminal
 	var panel = PanelContainer.new()
-	panel.custom_minimum_size = Vector2(680, 400)
-	panel.position = Vector2((1280 - 680) * 0.5, (720 - 400) * 0.5)
+	panel.custom_minimum_size = Vector2(780, 480)
+	panel.position = Vector2((1280 - 780) * 0.5, (720 - 480) * 0.5)
 	var sb = StyleBoxFlat.new()
-	sb.bg_color = Color(0.02, 0.04, 0.08, 0.96)
-	sb.border_color = Color(0.0, 0.88, 1.0, 1.0)
+	sb.bg_color = Color(0.07, 0.09, 0.14, 0.97) # Arch Slate
+	sb.border_color = Color(0.09, 0.58, 0.82, 0.95) # Arch Blue / Cyan (#1793d1)
 	sb.border_width_left = 2
 	sb.border_width_top = 2
 	sb.border_width_right = 2
@@ -2795,63 +3034,139 @@ func _build_dev_console() -> void:
 	sb.corner_radius_top_right = 8
 	sb.corner_radius_bottom_left = 8
 	sb.corner_radius_bottom_right = 8
-	sb.shadow_color = Color(0.0, 0.88, 1.0, 0.35)
-	sb.shadow_size = 16
+	sb.shadow_color = Color(0.09, 0.58, 0.82, 0.28)
+	sb.shadow_size = 24
 	panel.add_theme_stylebox_override("panel", sb)
 	dev_console_overlay.add_child(panel)
 	
-	var margin = MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 18)
-	margin.add_theme_constant_override("margin_top", 14)
-	margin.add_theme_constant_override("margin_right", 18)
-	margin.add_theme_constant_override("margin_bottom", 14)
-	panel.add_child(margin)
-	
 	var vbox = VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 10)
-	margin.add_child(vbox)
+	vbox.add_theme_constant_override("separation", 0)
+	panel.add_child(vbox)
 	
-	var hbox_header = HBoxContainer.new()
+	# Barra de título de ventana de Linux/Unix
+	var titlebar = PanelContainer.new()
+	var sb_tb = StyleBoxFlat.new()
+	sb_tb.bg_color = Color(0.05, 0.07, 0.10, 1.0)
+	sb_tb.corner_radius_top_left = 6
+	sb_tb.corner_radius_top_right = 6
+	titlebar.add_theme_stylebox_override("panel", sb_tb)
+	
+	var tb_margin = MarginContainer.new()
+	tb_margin.add_theme_constant_override("margin_left", 12)
+	tb_margin.add_theme_constant_override("margin_top", 8)
+	tb_margin.add_theme_constant_override("margin_right", 12)
+	tb_margin.add_theme_constant_override("margin_bottom", 8)
+	titlebar.add_child(tb_margin)
+	
+	var hbox_tb = HBoxContainer.new()
+	hbox_tb.add_theme_constant_override("separation", 8)
+	tb_margin.add_child(hbox_tb)
+	
+	# Botones redondos de ventana: Rojo, Amarillo, Verde
+	var dot_red = ColorRect.new()
+	dot_red.custom_minimum_size = Vector2(12, 12)
+	dot_red.color = Color(1.0, 0.35, 0.35)
+	hbox_tb.add_child(dot_red)
+	
+	var dot_yellow = ColorRect.new()
+	dot_yellow.custom_minimum_size = Vector2(12, 12)
+	dot_yellow.color = Color(1.0, 0.75, 0.2)
+	hbox_tb.add_child(dot_yellow)
+	
+	var dot_green = ColorRect.new()
+	dot_green.custom_minimum_size = Vector2(12, 12)
+	dot_green.color = Color(0.3, 0.85, 0.4)
+	hbox_tb.add_child(dot_green)
+	
+	var title_spacer = Control.new()
+	title_spacer.custom_minimum_size = Vector2(14, 0)
+	hbox_tb.add_child(title_spacer)
+	
 	var lbl_title = Label.new()
-	lbl_title.text = "⚡ CONSOLA DE DESARROLLADOR // ANDROMEDA OS"
+	lbl_title.text = "󰣇 archlinux: ~/andromeda (bash - 80x24)"
 	lbl_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	lbl_title.add_theme_color_override("font_color", Color(0.0, 0.88, 1.0))
-	lbl_title.add_theme_font_size_override("font_size", 14)
-	hbox_header.add_child(lbl_title)
+	lbl_title.add_theme_color_override("font_color", Color(0.09, 0.58, 0.82)) # Arch Blue
+	lbl_title.add_theme_font_size_override("font_size", 12)
+	hbox_tb.add_child(lbl_title)
 	
 	var btn_close = Button.new()
-	btn_close.text = " [X] "
+	btn_close.text = " [ ✕ ] "
 	btn_close.flat = true
+	btn_close.add_theme_color_override("font_color", Color(0.65, 0.75, 0.85))
 	btn_close.pressed.connect(func(): dev_console_overlay.visible = false)
-	hbox_header.add_child(btn_close)
-	vbox.add_child(hbox_header)
+	hbox_tb.add_child(btn_close)
+	vbox.add_child(titlebar)
+	
+	# Contenido de la terminal
+	var margin_body = MarginContainer.new()
+	margin_body.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	margin_body.add_theme_constant_override("margin_left", 14)
+	margin_body.add_theme_constant_override("margin_top", 10)
+	margin_body.add_theme_constant_override("margin_right", 14)
+	margin_body.add_theme_constant_override("margin_bottom", 12)
+	vbox.add_child(margin_body)
+	
+	var body_vbox = VBoxContainer.new()
+	body_vbox.add_theme_constant_override("separation", 8)
+	margin_body.add_child(body_vbox)
 	
 	dev_console_output = RichTextLabel.new()
 	dev_console_output.bbcode_enabled = true
 	dev_console_output.scroll_following = true
 	dev_console_output.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	dev_console_output.add_theme_color_override("default_color", Color(0.2, 0.95, 0.55))
-	dev_console_output.add_theme_font_size_override("normal_font_size", 12)
-	dev_console_output.text = "[color=#00e0ff]> ANDROMEDA OS KERNEL v2.5 [MODO DESARROLLADOR ACTIVO][/color]\n[color=#88ffaa]> Presiona Enter tras escribir un comando.[/color]\n[color=#ffff55]> Comando especial: [b]/levels[/b] (Desbloquea todos los niveles y modos)[/color]\n[color=#aaaaaa]> Escribe /help para lista completa.[/color]\n"
-	vbox.add_child(dev_console_output)
+	dev_console_output.add_theme_color_override("default_color", Color(0.9, 0.92, 0.95))
+	dev_console_output.add_theme_font_size_override("normal_font_size", 11)
+	dev_console_output.text = ARCH_BANNER_TEXT
+	body_vbox.add_child(dev_console_output)
 	
 	var hbox_in = HBoxContainer.new()
-	var prompt_lbl = Label.new()
-	prompt_lbl.text = "ANDROMEDA:\\> "
-	prompt_lbl.add_theme_color_override("font_color", Color(0.0, 0.88, 1.0))
-	hbox_in.add_child(prompt_lbl)
+	hbox_in.add_theme_constant_override("separation", 6)
+	
+	var prompt_user = Label.new()
+	prompt_user.text = "user@archlinux:"
+	prompt_user.add_theme_color_override("font_color", Color(0.31, 0.98, 0.48)) # Green
+	prompt_user.add_theme_font_size_override("font_size", 12)
+	hbox_in.add_child(prompt_user)
+	
+	var prompt_dir = Label.new()
+	prompt_dir.text = "~$ "
+	prompt_dir.add_theme_color_override("font_color", Color(0.09, 0.58, 0.82)) # Arch Blue
+	prompt_dir.add_theme_font_size_override("font_size", 12)
+	hbox_in.add_child(prompt_dir)
 	
 	dev_console_input = LineEdit.new()
 	dev_console_input.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	dev_console_input.placeholder_text = "Escribe /levels para desbloquear todo..."
+	dev_console_input.placeholder_text = "pacman -S levels (o escribe /levels)..."
 	dev_console_input.text_submitted.connect(_on_dev_command_submitted)
+	dev_console_input.caret_blink = true
+	var sb_input = StyleBoxFlat.new()
+	sb_input.bg_color = Color(0.04, 0.06, 0.09, 0.8)
+	sb_input.border_color = Color(0.09, 0.58, 0.82, 0.6)
+	sb_input.border_width_left = 1
+	sb_input.border_width_top = 1
+	sb_input.border_width_right = 1
+	sb_input.border_width_bottom = 1
+	sb_input.corner_radius_top_left = 4
+	sb_input.corner_radius_top_right = 4
+	sb_input.corner_radius_bottom_left = 4
+	sb_input.corner_radius_bottom_right = 4
+	dev_console_input.add_theme_stylebox_override("normal", sb_input)
+	dev_console_input.add_theme_stylebox_override("focus", sb_input)
+	dev_console_input.add_theme_color_override("font_color", Color(0.97, 0.97, 0.95))
 	hbox_in.add_child(dev_console_input)
 	
 	var btn_exec = Button.new()
 	btn_exec.text = " EJECUTAR "
 	btn_exec.pressed.connect(func(): _on_dev_command_submitted(dev_console_input.text))
+	var sb_btn = StyleBoxFlat.new()
+	sb_btn.bg_color = Color(0.09, 0.45, 0.65, 0.9)
+	sb_btn.corner_radius_top_left = 4
+	sb_btn.corner_radius_top_right = 4
+	sb_btn.corner_radius_bottom_left = 4
+	sb_btn.corner_radius_bottom_right = 4
+	btn_exec.add_theme_stylebox_override("normal", sb_btn)
 	hbox_in.add_child(btn_exec)
-	vbox.add_child(hbox_in)
+	body_vbox.add_child(hbox_in)
 	
 	add_child(dev_console_overlay)
 
@@ -2863,21 +3178,41 @@ func _on_dev_command_submitted(cmd: String) -> void:
 	if text_in == "":
 		return
 	
-	_print_dev_console("[color=#ffffff]> " + text_in + "[/color]")
+	_print_dev_console("\n[color=#50fa7b]user@archlinux[/color]:[color=#1793d1]~[/color]$ [color=#f8f8f2]" + text_in + "[/color]")
 	var lower = text_in.to_lower()
 	
-	if lower == "/levels" or lower == "/desbloquear":
+	if lower in ["/levels", "/desbloquear", "levels", "pacman -s levels", "pacman -s all-levels", "pacman -syu"]:
 		_cmd_unlock_all_levels()
-	elif lower == "/reset":
+	elif lower in ["/reset", "reset", "pacman -r progression", "pacman -r all"]:
 		_cmd_reset_locks()
-	elif lower == "/help":
-		_print_dev_console("[color=#ffffaa]Comandos disponibles:\n  /levels - Desbloquea todos los niveles, tutoriales y retos al instante.\n  /reset  - Restaura el progreso inicial (solo Tutorial 0 desbloqueado).\n  /clear  - Limpia la consola.\n  /exit   - Cierra esta terminal.[/color]")
-	elif lower == "/clear":
-		if dev_console_output: dev_console_output.text = ""
-	elif lower == "/exit":
-		if dev_console_overlay: dev_console_overlay.visible = false
+	elif lower in ["/neofetch", "neofetch", "fastfetch"]:
+		_print_dev_console(ARCH_BANNER_TEXT)
+	elif lower in ["/help", "help", "man"]:
+		_print_dev_console("""[color=#1793d1]ARCH LINUX CHEAT UTILITY MANUAL (8)[/color]
+[color=#6272a4]===================================[/color]
+[b]NOMBRE[/b]
+  levels - Desbloqueador de progresión de Computer Technician 3D
+
+[b]SINOPSIS[/b]
+  [color=#1793d1]/levels[/color]                Desbloquea instantáneamente los 26 niveles de Reparación,
+                         26 de Sistemas y 14 de Servidor.
+  [color=#1793d1]/reset[/color]                 Restaura la progresión al estado inicial (solo Tutorial 0).
+  [color=#1793d1]/neofetch[/color]              Muestra información del sistema Arch Linux.
+  [color=#1793d1]/clear[/color]                 Limpia el búfer de la terminal.
+  [color=#1793d1]/exit[/color]                  Cierra la ventana de la terminal.
+
+[b]SOPORTE PACMAN[/b]
+  También puedes ejecutar comandos al estilo Arch:
+  [color=#50fa7b]pacman -S levels[/color]
+  [color=#ff5555]pacman -R progression[/color]""")
+	elif lower in ["/clear", "clear"]:
+		if dev_console_output:
+			dev_console_output.text = ""
+	elif lower in ["/exit", "exit", "quit", ":q"]:
+		if dev_console_overlay:
+			dev_console_overlay.visible = false
 	else:
-		_print_dev_console("[color=#ff4466][!] Comando desconocido: '" + text_in + "'. Escribe /levels para desbloquear todo.[/color]")
+		_print_dev_console("[color=#ff5555]zsh: command not found: " + text_in + "[/color]\n[color=#aaaaaa]Escribe [b]/levels[/b] o [b]/help[/b] para ver las opciones disponibles.[/color]")
 
 func _print_dev_console(msg: String) -> void:
 	if dev_console_output:
@@ -2892,8 +3227,25 @@ func _cmd_unlock_all_levels() -> void:
 		sm.unlock_all_levels()
 	if graph_lines and graph_lines.has_method("set_all_unlocked"):
 		graph_lines.set_all_unlocked(true)
-	_print_dev_console("[color=#00ff88]✓ [DEV CHEAT] ¡Todos los niveles, tutoriales y retos cronometrados han sido desbloqueados con éxito![/color]")
-	_show_toast("✓ [DEV CHEAT] ¡Todos los niveles desbloqueados!")
+	_print_dev_console("""[color=#1793d1]:: Sincronizando bases de datos de paquetes...[/color]
+ core                                   154.2 KiB   420 KiB/s 00:00 [####################################] 100%
+ extra                                    8.9 MiB  12.4 MiB/s 00:01 [####################################] 100%
+ multilib                               142.0 KiB   510 KiB/s 00:00 [####################################] 100%
+[color=#1793d1]:: Iniciando actualización completa del sistema...[/color]
+resolviendo dependencias...
+verificando conflictos...
+
+Paquetes (3) [color=#50fa7b]reparacion-master-1.0[/color]  [color=#50fa7b]sistema-master-1.0[/color]  [color=#50fa7b]servidor-master-1.0[/color]
+
+Total tamaño de descarga:    0.00 MiB
+Total tamaño de instalación: 100.00 MiB
+
+[color=#50fa7b]:: ¿Continuar con la instalación? [S/n] S[/color]
+(1/3) Desbloqueando Modo Reparación   [####################################] 100%
+(2/3) Desbloqueando Modo Sistemas     [####################################] 100%
+(3/3) Desbloqueando Modo Servidores   [####################################] 100%
+[color=#50fa7b]✓ ¡Éxito! Todos los 26 niveles de reparación, 26 de sistemas y 14 de servidor han sido desbloqueados.[/color]""")
+	_show_toast("✓ [DEV CHEAT] ¡Todos los niveles desbloqueados con éxito!")
 	if graph_lines and graph_lines.has_method("play_unlock_animation"):
 		graph_lines.play_unlock_animation(7)
 
@@ -2902,6 +3254,9 @@ func _cmd_reset_locks() -> void:
 	if sm and sm.has_method("reset_progression_lock"):
 		sm.reset_progression_lock()
 	_sync_progression_from_save()
-	_print_dev_console("[color=#ffaa00]✓ Progreso restablecido: Solo el Tutorial de Introducción está desbloqueado.[/color]")
+	_print_dev_console("""[color=#ff5555]:: Eliminando paquetes de progresión avanzada...[/color]
+(1/3) Bloqueando Modo Reparación     [####################################] 100%
+(2/3) Bloqueando Modo Sistemas       [####################################] 100%
+(3/3) Bloqueando Modo Servidores     [####################################] 100%
+[color=#ffaa00]✓ Progreso restablecido: Solo el Tutorial de Introducción está desbloqueado.[/color]""")
 	_show_toast("Progreso restablecido.")
-

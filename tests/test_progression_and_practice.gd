@@ -10,6 +10,7 @@ func _ready() -> void:
 	await _test_level_practice_3_pcs_and_8_minutes()
 	await _test_constellation_graph_expansion()
 	await _test_progression_unlock_chain()
+	await _test_sistemas_mode_and_transitions()
 
 	print("====================================================")
 	print("✓ TODOS LOS TESTS DE PROGRESIÓN Y PRÁCTICA PASARON EXITOSAMENTE!")
@@ -175,3 +176,71 @@ func _test_progression_unlock_chain() -> void:
 	assert(SaveManager.is_node_unlocked("reparacion", 7) == true, "Nivel 1 desbloqueado al completar la cadena")
 
 	print("  ✓ Cadena de desbloqueo secuencial verificada exitosamente")
+
+func _test_sistemas_mode_and_transitions() -> void:
+	print("\n[6] Probando Área de Sistemas (26 nodos, bloqueo inicial, retos 8 min y transiciones)...")
+	var ls_scene = load("res://scenes/menus/LevelSelect.tscn")
+	var ls = ls_scene.instantiate()
+	add_child(ls)
+	await get_tree().process_frame
+
+	SaveManager.reset_progression_lock()
+	ls._sync_progression_from_save()
+
+	var sis_list = ls.LEVELS_DATA.get("sistema", [])
+	assert(sis_list.size() == 26, "Sistemas debe tener 26 nodos")
+	assert(sis_list[0]["can_play"] == true, "Tutorial 0 de Sistemas debe ser el ÚNICO desbloqueado al inicio")
+
+	# Todos los demás nodos de sistemas deben estar bloqueados al inicio
+	for i in range(1, sis_list.size()):
+		assert(sis_list[i]["can_play"] == false, "Nodo %d de sistemas debe estar bloqueado al inicio" % i)
+
+	# Probar cambio de modo a sistemas y animación de transición
+	ls._switch_mode("sistema")
+	assert(ls.current_mode == "sistema", "El modo activo debe ser 'sistema'")
+
+	# Probar dimensiones de la constelación de sistemas
+	var cg = ls.graph_lines
+	assert(cg != null, "ConstellationGraph debe existir en LevelSelect")
+	var sis_nodes = cg.MODE_NODES.get("sistema", [])
+	assert(sis_nodes.size() == 26, "Sistemas debe tener 26 nodos en ConstellationGraph")
+
+	var min_x = 9999.0
+	var max_x = -9999.0
+	var min_y = 9999.0
+	var max_y = -9999.0
+	for pt in sis_nodes:
+		min_x = minf(min_x, pt.x)
+		max_x = maxf(max_x, pt.x)
+		min_y = minf(min_y, pt.y)
+		max_y = maxf(max_y, pt.y)
+
+	var span_x = max_x - min_x
+	var span_y = max_y - min_y
+	assert(span_x >= 800.0, "El mapa de sistemas debe ser espacioso (ancho >= 800px), obtenido: %f" % span_x)
+	assert(span_y >= 500.0, "El mapa de sistemas debe ser espacioso (alto >= 500px), obtenido: %f" % span_y)
+
+	# Probar comando pacman -S levels en terminal Arch Linux
+	ls._build_dev_console()
+	ls._on_dev_command_submitted("pacman -S levels")
+	for i in range(sis_list.size()):
+		assert(sis_list[i]["can_play"] == true, "Nodo %d de sistemas debe estar desbloqueado tras pacman -S levels" % i)
+
+	# Probar cadena de desbloqueo en Sistemas
+	SaveManager.reset_progression_lock()
+	assert(SaveManager.is_node_unlocked("sistema", 0) == true, "Tutorial 0 de sistemas desbloqueado")
+	assert(SaveManager.is_node_unlocked("sistema", 25) == false, "Práctica 0 de sistemas bloqueada")
+	SaveManager.mark_node_completed("sistema", 0)
+	SaveManager.unlock_node("sistema", 25)
+	assert(SaveManager.is_node_unlocked("sistema", 25) == true, "Práctica 0 desbloqueada tras completar Tutorial 0")
+
+	SaveManager.mark_node_completed("sistema", 25)
+	SaveManager.unlock_node("sistema", 1)
+	assert(SaveManager.is_node_unlocked("sistema", 1) == true, "Tutorial 1 de sistemas desbloqueado tras completar Práctica 0")
+
+	SaveManager.unlock_node("sistema", 7)
+	assert(SaveManager.is_node_unlocked("sistema", 7) == true, "Nivel 1 de Sistemas desbloqueado al completar la cadena")
+
+	print("  ✓ Modo Sistemas con 26 nodos, progresión secuencial y transiciones verificado exitosamente")
+	ls.queue_free()
+	await get_tree().process_frame
