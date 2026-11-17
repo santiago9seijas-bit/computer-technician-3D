@@ -14,6 +14,7 @@ const SAVE_DIR: String = "user://saves"
 
 var current_slot: int = 1
 var slots_cache: Array[Dictionary] = []
+static var just_unlocked_node: int = -1
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -78,12 +79,23 @@ func _create_default_slot_data(slot_index: int) -> Dictionary:
 			"servidor": false
 		},
 		# Niveles y entrenamiento
-		"tutorials_completed": 1 if is_first_slot else 0,
-		"tutorials_total": 4,
-		"levels_completed": 1 if is_first_slot else 0,
+		"tutorials_completed": 0,
+		"tutorials_total": 7,
+		"levels_completed": 0,
 		"levels_total": 36,
-		"practice_completed": 1 if is_first_slot else 0,
-		"practice_total": 3,
+		"practice_completed": 0,
+		"practice_total": 7,
+		# Nodos desbloqueados y completados por modo (Solo Tutorial 0 desbloqueado al inicio)
+		"unlocked_nodes": {
+			"reparacion": [0],
+			"sistema": [0],
+			"servidor": [0]
+		},
+		"completed_nodes": {
+			"reparacion": [],
+			"sistema": [],
+			"servidor": []
+		},
 		# Secretos y personajes
 		"secrets_unlocked": 1 if is_first_slot else 0,
 		"secrets_total": 3,
@@ -210,3 +222,79 @@ func reset_slot(slot_index: int) -> Dictionary:
 
 	slot_saved.emit(slot_index)
 	return fresh_data
+
+func is_node_unlocked(mode: String, node_idx: int) -> bool:
+	var data = get_slot(current_slot)
+	var unl_dict = data.get("unlocked_nodes", {})
+	var list = unl_dict.get(mode, [0])
+	return (node_idx in list)
+
+func unlock_node(mode: String, node_idx: int) -> void:
+	var data = get_slot(current_slot)
+	if not data.has("unlocked_nodes"):
+		data["unlocked_nodes"] = {"reparacion": [0], "sistema": [0], "servidor": [0]}
+	var unl_dict = data["unlocked_nodes"]
+	if not unl_dict.has(mode):
+		unl_dict[mode] = [0]
+	var list: Array = unl_dict[mode]
+	if not (node_idx in list):
+		list.append(node_idx)
+		save_slot(current_slot, data)
+
+func is_node_completed(mode: String, node_idx: int) -> bool:
+	var data = get_slot(current_slot)
+	var comp_dict = data.get("completed_nodes", {})
+	var list = comp_dict.get(mode, [])
+	return (node_idx in list)
+
+func mark_node_completed(mode: String, node_idx: int) -> void:
+	var data = get_slot(current_slot)
+	if not data.has("completed_nodes"):
+		data["completed_nodes"] = {"reparacion": [], "sistema": [], "servidor": []}
+	var comp_dict = data["completed_nodes"]
+	if not comp_dict.has(mode):
+		comp_dict[mode] = []
+	var list: Array = comp_dict[mode]
+	if not (node_idx in list):
+		list.append(node_idx)
+		if mode == "reparacion":
+			if node_idx in [0, 1, 2, 3, 4, 5, 6]:
+				data["tutorials_completed"] = int(data.get("tutorials_completed", 0)) + 1
+			elif node_idx in [25, 19, 20, 21, 22, 23, 24]:
+				data["practice_completed"] = int(data.get("practice_completed", 0)) + 1
+			elif node_idx in range(7, 19):
+				data["levels_completed"] = int(data.get("levels_completed", 0)) + 1
+		save_slot(current_slot, data)
+
+func unlock_all_levels() -> void:
+	var data = get_slot(current_slot)
+	var all_rep: Array = []
+	for i in range(26):
+		all_rep.append(i)
+	var all_sis: Array = []
+	for i in range(14):
+		all_sis.append(i)
+	var all_srv: Array = []
+	for i in range(14):
+		all_srv.append(i)
+	data["unlocked_nodes"] = {
+		"reparacion": all_rep,
+		"sistema": all_sis,
+		"servidor": all_srv
+	}
+	save_slot(current_slot, data)
+
+func reset_progression_lock() -> void:
+	var data = get_slot(current_slot)
+	data["unlocked_nodes"] = {
+		"reparacion": [0],
+		"sistema": [0],
+		"servidor": [0]
+	}
+	data["completed_nodes"] = {
+		"reparacion": [],
+		"sistema": [],
+		"servidor": []
+	}
+	save_slot(current_slot, data)
+

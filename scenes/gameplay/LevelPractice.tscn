@@ -56,6 +56,24 @@ emission_enabled = true
 emission = Color(0, 0.85, 1, 1)
 emission_energy_multiplier = 1.8
 
+[sub_resource type="TextMesh" id="TextMesh_tut_sign_1"]
+material = SubResource("StandardMaterial3D_hologram")
+text = "MESA #1 // ESTACIÓN ALFA"
+font_size = 22
+depth = 0.04
+
+[sub_resource type="TextMesh" id="TextMesh_tut_sign_2"]
+material = SubResource("StandardMaterial3D_hologram")
+text = "MESA #2 // ESTACIÓN BETA"
+font_size = 22
+depth = 0.04
+
+[sub_resource type="TextMesh" id="TextMesh_tut_sign_3"]
+material = SubResource("StandardMaterial3D_hologram")
+text = "MESA #3 // ESTACIÓN GAMMA"
+font_size = 22
+depth = 0.04
+
 [sub_resource type="TextMesh" id="TextMesh_tut_sign"]
 material = SubResource("StandardMaterial3D_hologram")
 text = "SALA DE ENTRENAMIENTO // MODO PRÁCTICA 3D"
@@ -258,64 +276,108 @@ shape = SubResource("BoxShape3D_wall_ew")
 transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 8, 2, 0)
 mesh = SubResource("QuadMesh_tut_wall")
 
-[node name="WorkBench" type="StaticBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.6)
+[node name="WorkBench1" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.6, 0, -1.8)
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="WorkBench"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="WorkBench1"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.456, 0)
 shape = SubResource("BoxShape3D_bench")
 
-[node name="MesaReparacion" parent="WorkBench" instance=ExtResource("10_mesa")]
+[node name="MesaReparacion" parent="WorkBench1" instance=ExtResource("10_mesa")]
 transform = Transform3D(0.012, 0, 0, 0, 0.012, 0, 0, 0, 0.012, 0, 0, 0)
 
-[node name="Computer1" parent="WorkBench" instance=ExtResource("8_pc")]
+[node name="Computer1" parent="WorkBench1" instance=ExtResource("8_pc")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.912, 0)
 pc_id = 1
 
-[node name="HoloBanner" type="MeshInstance3D" parent="WorkBench"]
+[node name="HoloBanner" type="MeshInstance3D" parent="WorkBench1"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.25, -0.4)
-mesh = SubResource("TextMesh_tut_sign")
+mesh = SubResource("TextMesh_tut_sign_1")
 
-[node name="HoloSubBanner" type="MeshInstance3D" parent="WorkBench"]
+[node name="HoloSubBanner" type="MeshInstance3D" parent="WorkBench1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.9, -0.4)
+mesh = SubResource("TextMesh_sub_sign")
+
+[node name="WorkBench2" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.8)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="WorkBench2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.456, 0)
+shape = SubResource("BoxShape3D_bench")
+
+[node name="MesaReparacion" parent="WorkBench2" instance=ExtResource("10_mesa")]
+transform = Transform3D(0.012, 0, 0, 0, 0.012, 0, 0, 0, 0.012, 0, 0, 0)
+
+[node name="Computer2" parent="WorkBench2" instance=ExtResource("8_pc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.912, 0)
+pc_id = 2
+
+[node name="HoloBanner" type="MeshInstance3D" parent="WorkBench2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.25, -0.4)
+mesh = SubResource("TextMesh_tut_sign_2")
+
+[node name="HoloSubBanner" type="MeshInstance3D" parent="WorkBench2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.9, -0.4)
+mesh = SubResource("TextMesh_sub_sign")
+
+[node name="WorkBench3" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.6, 0, -1.8)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="WorkBench3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.456, 0)
+shape = SubResource("BoxShape3D_bench")
+
+[node name="MesaReparacion" parent="WorkBench3" instance=ExtResource("10_mesa")]
+transform = Transform3D(0.012, 0, 0, 0, 0.012, 0, 0, 0, 0.012, 0, 0, 0)
+
+[node name="Computer3" parent="WorkBench3" instance=ExtResource("8_pc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.912, 0)
+pc_id = 3
+
+[node name="HoloBanner" type="MeshInstance3D" parent="WorkBench3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.25, -0.4)
+mesh = SubResource("TextMesh_tut_sign_3")
+
+[node name="HoloSubBanner" type="MeshInstance3D" parent="WorkBench3"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.9, -0.4)
 mesh = SubResource("TextMesh_sub_sign")
 
 [node name="TrashBin" parent="." instance=ExtResource("5_trash")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.4, 0.1, -1.2)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.0, 0.1, 4.5)
 
 [node name="WallDispenser" parent="." instance=ExtResource("6_disp")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.8, -6.8)
 
 [node name="SparesRAM" parent="." instance=ExtResource("7_spares")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.6, 0.1, -1.2)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.5, 0.1, -2.5)
 spare_type = "RAM"
 
-[node name="SparesHDD" parent="." instance=ExtResource("7_spares")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.6, 0.1, 0.0)
-spare_type = "Disco Duro"
-
-[node name="SparesPSU" parent="." instance=ExtResource("7_spares")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.6, 0.1, 1.2)
-spare_type = "Fuente"
-
-[node name="SparesGPU" parent="." instance=ExtResource("7_spares")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.6, 0.1, 0.0)
-spare_type = "Grafica"
-
 [node name="SparesCooler" parent="." instance=ExtResource("7_spares")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.6, 0.1, 1.2)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.5, 0.1, 0.0)
 spare_type = "Fan Cooler"
 
 [node name="SparesCPU" parent="." instance=ExtResource("7_spares")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.6, 0.1, 2.4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.5, 0.1, 2.5)
 spare_type = "CPU"
 
+[node name="SparesHDD" parent="." instance=ExtResource("7_spares")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.5, 0.1, -2.5)
+spare_type = "Disco Duro"
+
+[node name="SparesGPU" parent="." instance=ExtResource("7_spares")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.5, 0.1, 0.0)
+spare_type = "Grafica"
+
+[node name="SparesPSU" parent="." instance=ExtResource("7_spares")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.5, 0.1, 2.5)
+spare_type = "Fuente"
+
 [node name="SparesMaster" parent="." instance=ExtResource("7_spares")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.6, 0.1, 2.4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0, 0.1, 5.5)
 spare_type = "TODOS"
 
 [node name="Player" parent="." instance=ExtResource("2_player")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.15, 0.9)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.15, 2.0)
 
 [node name="CanvasLayerHUD" type="CanvasLayer" parent="."]
 layer = 1

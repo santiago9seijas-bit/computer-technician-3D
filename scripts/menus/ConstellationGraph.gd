@@ -35,6 +35,54 @@ var node_ripples: Array[float] = [
 	0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
 ]
 var node_press_tweens: Dictionary = {}
+var node_unlocked_states: Dictionary = {}
+
+var unlocking_node_index: int = -1
+var unlock_anim_progress: float = 0.0
+var _unlock_tween: Tween = null
+
+func set_node_unlocked(index: int, unlocked: bool) -> void:
+	node_unlocked_states[index] = unlocked
+	queue_redraw()
+
+func set_all_unlocked(unlocked: bool) -> void:
+	for i in range(nodes.size()):
+		node_unlocked_states[i] = unlocked
+	queue_redraw()
+
+func is_node_unlocked(index: int) -> bool:
+	if node_unlocked_states.has(index):
+		return node_unlocked_states[index]
+	var sm = get_node_or_null("/root/SaveManager")
+	if sm and sm.has_method("is_node_unlocked"):
+		return sm.is_node_unlocked(current_mode, index)
+	return (index == 0)
+
+func play_unlock_animation(node_idx: int, on_complete: Callable = Callable()) -> void:
+	if node_idx < 0 or node_idx >= nodes.size():
+		if on_complete.is_valid(): on_complete.call()
+		return
+	unlocking_node_index = node_idx
+	unlock_anim_progress = 0.0
+	set_node_unlocked(node_idx, true)
+	trigger_node_click_zoom(node_idx)
+	
+	if _unlock_tween and _unlock_tween.is_valid():
+		_unlock_tween.kill()
+		
+	_unlock_tween = create_tween()
+	_unlock_tween.tween_method(func(v: float):
+		unlock_anim_progress = v
+		queue_redraw()
+	, 0.0, 1.0, 1.25).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	
+	_unlock_tween.chain().tween_callback(func():
+		unlocking_node_index = -1
+		unlock_anim_progress = 0.0
+		queue_redraw()
+		if on_complete.is_valid():
+			on_complete.call()
+	)
 
 func trigger_node_click_zoom(index: int) -> void:
 	if index < 0 or index >= node_zoom_scales.size():
@@ -129,39 +177,41 @@ var initialized_fx: bool = false
 # RAÍZ PRINCIPAL AL NIVEL 1 EN EL OESTE/NOROESTE CONECTADA DIRECTA AL NÚCLEO
 # =============================================================================
 var MODE_NODES: Dictionary = {
-	# 1. REPARACIÓN: Telaraña Expandida (Tutoriales Azules 🎓, Niveles 1-12 Rojos ▶️/🔒 y Práctica Naranja 🛠️)
+	# 1. REPARACIÓN: Telaraña Expandida y Espaciosa (Distribución Secuencial: Tutorial -> Reto de Práctica Cronometrado -> Nivel 1)
 	"reparacion": [
-		# --- NÚCLEO Y TUTORIALES (AZUL ELÉCTRICO NEÓN 🎓) [0 - 6] ---
-		Vector2(600, 395), # [0] NÚCLEO TUTORIAL: Inducción Central al Hardware
-		Vector2(460, 395), # [1] TUTORIAL 3D: Fan Cooler (Spoke Oeste)
-		Vector2(530, 275), # [2] TUTORIAL 3D: Memoria RAM (Spoke Noroeste)
-		Vector2(670, 275), # [3] TUTORIAL 3D: Disco HDD / SSD (Spoke Noreste)
-		Vector2(740, 395), # [4] TUTORIAL 3D: Tarjeta Gráfica GPU (Spoke Este)
-		Vector2(670, 515), # [5] TUTORIAL 3D: Fuente de Poder PSU (Spoke Sureste)
-		Vector2(530, 515), # [6] TUTORIAL 3D: Procesador CPU (Spoke Suroeste)
+		# --- NÚCLEO CENTRAL DE INDUCCIÓN [0] ---
+		Vector2(520, 360), # [0] NÚCLEO TUTORIAL: Inducción Central al Hardware
 
-		# --- NIVELES DE REPARACIÓN (TALLER 3D) [7 - 18] ---
-		Vector2(310, 395), # [7] NIVEL 1 · MONTAJE FAN COOLER (DESBLOQUEADO ▶️ ROJO NEÓN)
-		Vector2(350, 250), # [8] NIVEL 2 · DIAGNÓSTICO BANCO RAM (🔒 BLOQUEADO)
-		Vector2(455, 145), # [9] NIVEL 3 · UNIDAD SATA Y TORNILLOS (HDD / SSD) (🔒 BLOQUEADO)
-		Vector2(600, 105), # [10] NIVEL 4 · PASTA TÉRMICA Y CONTACTO (🔒 BLOQUEADO)
-		Vector2(745, 145), # [11] NIVEL 5 · TARJETA GRÁFICA PCIE (🔒 BLOQUEADO)
-		Vector2(850, 250), # [12] NIVEL 6 · FUENTE DE PODER ATX (🔒 BLOQUEADO)
-		Vector2(890, 395), # [13] NIVEL 7 · ZÓCALO DE PROCESADOR CPU (🔒 BLOQUEADO)
-		Vector2(850, 540), # [14] NIVEL 8 · ARQUITECTURA TÉRMICA COMPLETA (🔒 BLOQUEADO)
-		Vector2(745, 645), # [15] NIVEL 9 · DIAGNÓSTICO INTEGRADO (🔒 BLOQUEADO)
-		Vector2(600, 685), # [16] NIVEL 10 · WORKSTATION GAMING & RENDER (🔒 BLOQUEADO)
-		Vector2(455, 645), # [17] NIVEL 11 · OVERCLOCKING & CALIBRACIÓN (🔒 BLOQUEADO)
-		Vector2(350, 540), # [18] NIVEL 12 · CERTIFICACIÓN TÉCNICA MAESTRA (🔒 BLOQUEADO)
+		# --- TUTORIALES GUIADOS 3D [1 - 6] ---
+		Vector2(350, 360), # [1] TUTORIAL 3D: Fan Cooler (Oeste)
+		Vector2(400, 230), # [2] TUTORIAL 3D: Memoria RAM (Noroeste)
+		Vector2(600, 200), # [3] TUTORIAL 3D: Disco HDD / SSD (Norte)
+		Vector2(800, 230), # [4] TUTORIAL 3D: Tarjeta Gráfica GPU (Noreste)
+		Vector2(850, 360), # [5] TUTORIAL 3D: Fuente de Poder PSU (Este)
+		Vector2(800, 490), # [6] TUTORIAL 3D: Procesador CPU (Sureste)
 
-		# --- ZONAS DE PRÁCTICA LIBRE (NARANJA NEÓN 🛠️) [19 - 25] ---
-		Vector2(140, 395), # [19] PRÁCTICA: Banco Fan Cooler (Oeste Exterior)
-		Vector2(200, 170), # [20] PRÁCTICA: Banco Memoria RAM (Noroeste Exterior)
-		Vector2(950, 100), # [21] PRÁCTICA: Banco Discos HDD/SSD (Noreste Exterior)
-		Vector2(1060, 395),# [22] PRÁCTICA: Banco Tarjeta Gráfica GPU (Este Exterior)
-		Vector2(1000, 660),# [23] PRÁCTICA: Banco Fuente de Poder PSU (Sureste Exterior)
-		Vector2(200, 620), # [24] PRÁCTICA: Banco Procesador CPU (Suroeste Exterior)
-		Vector2(210, 270)  # [25] SALA DE PRÁCTICA MAESTRA 3D (TODAS LAS PIEZAS)
+		# --- CAMPAÑA PRINCIPAL: NIVELES 1 AL 12 [7 - 18] (Se desbloquean al completar el entrenamiento) ---
+		Vector2(760, 580), # [7] NIVEL 1 · MONTAJE FAN COOLER (Desbloqueo final de inducción)
+		Vector2(640, 610), # [8] NIVEL 2 · DIAGNÓSTICO BANCO RAM
+		Vector2(520, 620), # [9] NIVEL 3 · UNIDAD SATA Y TORNILLOS (HDD / SSD)
+		Vector2(400, 610), # [10] NIVEL 4 · PASTA TÉRMICA Y CONTACTO
+		Vector2(290, 570), # [11] NIVEL 5 · TARJETA GRÁFICA PCIE
+		Vector2(200, 500), # [12] NIVEL 6 · FUENTE DE PODER ATX
+		Vector2(120, 480), # [13] NIVEL 7 · ZÓCALO DE PROCESADOR CPU
+		Vector2(80, 360),  # [14] NIVEL 8 · ARQUITECTURA TÉRMICA COMPLETA
+		Vector2(90, 240),  # [15] NIVEL 9 · DIAGNÓSTICO INTEGRADO
+		Vector2(130, 140), # [16] NIVEL 10 · WORKSTATION GAMING & RENDER
+		Vector2(200, 60),  # [17] NIVEL 11 · OVERCLOCKING & CALIBRACIÓN
+		Vector2(360, 50),  # [18] NIVEL 12 · CERTIFICACIÓN TÉCNICA MAESTRA
+
+		# --- RETOS DE PRÁCTICA CRONOMETRADOS (3 MESAS / 8 MINUTOS) [19 - 25] ---
+		Vector2(180, 360), # [19] RETO PRÁCTICA: Fan Cooler (Exterior Oeste)
+		Vector2(260, 120), # [20] RETO PRÁCTICA: Memoria RAM (Exterior Noroeste)
+		Vector2(600, 70),  # [21] RETO PRÁCTICA: Discos HDD/SSD (Exterior Norte)
+		Vector2(940, 120), # [22] RETO PRÁCTICA: Tarjeta Gráfica GPU (Exterior Noreste)
+		Vector2(1020, 360),# [23] RETO PRÁCTICA: Fuente de Poder PSU (Exterior Este)
+		Vector2(940, 600), # [24] RETO PRÁCTICA: Procesador CPU (Exterior Sureste)
+		Vector2(680, 360)  # [25] RETO PRÁCTICA: Inducción / 3 PCs Inicial (Centro Este)
 	],
 	# 2. SISTEMA: Telaraña de Diamante Cibernético y Matriz de Kernel Ampliada
 	"sistema": [
@@ -199,24 +249,33 @@ var MODE_NODES: Dictionary = {
 	]
 }
 
-# Conexiones estructuradas de telaraña: Núcleo Central -> Raíces -> Anillos -> Vértices
+# Conexiones estructuradas de telaraña: Cadena de Desbloqueo Secuencial y Malla Cibernética
 var MODE_CONNECTIONS: Dictionary = {
 	"reparacion": [
-		# 1. Raíces directas desde el núcleo central a los 6 tutoriales
-		Vector2i(0, 1), Vector2i(0, 2), Vector2i(0, 3), Vector2i(0, 4), Vector2i(0, 5), Vector2i(0, 6),
-		# 2. Anillo hexagonal de tutoriales 3D
-		Vector2i(1, 2), Vector2i(2, 3), Vector2i(3, 4), Vector2i(4, 5), Vector2i(5, 6), Vector2i(6, 1),
-		# 3. Filamentos desde tutoriales a sus niveles respectivos
-		Vector2i(1, 7), Vector2i(2, 8), Vector2i(3, 9), Vector2i(1, 10),
-		Vector2i(4, 11), Vector2i(5, 12), Vector2i(6, 13),
-		# 4. Anillo perimetral completo de Niveles 1 al 12
+		# 1. Cadena de progresión principal: Tutorial -> Reto de Práctica -> Siguiente Tutorial
+		Vector2i(0, 25), # Tut 0 (Inducción) -> Reto Práctica 0 (3 PCs Inicial)
+		Vector2i(25, 1), # Reto Práctica 0 -> Tut 1 (Cooler)
+		Vector2i(1, 19), # Tut 1 -> Reto Práctica 1 (Cooler)
+		Vector2i(19, 2), # Reto Práctica 1 -> Tut 2 (RAM)
+		Vector2i(2, 20), # Tut 2 -> Reto Práctica 2 (RAM)
+		Vector2i(20, 3), # Reto Práctica 2 -> Tut 3 (HDD)
+		Vector2i(3, 21), # Tut 3 -> Reto Práctica 3 (HDD)
+		Vector2i(21, 4), # Reto Práctica 3 -> Tut 4 (GPU)
+		Vector2i(4, 22), # Tut 4 -> Reto Práctica 4 (GPU)
+		Vector2i(22, 5), # Reto Práctica 4 -> Tut 5 (PSU)
+		Vector2i(5, 23), # Tut 5 -> Reto Práctica 5 (PSU)
+		Vector2i(23, 6), # Reto Práctica 5 -> Tut 6 (CPU)
+		Vector2i(6, 24), # Tut 6 -> Reto Práctica 6 (CPU)
+		Vector2i(24, 7), # Reto Práctica 6 -> ¡NIVEL 1! (Desbloqueo de campaña)
+
+		# 2. Vía perimetral de Campaña: Niveles 1 al 12
 		Vector2i(7, 8), Vector2i(8, 9), Vector2i(9, 10), Vector2i(10, 11), Vector2i(11, 12), Vector2i(12, 13),
-		Vector2i(13, 14), Vector2i(14, 15), Vector2i(15, 16), Vector2i(16, 17), Vector2i(17, 18), Vector2i(18, 7),
-		# 5. Enlaces radiales a las zonas de práctica libre
-		Vector2i(7, 19), Vector2i(8, 20), Vector2i(9, 21),
-		Vector2i(11, 22), Vector2i(12, 23), Vector2i(13, 24),
-		# 6. Enlaces a la Sala de Práctica Maestra 3D
-		Vector2i(0, 25), Vector2i(1, 25), Vector2i(7, 25)
+		Vector2i(13, 14), Vector2i(14, 15), Vector2i(15, 16), Vector2i(16, 17), Vector2i(17, 18),
+
+		# 3. Malla secundaria cibernética entre sectores
+		Vector2i(0, 1), Vector2i(0, 2), Vector2i(0, 3), Vector2i(0, 4), Vector2i(0, 5), Vector2i(0, 6),
+		Vector2i(1, 2), Vector2i(2, 3), Vector2i(3, 4), Vector2i(4, 5), Vector2i(5, 6), Vector2i(6, 25),
+		Vector2i(19, 20), Vector2i(20, 21), Vector2i(21, 22), Vector2i(22, 23), Vector2i(23, 24)
 	],
 	"sistema": [
 		# Raíces directas desde el núcleo tutorial (0)
@@ -503,14 +562,16 @@ func _rebuild_dynamic_traces() -> void:
 	if current_mode == "reparacion":
 		if nodes.size() >= 26:
 			raw_traces = [
-				PackedVector2Array([hub, nodes[1], nodes[7], nodes[19]]),
-				PackedVector2Array([hub, nodes[2], nodes[8], nodes[20]]),
-				PackedVector2Array([hub, nodes[3], nodes[9], nodes[21]]),
-				PackedVector2Array([hub, nodes[4], nodes[11], nodes[22]]),
-				PackedVector2Array([hub, nodes[5], nodes[12], nodes[23]]),
-				PackedVector2Array([hub, nodes[6], nodes[13], nodes[24]]),
-				PackedVector2Array([nodes[1], nodes[2], nodes[3], nodes[4], nodes[5], nodes[6], nodes[1]]),
-				PackedVector2Array([hub, nodes[25]])
+				PackedVector2Array([nodes[0], nodes[25]]),
+				PackedVector2Array([nodes[25], nodes[1], nodes[19]]),
+				PackedVector2Array([nodes[19], nodes[2], nodes[20]]),
+				PackedVector2Array([nodes[20], nodes[3], nodes[21]]),
+				PackedVector2Array([nodes[21], nodes[4], nodes[22]]),
+				PackedVector2Array([nodes[22], nodes[5], nodes[23]]),
+				PackedVector2Array([nodes[23], nodes[6], nodes[24]]),
+				PackedVector2Array([nodes[24], nodes[7]]),
+				PackedVector2Array([nodes[7], nodes[8], nodes[9], nodes[10], nodes[11], nodes[12]]),
+				PackedVector2Array([nodes[12], nodes[13], nodes[14], nodes[15], nodes[16], nodes[17], nodes[18]])
 			]
 		else:
 			raw_traces = [
@@ -769,18 +830,19 @@ func _draw() -> void:
 	for i in range(nodes.size()):
 		var np = nodes[i]
 		var is_hovered = (hovered_node_index == i)
+		var is_unlocked = is_node_unlocked(i)
 		var is_tutorial = false
 		var is_practice = false
-		var is_playable = false
+		var is_campaign = false
 		if current_mode == "reparacion":
 			is_tutorial = (i >= 0 and i <= 6)
 			is_practice = (i >= 19 and i <= 25)
-			is_playable = (i == 7) # NIVEL 1 de reparación (desbloqueado ▶️)
+			is_campaign = (i >= 7 and i <= 18)
 		else:
 			is_tutorial = (i == 0)
 			is_practice = (i == 13)
-			is_playable = (i == 1)
-		var is_active_node = is_tutorial or is_practice or is_playable or is_hovered
+			is_campaign = (i >= 1 and i <= 12)
+		var is_active_node = (is_unlocked and (is_tutorial or is_practice or is_campaign)) or is_hovered
 		var zoom_scale = node_zoom_scales[i] if i < node_zoom_scales.size() else 1.0
 		var ripple = node_ripples[i] if i < node_ripples.size() else 0.0
 
@@ -793,19 +855,22 @@ func _draw() -> void:
 		if ripple > 0.01:
 			var rip_r = lerp(26.0, 72.0, 1.0 - ripple) * zoom_scale
 			var rip_a = ripple * 0.85
-			var rip_col = Color(0.0, 0.88, 1.0, rip_a) if is_tutorial else (Color(1.0, 0.55, 0.05, rip_a) if is_practice else (Color(1.0, 0.1, 0.3, rip_a) if is_playable else Color(0.2, 0.85, 1.0, rip_a)))
+			var rip_col = Color(0.0, 0.88, 1.0, rip_a) if is_tutorial else (Color(1.0, 0.55, 0.05, rip_a) if is_practice else (Color(1.0, 0.1, 0.3, rip_a) if is_campaign else Color(0.2, 0.85, 1.0, rip_a)))
 			draw_arc(np, rip_r, 0, TAU, 24, rip_col, 2.0)
 
 		# --- Zócalo base en la telaraña ---
 		var socket_bg: Color
 		var socket_arc: Color
-		if is_tutorial:
+		if not is_unlocked:
+			socket_bg = Color(0.04, 0.06, 0.12, 0.18)
+			socket_arc = Color(0.25, 0.38, 0.52, 0.32)
+		elif is_tutorial:
 			socket_bg = Color(0.0, 0.35, 0.65, 0.22)
 			socket_arc = Color(0.0, 0.88, 1.0, 0.75)
 		elif is_practice:
 			socket_bg = Color(0.9, 0.45, 0.02, 0.22)
 			socket_arc = Color(1.0, 0.55, 0.05, 0.85)
-		elif is_playable:
+		elif is_campaign:
 			if current_mode == "sistema":
 				socket_bg = Color(0.03, 0.15, 0.5, 0.25)
 				socket_arc = Color(0.18, 0.58, 1.0, 0.85)
@@ -824,7 +889,7 @@ func _draw() -> void:
 		draw_arc(np, socket_sz - 4.0 * zoom_scale, 0, TAU, 20, socket_arc, 1.0)
 
 		# --- Anillos segmentados rotatorios SOLO en nodos activos o hovered ---
-		if is_active_node:
+		if is_active_node and is_unlocked:
 			var rot_cw = anim_offset * (1.2 + float(i % 3) * 0.3)
 			var rot_ccw = -anim_offset * (0.9 + float((i + 1) % 3) * 0.25)
 			var ring_r1 = (28.0 if is_tutorial else (27.0 if is_practice else 25.5)) * zoom_scale
@@ -837,12 +902,29 @@ func _draw() -> void:
 			draw_arc(np, ring_r2, rot_ccw + PI * 1.2, rot_ccw + PI * 1.8, 10, Color(arc_col.r, arc_col.g, arc_col.b, 0.7), 1.0)
 
 		# --- Esfera de cristal central ---
-		var crystal_col = Color(0.02, 0.06, 0.14, 0.95) if is_tutorial else (Color(0.12, 0.05, 0.01, 0.95) if is_practice else (Color(0.10, 0.02, 0.05, 0.95) if is_playable else Color(0.04, 0.03, 0.08, 0.92)))
+		var crystal_col = Color(0.03, 0.04, 0.08, 0.95)
+		if not is_unlocked:
+			crystal_col = Color(0.02, 0.03, 0.06, 0.94)
+		elif is_tutorial:
+			crystal_col = Color(0.02, 0.06, 0.14, 0.95)
+		elif is_practice:
+			crystal_col = Color(0.12, 0.05, 0.01, 0.95)
+		elif is_campaign:
+			crystal_col = Color(0.10, 0.02, 0.05, 0.95)
+
 		draw_circle(np, breath_radius, crystal_col)
 		draw_arc(np, breath_radius, 0, TAU, 18, socket_arc, 1.0)
 
 		# --- Iconografía interior de cada nodo ---
-		if is_tutorial:
+		if not is_unlocked:
+			# Candado cibernético de bloqueo 🔒
+			var lock_col = Color(0.4, 0.6, 0.75, 0.65) if not is_hovered else Color(0.0, 1.0, 0.75, 0.95)
+			var lock_w = 11.0 * zoom_scale
+			var lock_h = 8.0 * zoom_scale
+			var lock_pos = Vector2(np.x - lock_w * 0.5, np.y - 1.0 * zoom_scale)
+			draw_rect(Rect2(lock_pos.x, lock_pos.y, lock_w, lock_h), lock_col, false, 1.0)
+			draw_arc(np + Vector2(0, -1.0 * zoom_scale), 3.8 * zoom_scale, PI, TAU, 8, lock_col, 1.0)
+		elif is_tutorial:
 			# GORRO DE GRADUADO (BIRRETE CIBERNÉTICO)
 			var em_col = Color(0.2, 0.95, 1.0, 0.98) if not is_hovered else Color.WHITE
 			var sz = 7.5 * zoom_scale
@@ -888,20 +970,12 @@ func _draw() -> void:
 			# 3. Núcleo perno luminoso en la intersección
 			draw_circle(np, 2.6 * zoom_scale, Color(1.0, 0.9, 0.4, 1.0))
 			draw_circle(np, 1.2 * zoom_scale, Color.WHITE)
-		elif is_playable:
+		elif is_campaign:
 			var tri_sz = 6.5 * zoom_scale
 			var p_top = np + Vector2(-tri_sz * 0.6, -tri_sz)
 			var p_bot = np + Vector2(-tri_sz * 0.6, tri_sz)
 			var p_tip = np + Vector2(tri_sz * 1.1, 0.0)
 			draw_colored_polygon([p_top, p_tip, p_bot], Color(1.0, 0.2, 0.35, 0.95) if not is_hovered else Color.WHITE)
-		else:
-			# Candado ligero
-			var lock_col = Color(0.4, 0.6, 0.75, 0.65) if not is_hovered else Color(0.0, 1.0, 0.75, 0.95)
-			var lock_w = 11.0 * zoom_scale
-			var lock_h = 8.0 * zoom_scale
-			var lock_pos = Vector2(np.x - lock_w * 0.5, np.y - 1.0 * zoom_scale)
-			draw_rect(Rect2(lock_pos.x, lock_pos.y, lock_w, lock_h), lock_col, false, 1.0)
-			draw_arc(np + Vector2(0, -1.0 * zoom_scale), 3.8 * zoom_scale, PI, TAU, 8, lock_col, 1.0)
 
 		# --- Corchetes tácticos de selección en Hover ---
 		if is_hovered:
@@ -916,6 +990,18 @@ func _draw() -> void:
 			draw_line(np + Vector2(-b_dist, b_dist), np + Vector2(-b_dist, b_dist - b_sz), b_col, 1.8)
 			draw_line(np + Vector2(b_dist, b_dist), np + Vector2(b_dist - b_sz, b_dist), b_col, 1.8)
 			draw_line(np + Vector2(b_dist, b_dist), np + Vector2(b_dist, b_dist - b_sz), b_col, 1.8)
+
+	# =========================================================================
+	# 9. ANIMACIÓN DE ONDA EXPANSIVA DE DESBLOQUEO (NUEVO NODO DESBLOQUEADO)
+	# =========================================================================
+	if unlocking_node_index >= 0 and unlocking_node_index < nodes.size():
+		var up = nodes[unlocking_node_index]
+		var u_rad = lerp(20.0, 160.0, unlock_anim_progress)
+		var u_alpha = (1.0 - unlock_anim_progress) * 0.95
+		var u_col = Color(0.0, 0.88, 1.0, u_alpha) if (unlocking_node_index <= 6) else (Color(1.0, 0.6, 0.1, u_alpha) if (unlocking_node_index >= 19) else Color(1.0, 0.15, 0.35, u_alpha))
+		draw_arc(up, u_rad, 0, TAU, 36, u_col, 3.5)
+		draw_arc(up, u_rad * 0.68, 0, TAU, 28, Color(1.0, 1.0, 1.0, u_alpha * 0.85), 2.0)
+		draw_circle(up, 24.0 * (1.0 - unlock_anim_progress), Color(1.0, 1.0, 1.0, u_alpha * 0.7))
 
 # =============================================================================
 # FONDO DE TELARAÑA GEOMÉTRICA CONCÉNTRICA Y RADIAL SEGÚN EL MODO (BATCHEADO)

@@ -94,6 +94,16 @@ var current_map_zoom: float = 1.0
 const MIN_MAP_ZOOM: float = 0.65
 const MAX_MAP_ZOOM: float = 1.6
 
+# --- Arrastre y desplazamiento libre del mapa (Mouse Pan Drag) ---
+var is_panning_map: bool = false
+var pan_start_mouse: Vector2 = Vector2.ZERO
+var pan_start_area_pos: Vector2 = Vector2.ZERO
+
+# --- Consola de Desarrollador Andromeda OS (Ctrl + Shift + R) ---
+var dev_console_overlay: Control = null
+var dev_console_input: LineEdit = null
+var dev_console_output: RichTextLabel = null
+
 # --- Área de Tutoriales (Centro de Entrenamiento) ---
 @onready var tutorial_area: Control = $TutorialArea
 @onready var cards_scroll: ScrollContainer = $TutorialArea/CardsScroll
@@ -204,7 +214,7 @@ var LEVELS_DATA: Dictionary = {
 			"color_accent": Color(0.0, 0.88, 1.0),
 			"description": "Taller guiado paso a paso con Joa.\nAprende a desconectar el conector PWM de 4 pines, desatornillar en patrón en cruz y retirar el bloque del disipador de forma segura.",
 			"requirements": "HERRAMIENTAS: Destornillador Cruz · MODO TUTORIAL GUIADO",
-			"can_play": true
+			"can_play": false
 		},
 		{
 			"number": 2,
@@ -217,7 +227,7 @@ var LEVELS_DATA: Dictionary = {
 			"color_accent": Color(0.0, 0.88, 1.0),
 			"description": "Taller guiado paso a paso con Joa.\nAprende a abrir los seguros laterales (clips) de la ranura DIMM, alinear la muesca y encajar firmemente el módulo DDR.",
 			"requirements": "HERRAMIENTAS: Manos libres / Guantes antiestáticos · MODO TUTORIAL GUIADO",
-			"can_play": true
+			"can_play": false
 		},
 		{
 			"number": 3,
@@ -230,7 +240,7 @@ var LEVELS_DATA: Dictionary = {
 			"color_accent": Color(0.0, 0.88, 1.0),
 			"description": "Taller guiado paso a paso con Joa.\nRetira los 4 tornillos de las esquinas del soporte, desconecta el cable SATA de datos y desliza suavemente el disco hacia la derecha.",
 			"requirements": "HERRAMIENTAS: Destornillador de precisión · MODO TUTORIAL GUIADO",
-			"can_play": true
+			"can_play": false
 		},
 		{
 			"number": 4,
@@ -243,7 +253,7 @@ var LEVELS_DATA: Dictionary = {
 			"color_accent": Color(0.0, 0.88, 1.0),
 			"description": "Taller guiado paso a paso con Joa.\nDesconecta la alimentación PCIe para detener ventiladores, retira los tornillos del soporte HDMI y levanta la tarjeta manteniendo el soporte en su sitio.",
 			"requirements": "HERRAMIENTAS: Destornillador Cruz y extractor PCIe · MODO TUTORIAL GUIADO",
-			"can_play": true
+			"can_play": false
 		},
 		{
 			"number": 5,
@@ -256,7 +266,7 @@ var LEVELS_DATA: Dictionary = {
 			"color_accent": Color(0.0, 0.88, 1.0),
 			"description": "Taller guiado paso a paso con Joa.\nIdentifica el conector ATX principal de 24 pines y la toma auxiliar EPS de CPU, liberando las pestañas plásticas sin forzar la placa.",
 			"requirements": "HERRAMIENTAS: Manos libres y extractor de cables · MODO TUTORIAL GUIADO",
-			"can_play": true
+			"can_play": false
 		},
 		{
 			"number": 6,
@@ -269,7 +279,7 @@ var LEVELS_DATA: Dictionary = {
 			"color_accent": Color(0.0, 0.88, 1.0),
 			"description": "Taller guiado paso a paso con Joa.\nLevanta la palanca de retención metálica del socket, retira el procesador con máxima suavidad respetando las esquinas doradas y monta el nuevo CPU.",
 			"requirements": "HERRAMIENTAS: Pinzas de precisión · MODO TUTORIAL GUIADO",
-			"can_play": true
+			"can_play": false
 		},
 
 		# --- NIVELES DE JUEGO DEL TALLER (1 AL 12) [7 - 18] ---
@@ -283,7 +293,7 @@ var LEVELS_DATA: Dictionary = {
 			"color_accent": Color(1.0, 0.15, 0.35),
 			"description": "3 computadoras contra reloj con sobrecalentamiento térmico severo.\nIdentifica el conector PWM de 4 pines y desacopla la tornillería Cruz (+) o Pala (-).\nEl procesador no debe sobrepasar los 95°C durante la prueba.",
 			"requirements": "HERRAMIENTAS: Destornillador Cruz [1] / Pala [2] · LÍMITE: 120s · RECOMPENSA: 100 PTS",
-			"can_play": true
+			"can_play": false
 		},
 		{
 			"number": 2,
@@ -418,90 +428,90 @@ var LEVELS_DATA: Dictionary = {
 			"can_play": false
 		},
 
-		# --- ZONAS DE PRÁCTICA LIBRE (BURBUJAS NARANJAS 🛠️) [19 - 25] ---
+		# --- RETOS DE PRÁCTICA CRONOMETRADOS (3 MESAS CON FALLAS DISTINTAS / 8 MINUTOS) [19 - 25] ---
 		{
 			"number": 19,
 			"is_practice": true,
 			"practice_id": "cooler",
-			"title": "ZONA DE PRÁCTICA: BANCO DE REFRIGERACIÓN (FAN COOLER)",
-			"stage": "ZONA DE PRÁCTICA // ENTRENAMIENTO",
+			"title": "RETO DE PRÁCTICA // FAN COOLER & REFRIGERACIÓN",
+			"stage": "ZONA DE PRÁCTICA // RETO CRONOMETRADO",
 			"mode_name": "REPARACIÓN",
 			"color_accent": Color(1.0, 0.55, 0.05),
-			"description": "Banco de trabajo libre sin límite de tiempo.\nPractica la desconexión PWM y aflojado en patrón diagonal de 4 tornillos de cooler con Joa.",
-			"requirements": "HERRAMIENTAS: Acceso Total · MODO PRÁCTICA LIBRE · SIN TIEMPO",
-			"can_play": true
+			"description": "3 estaciones de trabajo simultáneas con problemas térmicos y de hardware.\nRepara los 3 equipos en las mesas antes de los 8 minutos.",
+			"requirements": "HERRAMIENTAS: Acceso Total · 3 COMPUTADORAS · LÍMITE: 8 MINUTOS",
+			"can_play": false
 		},
 		{
 			"number": 20,
 			"is_practice": true,
 			"practice_id": "ram",
-			"title": "ZONA DE PRÁCTICA: BANCO DE MEMORIAS RAM",
-			"stage": "ZONA DE PRÁCTICA // ENTRENAMIENTO",
+			"title": "RETO DE PRÁCTICA // BANCO DE MEMORIAS RAM",
+			"stage": "ZONA DE PRÁCTICA // RETO CRONOMETRADO",
 			"mode_name": "REPARACIÓN",
 			"color_accent": Color(1.0, 0.55, 0.05),
-			"description": "Banco de trabajo libre sin límite de tiempo.\nPractica la apertura de trabas laterales, extracción y montaje de módulos DDR con Joa.",
-			"requirements": "HERRAMIENTAS: Acceso Total · MODO PRÁCTICA LIBRE · SIN TIEMPO",
-			"can_play": true
+			"description": "3 estaciones con pitidos de BIOS y pantallas azules de memoria.\nSustituye los módulos defectuosos antes de agotar los 8 minutos.",
+			"requirements": "HERRAMIENTAS: Acceso Total · 3 COMPUTADORAS · LÍMITE: 8 MINUTOS",
+			"can_play": false
 		},
 		{
 			"number": 21,
 			"is_practice": true,
 			"practice_id": "hdd",
-			"title": "ZONA DE PRÁCTICA: BANCO DE ALMACENAMIENTO (HDD / SSD)",
-			"stage": "ZONA DE PRÁCTICA // ENTRENAMIENTO",
+			"title": "RETO DE PRÁCTICA // ALMACENAMIENTO HDD & SSD",
+			"stage": "ZONA DE PRÁCTICA // RETO CRONOMETRADO",
 			"mode_name": "REPARACIÓN",
 			"color_accent": Color(1.0, 0.55, 0.05),
-			"description": "Banco de trabajo libre sin límite de tiempo.\nPractica los 4 tornillos de esquinas, desconexión de cables SATA y extracción a la derecha con Joa.",
-			"requirements": "HERRAMIENTAS: Acceso Total · MODO PRÁCTICA LIBRE · SIN TIEMPO",
-			"can_play": true
+			"description": "3 estaciones con discos mecánicos dañados y SSDs corruptos.\nInstala las unidades de reemplazo y fija tornillos en 8 minutos.",
+			"requirements": "HERRAMIENTAS: Acceso Total · 3 COMPUTADORAS · LÍMITE: 8 MINUTOS",
+			"can_play": false
 		},
 		{
 			"number": 22,
 			"is_practice": true,
 			"practice_id": "gpu",
-			"title": "ZONA DE PRÁCTICA: BANCO DE TARJETAS GRÁFICAS (GPU)",
-			"stage": "ZONA DE PRÁCTICA // ENTRENAMIENTO",
+			"title": "RETO DE PRÁCTICA // TARJETAS GRÁFICAS GPU",
+			"stage": "ZONA DE PRÁCTICA // RETO CRONOMETRADO",
 			"mode_name": "REPARACIÓN",
 			"color_accent": Color(1.0, 0.55, 0.05),
-			"description": "Banco de trabajo libre sin límite de tiempo.\nPractica la desconexión PCIe para frenar ventiladores, tornillos en bracket HDMI y soporte fijo con Joa.",
-			"requirements": "HERRAMIENTAS: Acceso Total · MODO PRÁCTICA LIBRE · SIN TIEMPO",
-			"can_play": true
+			"description": "3 estaciones con fallas de video, artefactos y controladores PCIe.\nDiagnostica y soluciona las 3 mesas en menos de 8 minutos.",
+			"requirements": "HERRAMIENTAS: Acceso Total · 3 COMPUTADORAS · LÍMITE: 8 MINUTOS",
+			"can_play": false
 		},
 		{
 			"number": 23,
 			"is_practice": true,
 			"practice_id": "psu",
-			"title": "ZONA DE PRÁCTICA: BANCO DE ENERGÍA (PSU)",
-			"stage": "ZONA DE PRÁCTICA // ENTRENAMIENTO",
+			"title": "RETO DE PRÁCTICA // FUENTES DE PODER ATX",
+			"stage": "ZONA DE PRÁCTICA // RETO CRONOMETRADO",
 			"mode_name": "REPARACIÓN",
 			"color_accent": Color(1.0, 0.55, 0.05),
-			"description": "Banco de trabajo libre sin límite de tiempo.\nPractica la desconexión de arneses ATX 24 pines y arneses auxiliares de poder con Joa.",
-			"requirements": "HERRAMIENTAS: Acceso Total · MODO PRÁCTICA LIBRE · SIN TIEMPO",
-			"can_play": true
+			"description": "3 estaciones con caídas de tensión y fuentes sin encendido.\nReemplaza arneses y fuentes de poder antes de que acaben los 8 minutos.",
+			"requirements": "HERRAMIENTAS: Acceso Total · 3 COMPUTADORAS · LÍMITE: 8 MINUTOS",
+			"can_play": false
 		},
 		{
 			"number": 24,
 			"is_practice": true,
 			"practice_id": "cpu",
-			"title": "ZONA DE PRÁCTICA: BANCO DE PROCESADOR (CPU)",
-			"stage": "ZONA DE PRÁCTICA // ENTRENAMIENTO",
+			"title": "RETO DE PRÁCTICA // PROCESADORES & SOCKET",
+			"stage": "ZONA DE PRÁCTICA // RETO CRONOMETRADO",
 			"mode_name": "REPARACIÓN",
 			"color_accent": Color(1.0, 0.55, 0.05),
-			"description": "Banco de trabajo libre sin límite de tiempo.\nPractica la apertura de palanca de retención y alineación de procesador en zócalo sin doblar pines con Joa.",
-			"requirements": "HERRAMIENTAS: Acceso Total · MODO PRÁCTICA LIBRE · SIN TIEMPO",
-			"can_play": true
+			"description": "3 estaciones con fallas críticas de socket LGA y sobrecalentamiento.\nSustituye CPUs y alinea pines dentro del límite de 8 minutos.",
+			"requirements": "HERRAMIENTAS: Acceso Total · 3 COMPUTADORAS · LÍMITE: 8 MINUTOS",
+			"can_play": false
 		},
 		{
 			"number": 25,
 			"is_practice": true,
 			"practice_id": "maestra",
-			"title": "SALA DE PRÁCTICA 3D MAESTRA (TODAS LAS PIEZAS)",
-			"stage": "LABORATORIO PRÁCTICO // ENTRENAMIENTO",
+			"title": "RETO CRONOMETRADO // SALA DE PRÁCTICA INICIAL (3 MESAS)",
+			"stage": "LABORATORIO PRÁCTICO // RETO CRONOMETRADO",
 			"mode_name": "REPARACIÓN",
 			"color_accent": Color(1.0, 0.55, 0.05),
-			"description": "Banco de trabajo libre sin límite de tiempo.\nPractica la extracción, sustitución y ensamblaje de todas las piezas (RAM, Discos HDD/SSD, GPU, Cooler, Fuente y CPU) con Joa.",
-			"requirements": "HERRAMIENTAS: Acceso Total · MODO PRÁCTICA LIBRE · SIN TIEMPO",
-			"can_play": true
+			"description": "Primer reto cronometrado de hardware.\n3 computadoras con 3 fallas diferentes (RAM, GPU, HDD).\nRepara los 3 equipos en las mesas antes de los 8 minutos.",
+			"requirements": "HERRAMIENTAS: Acceso Total · 3 COMPUTADORAS · LÍMITE: 8 MINUTOS",
+			"can_play": false
 		}
 	],
 	"sistema": [
@@ -1358,6 +1368,8 @@ func _ready() -> void:
 		graph_lines.transition_to_mode(current_mode)
 		
 	_create_node_hitboxes()
+	_sync_progression_from_save()
+	_check_and_play_pending_unlock()
 	
 	# Configurar pestaña inicial solicitada
 	var start_tab = initial_tab
@@ -1577,6 +1589,7 @@ func _switch_mode(mode_name: String, spin_dir: int = 0) -> void:
 			graph_lines.transition_to_mode(current_mode)
 		_create_node_hitboxes()
 		_update_node_hitboxes_positions()
+		_sync_progression_from_save()
 	else:
 		_filter_tutorial_cards()
 		cards_scroll.scroll_vertical = 0
@@ -1890,6 +1903,12 @@ func _on_btn_play_level_pressed() -> void:
 	if active_zoomed_index >= 0 and active_zoomed_index < list.size():
 		node_data = list[active_zoomed_index]
 
+	# REQUISITO EXPRESO: Todos los niveles, tutoriales y retos bloqueados no se pueden iniciar
+	if not node_data.get("can_play", false):
+		is_launching_level = false
+		_show_toast("🔒 Este módulo está bloqueado. Supera la etapa anterior para desbloquearlo.")
+		return
+
 	if node_data.get("is_tutorial", false):
 		var target_comp = node_data.get("tutorial_component", "general")
 		var target_scene = node_data.get("target_scene", "")
@@ -1903,11 +1922,7 @@ func _on_btn_play_level_pressed() -> void:
 		_play_practice_level(practice_id)
 	else:
 		# NIVEL DE JUEGO (Nivel 1 al 12)
-		if node_data.get("can_play", false):
-			_play_level_1()
-		else:
-			is_launching_level = false
-			_show_toast("🔒 Este nivel está bloqueado. Supera el nivel anterior para desbloquearlo.")
+		_play_level_1()
 
 func _play_practice_level(practice_id: String = "") -> void:
 	if is_launching_level:
@@ -2606,6 +2621,20 @@ func _input(event: InputEvent) -> void:
 	if is_exiting_scene or is_launching_level:
 		get_viewport().set_input_as_handled()
 		return
+
+	# REQUISITO EXPRESO: Ctrl + Shift + R abre la Consola de Comandos de Desarrollador
+	if event is InputEventKey and event.pressed and not event.echo:
+		if event.ctrl_pressed and event.shift_pressed and (event.keycode == KEY_R or event.physical_keycode == KEY_R):
+			get_viewport().set_input_as_handled()
+			_toggle_dev_console()
+			return
+
+	if dev_console_overlay and dev_console_overlay.visible:
+		if event.is_action_pressed("ui_cancel") or (event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE):
+			get_viewport().set_input_as_handled()
+			dev_console_overlay.visible = false
+			return
+		return
 		
 	if event.is_action_pressed("ui_cancel") or (event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE):
 		if deployed_modal and deployed_modal.visible:
@@ -2647,7 +2676,28 @@ func _input(event: InputEvent) -> void:
 				_adjust_map_zoom(-0.08)
 				return
 
-	# 2. Navegación de cámara entre niveles con flechas de teclado (activa cuando se está inspeccionando un nivel)
+	# 2. Arrastre de mapa libre (Pan) con botón derecho o central del ratón
+	if not is_level_zoomed and current_tab == "niveles" and not (deployed_modal and deployed_modal.visible):
+		if event is InputEventMouseButton:
+			if event.button_index == MOUSE_BUTTON_RIGHT or event.button_index == MOUSE_BUTTON_MIDDLE or (event.button_index == MOUSE_BUTTON_LEFT and event.shift_pressed):
+				if event.pressed:
+					is_panning_map = true
+					pan_start_mouse = event.position
+					pan_start_area_pos = constellation_area.position if constellation_area else Vector2.ZERO
+					get_viewport().set_input_as_handled()
+					return
+				else:
+					is_panning_map = false
+					get_viewport().set_input_as_handled()
+					return
+		elif event is InputEventMouseMotion and is_panning_map:
+			if constellation_area:
+				constellation_area.position = pan_start_area_pos + (event.position - pan_start_mouse)
+				_update_node_hitboxes_positions()
+				get_viewport().set_input_as_handled()
+				return
+
+	# 3. Navegación de cámara entre niveles con flechas de teclado (activa cuando se está inspeccionando un nivel)
 	if is_level_zoomed and current_tab == "niveles" and not (deployed_modal and deployed_modal.visible):
 		var is_left: bool = (event is InputEventKey and event.pressed and not event.echo and (event.keycode == KEY_LEFT or event.physical_keycode == KEY_LEFT or event.keycode == KEY_A)) \
 			or event.is_action_pressed("ui_left")
@@ -2661,3 +2711,197 @@ func _input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 			_navigate_level_camera(1)
 			return
+
+# =============================================================================
+# SISTEMA DE PROGRESIÓN Y DESBLOQUEO SECUENCIAL (TUTORIAL -> PRÁCTICA -> NIVEL 1)
+# =============================================================================
+func _sync_progression_from_save() -> void:
+	var sm = get_node_or_null("/root/SaveManager")
+	var list = LEVELS_DATA.get(current_mode, [])
+	for i in range(list.size()):
+		var is_unl = false
+		if sm and sm.has_method("is_node_unlocked"):
+			is_unl = sm.is_node_unlocked(current_mode, i)
+		else:
+			is_unl = (i == 0)
+		list[i]["can_play"] = is_unl
+		if graph_lines and graph_lines.has_method("set_node_unlocked"):
+			graph_lines.set_node_unlocked(i, is_unl)
+	if graph_lines:
+		graph_lines.queue_redraw()
+
+func _check_and_play_pending_unlock() -> void:
+	var sm = get_node_or_null("/root/SaveManager")
+	var just_unl = -1
+	if sm and "just_unlocked_node" in sm:
+		just_unl = SaveManager.just_unlocked_node
+		SaveManager.just_unlocked_node = -1
+		
+	if just_unl != -1:
+		var list = LEVELS_DATA.get(current_mode, [])
+		if just_unl < list.size():
+			list[just_unl]["can_play"] = true
+			if sm and sm.has_method("unlock_node"):
+				sm.unlock_node(current_mode, just_unl)
+			if graph_lines and graph_lines.has_method("play_unlock_animation"):
+				graph_lines.play_unlock_animation(just_unl)
+			if just_unl == 7:
+				_show_toast("🏆 ¡ENTRENAMIENTO COMPLETADO! NIVEL 1 DESBLOQUEADO · COMIENZA LA CAMPAÑA")
+			elif just_unl == 25:
+				_show_toast("⚡ ¡TUTORIAL DE INDUCCIÓN SUPERADO! RETO DE PRÁCTICA DESBLOQUEADO")
+			else:
+				_show_toast("⚡ ¡NUEVO RETO DESBLOQUEADO EN EL MAPA!")
+
+# =============================================================================
+# CONSOLA DE DESARROLLADOR // ANDROMEDA OS (CTRL + SHIFT + R & /levels)
+# =============================================================================
+func _toggle_dev_console() -> void:
+	if not dev_console_overlay:
+		_build_dev_console()
+	dev_console_overlay.visible = not dev_console_overlay.visible
+	if dev_console_overlay.visible:
+		if dev_console_input:
+			dev_console_input.text = ""
+			dev_console_input.grab_focus()
+	else:
+		if not is_level_zoomed:
+			_fade_menu_chrome(true)
+
+func _build_dev_console() -> void:
+	dev_console_overlay = Control.new()
+	dev_console_overlay.name = "DevConsoleOverlay"
+	dev_console_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	dev_console_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	dev_console_overlay.z_index = 100
+	dev_console_overlay.visible = false
+	
+	var dim = ColorRect.new()
+	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
+	dim.color = Color(0.01, 0.02, 0.05, 0.82)
+	dim.mouse_filter = Control.MOUSE_FILTER_STOP
+	dev_console_overlay.add_child(dim)
+	
+	var panel = PanelContainer.new()
+	panel.custom_minimum_size = Vector2(680, 400)
+	panel.position = Vector2((1280 - 680) * 0.5, (720 - 400) * 0.5)
+	var sb = StyleBoxFlat.new()
+	sb.bg_color = Color(0.02, 0.04, 0.08, 0.96)
+	sb.border_color = Color(0.0, 0.88, 1.0, 1.0)
+	sb.border_width_left = 2
+	sb.border_width_top = 2
+	sb.border_width_right = 2
+	sb.border_width_bottom = 2
+	sb.corner_radius_top_left = 8
+	sb.corner_radius_top_right = 8
+	sb.corner_radius_bottom_left = 8
+	sb.corner_radius_bottom_right = 8
+	sb.shadow_color = Color(0.0, 0.88, 1.0, 0.35)
+	sb.shadow_size = 16
+	panel.add_theme_stylebox_override("panel", sb)
+	dev_console_overlay.add_child(panel)
+	
+	var margin = MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 18)
+	margin.add_theme_constant_override("margin_top", 14)
+	margin.add_theme_constant_override("margin_right", 18)
+	margin.add_theme_constant_override("margin_bottom", 14)
+	panel.add_child(margin)
+	
+	var vbox = VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 10)
+	margin.add_child(vbox)
+	
+	var hbox_header = HBoxContainer.new()
+	var lbl_title = Label.new()
+	lbl_title.text = "⚡ CONSOLA DE DESARROLLADOR // ANDROMEDA OS"
+	lbl_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	lbl_title.add_theme_color_override("font_color", Color(0.0, 0.88, 1.0))
+	lbl_title.add_theme_font_size_override("font_size", 14)
+	hbox_header.add_child(lbl_title)
+	
+	var btn_close = Button.new()
+	btn_close.text = " [X] "
+	btn_close.flat = true
+	btn_close.pressed.connect(func(): dev_console_overlay.visible = false)
+	hbox_header.add_child(btn_close)
+	vbox.add_child(hbox_header)
+	
+	dev_console_output = RichTextLabel.new()
+	dev_console_output.bbcode_enabled = true
+	dev_console_output.scroll_following = true
+	dev_console_output.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	dev_console_output.add_theme_color_override("default_color", Color(0.2, 0.95, 0.55))
+	dev_console_output.add_theme_font_size_override("normal_font_size", 12)
+	dev_console_output.text = "[color=#00e0ff]> ANDROMEDA OS KERNEL v2.5 [MODO DESARROLLADOR ACTIVO][/color]\n[color=#88ffaa]> Presiona Enter tras escribir un comando.[/color]\n[color=#ffff55]> Comando especial: [b]/levels[/b] (Desbloquea todos los niveles y modos)[/color]\n[color=#aaaaaa]> Escribe /help para lista completa.[/color]\n"
+	vbox.add_child(dev_console_output)
+	
+	var hbox_in = HBoxContainer.new()
+	var prompt_lbl = Label.new()
+	prompt_lbl.text = "ANDROMEDA:\\> "
+	prompt_lbl.add_theme_color_override("font_color", Color(0.0, 0.88, 1.0))
+	hbox_in.add_child(prompt_lbl)
+	
+	dev_console_input = LineEdit.new()
+	dev_console_input.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	dev_console_input.placeholder_text = "Escribe /levels para desbloquear todo..."
+	dev_console_input.text_submitted.connect(_on_dev_command_submitted)
+	hbox_in.add_child(dev_console_input)
+	
+	var btn_exec = Button.new()
+	btn_exec.text = " EJECUTAR "
+	btn_exec.pressed.connect(func(): _on_dev_command_submitted(dev_console_input.text))
+	hbox_in.add_child(btn_exec)
+	vbox.add_child(hbox_in)
+	
+	add_child(dev_console_overlay)
+
+func _on_dev_command_submitted(cmd: String) -> void:
+	if not dev_console_input:
+		return
+	var text_in = cmd.strip_edges()
+	dev_console_input.text = ""
+	if text_in == "":
+		return
+	
+	_print_dev_console("[color=#ffffff]> " + text_in + "[/color]")
+	var lower = text_in.to_lower()
+	
+	if lower == "/levels" or lower == "/desbloquear":
+		_cmd_unlock_all_levels()
+	elif lower == "/reset":
+		_cmd_reset_locks()
+	elif lower == "/help":
+		_print_dev_console("[color=#ffffaa]Comandos disponibles:\n  /levels - Desbloquea todos los niveles, tutoriales y retos al instante.\n  /reset  - Restaura el progreso inicial (solo Tutorial 0 desbloqueado).\n  /clear  - Limpia la consola.\n  /exit   - Cierra esta terminal.[/color]")
+	elif lower == "/clear":
+		if dev_console_output: dev_console_output.text = ""
+	elif lower == "/exit":
+		if dev_console_overlay: dev_console_overlay.visible = false
+	else:
+		_print_dev_console("[color=#ff4466][!] Comando desconocido: '" + text_in + "'. Escribe /levels para desbloquear todo.[/color]")
+
+func _print_dev_console(msg: String) -> void:
+	if dev_console_output:
+		dev_console_output.append_text(msg + "\n")
+
+func _cmd_unlock_all_levels() -> void:
+	for m in LEVELS_DATA.keys():
+		for item in LEVELS_DATA[m]:
+			item["can_play"] = true
+	var sm = get_node_or_null("/root/SaveManager")
+	if sm and sm.has_method("unlock_all_levels"):
+		sm.unlock_all_levels()
+	if graph_lines and graph_lines.has_method("set_all_unlocked"):
+		graph_lines.set_all_unlocked(true)
+	_print_dev_console("[color=#00ff88]✓ [DEV CHEAT] ¡Todos los niveles, tutoriales y retos cronometrados han sido desbloqueados con éxito![/color]")
+	_show_toast("✓ [DEV CHEAT] ¡Todos los niveles desbloqueados!")
+	if graph_lines and graph_lines.has_method("play_unlock_animation"):
+		graph_lines.play_unlock_animation(7)
+
+func _cmd_reset_locks() -> void:
+	var sm = get_node_or_null("/root/SaveManager")
+	if sm and sm.has_method("reset_progression_lock"):
+		sm.reset_progression_lock()
+	_sync_progression_from_save()
+	_print_dev_console("[color=#ffaa00]✓ Progreso restablecido: Solo el Tutorial de Introducción está desbloqueado.[/color]")
+	_show_toast("Progreso restablecido.")
+

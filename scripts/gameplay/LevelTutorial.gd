@@ -1515,6 +1515,35 @@ func _show_tutorial_victory() -> void:
 	if player and player.has_method("set_movement_enabled"):
 		player.set_movement_enabled(false)
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+
+	# Mapear tutorial completado y desbloquear su correspondiente nivel de práctica
+	var tut_comp_to_node: Dictionary = {
+		"general": 0,
+		"cooler": 1,
+		"ram": 2,
+		"hdd": 3,
+		"gpu": 4,
+		"psu": 5,
+		"cpu": 6
+	}
+	var current_node_idx = tut_comp_to_node.get(target_component, 0)
+	var tut_to_practice: Dictionary = {
+		0: 25, # Intro -> Práctica Reto 0
+		1: 19, # Cooler -> Práctica Cooler
+		2: 20, # RAM -> Práctica RAM
+		3: 21, # HDD -> Práctica HDD
+		4: 22, # GPU -> Práctica GPU
+		5: 23, # PSU -> Práctica PSU
+		6: 24  # CPU -> Práctica CPU
+	}
+	var sm = get_node_or_null("/root/SaveManager")
+	if sm:
+		sm.mark_node_completed("reparacion", current_node_idx)
+		if tut_to_practice.has(current_node_idx):
+			var prac_node = tut_to_practice[current_node_idx]
+			sm.unlock_node("reparacion", prac_node)
+			SaveManager.just_unlocked_node = prac_node
+
 	if is_instance_valid(victory_modal):
 		if victory_modal.has_method("setup_mode"):
 			victory_modal.setup_mode(current_mode)

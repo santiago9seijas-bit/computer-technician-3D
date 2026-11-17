@@ -80,6 +80,8 @@ func open_for_tutorial(mode: String = "reparacion") -> void:
 	_configure_content(mode)
 	if btn_label:
 		btn_label.text = "▶ INICIAR TUTORIAL"
+	if btn_iniciar:
+		btn_iniciar.modulate = Color.WHITE
 	if btn_shader_mat:
 		btn_shader_mat.set_shader_parameter("border_color", Color(0.0, 0.88, 1.0, 1.0))
 		btn_shader_mat.set_shader_parameter("hover_color", Color(0.65, 1.0, 1.0, 1.0))
@@ -131,10 +133,14 @@ func open_for_tutorial_node(data: Dictionary) -> void:
 			req_lbl.add_theme_color_override("font_color", Color(0.2, 0.95, 1.0, 0.8))
 			pieces_container.add_child(req_lbl)
 		
+	var is_playable = data.get("can_play", false)
 	if btn_label:
-		btn_label.text = "▶ INICIAR TUTORIAL"
+		btn_label.text = "▶ INICIAR TUTORIAL" if is_playable else "🔒 BLOQUEADO"
+	if btn_iniciar:
+		btn_iniciar.modulate = Color.WHITE if is_playable else Color(0.65, 0.65, 0.65, 0.6)
 	if btn_shader_mat:
-		btn_shader_mat.set_shader_parameter("border_color", Color(0.0, 0.88, 1.0, 1.0))
+		var edge_col = Color(0.0, 0.88, 1.0, 1.0) if is_playable else Color(0.4, 0.5, 0.6, 0.8)
+		btn_shader_mat.set_shader_parameter("border_color", edge_col)
 		btn_shader_mat.set_shader_parameter("hover_color", Color(0.65, 1.0, 1.0, 1.0))
 		btn_shader_mat.set_shader_parameter("glass_tint", Color(0.01, 0.06, 0.18, 0.9))
 	
@@ -184,10 +190,14 @@ func open_for_practice(data: Dictionary = {}) -> void:
 			req_lbl.add_theme_color_override("font_color", Color(1.0, 0.75, 0.2, 0.8))
 			pieces_container.add_child(req_lbl)
 		
+	var is_playable = data.get("can_play", false)
 	if btn_label:
-		btn_label.text = "▶ INICIAR PRÁCTICA"
+		btn_label.text = "▶ INICIAR RETO (8 MIN)" if is_playable else "🔒 BLOQUEADO"
+	if btn_iniciar:
+		btn_iniciar.modulate = Color.WHITE if is_playable else Color(0.65, 0.65, 0.65, 0.6)
 	if btn_shader_mat:
-		btn_shader_mat.set_shader_parameter("border_color", Color(1.0, 0.55, 0.05, 1.0))
+		var edge_col = Color(1.0, 0.55, 0.05, 1.0) if is_playable else Color(0.5, 0.5, 0.5, 0.8)
+		btn_shader_mat.set_shader_parameter("border_color", edge_col)
 		btn_shader_mat.set_shader_parameter("hover_color", Color(1.0, 0.85, 0.4, 1.0))
 		btn_shader_mat.set_shader_parameter("glass_tint", Color(0.18, 0.08, 0.01, 0.9))
 		
