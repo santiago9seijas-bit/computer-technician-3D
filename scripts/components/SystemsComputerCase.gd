@@ -18,20 +18,27 @@ var is_completed: bool = false
 @onready var arrow_mesh: MeshInstance3D = $ArrowMesh
 @onready var status_light: OmniLight3D = $StatusLight
 
-var systems_modal_scene: PackedScene = preload("res://scenes/ui/PCSystemsModal.tscn")
+var _systems_modal_scene: PackedScene = null
+var systems_modal_scene: PackedScene:
+	get:
+		if not _systems_modal_scene:
+			_systems_modal_scene = load("res://scenes/ui/PCSystemsModal.tscn")
+		return _systems_modal_scene
+	set(v):
+		_systems_modal_scene = v
+
 var original_arrow_y: float = 0.0
 var custom_interact_callback: Callable = Callable()
 var custom_prompt: String = ""
 
 func _ready() -> void:
+	set_process(false)
 	if arrow_mesh:
 		original_arrow_y = arrow_mesh.position.y
+		var tw = create_tween().set_loops()
+		tw.tween_property(arrow_mesh, "position:y", original_arrow_y + 0.08, 1.05).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+		tw.tween_property(arrow_mesh, "position:y", original_arrow_y - 0.08, 1.05).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	update_3d_state()
-
-func _process(_delta: float) -> void:
-	if arrow_mesh and not is_completed:
-		var t = Time.get_ticks_msec() / 1000.0
-		arrow_mesh.position.y = original_arrow_y + sin(t * 3.0) * 0.08
 
 func is_fully_repaired() -> bool:
 	for comp in components.keys():
@@ -69,6 +76,18 @@ func update_3d_state() -> void:
 			arrow_mesh.visible = true
 		label_3d.text = "TERMINAL #%d · SOFTWARE (%d/7)" % [pc_id, fixed_count]
 		label_3d.modulate = Color(0.0, 0.95, 1.0) if fixed_count > 0 else Color(1.0, 0.25, 0.5)
+
+	var led_color = Color(0.2, 1.0, 0.4) if is_completed else Color(0.0, 0.95, 1.0)
+	var led_node = get_node_or_null("GabineteModel/Led")
+	if led_node and led_node is MeshInstance3D:
+		var mat = led_node.get_surface_override_material(0)
+		if not mat:
+			mat = StandardMaterial3D.new()
+			mat.emission_enabled = true
+			mat.emission_energy_multiplier = 4.0
+			led_node.set_surface_override_material(0, mat)
+		mat.albedo_color = led_color
+		mat.emission = led_color
 
 func get_interaction_prompt() -> String:
 	if custom_prompt != "":

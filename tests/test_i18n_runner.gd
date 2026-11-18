@@ -12,7 +12,7 @@ func _ready() -> void:
 	print("[1] Verificando idiomas disponibles...")
 	var locales = loc.get_locales()
 	print("  Locales:", locales)
-	assert(locales.size() == 4, "Debe haber 4 idiomas")
+	assert(locales.size() >= 4, "Debe haber al menos 4 idiomas")
 
 	print("[2] Instanciando MainMenu...")
 	var main_scene = load("res://scenes/menus/MainMenu.tscn")

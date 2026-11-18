@@ -208,14 +208,14 @@ func _setup_reparacion_environment() -> void:
 		hud.set_visible_tools(2)
 
 	var banner_title = "INDUCCIÓN INTEGRAL DE HARDWARE // TALLER 3D"
-	var diag_question = "INDUCCIÓN INTEGRAL DE HARDWARE CON JOA:\nAprende a diagnosticar, desmontar y ensamblar cada pieza:\n• Memoria RAM · • Almacenamiento HDD/SSD · • Tarjeta GPU · • Fan Cooler · • Procesador CPU · • Fuente PSU"
-	var faulty_parts: Array[String] = ["RAM", "Disco Duro", "Grafica", "Fan Cooler", "CPU", "Fuente"]
+	var diag_question = "INDUCCIÓN INTEGRAL DE HARDWARE CON JOA:\nAprende a diagnosticar, desmontar y ensamblar las 3 piezas fundamentales:\n• Memoria RAM · • Almacenamiento HDD/SSD · • Fuente de Poder PSU"
+	var faulty_parts: Array[String] = ["RAM", "Disco Duro", "Fuente"]
 	var comp_dict = {
 		"RAM": "broken",
 		"Disco Duro": "broken",
-		"Grafica": "broken",
-		"Fan Cooler": "broken",
-		"CPU": "broken",
+		"Grafica": "ok",
+		"Fan Cooler": "ok",
+		"CPU": "ok",
 		"Fuente": "broken",
 		"Placa Madre": "ok"
 	}
@@ -253,6 +253,20 @@ func _setup_reparacion_environment() -> void:
 			comp_dict = {"RAM": "ok", "Disco Duro": "ok", "Grafica": "ok", "Fan Cooler": "ok", "CPU": "broken", "Fuente": "ok", "Placa Madre": "ok"}
 
 	_set_holo_banner_text(banner_title)
+
+	# Filtrar cajas de repuestos: en la introducción solo las cajas de los repuestos a quitar / arreglar
+	var needed_boxes: Array[String] = []
+	for p in faulty_parts:
+		needed_boxes.append(p)
+
+	for child in get_children():
+		if child.name.begins_with("Spares"):
+			var st = child.get("spare_type") if "spare_type" in child else ""
+			var is_needed = (st in needed_boxes)
+			child.visible = is_needed
+			var col = child.get_node_or_null("CollisionShape3D")
+			if col:
+				col.disabled = not is_needed
 
 	if pc:
 		pc.set_meta("is_tutorial_pc", true)

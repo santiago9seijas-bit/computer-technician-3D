@@ -60,11 +60,20 @@ var current_glow_color: Color = Color(0.0, 0.65, 1.0)
 @onready var arrow_mesh: MeshInstance3D = $ArrowMesh
 @onready var status_light: OmniLight3D = $StatusLight
 
-var inspection_modal_scene: PackedScene = preload("res://scenes/ui/PCInspectionModal.tscn")
+var _inspection_modal_scene: PackedScene = null
+var inspection_modal_scene: PackedScene:
+	get:
+		if not _inspection_modal_scene:
+			_inspection_modal_scene = load("res://scenes/ui/PCInspectionModal.tscn")
+		return _inspection_modal_scene
+	set(v):
+		_inspection_modal_scene = v
+
 var original_arrow_y: float = 0.0
 var arrow_mat: StandardMaterial3D = null
 
 func _ready() -> void:
+	set_process(false)
 	if arrow_mesh:
 		original_arrow_y = arrow_mesh.position.y
 		arrow_mat = StandardMaterial3D.new()
@@ -72,6 +81,12 @@ func _ready() -> void:
 		arrow_mat.emission_energy_multiplier = 3.0
 		arrow_mesh.material_override = arrow_mat
 		arrow_mesh.visible = true
+		
+		# Animación de levitación optimizada mediante Tween cíclico (0% sobrecarga en _process)
+		var tw = create_tween().set_loops()
+		tw.tween_property(arrow_mesh, "position:y", original_arrow_y + 0.08, 1.05).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+		tw.tween_property(arrow_mesh, "position:y", original_arrow_y - 0.08, 1.05).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+
 	if diagnostic_question == "":
 		setup_diagnostic_case()
 	update_3d_state()
@@ -102,11 +117,6 @@ func setup_diagnostic_case(case_idx: int = -1) -> void:
 		drive_type = "m2" if randf() > 0.5 else "ssd"
 	if cpu_brand == "":
 		cpu_brand = "amd" if randf() > 0.5 else "intel"
-
-func _process(delta: float) -> void:
-	if arrow_mesh:
-		var t = Time.get_ticks_msec() / 1000.0
-		arrow_mesh.position.y = original_arrow_y + sin(t * 3.0) * 0.08
 
 func is_fully_repaired() -> bool:
 	if get_meta("is_tutorial_pc", false):
@@ -173,6 +183,17 @@ func update_3d_state() -> void:
 			
 	if status_light:
 		status_light.light_color = current_glow_color
+
+	var led_node = get_node_or_null("GabineteModel/Led")
+	if led_node and led_node is MeshInstance3D:
+		var mat = led_node.get_surface_override_material(0)
+		if not mat:
+			mat = StandardMaterial3D.new()
+			mat.emission_enabled = true
+			mat.emission_energy_multiplier = 4.0
+			led_node.set_surface_override_material(0, mat)
+		mat.albedo_color = current_glow_color
+		mat.emission = current_glow_color
 
 func get_interaction_prompt() -> String:
 	if is_completed:

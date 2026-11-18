@@ -4,14 +4,55 @@ signal inspection_closed()
 
 var current_pc = null
 
-# Preload de los 7 minijuegos de sistemas
-var os_minigame_scene: PackedScene = preload("res://scenes/minigames/OSInstallMinigame.tscn")
-var driver_minigame_scene: PackedScene = preload("res://scenes/minigames/DriverUpdaterMinigame.tscn")
-var malware_minigame_scene: PackedScene = preload("res://scenes/minigames/MalwareScannerMinigame.tscn")
-var adware_minigame_scene: PackedScene = preload("res://scenes/minigames/AdwareCleanerMinigame.tscn")
-var debugger_minigame_scene: PackedScene = preload("res://scenes/minigames/CodeDebuggerMinigame.tscn")
-var usb_minigame_scene: PackedScene = preload("res://scenes/minigames/UsbPendriveMinigame.tscn")
-var arcade_minigame_scene: PackedScene = preload("res://scenes/minigames/MalwareInvadersMinigame.tscn")
+# Lazy loading de los 7 minijuegos de sistemas para maximizar rendimiento y velocidad de carga
+var _os_minigame_scene: PackedScene = null
+var os_minigame_scene: PackedScene:
+	get:
+		if not _os_minigame_scene: _os_minigame_scene = load("res://scenes/minigames/OSInstallMinigame.tscn")
+		return _os_minigame_scene
+	set(v): _os_minigame_scene = v
+
+var _driver_minigame_scene: PackedScene = null
+var driver_minigame_scene: PackedScene:
+	get:
+		if not _driver_minigame_scene: _driver_minigame_scene = load("res://scenes/minigames/DriverUpdaterMinigame.tscn")
+		return _driver_minigame_scene
+	set(v): _driver_minigame_scene = v
+
+var _malware_minigame_scene: PackedScene = null
+var malware_minigame_scene: PackedScene:
+	get:
+		if not _malware_minigame_scene: _malware_minigame_scene = load("res://scenes/minigames/MalwareScannerMinigame.tscn")
+		return _malware_minigame_scene
+	set(v): _malware_minigame_scene = v
+
+var _adware_minigame_scene: PackedScene = null
+var adware_minigame_scene: PackedScene:
+	get:
+		if not _adware_minigame_scene: _adware_minigame_scene = load("res://scenes/minigames/AdwareCleanerMinigame.tscn")
+		return _adware_minigame_scene
+	set(v): _adware_minigame_scene = v
+
+var _debugger_minigame_scene: PackedScene = null
+var debugger_minigame_scene: PackedScene:
+	get:
+		if not _debugger_minigame_scene: _debugger_minigame_scene = load("res://scenes/minigames/CodeDebuggerMinigame.tscn")
+		return _debugger_minigame_scene
+	set(v): _debugger_minigame_scene = v
+
+var _usb_minigame_scene: PackedScene = null
+var usb_minigame_scene: PackedScene:
+	get:
+		if not _usb_minigame_scene: _usb_minigame_scene = load("res://scenes/minigames/UsbPendriveMinigame.tscn")
+		return _usb_minigame_scene
+	set(v): _usb_minigame_scene = v
+
+var _arcade_minigame_scene: PackedScene = null
+var arcade_minigame_scene: PackedScene:
+	get:
+		if not _arcade_minigame_scene: _arcade_minigame_scene = load("res://scenes/minigames/MalwareInvadersMinigame.tscn")
+		return _arcade_minigame_scene
+	set(v): _arcade_minigame_scene = v
 
 @onready var modal_control: Control = $ModalControl
 @onready var title_label: Label = $ModalControl/Panel/VBox/Header/TitleLabel

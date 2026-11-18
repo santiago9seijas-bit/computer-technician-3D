@@ -285,7 +285,7 @@ func _init_base_position() -> void:
 	if socket_base != null and socket_base.position.y > 0.0:
 		default_socket_pos = socket_base.position
 		# Alinear la RAM para que quede a la MISMA ALTURA exacta que el soporte (pines encajados en la ranura)
-		default_seated_pos = Vector2(socket_base.position.x + 18.0, socket_base.position.y - 70.0)
+		default_seated_pos = Vector2(socket_base.position.x + 18.0, socket_base.position.y - 54.0)
 		default_seated_y = default_seated_pos.y
 		if not start_as_empty_slot and ram_stick != null:
 			ram_stick.position = default_seated_pos
@@ -655,7 +655,7 @@ func _latch_ram_into_socket() -> void:
 	ram_stick.modulate = Color(1, 1, 1, 0.0)
 	if default_seated_pos == Vector2.ZERO or default_seated_y <= 0.0:
 		if is_instance_valid(socket_base) and socket_base.position != Vector2.ZERO:
-			default_seated_pos = Vector2(socket_base.position.x + 18.0, socket_base.position.y - 70.0)
+			default_seated_pos = Vector2(socket_base.position.x + 18.0, socket_base.position.y - 54.0)
 			default_seated_y = default_seated_pos.y
 		else:
 			default_seated_pos = ram_stick.position

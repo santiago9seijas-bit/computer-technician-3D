@@ -337,6 +337,23 @@ func _ready() -> void:
 	_setup_computer("WorkBench2/Computer2", 2, cfg["pc2"])
 	_setup_computer("WorkBench3/Computer3", 3, cfg["pc3"])
 
+	# Filtrar cajas de repuestos: en zonas de práctica solo las cajas con las piezas que vayamos a arreglar
+	var active_parts: Array[String] = []
+	for p_key in ["pc1", "pc2", "pc3"]:
+		if cfg.has(p_key) and cfg[p_key].has("parts"):
+			for part_name in cfg[p_key]["parts"]:
+				if not active_parts.has(part_name):
+					active_parts.append(part_name)
+
+	for child in get_children():
+		if child.name.begins_with("Spares"):
+			var st = child.get("spare_type") if "spare_type" in child else ""
+			var is_needed = (st in active_parts)
+			child.visible = is_needed
+			var col = child.get_node_or_null("CollisionShape3D")
+			if col:
+				col.disabled = not is_needed
+
 	# Diálogo de bienvenida al modo de práctica con Joa
 	dialog_box = DIALOG_SCENE.instantiate()
 	$CanvasLayerHUD.add_child(dialog_box)
@@ -353,6 +370,7 @@ func _setup_computer(node_path: String, id: int, data: Dictionary) -> void:
 	if pc:
 		pc.pc_id = id
 		pc.set_meta("is_tutorial_pc", false)
+		pc.set_meta("is_practice_pc", true)
 		pc.diagnostic_question = data["question"]
 		pc.diagnostic_faulty_parts.assign(data["parts"])
 		pc.components = data["components"].duplicate()

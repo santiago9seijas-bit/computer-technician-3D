@@ -729,21 +729,20 @@ func _start_sequence(
 	tw.set_parallel(true)
 	
 	# 1. Oscurecer fondo y cerrar compuertas con impacto cinemático
-	tw.tween_property(bg_overlay, "color:a", 0.85, 0.28).set_trans(Tween.TRANS_QUAD)
-	tw.tween_property(shutter_top, "position:y", 0.0, 0.32).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	tw.tween_property(shutter_bot, "position:y", half_h, 0.32).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tw.tween_property(bg_overlay, "color:a", 0.85, 0.16).set_trans(Tween.TRANS_QUAD)
+	tw.tween_property(shutter_top, "position:y", 0.0, 0.18).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tw.tween_property(shutter_bot, "position:y", half_h, 0.18).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	
 	# Micro impacto shake de las compuertas al cerrarse
-	tw.tween_property(root_ctrl, "position:y", 6.0, 0.04).set_delay(0.30)
-	tw.tween_property(root_ctrl, "position:y", -3.0, 0.03).set_delay(0.34)
-	tw.tween_property(root_ctrl, "position:y", 0.0, 0.03).set_delay(0.37)
+	tw.tween_property(root_ctrl, "position:y", 4.0, 0.02).set_delay(0.18)
+	tw.tween_property(root_ctrl, "position:y", 0.0, 0.02).set_delay(0.20)
 	
 	# Activar capa de hologramas
-	tw.tween_property(hologram_layer, "modulate:a", 1.0, 0.20)
+	tw.tween_property(hologram_layer, "modulate:a", 1.0, 0.12)
 	
 	# Retícula holográfica
-	tw.tween_property(reticle_ctrl, "modulate:a", 0.90, 0.18).set_delay(0.06)
-	tw.tween_property(reticle_ctrl, "scale", Vector2(1.2, 1.2), 0.40).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT).set_delay(0.06)
+	tw.tween_property(reticle_ctrl, "modulate:a", 0.90, 0.12).set_delay(0.04)
+	tw.tween_property(reticle_ctrl, "scale", Vector2(1.2, 1.2), 0.20).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT).set_delay(0.04)
 	
 	# 2. Barrido dual de haces láser cruzados
 	var gm_ref = get_node_or_null("/root/GameManager")
@@ -754,8 +753,8 @@ func _start_sequence(
 		laser_beam_main.position.y = -10.0
 		laser_beam_sub.modulate.a = 0.85
 		laser_beam_sub.position.y = screen_h + 10.0
-		tw.tween_property(laser_beam_main, "position:y", screen_h + 10.0, 0.40).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
-		tw.tween_property(laser_beam_sub, "position:y", -10.0, 0.40).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT).set_delay(0.02)
+		tw.tween_property(laser_beam_main, "position:y", screen_h + 10.0, 0.22).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
+		tw.tween_property(laser_beam_sub, "position:y", -10.0, 0.22).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT).set_delay(0.02)
 	else:
 		laser_beam_main.modulate.a = 0.0
 		laser_beam_sub.modulate.a = 0.0
@@ -763,13 +762,13 @@ func _start_sequence(
 	# 3. Aparición con escala y glow del elemento central
 	if center_element:
 		center_element.modulate.a = 0.0
-		center_element.scale = Vector2(0.75, 0.75)
-		tw.tween_property(center_element, "modulate:a", 1.0, 0.22).set_delay(0.10)
-		tw.tween_property(center_element, "scale", Vector2(1.0, 1.0), 0.30).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT).set_delay(0.10)
+		center_element.scale = Vector2(0.85, 0.85)
+		tw.tween_property(center_element, "modulate:a", 1.0, 0.14).set_delay(0.06)
+		tw.tween_property(center_element, "scale", Vector2(1.0, 1.0), 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT).set_delay(0.06)
 	
-	# 4. Llenado exacto y fiable de la barra de progreso
+	# 4. Llenado exacto y fiable de la barra de progreso optimizado
 	if prog_bar:
-		tw.tween_property(prog_bar, "value", 100.0, 0.50).set_trans(Tween.TRANS_QUAD).set_delay(0.10)
+		tw.tween_property(prog_bar, "value", 100.0, 0.20).set_trans(Tween.TRANS_QUAD).set_delay(0.05)
 	
 	# Actualizar texto de porcentaje dinámicamente hasta 100%
 	tw.tween_method(func(val: float):
@@ -827,9 +826,9 @@ func _start_sequence(
 							lbl_telemetry.text = "> HARDWARE_LINK: INICIANDO CONTROLADORES Y MAPA DE BANCO..."
 			else:
 				lbl_progress_val.text = "[ INICIALIZANDO: %d%% ]" % pct
-	, 0.0, 100.0, 0.50).set_delay(0.10)
+	, 0.0, 100.0, 0.20).set_delay(0.05)
 	
-	# Pausa deliberada con 100% a la vista para apreciarlo claramente
+	# Pausa deliberada brevísima para apreciar el 100% sin retrasar
 	tw.chain().tween_callback(func():
 		if is_instance_valid(prog_bar):
 			prog_bar.value = 100.0
@@ -837,11 +836,11 @@ func _start_sequence(
 			lbl_progress_val.text = "✓ [ CARGA COMPLETA: 100% OK ]"
 			lbl_progress_val.add_theme_color_override("font_color", Color(0.2, 1.0, 0.5, 1.0))
 	)
-	tw.chain().tween_interval(0.18)
+	tw.chain().tween_interval(0.04)
 	
 	# 5. Destello óptico vibrante con el color del modo (desactivado en modo fotosensible)
-	var flash_alpha = 0.0 if is_photo else 0.80
-	tw.chain().tween_property(flash_rect, "color:a", flash_alpha, 0.10).set_trans(Tween.TRANS_QUAD)
+	var flash_alpha = 0.0 if is_photo else 0.70
+	tw.chain().tween_property(flash_rect, "color:a", flash_alpha, 0.06).set_trans(Tween.TRANS_QUAD)
 	
 	# 6. Momento pico: Cambio de escena seguro bajo el destello y compuertas cerradas
 	tw.chain().tween_callback(func():
@@ -894,29 +893,26 @@ func _perform_scene_swap_and_reveal(
 		else:
 			tree.change_scene_to_file(target_scene_path)
 			
-		# Esperar 2 frames con compuertas completamente cerradas
-		# para que la nueva escena se instancie, ejecute _ready() y prepare los shaders en GPU
-		# antes de comenzar la cinemática de apertura
-		await tree.process_frame
+		# Esperar 1 frame con compuertas cerradas para instanciar nodo en el árbol
 		await tree.process_frame
 
 	# Nuevo Tween limpio e independiente para apertura fluida a 60 FPS estables
 	var tw_open = tree.create_tween().set_parallel(true)
-	tw_open.tween_property(flash_rect, "color:a", 0.0, 0.25).set_trans(Tween.TRANS_QUAD)
+	tw_open.tween_property(flash_rect, "color:a", 0.0, 0.16).set_trans(Tween.TRANS_QUAD)
 	if center_element and is_instance_valid(center_element):
-		tw_open.tween_property(center_element, "modulate:a", 0.0, 0.18).set_trans(Tween.TRANS_QUAD)
-		tw_open.tween_property(center_element, "scale", Vector2(1.15, 1.15), 0.18).set_trans(Tween.TRANS_QUAD)
+		tw_open.tween_property(center_element, "modulate:a", 0.0, 0.12).set_trans(Tween.TRANS_QUAD)
+		tw_open.tween_property(center_element, "scale", Vector2(1.15, 1.15), 0.12).set_trans(Tween.TRANS_QUAD)
 	if is_instance_valid(hologram_layer):
-		tw_open.tween_property(hologram_layer, "modulate:a", 0.0, 0.22).set_delay(0.04)
+		tw_open.tween_property(hologram_layer, "modulate:a", 0.0, 0.14).set_delay(0.02)
 	if is_instance_valid(reticle_ctrl):
-		tw_open.tween_property(reticle_ctrl, "modulate:a", 0.0, 0.22).set_delay(0.04)
+		tw_open.tween_property(reticle_ctrl, "modulate:a", 0.0, 0.14).set_delay(0.02)
 		
 	if is_instance_valid(shutter_top):
-		tw_open.tween_property(shutter_top, "position:y", -half_h - 20.0, 0.35).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN).set_delay(0.06)
+		tw_open.tween_property(shutter_top, "position:y", -half_h - 20.0, 0.18).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN).set_delay(0.02)
 	if is_instance_valid(shutter_bot):
-		tw_open.tween_property(shutter_bot, "position:y", screen_h + 20.0, 0.35).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN).set_delay(0.06)
+		tw_open.tween_property(shutter_bot, "position:y", screen_h + 20.0, 0.18).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN).set_delay(0.02)
 	if is_instance_valid(bg_overlay):
-		tw_open.tween_property(bg_overlay, "color:a", 0.0, 0.30).set_delay(0.08)
+		tw_open.tween_property(bg_overlay, "color:a", 0.0, 0.16).set_delay(0.03)
 		
 	tw_open.chain().tween_callback(func():
 		if on_finished.is_valid():

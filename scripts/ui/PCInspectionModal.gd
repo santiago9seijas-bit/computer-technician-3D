@@ -3,19 +3,98 @@ extends CanvasLayer
 signal inspection_closed()
 
 var current_pc = null
-var cooler_minigame_scene: PackedScene = preload("res://scenes/minigames/FanCoolerMinigame.tscn")
-var ram_minigame_scene: PackedScene = preload("res://scenes/minigames/RAMMinigame.tscn")
-var hdd_minigame_scene: PackedScene = preload("res://scenes/minigames/HDDMinigame.tscn")
-var m2_minigame_scene: PackedScene = preload("res://scenes/minigames/M2Minigame.tscn")
-var gpu_minigame_scene: PackedScene = preload("res://scenes/minigames/GPUMinigame.tscn")
-var psu_minigame_scene: PackedScene = preload("res://scenes/minigames/PSUMinigame.tscn")
-var mobo_minigame_scene: PackedScene = preload("res://scenes/minigames/MotherboardMinigame.tscn")
-var cpu_minigame_scene: PackedScene = preload("res://scenes/minigames/CPUMinigame.tscn")
-var cpupaste_minigame_scene: PackedScene = preload("res://scenes/minigames/CPUPasteMinigame.tscn")
-var cpupins_minigame_scene: PackedScene = preload("res://scenes/minigames/CPUPinsMinigame.tscn")
-var dustcleaner_minigame_scene: PackedScene = preload("res://scenes/minigames/DustCleanerMinigame.tscn")
-var voltimeter_minigame_scene: PackedScene = preload("res://scenes/minigames/VoltimeterMinigame.tscn")
-var liquid_cooling_scene: PackedScene = preload("res://scenes/minigames/LiquidCoolingMinigame.tscn")
+
+# Carga bajo demanda (Lazy Loading) para evitar congelar o ralentizar la entrada a los niveles
+var _cooler_minigame_scene: PackedScene = null
+var cooler_minigame_scene: PackedScene:
+	get:
+		if not _cooler_minigame_scene: _cooler_minigame_scene = load("res://scenes/minigames/FanCoolerMinigame.tscn")
+		return _cooler_minigame_scene
+	set(v): _cooler_minigame_scene = v
+
+var _ram_minigame_scene: PackedScene = null
+var ram_minigame_scene: PackedScene:
+	get:
+		if not _ram_minigame_scene: _ram_minigame_scene = load("res://scenes/minigames/RAMMinigame.tscn")
+		return _ram_minigame_scene
+	set(v): _ram_minigame_scene = v
+
+var _hdd_minigame_scene: PackedScene = null
+var hdd_minigame_scene: PackedScene:
+	get:
+		if not _hdd_minigame_scene: _hdd_minigame_scene = load("res://scenes/minigames/HDDMinigame.tscn")
+		return _hdd_minigame_scene
+	set(v): _hdd_minigame_scene = v
+
+var _m2_minigame_scene: PackedScene = null
+var m2_minigame_scene: PackedScene:
+	get:
+		if not _m2_minigame_scene: _m2_minigame_scene = load("res://scenes/minigames/M2Minigame.tscn")
+		return _m2_minigame_scene
+	set(v): _m2_minigame_scene = v
+
+var _gpu_minigame_scene: PackedScene = null
+var gpu_minigame_scene: PackedScene:
+	get:
+		if not _gpu_minigame_scene: _gpu_minigame_scene = load("res://scenes/minigames/GPUMinigame.tscn")
+		return _gpu_minigame_scene
+	set(v): _gpu_minigame_scene = v
+
+var _psu_minigame_scene: PackedScene = null
+var psu_minigame_scene: PackedScene:
+	get:
+		if not _psu_minigame_scene: _psu_minigame_scene = load("res://scenes/minigames/PSUMinigame.tscn")
+		return _psu_minigame_scene
+	set(v): _psu_minigame_scene = v
+
+var _mobo_minigame_scene: PackedScene = null
+var mobo_minigame_scene: PackedScene:
+	get:
+		if not _mobo_minigame_scene: _mobo_minigame_scene = load("res://scenes/minigames/MotherboardMinigame.tscn")
+		return _mobo_minigame_scene
+	set(v): _mobo_minigame_scene = v
+
+var _cpu_minigame_scene: PackedScene = null
+var cpu_minigame_scene: PackedScene:
+	get:
+		if not _cpu_minigame_scene: _cpu_minigame_scene = load("res://scenes/minigames/CPUMinigame.tscn")
+		return _cpu_minigame_scene
+	set(v): _cpu_minigame_scene = v
+
+var _cpupaste_minigame_scene: PackedScene = null
+var cpupaste_minigame_scene: PackedScene:
+	get:
+		if not _cpupaste_minigame_scene: _cpupaste_minigame_scene = load("res://scenes/minigames/CPUPasteMinigame.tscn")
+		return _cpupaste_minigame_scene
+	set(v): _cpupaste_minigame_scene = v
+
+var _cpupins_minigame_scene: PackedScene = null
+var cpupins_minigame_scene: PackedScene:
+	get:
+		if not _cpupins_minigame_scene: _cpupins_minigame_scene = load("res://scenes/minigames/CPUPinsMinigame.tscn")
+		return _cpupins_minigame_scene
+	set(v): _cpupins_minigame_scene = v
+
+var _dustcleaner_minigame_scene: PackedScene = null
+var dustcleaner_minigame_scene: PackedScene:
+	get:
+		if not _dustcleaner_minigame_scene: _dustcleaner_minigame_scene = load("res://scenes/minigames/DustCleanerMinigame.tscn")
+		return _dustcleaner_minigame_scene
+	set(v): _dustcleaner_minigame_scene = v
+
+var _voltimeter_minigame_scene: PackedScene = null
+var voltimeter_minigame_scene: PackedScene:
+	get:
+		if not _voltimeter_minigame_scene: _voltimeter_minigame_scene = load("res://scenes/minigames/VoltimeterMinigame.tscn")
+		return _voltimeter_minigame_scene
+	set(v): _voltimeter_minigame_scene = v
+
+var _liquid_cooling_scene: PackedScene = null
+var liquid_cooling_scene: PackedScene:
+	get:
+		if not _liquid_cooling_scene: _liquid_cooling_scene = load("res://scenes/minigames/LiquidCoolingMinigame.tscn")
+		return _liquid_cooling_scene
+	set(v): _liquid_cooling_scene = v
 
 @onready var modal_control: Control = $ModalControl
 @onready var title_label: Label = get_node_or_null("ModalControl/Panel/VBox/Header/TitleLabel")
@@ -981,7 +1060,9 @@ func _refresh_ui() -> void:
 					btn_ex.text = "🔍 EXAMINAR"
 					btn_ex.modulate = Color(1.0, 1.0, 1.0, 1.0)
 
-	# Visibilidad de tarjetas según modo (tutorial específico, tutorial general o nivel normal)
+	# Visibilidad de tarjetas según modo (tutorial específico, tutorial general, zona de práctica o nivel normal)
+	var is_practice_pc: bool = (current_pc and current_pc.has_meta("is_practice_pc") and current_pc.get_meta("is_practice_pc")) or (get_tree().current_scene and "LevelPractice" in get_tree().current_scene.name)
+
 	if is_tut_pc and tut_comp != "" and tut_comp != "general":
 		if card_cpu: card_cpu.visible = (tut_comp == "cpu")
 		if card_cooler: card_cooler.visible = (tut_comp == "cooler")
@@ -1002,11 +1083,11 @@ func _refresh_ui() -> void:
 		if row_middle: row_middle.visible = (tut_comp in ["gpu", "hdd"])
 		if row_bottom: row_bottom.visible = (tut_comp in ["psu"])
 	elif is_tut_pc:
-		# Tutorial general / inducción completa
-		if card_cpu: card_cpu.visible = true
-		if card_cooler: card_cooler.visible = true
+		# Tutorial general / inducción completa: solo las 3 únicas piezas a arreglar (RAM, Disco Duro, Fuente)
+		if card_cpu: card_cpu.visible = false
+		if card_cooler: card_cooler.visible = false
 		if card_ram: card_ram.visible = true
-		if card_gpu: card_gpu.visible = true
+		if card_gpu: card_gpu.visible = false
 		if card_hdd:
 			card_hdd.visible = true
 			var hdd_title = card_hdd.get_node_or_null("Margin/VBox/Title") as Label
@@ -1017,6 +1098,31 @@ func _refresh_ui() -> void:
 		if row_top: row_top.visible = true
 		if row_middle: row_middle.visible = true
 		if row_bottom: row_bottom.visible = true
+	elif is_practice_pc:
+		# En zonas de práctica: en el menú solo las piezas para arreglar de esta PC
+		var practice_parts_to_fix: Array = []
+		if current_pc and current_pc.get("diagnostic_faulty_parts") != null and not current_pc.diagnostic_faulty_parts.is_empty():
+			practice_parts_to_fix = current_pc.diagnostic_faulty_parts
+		elif current_pc:
+			for c_name in current_pc.components.keys():
+				if current_pc.components[c_name] in ["broken", "empty"]:
+					practice_parts_to_fix.append(c_name)
+
+		if card_cpu: card_cpu.visible = ("CPU" in practice_parts_to_fix)
+		if card_cooler: card_cooler.visible = ("Fan Cooler" in practice_parts_to_fix)
+		if card_ram: card_ram.visible = ("RAM" in practice_parts_to_fix)
+		if card_gpu: card_gpu.visible = ("Grafica" in practice_parts_to_fix)
+		if card_hdd:
+			card_hdd.visible = ("Disco Duro" in practice_parts_to_fix)
+			var hdd_title = card_hdd.get_node_or_null("Margin/VBox/Title") as Label
+			if hdd_title:
+				hdd_title.text = "ALMACENAMIENTO (M.2 / SATA)"
+		if card_mobo: card_mobo.visible = ("Placa Madre" in practice_parts_to_fix)
+		if card_psu: card_psu.visible = ("Fuente" in practice_parts_to_fix)
+		
+		if row_top: row_top.visible = (card_cpu.visible or card_cooler.visible or card_ram.visible)
+		if row_middle: row_middle.visible = (card_gpu.visible or card_hdd.visible)
+		if row_bottom: row_bottom.visible = (card_mobo.visible or card_psu.visible)
 	else:
 		# Niveles normales de juego (Nivel 1 al 12)
 		if card_cpu: card_cpu.visible = true

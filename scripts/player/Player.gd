@@ -101,10 +101,11 @@ func skip_intro_cinematic() -> void:
 
 func _input(event: InputEvent) -> void:
 	if is_in_cinematic:
-		var is_esc = (event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE)
-		var is_pause = event.is_action_pressed("pause") or event.is_action_pressed("ui_cancel")
-		var is_space = (event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_SPACE)
-		if is_esc or is_pause or is_space:
+		if (event is InputEventKey and event.pressed and not event.echo) \
+		or (event is InputEventMouseButton and event.pressed) \
+		or event.is_action_pressed("interact") \
+		or event.is_action_pressed("pause") \
+		or event.is_action_pressed("ui_cancel"):
 			get_viewport().set_input_as_handled()
 			skip_intro_cinematic()
 			return
@@ -140,7 +141,7 @@ func play_intro_cinematic(on_finished: Callable = Callable()) -> void:
 		return
 		
 	intro_tween = create_tween()
-	var duration: float = 1.8
+	var duration: float = 0.65 # Cinemática rápida y ágil para no retrasar el inicio de la partida
 	
 	intro_tween.set_parallel(true)
 	intro_tween.tween_property(intro_camera_pivot, "rotation:y", 0.0, duration)\
@@ -152,9 +153,8 @@ func play_intro_cinematic(on_finished: Callable = Callable()) -> void:
 	intro_tween.tween_property(intro_camera, "fov", camera.fov, duration)\
 		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 		
-	# Disparar arranque óptico al final de la transición
+	# Disparar arranque óptico y finalizar de inmediato
 	intro_tween.chain().tween_callback(_on_cinematic_optic_trigger)
-	intro_tween.tween_interval(0.2)
 	intro_tween.chain().tween_callback(_finish_intro_cinematic)
 
 func _on_cinematic_optic_trigger() -> void:
@@ -439,13 +439,15 @@ func _handle_interaction() -> void:
 	if interaction_ray.is_colliding():
 		var target = interaction_ray.get_collider()
 		if target and target.has_method("get_interaction_prompt"):
-			_last_interaction_collider = target
-			var prompt = target.get_interaction_prompt()
-			if hud_node and hud_node.has_method("set_interaction_prompt"):
-				hud_node.set_interaction_prompt(prompt)
+			if target != _last_interaction_collider:
+				_last_interaction_collider = target
+				var prompt = target.get_interaction_prompt()
+				if hud_node and hud_node.has_method("set_interaction_prompt"):
+					hud_node.set_interaction_prompt(prompt)
 				
 			# Solo y exclusivamente abrir con tecla [E], nunca con clics de ratón
 			if just_e or (Input.is_action_just_pressed("interact") and not Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)):
+				_last_interaction_collider = null
 				target.interact(self)
 			return
 			

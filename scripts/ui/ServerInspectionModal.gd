@@ -4,15 +4,62 @@ signal inspection_closed()
 
 var current_server = null
 
-# Preloads de los minijuegos de ensamble de servidor y CLI de Andromeda
-var mobo_minigame_scene: PackedScene = preload("res://scenes/minigames/MotherboardMinigame.tscn")
-var ram_minigame_scene: PackedScene = preload("res://scenes/minigames/RAMMinigame.tscn")
-var hdd_minigame_scene: PackedScene = preload("res://scenes/minigames/HDDMinigame.tscn")
-var cpu_minigame_scene: PackedScene = preload("res://scenes/minigames/CPUMinigame.tscn")
-var cooler_minigame_scene: PackedScene = preload("res://scenes/minigames/FanCoolerMinigame.tscn")
-var gpu_minigame_scene: PackedScene = preload("res://scenes/minigames/GPUMinigame.tscn")
-var andromeda_cli_scene: PackedScene = preload("res://scenes/minigames/AndromedaCliMinigame.tscn")
-var liquid_minigame_scene: PackedScene = preload("res://scenes/minigames/LiquidCoolingMinigame.tscn")
+# Lazy loading de los minijuegos de ensamble de servidor y CLI de Andromeda
+var _mobo_minigame_scene: PackedScene = null
+var mobo_minigame_scene: PackedScene:
+	get:
+		if not _mobo_minigame_scene: _mobo_minigame_scene = load("res://scenes/minigames/MotherboardMinigame.tscn")
+		return _mobo_minigame_scene
+	set(v): _mobo_minigame_scene = v
+
+var _ram_minigame_scene: PackedScene = null
+var ram_minigame_scene: PackedScene:
+	get:
+		if not _ram_minigame_scene: _ram_minigame_scene = load("res://scenes/minigames/RAMMinigame.tscn")
+		return _ram_minigame_scene
+	set(v): _ram_minigame_scene = v
+
+var _hdd_minigame_scene: PackedScene = null
+var hdd_minigame_scene: PackedScene:
+	get:
+		if not _hdd_minigame_scene: _hdd_minigame_scene = load("res://scenes/minigames/HDDMinigame.tscn")
+		return _hdd_minigame_scene
+	set(v): _hdd_minigame_scene = v
+
+var _cpu_minigame_scene: PackedScene = null
+var cpu_minigame_scene: PackedScene:
+	get:
+		if not _cpu_minigame_scene: _cpu_minigame_scene = load("res://scenes/minigames/CPUMinigame.tscn")
+		return _cpu_minigame_scene
+	set(v): _cpu_minigame_scene = v
+
+var _cooler_minigame_scene: PackedScene = null
+var cooler_minigame_scene: PackedScene:
+	get:
+		if not _cooler_minigame_scene: _cooler_minigame_scene = load("res://scenes/minigames/FanCoolerMinigame.tscn")
+		return _cooler_minigame_scene
+	set(v): _cooler_minigame_scene = v
+
+var _gpu_minigame_scene: PackedScene = null
+var gpu_minigame_scene: PackedScene:
+	get:
+		if not _gpu_minigame_scene: _gpu_minigame_scene = load("res://scenes/minigames/GPUMinigame.tscn")
+		return _gpu_minigame_scene
+	set(v): _gpu_minigame_scene = v
+
+var _andromeda_cli_scene: PackedScene = null
+var andromeda_cli_scene: PackedScene:
+	get:
+		if not _andromeda_cli_scene: _andromeda_cli_scene = load("res://scenes/minigames/AndromedaCliMinigame.tscn")
+		return _andromeda_cli_scene
+	set(v): _andromeda_cli_scene = v
+
+var _liquid_minigame_scene: PackedScene = null
+var liquid_minigame_scene: PackedScene:
+	get:
+		if not _liquid_minigame_scene: _liquid_minigame_scene = load("res://scenes/minigames/LiquidCoolingMinigame.tscn")
+		return _liquid_minigame_scene
+	set(v): _liquid_minigame_scene = v
 
 @onready var modal_control: Control = $ModalControl
 @onready var bg_frame: NinePatchRect = $ModalControl/Panel/CyberBackgroundFrame

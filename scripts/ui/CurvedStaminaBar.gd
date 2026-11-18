@@ -23,6 +23,7 @@ func _ready() -> void:
 	_current_alpha = 0.0
 	_target_alpha = 0.0
 	_fade_delay_timer = 0.0
+	set_process(false)
 
 func _process(delta: float) -> void:
 	# Se desvanece suavemente cuando está al 100% de estamina tras un breve retardo
@@ -39,12 +40,17 @@ func _process(delta: float) -> void:
 	if not is_equal_approx(_current_alpha, _target_alpha):
 		_current_alpha = move_toward(_current_alpha, _target_alpha, delta * 3.5)
 		queue_redraw()
+	elif _current_alpha <= 0.001 and _target_alpha == 0.0:
+		_current_alpha = 0.0
+		set_process(false)
 
 func set_stamina(current: float, max_val: float, exhausted: bool = false) -> void:
 	var new_ratio: float = clampf(current / max_val if max_val > 0.0 else 0.0, 0.0, 1.0)
 	if not is_equal_approx(new_ratio, stamina_ratio) or is_exhausted != exhausted:
 		stamina_ratio = new_ratio
 		is_exhausted = exhausted
+		if not is_processing():
+			set_process(true)
 		queue_redraw()
 
 func _draw() -> void:
