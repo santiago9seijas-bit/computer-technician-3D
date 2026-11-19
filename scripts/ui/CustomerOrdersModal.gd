@@ -150,6 +150,16 @@ func _ready() -> void:
 	# Seleccionar el primer pedido disponible
 	if orders_data.size() > 0:
 		_select_order(orders_data[0]["id"])
+		
+	# Ocultar paneles del HUD excepto el contador de tiempo para leer cómodamente los pedidos
+	var hud = get_tree().root.find_child("HUD", true, false)
+	if hud and hud.has_method("hide_gameplay_hud_for_modal"):
+		hud.hide_gameplay_hud_for_modal(true)
+
+func _exit_tree() -> void:
+	var hud = get_tree().root.find_child("HUD", true, false)
+	if hud and hud.has_method("show_gameplay_hud_from_modal"):
+		hud.show_gameplay_hud_from_modal(true)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
@@ -389,6 +399,9 @@ func _on_action_pressed() -> void:
 					ord["status"] = "in_progress"
 					_show_notification("📦 ¡Pedido " + ord["id"] + " aceptado! Equipo enviado al área de reparación.", Color(0.0, 0.95, 1.0, 1.0))
 					order_accepted.emit(ord)
+					var gm = _get_gm()
+					if gm and gm.has_signal("order_accepted"):
+						gm.order_accepted.emit(ord)
 					_update_stats()
 					_select_order(selected_order_id)
 				"in_progress":
@@ -403,6 +416,8 @@ func _on_action_pressed() -> void:
 					
 					_show_notification("💰 ¡Reparación finalizada! Has ganado $" + str(reward_m) + " y " + str(reward_xp) + " XP.", Color(0.2, 1.0, 0.55, 1.0))
 					order_completed.emit(ord)
+					if gm and gm.has_signal("order_completed"):
+						gm.order_completed.emit(ord)
 					_update_stats()
 					_select_order(selected_order_id)
 			break

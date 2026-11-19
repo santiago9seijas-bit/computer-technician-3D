@@ -1,11 +1,15 @@
 extends Node3D
 
 const INTRO_SCENE: PackedScene = preload("res://scenes/ui/LevelSystemsIntroModal.tscn")
+const DELIVERED_CABINET_SCENE: PackedScene = preload("res://scenes/components/DeliveredCabinet.tscn")
+const DELIVERY_WALL_POS: Vector3 = Vector3(3.2, 0.0, 1.5)
 
 @onready var player: CharacterBody3D = $Player
 @onready var hud: Control = $CanvasLayerHUD/HUD
 
 func _ready() -> void:
+	GameManager.order_accepted.connect(_on_order_accepted)
+	GameManager.order_completed.connect(_on_order_completed)
 	if player and hud:
 		player.hud_node = hud
 		
@@ -36,7 +40,12 @@ func _show_mission_briefing() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	
 	var modal = INTRO_SCENE.instantiate()
-	add_child(modal)
+	var hud_layer = get_node_or_null("CanvasLayerHUD")
+	if hud_layer:
+		hud_layer.add_child(modal)
+	else:
+		add_child(modal)
+		
 	modal.started.connect(func():
 		GameManager.timer_active = true
 		if player and player.has_method("set_movement_enabled"):
@@ -50,4 +59,31 @@ func _on_reintentar() -> void:
 
 func _on_siguiente() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	var sm = get_node_or_null("/root/SaveManager")
+	if sm and sm.has_method("mark_node_completed"):
+		sm.mark_node_completed("sistema", 7)
 	CyberPlayTransition.play_exit(get_tree(), "sistema")
+
+func _on_order_accepted(order_data: Dictionary) -> void:
+	if not DELIVERED_CABINET_SCENE:
+		return
+	var cabinet = DELIVERED_CABINET_SCENE.instantiate()
+	cabinet.order_data = order_data
+	add_child(cabinet)
+	cabinet.spawn_animation(DELIVERY_WALL_POS)
+	if hud and hud.has_method("set_interaction_prompt"):
+		hud.set_interaction_prompt("📦 ¡Gabinete entregado junto a la pared! Recógelo con [F]")
+
+func _on_order_completed(order_data: Dictionary) -> void:
+	var cabinets = get_tree().get_nodes_in_group("delivered_cabinets")
+	if cabinets.is_empty():
+		for child in find_children("*", "DeliveredCabinet", true, false):
+			cabinets.append(child)
+			
+	for cab in cabinets:
+		if cab is DeliveredCabinet and is_instance_valid(cab):
+			cab.disappear_animation()
+			break
+			
+	if hud and hud.has_method("set_interaction_prompt"):
+		hud.set_interaction_prompt("🎉 ¡Pedido completado y retirado con éxito!")

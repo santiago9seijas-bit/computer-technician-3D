@@ -46,6 +46,7 @@ var light_box_mat: StandardMaterial3D = null
 var arrow_mat: StandardMaterial3D = null
 
 func _ready() -> void:
+	set_process(false)
 	if arrow_mesh:
 		original_arrow_y = arrow_mesh.position.y
 		arrow_mat = StandardMaterial3D.new()
@@ -53,6 +54,10 @@ func _ready() -> void:
 		arrow_mat.emission_energy_multiplier = 3.0
 		arrow_mesh.material_override = arrow_mat
 		arrow_mesh.visible = true
+		
+		var tw = create_tween().set_loops()
+		tw.tween_property(arrow_mesh, "position:y", original_arrow_y + 0.08, 1.05).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+		tw.tween_property(arrow_mesh, "position:y", original_arrow_y - 0.08, 1.05).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 		
 	if cuadro_de_luz:
 		light_box_mat = StandardMaterial3D.new()
@@ -65,26 +70,6 @@ func _ready() -> void:
 		cuadro_de_luz.material_override = light_box_mat
 		
 	update_3d_state()
-
-func _process(_delta: float) -> void:
-	var t = Time.get_ticks_msec() / 1000.0
-	if arrow_mesh:
-		arrow_mesh.position.y = original_arrow_y + sin(t * 3.0) * 0.08
-		
-	# Pulsación suave del cuadro de luz interior y luces del rack
-	var pulse = 0.88 + sin(t * 2.8) * 0.12
-	if light_box_mat:
-		light_box_mat.emission_energy_multiplier = 3.5 * pulse
-		
-	var base_energy = 1.6 if is_completed else 1.3
-	if inner_cyan:
-		inner_cyan.light_energy = (base_energy + sin(t * 2.5) * 0.3) * pulse
-	if inner_magenta:
-		inner_magenta.light_energy = (base_energy + cos(t * 2.2) * 0.3) * pulse
-	if inner_amber:
-		inner_amber.light_energy = (base_energy + sin(t * 2.8 + 1.0) * 0.3) * pulse
-	if status_light:
-		status_light.light_energy = 1.3 * pulse
 
 func is_hardware_completed() -> bool:
 	for comp in ["Placa Madre", "Bancos RAM ECC (3 Módulos)", "Caddies SSD RAID (3 Discos)", "Multi CPU Enterprise (3 Procesadores)", "Fan Wall de Turbinas", "Riser PCIe / Tarjeta Grafica"]:

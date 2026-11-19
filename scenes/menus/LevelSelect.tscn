@@ -89,6 +89,7 @@ grow_vertical = 2
 mouse_filter = 1
 
 [node name="CardsScroll" type="ScrollContainer" parent="TutorialArea"]
+layout_direction = 1
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -105,12 +106,80 @@ horizontal_scroll_mode = 0
 vertical_scroll_mode = 1
 
 [node name="CardsGrid" type="GridContainer" parent="TutorialArea/CardsScroll"]
+layout_direction = 0
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/h_separation = 20
 theme_override_constants/v_separation = 20
 columns = 3
+
+[node name="LeftScrollControls" type="VBoxContainer" parent="TutorialArea"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -608.0
+offset_top = -175.0
+offset_right = -568.0
+offset_bottom = 295.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="BtnScrollUp" type="Button" parent="TutorialArea/LeftScrollControls"]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "▲"
+
+[node name="ScrollTrack" type="Control" parent="TutorialArea/LeftScrollControls"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="TrackLine" type="ColorRect" parent="TutorialArea/LeftScrollControls/ScrollTrack"]
+layout_mode = 1
+anchors_preset = 13
+anchor_left = 0.5
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -2.0
+offset_right = 2.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0.85, 1, 0.35)
+
+[node name="LblScroll" type="Label" parent="TutorialArea/LeftScrollControls/ScrollTrack"]
+layout_mode = 1
+anchors_preset = 14
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_top = -45.0
+offset_bottom = 45.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0, 0.85, 1, 0.7)
+theme_override_font_sizes/font_size = 9
+text = "S
+C
+R
+O
+L
+L"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BtnScrollDown" type="Button" parent="TutorialArea/LeftScrollControls"]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "▼"
 
 [node name="TopBar" type="HBoxContainer" parent="."]
 layout_mode = 1

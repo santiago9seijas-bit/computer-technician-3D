@@ -69,6 +69,9 @@ const MAX_APPLY_CLICKS: int = 5
 
 var cursor_hotspot: Vector2 = Vector2(42, 40)
 var is_busy_animating: bool = false
+var is_intro_active: bool = false
+var countdown_overlay: CanvasLayer = null
+var dialog_box_inst: Control = null
 
 func _get_game_manager() -> Node:
 	if not is_inside_tree():
@@ -99,6 +102,10 @@ func _ready() -> void:
 	btn_cancel.pressed.connect(func():
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 		minigame_finished.emit(false)
+		if get_tree().current_scene == self:
+			get_tree().change_scene_to_file("res://scenes/menus/LevelSelect.tscn")
+		else:
+			queue_free()
 	)
 	
 	btn_tool_1.pressed.connect(func(): _select_tool(1))
@@ -122,11 +129,111 @@ func _ready() -> void:
 	new_paste_stain.scale = Vector2(0.12, 0.12)
 	apply_progress_container.visible = false
 	
-	# Activar cursor personalizado de pañuelo
-	Input.mouse_mode = Input.MOUSE_MODE_HIDDEN
 	_select_tool(1)
 	_update_cursor_visual()
 	_update_status()
+	
+	if get_tree().current_scene == self:
+		_start_joa_intro()
+	else:
+		Input.mouse_mode = Input.MOUSE_MODE_HIDDEN
+
+func _start_joa_intro() -> void:
+	is_intro_active = true
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	if cursor_sprite:
+		cursor_sprite.visible = false
+		
+	var dlg_scene = load("res://scenes/ui/DialogBox.tscn")
+	if dlg_scene:
+		dialog_box_inst = dlg_scene.instantiate()
+		add_child(dialog_box_inst)
+		if dialog_box_inst.has_method("show_message"):
+			dialog_box_inst.show_message(
+				"JOA",
+				"¡Atención al procesador! La pasta térmica vieja se ha solidificado y perdió su conductividad térmica.\n\nPrimero selecciona el [1] Pañuelo y haz clic sobre el IHS para retirar toda la pasta seca. Luego selecciona la [2] Pasta Térmica y aplica una gota limpia hasta lograr 100% de cobertura.",
+				func():
+					_start_countdown()
+			)
+		else:
+			_start_countdown()
+	else:
+		_start_countdown()
+
+func _start_countdown() -> void:
+	if countdown_overlay:
+		countdown_overlay.queue_free()
+
+	countdown_overlay = CanvasLayer.new()
+	countdown_overlay.layer = 110
+	add_child(countdown_overlay)
+
+	var root_ctrl = Control.new()
+	root_ctrl.set_anchors_preset(Control.PRESET_FULL_RECT)
+	root_ctrl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	countdown_overlay.add_child(root_ctrl)
+
+	var dim_rect = ColorRect.new()
+	dim_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+	dim_rect.color = Color(0.01, 0.03, 0.08, 0.55)
+	dim_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root_ctrl.add_child(dim_rect)
+
+	var center = CenterContainer.new()
+	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root_ctrl.add_child(center)
+
+	var label = Label.new()
+	label.text = ""
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.add_theme_font_size_override("font_size", 120)
+	label.pivot_offset = Vector2(160, 80)
+	center.add_child(label)
+
+	var steps: Array[Dictionary] = [
+		{"text": "3", "color": Color(0.85, 0.25, 1.0), "size": 130},
+		{"text": "2", "color": Color(1.0, 0.9, 0.2),  "size": 130},
+		{"text": "1", "color": Color(1.0, 0.55, 0.1), "size": 130},
+		{"text": "¡A LIMPIAR Y APLICAR!", "color": Color(0.2, 1.0, 0.5), "size": 85}
+	]
+
+	_run_countdown_step(0, steps, label, root_ctrl)
+
+func _run_countdown_step(index: int, steps: Array[Dictionary], label: Label, root_ctrl: Control) -> void:
+	if index >= steps.size():
+		var fade_tw = create_tween()
+		fade_tw.tween_property(root_ctrl, "modulate:a", 0.0, 0.3)
+		fade_tw.chain().tween_callback(func():
+			if countdown_overlay:
+				countdown_overlay.queue_free()
+				countdown_overlay = null
+			is_intro_active = false
+			Input.mouse_mode = Input.MOUSE_MODE_HIDDEN
+			if cursor_sprite:
+				cursor_sprite.visible = true
+		)
+		return
+
+	var st = steps[index]
+	label.text = st["text"]
+	label.modulate = st["color"]
+	label.add_theme_font_size_override("font_size", st["size"])
+	label.scale = Vector2(0.4, 0.4)
+	label.modulate.a = 0.0
+
+	var gm = _get_game_manager()
+	if gm and gm.has_method("play_sfx"):
+		gm.play_sfx("click")
+
+	var tw = create_tween().set_parallel(true)
+	tw.tween_property(label, "scale", Vector2.ONE, 0.2).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tw.tween_property(label, "modulate:a", 1.0, 0.15)
+	tw.chain().tween_interval(0.4)
+	tw.chain().tween_callback(func():
+		_run_countdown_step(index + 1, steps, label, root_ctrl)
+	)
 
 func _exit_tree() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
@@ -176,7 +283,7 @@ func _update_cursor_visual() -> void:
 # MANEJO DE CLICS EN EL ÁREA DEL PROCESADOR
 # =============================================================================
 func _on_click_area_gui_input(event: InputEvent) -> void:
-	if is_busy_animating or current_phase == Phase.COMPLETED:
+	if is_busy_animating or is_intro_active or current_phase == Phase.COMPLETED:
 		return
 		
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
@@ -283,8 +390,24 @@ func _complete_apply_phase() -> void:
 	tw_flash.tween_property(new_paste_stain, "modulate", Color(1.3, 1.3, 1.3, 1.0), 0.2)
 	tw_flash.tween_property(new_paste_stain, "modulate", Color(1.0, 1.0, 1.0, 1.0), 0.2)
 	
+	var sm = get_node_or_null("/root/SaveManager")
+	if sm:
+		sm.mark_node_completed("reparacion", 28)
+		sm.unlock_glossary("cpu")
+		
 	await get_tree().create_timer(1.2).timeout
 	minigame_finished.emit(true)
+	
+	if get_tree().current_scene == self:
+		CyberPlayTransition.play_exit(
+			get_tree(),
+			"reparacion",
+			"res://scenes/menus/LevelSelect.tscn",
+			"PASTA TÉRMICA RENOVADA",
+			"// TRANSFERENCIA TÉRMICA OPTIMIZADA AL 100% //"
+		)
+	else:
+		queue_free()
 
 func _show_warning(msg: String, col: Color) -> void:
 	var gm = _get_game_manager()

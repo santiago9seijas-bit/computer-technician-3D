@@ -19,9 +19,24 @@ extends Control
 @onready var version_label: Label = $BottomRightInfo/VersionLabel
 
 # Fondos y modales
+@onready var background: Control = get_node_or_null("Background")
 @onready var darken_overlay: ColorRect = $DarkenOverlay
 @onready var controls_panel: PanelContainer = $ControlsPanel
 @onready var btn_volver_controles: Button = $ControlsPanel/Margin/VBox/Footer/BtnVolverControles
+
+const SYNTHWAVE_GRID_COLOR: Color = Color(0.9, 0.15, 0.55, 0.45)
+const SYNTHWAVE_TOP_COLOR: Color = Color(0.06, 0.02, 0.13, 1.0)
+const SYNTHWAVE_HORIZON_COLOR: Color = Color(0.24, 0.05, 0.38, 1.0)
+const SYNTHWAVE_BOTTOM_COLOR: Color = Color(0.08, 0.02, 0.16, 1.0)
+const SYNTHWAVE_LINE_COLOR: Color = Color(1.0, 0.2, 0.6, 1.0)
+
+const EXTRAS_GRID_COLOR: Color = Color(0.0, 0.92, 0.65, 0.48)
+const EXTRAS_TOP_COLOR: Color = Color(0.02, 0.05, 0.12, 1.0)
+const EXTRAS_HORIZON_COLOR: Color = Color(0.05, 0.22, 0.26, 1.0)
+const EXTRAS_BOTTOM_COLOR: Color = Color(0.03, 0.07, 0.09, 1.0)
+const EXTRAS_LINE_COLOR: Color = Color(0.0, 0.95, 0.75, 1.0)
+
+var bg_tween: Tween = null
 
 @onready var config_panel: PanelContainer = $ConfigPanel
 @onready var btn_volver_config: Button = $ConfigPanel/Margin/VBox/Footer/BtnVolverConfig
@@ -43,6 +58,7 @@ extends Control
 
 var LevelSelectScript = preload("res://scripts/menus/LevelSelect.gd")
 var arcade_scene: PackedScene = preload("res://scenes/minigames/MalwareInvadersMinigame.tscn")
+var extras_modal_scene: PackedScene = preload("res://scenes/ui/ExtrasModal.tscn")
 const WARNING_MODAL_SCENE: PackedScene = preload("res://scenes/ui/PhotosensitiveWarningModal.tscn")
 static var warning_shown_this_boot: bool = false
 
@@ -52,7 +68,7 @@ var secret_click_count: int = 0
 var konami_feedback_label: Label = null
 
 var is_transitioning: bool = false
-var active_panel: Control = null
+var active_panel: Node = null
 var current_tween: Tween = null
 
 # Coordenadas base
@@ -206,8 +222,30 @@ func _show_konami_step(msg: String) -> void:
 	tw.tween_property(konami_feedback_label, "modulate:a", 0.0, 0.4)
 
 func _launch_arcade_easter_egg() -> void:
-	if get_tree().root.has_node("MalwareInvadersMinigame"):
+	if is_transitioning or active_panel != null or get_tree().root.has_node("MalwareInvadersMinigame"):
 		return
+	is_transitioning = true
+	
+	# Desactivar interacción y foco de todos los botones del menú principal para no filtrar clicks o teclas
+	if vbox_container:
+		vbox_container.visible = false
+		vbox_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if header_container:
+		header_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if btn_jugar:
+		btn_jugar.release_focus()
+		
+	var sm = get_node_or_null("/root/SaveManager")
+	if sm:
+		var unlocked = sm.unlock_achievement("aliens")
+		if not unlocked:
+			# Notificación forzada por si ya estaba desbloqueado previamente en este archivo de guardado
+			sm.show_toast_notification(
+				"¡NUEVO LOGRO DESBLOQUEADO!",
+				"Aliens",
+				"achievement",
+				func(): sm.open_extras_modal("logros")
+			)
 		
 	# Destello cian retro confirmando el código secreto
 	var flash = ColorRect.new()
@@ -223,20 +261,31 @@ func _launch_arcade_easter_egg() -> void:
 	var arcade = arcade_scene.instantiate()
 	arcade.name = "MalwareInvadersMinigame"
 	arcade.set("is_tutorial_mode", false)
+	active_panel = arcade
 	get_tree().root.add_child(arcade)
 	
 	arcade.connect("minigame_finished", func(_success: bool):
 		arcade.queue_free()
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+		if vbox_container:
+			vbox_container.visible = true
+			vbox_container.modulate.a = 1.0
+			vbox_container.mouse_filter = Control.MOUSE_FILTER_STOP
+		if header_container:
+			header_container.mouse_filter = Control.MOUSE_FILTER_STOP
+		active_panel = null
+		is_transitioning = false
 	)
 
 func _unhandled_input(event: InputEvent) -> void:
+	if get_tree().root.has_node("MalwareInvadersMinigame"):
+		return
 	if active_panel != null and event.is_action_pressed("ui_cancel"):
 		_close_active_subview()
 		get_viewport().set_input_as_handled()
 
 func _on_jugar_pressed() -> void:
-	if is_transitioning or active_panel != null: return
+	if is_transitioning or active_panel != null or get_tree().root.has_node("MalwareInvadersMinigame"): return
 	is_transitioning = true
 	
 	# Efecto visual y de escala en el botón
@@ -267,21 +316,90 @@ func _on_jugar_pressed() -> void:
 	)
 
 func _on_tutoriales_pressed() -> void:
-	if is_transitioning or active_panel != null: return
+	if is_transitioning or active_panel != null or get_tree().root.has_node("MalwareInvadersMinigame"): return
+	_open_extras_modal()
+
+func _open_extras_modal() -> void:
+	if is_transitioning or active_panel != null or has_node("ExtrasModal") or get_tree().root.has_node("MalwareInvadersMinigame"):
+		return
 	is_transitioning = true
-	LevelSelectScript.initial_tab = "tutoriales"
-	get_tree().change_scene_to_file("res://scenes/menus/LevelSelect.tscn")
+	
+	if current_tween and current_tween.is_valid():
+		current_tween.kill()
+		
+	# 1. Deslizar fluidamente cabecera, botones y decoración a la izquierda (misma cinemática suave)
+	current_tween = create_tween().set_parallel(true)
+	current_tween.tween_property(header_container, "position:x", header_orig_x - 700.0, 0.38).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+	current_tween.tween_property(vbox_container, "position:x", buttons_orig_x - 700.0, 0.38).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+	if decoracion:
+		current_tween.tween_property(decoracion, "position:x", deco_orig_x - 700.0, 0.38).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+	if bottom_right_info:
+		current_tween.tween_property(bottom_right_info, "modulate:a", 0.0, 0.25)
+	current_tween.tween_property(darken_overlay, "modulate:a", 1.0, 0.35)
+	
+	_animate_background_to_extras()
+	
+	var modal = extras_modal_scene.instantiate()
+	active_panel = modal
+	add_child(modal)
+	
+	current_tween.chain().tween_callback(func():
+		is_transitioning = false
+	)
+	
+	modal.modal_closed.connect(func():
+		is_transitioning = true
+		_animate_background_from_extras()
+		
+		var restore_tw = create_tween().set_parallel(true)
+		restore_tw.tween_property(header_container, "position:x", header_orig_x, 0.38).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+		restore_tw.tween_property(vbox_container, "position:x", buttons_orig_x, 0.38).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+		if decoracion:
+			restore_tw.tween_property(decoracion, "position:x", deco_orig_x, 0.38).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+		if bottom_right_info:
+			restore_tw.tween_property(bottom_right_info, "modulate:a", 1.0, 0.3)
+		restore_tw.tween_property(darken_overlay, "modulate:a", 0.0, 0.3)
+		
+		restore_tw.chain().tween_callback(func():
+			active_panel = null
+			is_transitioning = false
+		)
+	)
+
+func _animate_background_to_extras() -> void:
+	if not background: return
+	if bg_tween and bg_tween.is_valid():
+		bg_tween.kill()
+	bg_tween = create_tween().set_parallel(true).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+	bg_tween.tween_property(background, "grid_color", EXTRAS_GRID_COLOR, 0.45)
+	bg_tween.tween_property(background, "bg_top_color", EXTRAS_TOP_COLOR, 0.45)
+	bg_tween.tween_property(background, "bg_horizon_color", EXTRAS_HORIZON_COLOR, 0.45)
+	bg_tween.tween_property(background, "bg_bottom_color", EXTRAS_BOTTOM_COLOR, 0.45)
+	if "horizon_line_color" in background:
+		bg_tween.tween_property(background, "horizon_line_color", EXTRAS_LINE_COLOR, 0.45)
+
+func _animate_background_from_extras() -> void:
+	if not background: return
+	if bg_tween and bg_tween.is_valid():
+		bg_tween.kill()
+	bg_tween = create_tween().set_parallel(true).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+	bg_tween.tween_property(background, "grid_color", SYNTHWAVE_GRID_COLOR, 0.45)
+	bg_tween.tween_property(background, "bg_top_color", SYNTHWAVE_TOP_COLOR, 0.45)
+	bg_tween.tween_property(background, "bg_horizon_color", SYNTHWAVE_HORIZON_COLOR, 0.45)
+	bg_tween.tween_property(background, "bg_bottom_color", SYNTHWAVE_BOTTOM_COLOR, 0.45)
+	if "horizon_line_color" in background:
+		bg_tween.tween_property(background, "horizon_line_color", SYNTHWAVE_LINE_COLOR, 0.45)
 
 func _on_controles_pressed() -> void:
-	if is_transitioning: return
+	if is_transitioning or active_panel != null or get_tree().root.has_node("MalwareInvadersMinigame"): return
 	_open_subview(controls_panel)
 
 func _on_configuracion_pressed() -> void:
-	if is_transitioning: return
+	if is_transitioning or active_panel != null or get_tree().root.has_node("MalwareInvadersMinigame"): return
 	_open_subview(config_panel)
 
 func _on_salir_pressed() -> void:
-	if is_transitioning: return
+	if is_transitioning or active_panel != null or get_tree().root.has_node("MalwareInvadersMinigame"): return
 	get_tree().quit()
 
 # =============================================================================
@@ -499,7 +617,7 @@ func _refresh_all_ui_texts() -> void:
 	if btn_tutoriales:
 		var lbl = btn_tutoriales.get_node_or_null("Label")
 		if lbl:
-			lbl.text = loc.translate_text("TUTORIALES")
+			lbl.text = "EXTRAS"
 	if btn_salir:
 		var lbl = btn_salir.get_node_or_null("Label")
 		if lbl:

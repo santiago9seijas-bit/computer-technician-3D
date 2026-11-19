@@ -25,17 +25,38 @@ var mode_switch_pulse: float = 0.0
 var transition_sweep_angle: float = 0.0
 var _mode_tween: Tween = null
 
-# Micro-animación de zoom táctil sobre los círculos de nivel (hasta 32 nodos dinámicos)
+# Micro-animación de zoom táctil sobre los círculos de nivel (hasta 48 nodos dinámicos)
 var node_zoom_scales: Array[float] = [
+	1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
 	1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
 	1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0
 ]
 var node_ripples: Array[float] = [
 	0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+	0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
 	0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
 ]
+var lupa_texture: Texture2D = preload("res://pixel art menus/decoracion/emoticon de lupa.png")
 var node_press_tweens: Dictionary = {}
 var node_unlocked_states: Dictionary = {}
+
+# =============================================================================
+# ENTIDAD: NUBE DE GLITCH ERRÁTICA EN MODO SISTEMA
+# =============================================================================
+var glitch_cloud_node: Control = null
+var glitch_cloud_body: TextureRect = null
+var glitch_cloud_core: TextureRect = null
+var glitch_cloud_label: Label = null
+var glitch_cloud_pos: Vector2 = Vector2(640, 365)
+var glitch_cloud_target: Vector2 = Vector2(640, 365)
+var glitch_cloud_wander_timer: float = 0.0
+var glitch_cloud_jitter_timer: float = 0.0
+var glitch_cloud_jitter: Vector2 = Vector2.ZERO
+var glitch_cloud_scale: float = 1.0
+var glitch_cloud_particles: Array[Dictionary] = []
+var glitch_mat: Material = preload("res://styles/cyber_glitch_sprite.tres")
+var pelusa_tex: Texture2D = preload("res://pixel art minijuegos/pelusa/pelusa grande.png")
+var systems_icon_tex: Texture2D = preload("res://pixel art menus/decoracion/emoticono de sistemas.png")
 
 var unlocking_node_index: int = -1
 var unlock_anim_progress: float = 0.0
@@ -179,94 +200,109 @@ var initialized_fx: bool = false
 # RAÍZ PRINCIPAL AL NIVEL 1 EN EL OESTE/NOROESTE CONECTADA DIRECTA AL NÚCLEO
 # =============================================================================
 var MODE_NODES: Dictionary = {
-	# 1. REPARACIÓN: Telaraña Expandida y Espaciosa (Distribución Secuencial: Tutorial -> Reto de Práctica Cronometrado -> Nivel 1)
+	# 1. REPARACIÓN: Telaraña Cibernética Orgánica e Interconectada (Topología Radial y Concéntrica Ampliada y Espaciada)
 	"reparacion": [
-		# --- NÚCLEO CENTRAL DE INDUCCIÓN [0] ---
-		Vector2(520, 360), # [0] NÚCLEO TUTORIAL: Inducción Central al Hardware
+		# --- NÚCLEO CENTRAL DE LA TELARAÑA [0] ---
+		Vector2(640, 360),  # [0] NÚCLEO TUTORIAL: Inducción Central al Hardware
 
-		# --- TUTORIALES GUIADOS 3D [1 - 6] ---
-		Vector2(350, 360), # [1] TUTORIAL 3D: Fan Cooler (Oeste)
-		Vector2(400, 230), # [2] TUTORIAL 3D: Memoria RAM (Noroeste)
-		Vector2(600, 200), # [3] TUTORIAL 3D: Disco HDD / SSD (Norte)
-		Vector2(800, 230), # [4] TUTORIAL 3D: Tarjeta Gráfica GPU (Noreste)
-		Vector2(850, 360), # [5] TUTORIAL 3D: Fuente de Poder PSU (Este)
-		Vector2(800, 490), # [6] TUTORIAL 3D: Procesador CPU (Sureste)
+		# --- ANILLO 1 (INTERIOR): TUTORIALES 3D GUIADOS [1 - 6] (Radio ~230px) ---
+		Vector2(441, 245),  # [1] TUTORIAL 3D: Fan Cooler (Spoke Noroeste)
+		Vector2(620, 131),  # [2] TUTORIAL 3D: Memoria RAM (Spoke Norte)
+		Vector2(821, 218),  # [3] TUTORIAL 3D: Disco HDD / SSD (Spoke Noreste)
+		Vector2(865, 408),  # [4] TUTORIAL 3D: Tarjeta Gráfica GPU (Spoke Este)
+		Vector2(700, 582),  # [5] TUTORIAL 3D: Fuente de Poder PSU (Spoke Sur-Sureste)
+		Vector2(464, 508),  # [6] TUTORIAL 3D: Procesador CPU (Spoke Suroeste)
 
-		# --- CAMPAÑA PRINCIPAL: NIVELES 1 AL 12 [7 - 18] (Se desbloquean al completar el entrenamiento) ---
-		Vector2(760, 580), # [7] NIVEL 1 · MONTAJE FAN COOLER (Desbloqueo final de inducción)
-		Vector2(640, 610), # [8] NIVEL 2 · DIAGNÓSTICO BANCO RAM
-		Vector2(520, 620), # [9] NIVEL 3 · UNIDAD SATA Y TORNILLOS (HDD / SSD)
-		Vector2(400, 610), # [10] NIVEL 4 · PASTA TÉRMICA Y CONTACTO
-		Vector2(290, 570), # [11] NIVEL 5 · TARJETA GRÁFICA PCIE
-		Vector2(200, 500), # [12] NIVEL 6 · FUENTE DE PODER ATX
-		Vector2(120, 480), # [13] NIVEL 7 · ZÓCALO DE PROCESADOR CPU
-		Vector2(80, 360),  # [14] NIVEL 8 · ARQUITECTURA TÉRMICA COMPLETA
-		Vector2(90, 240),  # [15] NIVEL 9 · DIAGNÓSTICO INTEGRADO
-		Vector2(130, 140), # [16] NIVEL 10 · WORKSTATION GAMING & RENDER
-		Vector2(200, 60),  # [17] NIVEL 11 · OVERCLOCKING & CALIBRACIÓN
-		Vector2(360, 50),  # [18] NIVEL 12 · CERTIFICACIÓN TÉCNICA MAESTRA
+		# --- ANILLO EXTERIOR Y PERÍMETRO: CAMPAÑA PRINCIPAL (1 AL 12) [7 - 18] (Radio ~700px) ---
+		Vector2(34, 10),    # [7]  NIVEL 1 · MONTAJE FAN COOLER
+		Vector2(290, -246), # [8]  NIVEL 2 · DIAGNÓSTICO BANCO RAM
+		Vector2(640, -340), # [9]  NIVEL 3 · UNIDAD SATA Y TORNILLOS (HDD / SSD)
+		Vector2(990, -246), # [10] NIVEL 4 · PASTA TÉRMICA Y CONTACTO
+		Vector2(1246, 10),  # [11] NIVEL 5 · TARJETA GRÁFICA PCIE
+		Vector2(1340, 360), # [12] NIVEL 6 · FUENTE DE PODER ATX
+		Vector2(1246, 710), # [13] NIVEL 7 · ZÓCALO DE PROCESADOR CPU
+		Vector2(990, 966),  # [14] NIVEL 8 · ARQUITECTURA TÉRMICA COMPLETA
+		Vector2(640, 1060), # [15] NIVEL 9 · DIAGNÓSTICO INTEGRADO
+		Vector2(290, 966),  # [16] NIVEL 10 · WORKSTATION GAMING & RENDER
+		Vector2(34, 710),   # [17] NIVEL 11 · OVERCLOCKING & CALIBRACIÓN
+		Vector2(-60, 360),  # [18] NIVEL 12 · CERTIFICACIÓN TÉCNICA MAESTRA
 
-		# --- RETOS DE PRÁCTICA CRONOMETRADOS (3 MESAS / 8 MINUTOS) [19 - 25] ---
-		Vector2(180, 360), # [19] RETO PRÁCTICA: Fan Cooler (Exterior Oeste)
-		Vector2(260, 120), # [20] RETO PRÁCTICA: Memoria RAM (Exterior Noroeste)
-		Vector2(600, 70),  # [21] RETO PRÁCTICA: Discos HDD/SSD (Exterior Norte)
-		Vector2(940, 120), # [22] RETO PRÁCTICA: Tarjeta Gráfica GPU (Exterior Noreste)
-		Vector2(1020, 360),# [23] RETO PRÁCTICA: Fuente de Poder PSU (Exterior Este)
-		Vector2(940, 600), # [24] RETO PRÁCTICA: Procesador CPU (Exterior Sureste)
-		Vector2(680, 360)  # [25] RETO PRÁCTICA: Inducción / 3 PCs Inicial (Centro Este)
+		# --- ANILLO 2 (MEDIO): RETOS DE PRÁCTICA CRONOMETRADOS [19 - 25] (Radio ~440px) ---
+		Vector2(252, 153),  # [19] RETO PRÁCTICA: Fan Cooler
+		Vector2(602, -78),  # [20] RETO PRÁCTICA: Memoria RAM
+		Vector2(987, 89),   # [21] RETO PRÁCTICA: Discos HDD/SSD
+		Vector2(1070, 451), # [22] RETO PRÁCTICA: Tarjeta Gráfica GPU
+		Vector2(754, 785),  # [23] RETO PRÁCTICA: Fuente de Poder PSU
+		Vector2(303, 643),  # [24] RETO PRÁCTICA: Procesador CPU
+		Vector2(512, 383),  # [25] RETO PRÁCTICA: Inducción / 3 PCs Inicial
+
+		# --- SATÉLITES DE MICRO-TALLER MORADOS DE INSPECCIÓN [26 - 31] (Radio ~900px) ---
+		Vector2(11, -269),  # [26] NIVEL MORADO: Limpieza de Polvo en RAM
+		Vector2(-249, 122), # [27] NIVEL MORADO: Descarga de Estática en RAM
+		Vector2(868, -490), # [28] NIVEL MORADO: Renovación Pasta Térmica
+		Vector2(1269, 989), # [29] NIVEL MORADO: Alineación Pines CPU
+		Vector2(1529, 122), # [30] NIVEL MORADO: Medición de Voltaje Multímetro
+		Vector2(1529, 598)  # [31] NIVEL MORADO: Limpieza Profunda Fuente PSU
 	],
-	# 2. SISTEMA: Telaraña de Diamante Cibernético y Matriz de Kernel Ampliada (26 Nodos)
+	# 2. SISTEMA: Telaraña de Diamante Cibernético y Matriz de Kernel Ampliada y Espaciada (26 Nodos)
 	"sistema": [
 		# --- NÚCLEO CENTRAL TUTORIAL [0] ---
-		Vector2(500, 360), # [0] TUTORIAL: Protocolo de Boot & BIOS // Andromeda OS (AZUL)
+		Vector2(640, 360),  # [0] TUTORIAL: Protocolo de Boot & BIOS // Andromeda OS (AZUL)
 
-		# --- TUTORIALES ESPECÍFICOS DE SISTEMAS [1 - 6] (Anillo Hexagonal Interior) ---
-		Vector2(380, 240), # [1] TUTORIAL: Instalación de Sistemas & Tabla GPT
-		Vector2(620, 210), # [2] TUTORIAL: Ciberdefensa & Escaneo de Malware ClamAV
-		Vector2(780, 270), # [3] TUTORIAL: Controladores WHQL & Módulos de Kernel
-		Vector2(780, 450), # [4] TUTORIAL: Desinfección de Adware & Escudo Pop-ups
-		Vector2(620, 510), # [5] TUTORIAL: Programación & Depurador de Código
-		Vector2(380, 480), # [6] TUTORIAL: Unidades Booteables USB & Respaldo dd
+		# --- TUTORIALES ESPECÍFICOS DE SISTEMAS [1 - 6] (Anillo Hexagonal Interior, Radio ~230px) ---
+		Vector2(441, 245),  # [1] TUTORIAL: Instalación de Sistemas & Tabla GPT
+		Vector2(640, 130),  # [2] TUTORIAL: Ciberdefensa & Escaneo de Malware ClamAV
+		Vector2(839, 245),  # [3] TUTORIAL: Controladores WHQL & Módulos de Kernel
+		Vector2(839, 475),  # [4] TUTORIAL: Desinfección de Adware & Escudo Pop-ups
+		Vector2(640, 590),  # [5] TUTORIAL: Programación & Depurador de Código
+		Vector2(441, 475),  # [6] TUTORIAL: Unidades Booteables USB & Respaldo dd
 
-		# --- NIVELES DE CAMPAÑA DE SISTEMAS (1 AL 12) [7 - 18] (Perímetro Exterior) ---
-		Vector2(140, 360), # [7]  NIVEL 1 · TERMINAL DE SISTEMAS Y SOFTWARE (ROJO/CIAN)
-		Vector2(140, 230), # [8]  NIVEL 2 · FLASH DE FIRMWARE BIOS
-		Vector2(200, 100), # [9]  NIVEL 3 · SECTORES MBR & GPT CORRUPTOS
-		Vector2(430, 50),  # [10] NIVEL 4 · CONFIGURACIÓN RESIZABLE-BAR
-		Vector2(770, 50),  # [11] NIVEL 5 · DESINFECCIÓN DE ROOTKIT
-		Vector2(1000, 100),# [12] NIVEL 6 · CONFLICTO DE CONTROLADORES IRQ
-		Vector2(1060, 250),# [13] NIVEL 7 · PURGA DE REGISTRO DAÑADO
-		Vector2(1060, 470),# [14] NIVEL 8 · RECUPERACIÓN VOLUMEN BITLOCKER
-		Vector2(1000, 620),# [15] NIVEL 9 · CLONACIÓN FORENSE SECTOR A SECTOR
-		Vector2(770, 670), # [16] NIVEL 10 · ANÁLISIS DE VOLCADO MEMORY.DMP
-		Vector2(430, 670), # [17] NIVEL 11 · AISLAMIENTO DE RANSOMWARE
-		Vector2(140, 490), # [18] NIVEL 12 · ARQUITECTO SUPREMO DE SO
+		# --- NIVELES DE CAMPAÑA DE SISTEMAS (1 AL 12) [7 - 18] (Perímetro Exterior Ampliado, Radio ~700px) ---
+		Vector2(-60, 360),  # [7]  NIVEL 1 · TERMINAL DE SISTEMAS Y SOFTWARE (ROJO/CIAN)
+		Vector2(34, 10),    # [8]  NIVEL 2 · FLASH DE FIRMWARE BIOS
+		Vector2(290, -246), # [9]  NIVEL 3 · SECTORES MBR & GPT CORRUPTOS
+		Vector2(640, -340), # [10] NIVEL 4 · CONFIGURACIÓN RESIZABLE-BAR
+		Vector2(990, -246), # [11] NIVEL 5 · DESINFECCIÓN DE ROOTKIT
+		Vector2(1246, 10),  # [12] NIVEL 6 · CONFLICTO DE CONTROLADORES IRQ
+		Vector2(1340, 360), # [13] NIVEL 7 · PURGA DE REGISTRO DAÑADO
+		Vector2(1246, 710), # [14] NIVEL 8 · RECUPERACIÓN VOLUMEN BITLOCKER
+		Vector2(990, 966),  # [15] NIVEL 9 · CLONACIÓN FORENSE SECTOR A SECTOR
+		Vector2(640, 1060), # [16] NIVEL 10 · ANÁLISIS DE VOLCADO MEMORY.DMP
+		Vector2(290, 966),  # [17] NIVEL 11 · AISLAMIENTO DE RANSOMWARE
+		Vector2(34, 710),   # [18] NIVEL 12 · ARQUITECTO SUPREMO DE SO
 
-		# --- RETOS DE PRÁCTICA CRONOMETRADOS (3 TERMINALES / 8 MINUTOS) [19 - 25] ---
-		Vector2(260, 160), # [19] RETO PRÁCTICA: Despliegue Masivo de SO & GPT (Noroeste)
-		Vector2(620, 90),  # [20] RETO PRÁCTICA: Purga Heurística de Malware (Norte)
-		Vector2(920, 170), # [21] RETO PRÁCTICA: Controladores WHQL & DMA (Noreste)
-		Vector2(920, 550), # [22] RETO PRÁCTICA: Filtrado Defensivo de Adware (Sureste)
-		Vector2(620, 630), # [23] RETO PRÁCTICA: Parcheo de Kernel & Debugging (Sur)
-		Vector2(260, 560), # [24] RETO PRÁCTICA: Clonación y Pendrives Booteables (Suroeste)
-		Vector2(660, 360)  # [25] RETO PRÁCTICA: Inducción / 3 Terminales Inicial (Centro Este, NARANJA NEÓN)
+		# --- RETOS DE PRÁCTICA CRONOMETRADOS (3 TERMINALES / 8 MINUTOS) [19 - 25] (Radio ~440px) ---
+		Vector2(259, 140),  # [19] RETO PRÁCTICA: Despliegue Masivo de SO & GPT (Noroeste)
+		Vector2(640, -80),  # [20] RETO PRÁCTICA: Purga Heurística de Malware (Norte)
+		Vector2(1021, 140), # [21] RETO PRÁCTICA: Controladores WHQL & DMA (Noreste)
+		Vector2(1021, 580), # [22] RETO PRÁCTICA: Filtrado Defensivo de Adware (Sureste)
+		Vector2(640, 800),  # [23] RETO PRÁCTICA: Parcheo de Kernel & Debugging (Sur)
+		Vector2(259, 580),  # [24] RETO PRÁCTICA: Clonación y Pendrives Booteables (Suroeste)
+		Vector2(770, 360)   # [25] RETO PRÁCTICA: Inducción / 3 Terminales Inicial (Centro Este, NARANJA NEÓN)
 	],
-	# 3. SERVIDOR: Hiper-Malla Circular de Datacenter y Anillos de Fibra Óptica Ampliada
+	# 3. SERVIDOR: Hiper-Malla Circular de Datacenter y Anillos de Fibra Óptica Ampliada y Espaciada
 	"servidor": [
-		Vector2(580, 395), # [0] TUTORIAL: Núcleo Central de Infraestructura 1U (AZUL)
-		Vector2(370, 395), # [1] NIVEL 1: Bastidor 1U (Raíz Primaria Oeste 9h, ROJO)
-		Vector2(475, 215), # [2] NIVEL 2: Servidor Blade 2U (Radio 11h)
-		Vector2(685, 215), # [3] NIVEL 3: Cabina 4U SAN (Radio 1h)
-		Vector2(790, 395), # [4] NIVEL 4: PDU Redundante (Radio 3h)
-		Vector2(685, 575), # [5] NIVEL 5: Fibra SAN Fabric (Radio 5h)
-		Vector2(475, 575), # [6] NIVEL 6: SAS Hot-Swap RAID (Radio 7h)
-		Vector2(170, 160), # [7] NIVEL 7: Switch ToR 100G (Anillo Exterior 10h)
-		Vector2(580, 75),  # [8] NIVEL 8: Trunking VLAN LACP (Anillo Exterior 12h)
-		Vector2(990, 160), # [9] NIVEL 9: Pasillo Frío (Anillo Exterior 2h)
-		Vector2(1100, 395),# [10] NIVEL 10: Clúster HA (Anillo Exterior 4h)
-		Vector2(580, 695), # [11] NIVEL 11: Live Migration (Anillo Exterior 6h)
-		Vector2(60, 395),  # [12] NIVEL 12: Centro NOC Datacenter (Anillo Exterior 8h)
-		Vector2(280, 280)  # [13] SALA DE PRÁCTICA: Distanciada de Servidores 1U y 2U (NARANJA NEÓN)
+		# --- NÚCLEO CENTRAL TUTORIAL [0] ---
+		Vector2(640, 360),  # [0] TUTORIAL: Núcleo Central de Infraestructura 1U (AZUL)
+
+		# --- ANILLO INTERIOR: NIVELES 1 AL 6 [1 - 6] (Radio ~340px) ---
+		Vector2(300, 360),  # [1] NIVEL 1: Bastidor 1U (Raíz Primaria Oeste 9h, ROJO)
+		Vector2(470, 66),   # [2] NIVEL 2: Servidor Blade 2U (Radio 11h)
+		Vector2(810, 66),   # [3] NIVEL 3: Cabina 4U SAN (Radio 1h)
+		Vector2(980, 360),  # [4] NIVEL 4: PDU Redundante (Radio 3h)
+		Vector2(810, 654),  # [5] NIVEL 5: Fibra SAN Fabric (Radio 5h)
+		Vector2(470, 654),  # [6] NIVEL 6: SAS Hot-Swap RAID (Radio 7h)
+
+		# --- ANILLO EXTERIOR: NIVELES 7 AL 12 [7 - 12] (Radio ~720px) ---
+		Vector2(16, 0),     # [7] NIVEL 7: Switch ToR 100G (Anillo Exterior 10h)
+		Vector2(640, -360), # [8] NIVEL 8: Trunking VLAN LACP (Anillo Exterior 12h)
+		Vector2(1264, 0),   # [9] NIVEL 9: Pasillo Frío (Anillo Exterior 2h)
+		Vector2(1264, 720), # [10] NIVEL 10: Clúster HA (Anillo Exterior 4h)
+		Vector2(640, 1080), # [11] NIVEL 11: Live Migration (Anillo Exterior 6h)
+		Vector2(16, 720),   # [12] NIVEL 12: Centro NOC Datacenter (Anillo Exterior 8h)
+
+		# --- SATÉLITE DE PRÁCTICA 3D [13] (Radio ~480px) ---
+		Vector2(224, 120)   # [13] SALA DE PRÁCTICA: Distanciada de Servidores 1U y 2U (NARANJA NEÓN)
 	]
 }
 
@@ -289,14 +325,29 @@ var MODE_CONNECTIONS: Dictionary = {
 		Vector2i(6, 24), # Tut 6 -> Reto Práctica 6 (CPU)
 		Vector2i(24, 7), # Reto Práctica 6 -> ¡NIVEL 1! (Desbloqueo de campaña)
 
-		# 2. Vía perimetral de Campaña: Niveles 1 al 12
+		# 2. Vía perimetral de Campaña (Anillo Exterior cerrado de la telaraña):
 		Vector2i(7, 8), Vector2i(8, 9), Vector2i(9, 10), Vector2i(10, 11), Vector2i(11, 12), Vector2i(12, 13),
-		Vector2i(13, 14), Vector2i(14, 15), Vector2i(15, 16), Vector2i(16, 17), Vector2i(17, 18),
+		Vector2i(13, 14), Vector2i(14, 15), Vector2i(15, 16), Vector2i(16, 17), Vector2i(17, 18), Vector2i(18, 7),
 
-		# 3. Malla secundaria cibernética entre sectores
+		# 3. Filamentos radiales de la telaraña (De centro hacia afuera por spoke):
 		Vector2i(0, 1), Vector2i(0, 2), Vector2i(0, 3), Vector2i(0, 4), Vector2i(0, 5), Vector2i(0, 6),
-		Vector2i(1, 2), Vector2i(2, 3), Vector2i(3, 4), Vector2i(4, 5), Vector2i(5, 6), Vector2i(6, 25),
-		Vector2i(19, 20), Vector2i(20, 21), Vector2i(21, 22), Vector2i(22, 23), Vector2i(23, 24)
+		Vector2i(19, 7), Vector2i(20, 8), Vector2i(21, 9), Vector2i(22, 11), Vector2i(23, 12), Vector2i(24, 13),
+		Vector2i(25, 18), Vector2i(25, 17), Vector2i(24, 16), Vector2i(23, 15), Vector2i(22, 14),
+
+		# 4. Anillos concéntricos transversales de telaraña (Conectan spokes adyacentes):
+		# Anillo interior (Tutoriales):
+		Vector2i(1, 2), Vector2i(2, 3), Vector2i(3, 4), Vector2i(4, 5), Vector2i(5, 6), Vector2i(6, 1),
+		# Anillo medio (Prácticas):
+		Vector2i(19, 20), Vector2i(20, 21), Vector2i(21, 22), Vector2i(22, 23), Vector2i(23, 24), Vector2i(24, 19),
+		# Telaraña cruzada / diagonales de refuerzo:
+		Vector2i(1, 20), Vector2i(2, 21), Vector2i(3, 22), Vector2i(4, 23), Vector2i(5, 24), Vector2i(6, 19),
+		Vector2i(25, 6), Vector2i(25, 19),
+
+		# 5. Enlaces de Micro-Taller Morados (Ramas de inspección desde niveles de campaña):
+		Vector2i(7, 26), Vector2i(7, 27), Vector2i(26, 27), Vector2i(8, 26),
+		Vector2i(10, 28), Vector2i(9, 28),
+		Vector2i(12, 30), Vector2i(12, 31), Vector2i(30, 31),
+		Vector2i(13, 29), Vector2i(14, 29)
 	],
 	"sistema": [
 		# 1. Cadena de progresión principal: Tutorial -> Reto de Práctica -> Siguiente Tutorial
@@ -347,19 +398,67 @@ var nodes: Array[Vector2] = []
 var node_labels: Array[Label] = []
 var _cached_grid_lines: PackedVector2Array = PackedVector2Array()
 var _cached_grid_size: Vector2 = Vector2.ZERO
+var _cached_std_lines: PackedVector2Array = PackedVector2Array()
+var _cached_special_conns: Array[Dictionary] = []
+
+func _rebuild_connections_cache() -> void:
+	_cached_std_lines.clear()
+	_cached_special_conns.clear()
+	var conns = MODE_CONNECTIONS.get(current_mode, MODE_CONNECTIONS["reparacion"])
+	for conn in conns:
+		if conn.x < nodes.size() and conn.y < nodes.size():
+			var is_primary_root = false
+			var is_practice_link = false
+			var is_purple_link = false
+			if current_mode == "reparacion":
+				var is_tut_conn = (conn.x <= 6 and conn.y <= 6)
+				var is_lvl1_conn = (conn.x == 7 or conn.y == 7)
+				if conn.x >= 26 or conn.y >= 26:
+					is_purple_link = true
+				elif is_tut_conn or is_lvl1_conn:
+					is_primary_root = true
+				elif conn.x >= 19 or conn.y >= 19:
+					is_practice_link = true
+			elif current_mode == "sistema":
+				var is_tut_conn = (conn.x <= 6 and conn.y <= 6)
+				var is_lvl1_conn = (conn.x == 7 or conn.y == 7)
+				if is_tut_conn or is_lvl1_conn:
+					is_primary_root = true
+				elif conn.x >= 19 or conn.y >= 19:
+					is_practice_link = true
+			else:
+				is_primary_root = (conn.x == 0 and conn.y == 1) or (conn.x == 1 and conn.y == 0)
+				is_practice_link = (conn.x == 13 or conn.y == 13)
+
+			if is_primary_root or is_practice_link or is_purple_link:
+				_cached_special_conns.append({
+					"p1_idx": conn.x,
+					"p2_idx": conn.y,
+					"seed": conn.x + conn.y,
+					"is_primary": is_primary_root,
+					"is_practice": is_practice_link,
+					"is_purple": is_purple_link
+				})
+			else:
+				_cached_std_lines.append(nodes[conn.x])
+				_cached_std_lines.append(nodes[conn.y])
 
 func _ready() -> void:
 	_update_nodes_for_mode()
+	_rebuild_connections_cache()
 	_init_cyber_fx()
 	_setup_cached_node_labels()
+	_init_glitch_cloud()
 
 func transition_to_mode(new_mode: String) -> void:
 	if not MODE_NODES.has(new_mode):
 		return
-	if current_mode == new_mode and nodes.size() == 13:
+	if current_mode == new_mode and not nodes.is_empty():
 		return
 		
 	previous_mode = current_mode
+	if glitch_cloud_node and is_instance_valid(glitch_cloud_node):
+		glitch_cloud_node.visible = (new_mode == "sistema")
 	transition_start_nodes.clear()
 	for pt in nodes:
 		transition_start_nodes.append(pt)
@@ -398,7 +497,7 @@ func transition_to_mode(new_mode: String) -> void:
 	mode_switch_pulse = 1.0
 	mode_transition_started.emit()
 	
-	var hub = Vector2(580, 395)
+	var hub = transition_target_nodes[0] if not transition_target_nodes.is_empty() else Vector2(640, 360)
 	_mode_tween = create_tween().set_parallel(true)
 	
 	_mode_tween.tween_method(func(val: float):
@@ -450,6 +549,7 @@ func transition_to_mode(new_mode: String) -> void:
 		is_transitioning = false
 		_update_nodes_for_mode()
 		_rebuild_dynamic_traces()
+		_rebuild_connections_cache()
 		_update_label_positions()
 		mode_transition_completed.emit()
 		queue_redraw()
@@ -464,6 +564,7 @@ func _update_nodes_for_mode() -> void:
 		node_zoom_scales.append(1.0)
 	while node_ripples.size() < nodes.size():
 		node_ripples.append(0.0)
+	_rebuild_connections_cache()
 	_update_label_positions()
 
 func _setup_cached_node_labels() -> void:
@@ -535,6 +636,19 @@ func _setup_cached_node_labels() -> void:
 				lbl.add_theme_font_size_override("font_size", 9)
 				lbl.add_theme_color_override("font_color", Color(1.0, 0.65, 0.15, 1.0))
 				lbl.size = Vector2(80, 20)
+			elif i in range(26, 32):
+				var insp_names = {
+					26: "POLVO RAM",
+					27: "ESTÁTICA",
+					28: "PASTA CPU",
+					29: "PINES CPU",
+					30: "VOLTAJE",
+					31: "POLVO PSU"
+				}
+				lbl.text = insp_names.get(i, "TALLER")
+				lbl.add_theme_font_size_override("font_size", 8)
+				lbl.add_theme_color_override("font_color", Color(0.85, 0.35, 1.0, 1.0))
+				lbl.size = Vector2(80, 20)
 		elif current_mode == "sistema":
 			if i == 0:
 				lbl.text = "BOOT/BIOS"
@@ -580,6 +694,19 @@ func _setup_cached_node_labels() -> void:
 				lbl.text = "PRÁCTICA"
 				lbl.add_theme_font_size_override("font_size", 9)
 				lbl.add_theme_color_override("font_color", Color(1.0, 0.65, 0.15, 1.0))
+				lbl.size = Vector2(80, 20)
+			elif i in range(26, 32):
+				var insp_names = {
+					26: "POLVO RAM",
+					27: "ESTÁTICA",
+					28: "PASTA CPU",
+					29: "PINES CPU",
+					30: "VOLTAJE",
+					31: "POLVO PSU"
+				}
+				lbl.text = insp_names.get(i, "TALLER")
+				lbl.add_theme_font_size_override("font_size", 8)
+				lbl.add_theme_color_override("font_color", Color(0.85, 0.35, 1.0, 1.0))
 				lbl.size = Vector2(80, 20)
 		elif i == 0:
 			lbl.text = "TUTORIAL"
@@ -637,16 +764,35 @@ func _rebuild_dynamic_traces() -> void:
 	if current_mode == "reparacion":
 		if nodes.size() >= 26:
 			raw_traces = [
-				PackedVector2Array([nodes[0], nodes[25]]),
-				PackedVector2Array([nodes[25], nodes[1], nodes[19]]),
-				PackedVector2Array([nodes[19], nodes[2], nodes[20]]),
-				PackedVector2Array([nodes[20], nodes[3], nodes[21]]),
-				PackedVector2Array([nodes[21], nodes[4], nodes[22]]),
-				PackedVector2Array([nodes[22], nodes[5], nodes[23]]),
-				PackedVector2Array([nodes[23], nodes[6], nodes[24]]),
-				PackedVector2Array([nodes[24], nodes[7]]),
-				PackedVector2Array([nodes[7], nodes[8], nodes[9], nodes[10], nodes[11], nodes[12]]),
-				PackedVector2Array([nodes[12], nodes[13], nodes[14], nodes[15], nodes[16], nodes[17], nodes[18]])
+				PackedVector2Array([nodes[0], nodes[25], nodes[1], nodes[19], nodes[7]]),
+				PackedVector2Array([nodes[0], nodes[2], nodes[20], nodes[8]]),
+				PackedVector2Array([nodes[0], nodes[3], nodes[21], nodes[9], nodes[10]]),
+				PackedVector2Array([nodes[0], nodes[4], nodes[22], nodes[11]]),
+				PackedVector2Array([nodes[0], nodes[5], nodes[23], nodes[12]]),
+				PackedVector2Array([nodes[0], nodes[6], nodes[24], nodes[13]]),
+				PackedVector2Array([nodes[1], nodes[2], nodes[3], nodes[4], nodes[5], nodes[6], nodes[1]]),
+				PackedVector2Array([nodes[19], nodes[20], nodes[21], nodes[22], nodes[23], nodes[24], nodes[19]]),
+				PackedVector2Array([nodes[7], nodes[8], nodes[9], nodes[10], nodes[11], nodes[12], nodes[13]]),
+				PackedVector2Array([nodes[13], nodes[14], nodes[15], nodes[16], nodes[17], nodes[18], nodes[7]])
+			]
+		else:
+			raw_traces = [
+				PackedVector2Array([hub, nodes[1]]),
+				PackedVector2Array([hub, nodes[2]])
+			]
+	elif current_mode == "sistema":
+		if nodes.size() >= 26:
+			raw_traces = [
+				PackedVector2Array([nodes[0], nodes[25], nodes[1], nodes[19], nodes[7]]),
+				PackedVector2Array([nodes[0], nodes[2], nodes[20], nodes[8]]),
+				PackedVector2Array([nodes[0], nodes[3], nodes[21], nodes[9], nodes[10]]),
+				PackedVector2Array([nodes[0], nodes[4], nodes[22], nodes[11]]),
+				PackedVector2Array([nodes[0], nodes[5], nodes[23], nodes[12]]),
+				PackedVector2Array([nodes[0], nodes[6], nodes[24], nodes[13]]),
+				PackedVector2Array([nodes[1], nodes[2], nodes[3], nodes[4], nodes[5], nodes[6], nodes[1]]),
+				PackedVector2Array([nodes[19], nodes[20], nodes[21], nodes[22], nodes[23], nodes[24], nodes[19]]),
+				PackedVector2Array([nodes[7], nodes[8], nodes[9], nodes[10], nodes[11], nodes[12], nodes[13]]),
+				PackedVector2Array([nodes[13], nodes[14], nodes[15], nodes[16], nodes[17], nodes[18], nodes[7]])
 			]
 		else:
 			raw_traces = [
@@ -656,17 +802,16 @@ func _rebuild_dynamic_traces() -> void:
 	else:
 		raw_traces = [
 			# 1. Filamento Raíz Principal (Núcleo Tutorial -> Nivel 1 -> Ramas externas)
-			PackedVector2Array([hub, nodes[1], nodes[5], nodes[9]]),
-			# 2. Filamento Raíz Norte (Núcleo Tutorial -> Nivel 2 -> Nivel 10)
-			PackedVector2Array([hub, nodes[2], nodes[10]]),
-			# 3. Filamento Raíz Este (Núcleo Tutorial -> Nivel 3 -> Nivel 6 -> Nivel 12)
-			PackedVector2Array([hub, nodes[3], nodes[6], nodes[12]]),
-			# 4. Filamento Raíz Sur (Núcleo Tutorial -> Nivel 4 -> Nivel 7 -> Nivel 11)
-			PackedVector2Array([hub, nodes[4], nodes[7], nodes[11]]),
-			# 5. Anillo de Telaraña Interno cerrado
-			PackedVector2Array([nodes[1], nodes[2], nodes[3], nodes[4], nodes[1]]),
-			# 6. Anillo de Telaraña Medio cerrado
-			PackedVector2Array([nodes[5], nodes[6], nodes[8], nodes[7], nodes[5]])
+			PackedVector2Array([hub, nodes[1], nodes[12], nodes[7]]),
+			# 2. Filamentos radiales de fibra óptica hacia anillo exterior
+			PackedVector2Array([hub, nodes[2], nodes[8]]),
+			PackedVector2Array([hub, nodes[3], nodes[9]]),
+			PackedVector2Array([hub, nodes[4], nodes[10]]),
+			PackedVector2Array([hub, nodes[5], nodes[11]]),
+			PackedVector2Array([hub, nodes[6], nodes[12]]),
+			# 3. Anillos de fibra cerrados (Interior y Exterior)
+			PackedVector2Array([nodes[1], nodes[2], nodes[3], nodes[4], nodes[5], nodes[6], nodes[1]]),
+			PackedVector2Array([nodes[7], nodes[8], nodes[9], nodes[10], nodes[11], nodes[12], nodes[7]])
 		]
 
 	while circuit_traces.size() < raw_traces.size():
@@ -728,36 +873,31 @@ func _init_cyber_fx() -> void:
 func _rebuild_grid_cache(w: float, h: float) -> void:
 	_cached_grid_size = Vector2(w, h)
 	_cached_grid_lines.clear()
-	var grid_step = 54.0
+	var grid_step = 100.0
 	var cross_len = 3.0
-	var x_steps = int(w / grid_step) + 1
-	var y_steps = int(h / grid_step) + 1
-	for xi in range(x_steps):
-		var gx = xi * grid_step
-		for yi in range(y_steps):
-			var gy = yi * grid_step
-			_cached_grid_lines.append(Vector2(gx - cross_len, gy))
-			_cached_grid_lines.append(Vector2(gx + cross_len, gy))
-			_cached_grid_lines.append(Vector2(gx, gy - cross_len))
-			_cached_grid_lines.append(Vector2(gx, gy + cross_len))
-
-var _redraw_throttle_accum: float = 0.0
+	var min_x = -700.0
+	var max_x = w + 700.0
+	var min_y = -600.0
+	var max_y = h + 600.0
+	var xi = min_x
+	while xi <= max_x:
+		var yi = min_y
+		while yi <= max_y:
+			_cached_grid_lines.append(Vector2(xi - cross_len, yi))
+			_cached_grid_lines.append(Vector2(xi + cross_len, yi))
+			_cached_grid_lines.append(Vector2(xi, yi - cross_len))
+			_cached_grid_lines.append(Vector2(xi, yi + cross_len))
+			yi += grid_step
+		xi += grid_step
 
 func _process(delta: float) -> void:
 	if not is_visible_in_tree():
 		return
 
-	_redraw_throttle_accum += delta
-	var min_step = 0.016 if is_transitioning else 0.024
-	if _redraw_throttle_accum < min_step:
-		return
-	var eff_delta = _redraw_throttle_accum
-	_redraw_throttle_accum = 0.0
-
 	var gm = get_node_or_null("/root/GameManager")
 	var is_photo = gm and gm.has_method("is_photosensitive_mode_enabled") and gm.is_photosensitive_mode_enabled()
 	var time_scale = 0.8 if is_photo else 2.2
-	anim_offset += eff_delta * time_scale
+	anim_offset += delta * time_scale
 
 	if not initialized_fx:
 		_init_cyber_fx()
@@ -767,11 +907,11 @@ func _process(delta: float) -> void:
 	if _cached_grid_size != Vector2(w, h):
 		_rebuild_grid_cache(w, h)
 
-	# Detección de hover sobre cualquiera de los 14 nodos
+	# Detección de hover ultra-optimizada con distancia al cuadrado O(1)
 	var mouse_pos = get_local_mouse_position()
 	var new_hovered: int = -1
 	for i in range(nodes.size()):
-		if mouse_pos.distance_to(nodes[i]) <= 32.0:
+		if mouse_pos.distance_squared_to(nodes[i]) <= 1024.0:
 			new_hovered = i
 			break
 
@@ -782,23 +922,25 @@ func _process(delta: float) -> void:
 	# Acelerar los paquetes de datos durante la transición de telaraña ("data surge")
 	var speed_mult = (1.2 if is_photo else 2.4) if is_transitioning else (0.6 if is_photo else 1.0)
 	for p in data_pulses:
-		p.progress += p.speed * eff_delta * speed_mult
+		p.progress += p.speed * delta * speed_mult
 		if p.progress > 1.0:
 			p.progress -= 1.0
 
 	for m in cyber_motes:
-		m.pos += m.drift * eff_delta
+		m.pos += m.drift * delta
 		if m.pos.x < 0.0: m.pos.x += w
 		elif m.pos.x > w: m.pos.x -= w
 		if m.pos.y < 90.0: m.pos.y += (h - 110.0)
 		elif m.pos.y > h: m.pos.y -= (h - 110.0)
+
+	_process_glitch_cloud(delta)
 
 	queue_redraw()
 
 func _draw() -> void:
 	var w = size.x if size.x > 100 else 1280.0
 	var h = size.y if size.y > 50 else 720.0
-	var hub = nodes[0] if not nodes.is_empty() else Vector2(580, 395)
+	var hub = Vector2(w * 0.5, h * 0.5)
 
 	# =========================================================================
 	# 1. FONDO DE TELARAÑA CIBERNÉTICA ARQUITECTÓNICA (BATCHEADA)
@@ -843,10 +985,8 @@ func _draw() -> void:
 				draw_circle(head_pos, p.size, p.color)
 
 	# =========================================================================
-	# 5. ENLACES ESTRUCTURALES ENTRE NODOS (BATCHEADOS EN MULTILINE)
+	# 5. ENLACES ESTRUCTURALES ENTRE NODOS (BATCHEADOS EN MULTILINE O(1))
 	# =========================================================================
-	var conns = MODE_CONNECTIONS.get(current_mode, MODE_CONNECTIONS["reparacion"])
-	var std_lines = PackedVector2Array()
 	var std_line_color: Color
 	if current_mode == "sistema":
 		std_line_color = Color(0.12, 0.48, 0.95, 0.40)
@@ -855,42 +995,41 @@ func _draw() -> void:
 	else:
 		std_line_color = Color(0.85, 0.08, 0.35, 0.40)
 
-	for conn in conns:
-		if conn.x < nodes.size() and conn.y < nodes.size():
-			var is_primary_root = false
-			var is_practice_link = false
-			if current_mode == "reparacion":
-				var is_tut_conn = (conn.x <= 6 and conn.y <= 6)
-				var is_lvl1_conn = (conn.x == 7 or conn.y == 7)
-				if is_tut_conn or is_lvl1_conn:
-					is_primary_root = true
-				elif conn.x >= 19 or conn.y >= 19:
-					is_practice_link = true
-			else:
-				is_primary_root = (conn.x == 0 and conn.y == 1) or (conn.x == 1 and conn.y == 0)
-				is_practice_link = (conn.x == 13 or conn.y == 13)
-
-			if is_primary_root or is_practice_link:
-				_draw_circuit_line(nodes[conn.x], nodes[conn.y], 0.95, conn.x + conn.y, is_primary_root, is_practice_link)
-			else:
-				std_lines.append(nodes[conn.x])
-				std_lines.append(nodes[conn.y])
-				
-	if not std_lines.is_empty():
-		draw_multiline(std_lines, std_line_color, 1.0)
+	if is_transitioning:
+		var trans_lines = PackedVector2Array()
+		var conns = MODE_CONNECTIONS.get(current_mode, MODE_CONNECTIONS["reparacion"])
+		for conn in conns:
+			if conn.x < nodes.size() and conn.y < nodes.size():
+				trans_lines.append(nodes[conn.x])
+				trans_lines.append(nodes[conn.y])
+		if not trans_lines.is_empty():
+			draw_multiline(trans_lines, std_line_color, 1.0)
+	else:
+		if not _cached_std_lines.is_empty():
+			draw_multiline(_cached_std_lines, std_line_color, 1.0)
+		for sp in _cached_special_conns:
+			if sp["p1_idx"] < nodes.size() and sp["p2_idx"] < nodes.size():
+				_draw_circuit_line(nodes[sp["p1_idx"]], nodes[sp["p2_idx"]], 0.95, sp["seed"], sp["is_primary"], sp["is_practice"], sp["is_purple"])
 
 	# =========================================================================
-	# 6. POLVO DIGITAL AMBIENTAL
+	# 6. POLVO DIGITAL AMBIENTAL & ESTELA DE GLITCH
 	# =========================================================================
 	for m in cyber_motes:
 		draw_circle(m.pos, m.size, m.color)
+
+	if current_mode == "sistema" and not glitch_cloud_particles.is_empty():
+		for p in glitch_cloud_particles:
+			var alpha_factor = clamp(p["life"] / p["max_life"], 0.0, 1.0)
+			var c: Color = p["color"]
+			c.a *= alpha_factor
+			draw_rect(Rect2(p["pos"], p["size"]), c, true)
 
 	# =========================================================================
 	# 7. ESTELAS HOLOGRÁFICAS DE MOVIMIENTO EN TRANSICIÓN
 	# =========================================================================
 	if is_transitioning and transition_start_nodes.size() == nodes.size():
 		var trail_factor = sin(transition_progress * PI)
-		var hub_center = Vector2(580, 360)
+		var hub_center = nodes[0] if not nodes.is_empty() else Vector2(640, 360)
 		var beam_len = 720.0
 		var beam_end = hub_center + Vector2.RIGHT.rotated(transition_sweep_angle) * beam_len
 		var beam_col = Color(0.0, 0.88, 1.0, trail_factor * 0.45) if (current_mode == "sistema") else Color(1.0, 0.2, 0.4, trail_factor * 0.45)
@@ -917,7 +1056,13 @@ func _draw() -> void:
 		var is_tutorial = false
 		var is_practice = false
 		var is_campaign = false
-		if current_mode == "reparacion" or current_mode == "sistema":
+		var is_inspection = false
+		if current_mode == "reparacion":
+			is_tutorial = (i >= 0 and i <= 6)
+			is_practice = (i >= 19 and i <= 25)
+			is_campaign = (i >= 7 and i <= 18)
+			is_inspection = (i >= 26)
+		elif current_mode == "sistema":
 			is_tutorial = (i >= 0 and i <= 6)
 			is_practice = (i >= 19 and i <= 25)
 			is_campaign = (i >= 7 and i <= 18)
@@ -925,11 +1070,11 @@ func _draw() -> void:
 			is_tutorial = (i == 0)
 			is_practice = (i == 13)
 			is_campaign = (i >= 1 and i <= 12)
-		var is_active_node = (is_unlocked and (is_tutorial or is_practice or is_campaign)) or is_hovered
+		var is_active_node = (is_unlocked and (is_tutorial or is_practice or is_campaign or is_inspection)) or is_hovered
 		var zoom_scale = node_zoom_scales[i] if i < node_zoom_scales.size() else 1.0
 		var ripple = node_ripples[i] if i < node_ripples.size() else 0.0
 
-		var base_radius = (26.0 if is_tutorial else (24.0 if is_practice else 21.0))
+		var base_radius = (26.0 if is_tutorial else (24.0 if is_practice else (24.0 if is_inspection else 21.0)))
 		if is_hovered:
 			base_radius += 3.5
 		var breath_radius = base_radius * zoom_scale
@@ -938,7 +1083,7 @@ func _draw() -> void:
 		if ripple > 0.01:
 			var rip_r = lerp(26.0, 72.0, 1.0 - ripple) * zoom_scale
 			var rip_a = ripple * 0.85
-			var rip_col = Color(0.0, 0.88, 1.0, rip_a) if is_tutorial else (Color(1.0, 0.55, 0.05, rip_a) if is_practice else (Color(1.0, 0.1, 0.3, rip_a) if is_campaign else Color(0.2, 0.85, 1.0, rip_a)))
+			var rip_col = Color(0.0, 0.88, 1.0, rip_a) if is_tutorial else (Color(1.0, 0.55, 0.05, rip_a) if is_practice else (Color(0.85, 0.25, 1.0, rip_a) if is_inspection else (Color(1.0, 0.1, 0.3, rip_a) if is_campaign else Color(0.2, 0.85, 1.0, rip_a))))
 			draw_arc(np, rip_r, 0, TAU, 24, rip_col, 2.0)
 
 		# --- Zócalo base en la telaraña ---
@@ -953,6 +1098,9 @@ func _draw() -> void:
 		elif is_practice:
 			socket_bg = Color(0.9, 0.45, 0.02, 0.22)
 			socket_arc = Color(1.0, 0.55, 0.05, 0.85)
+		elif is_inspection:
+			socket_bg = Color(0.28, 0.05, 0.48, 0.28)
+			socket_arc = Color(0.85, 0.25, 1.0, 0.90)
 		elif is_campaign:
 			if current_mode == "sistema":
 				socket_bg = Color(0.03, 0.15, 0.5, 0.25)
@@ -971,18 +1119,18 @@ func _draw() -> void:
 		draw_circle(np, socket_sz, socket_bg)
 		draw_arc(np, socket_sz - 4.0 * zoom_scale, 0, TAU, 20, socket_arc, 1.0)
 
-		# --- Anillos segmentados rotatorios SOLO en nodos activos o hovered ---
-		if is_active_node and is_unlocked:
+		# --- Anillos segmentados rotatorios SOLO en nodo hovered para máximo impacto visual y rendimiento 60 FPS ---
+		if is_hovered and is_unlocked:
 			var rot_cw = anim_offset * (1.2 + float(i % 3) * 0.3)
 			var rot_ccw = -anim_offset * (0.9 + float((i + 1) % 3) * 0.25)
 			var ring_r1 = (28.0 if is_tutorial else (27.0 if is_practice else 25.5)) * zoom_scale
 			var ring_r2 = (25.0 if is_tutorial else (24.0 if is_practice else 23.0)) * zoom_scale
 			var arc_col = socket_arc
 
-			draw_arc(np, ring_r1, rot_cw, rot_cw + PI * 0.5, 10, arc_col, 1.2)
-			draw_arc(np, ring_r1, rot_cw + PI * 1.1, rot_cw + PI * 1.6, 10, arc_col, 1.2)
-			draw_arc(np, ring_r2, rot_ccw, rot_ccw + PI * 0.6, 10, Color(arc_col.r, arc_col.g, arc_col.b, 0.7), 1.0)
-			draw_arc(np, ring_r2, rot_ccw + PI * 1.2, rot_ccw + PI * 1.8, 10, Color(arc_col.r, arc_col.g, arc_col.b, 0.7), 1.0)
+			draw_arc(np, ring_r1, rot_cw, rot_cw + PI * 0.5, 8, arc_col, 1.2)
+			draw_arc(np, ring_r1, rot_cw + PI * 1.1, rot_cw + PI * 1.6, 8, arc_col, 1.2)
+			draw_arc(np, ring_r2, rot_ccw, rot_ccw + PI * 0.6, 8, Color(arc_col.r, arc_col.g, arc_col.b, 0.7), 1.0)
+			draw_arc(np, ring_r2, rot_ccw + PI * 1.2, rot_ccw + PI * 1.8, 8, Color(arc_col.r, arc_col.g, arc_col.b, 0.7), 1.0)
 
 		# --- Esfera de cristal central ---
 		var crystal_col = Color(0.03, 0.04, 0.08, 0.95)
@@ -992,6 +1140,8 @@ func _draw() -> void:
 			crystal_col = Color(0.02, 0.06, 0.14, 0.95)
 		elif is_practice:
 			crystal_col = Color(0.12, 0.05, 0.01, 0.95)
+		elif is_inspection:
+			crystal_col = Color(0.12, 0.02, 0.18, 0.95)
 		elif is_campaign:
 			crystal_col = Color(0.10, 0.02, 0.05, 0.95)
 
@@ -1053,6 +1203,15 @@ func _draw() -> void:
 			# 3. Núcleo perno luminoso en la intersección
 			draw_circle(np, 2.6 * zoom_scale, Color(1.0, 0.9, 0.4, 1.0))
 			draw_circle(np, 1.2 * zoom_scale, Color.WHITE)
+		elif is_inspection:
+			# Icono de lupa para niveles morados de inspección/micro-taller
+			if lupa_texture:
+				var l_sz = Vector2(24.0, 24.0) * zoom_scale
+				var l_rect = Rect2(np - l_sz * 0.5, l_sz)
+				var l_col = Color.WHITE if not is_hovered else Color(1.3, 1.1, 1.5, 1.0)
+				draw_texture_rect(lupa_texture, l_rect, false, l_col)
+			else:
+				draw_circle(np, 6.0 * zoom_scale, Color(0.85, 0.35, 1.0, 1.0))
 		elif is_campaign:
 			var tri_sz = 6.5 * zoom_scale
 			var p_top = np + Vector2(-tri_sz * 0.6, -tri_sz)
@@ -1107,26 +1266,35 @@ func _draw_spiderweb_background(w: float, h: float, hub: Vector2) -> void:
 	var spoke_angles: Array[float] = []
 	var web_radii: Array[float] = [150.0, 260.0, 380.0, 520.0, 680.0]
 	var web_color: Color
+	var spoke_length: float = 680.0
 
 	match current_mode:
 		"reparacion":
 			spoke_count = 8
 			web_color = Color(0.85, 0.08, 0.32, 0.16)
+			web_radii = [230.0, 440.0, 700.0, 920.0, 1150.0]
+			spoke_length = 1150.0
 			for i in range(spoke_count):
 				spoke_angles.append(float(i) * TAU / 8.0)
 		"sistema":
-			spoke_count = 8
+			spoke_count = 12
 			web_color = Color(0.08, 0.35, 0.88, 0.22)
+			web_radii = [230.0, 440.0, 700.0, 950.0, 1150.0]
+			spoke_length = 1150.0
 			for i in range(spoke_count):
-				spoke_angles.append(float(i) * TAU / 8.0 + PI * 0.125)
+				spoke_angles.append(float(i) * TAU / 12.0)
 		"servidor":
 			spoke_count = 12
 			web_color = Color(1.0, 0.52, 0.08, 0.24)
+			web_radii = [340.0, 520.0, 720.0, 920.0, 1150.0]
+			spoke_length = 1150.0
 			for i in range(spoke_count):
 				spoke_angles.append(float(i) * TAU / 12.0)
 		_:
 			spoke_count = 8
 			web_color = Color(0.85, 0.08, 0.32, 0.16)
+			web_radii = [150.0, 260.0, 380.0, 520.0, 680.0]
+			spoke_length = 680.0
 			for i in range(spoke_count):
 				spoke_angles.append(float(i) * TAU / 8.0)
 
@@ -1134,7 +1302,7 @@ func _draw_spiderweb_background(w: float, h: float, hub: Vector2) -> void:
 	var spoke_lines = PackedVector2Array()
 	for ang in spoke_angles:
 		var dir = Vector2(cos(ang), sin(ang))
-		var end_pt = hub + dir * 680.0
+		var end_pt = hub + dir * spoke_length
 		spoke_lines.append(hub)
 		spoke_lines.append(end_pt)
 	if not spoke_lines.is_empty():
@@ -1248,7 +1416,7 @@ func _draw_transition_effect(hub: Vector2, w: float, h: float) -> void:
 # =============================================================================
 # ENLACE CIRCUIT LINE CON SOPORTE PARA RAÍZ PRINCIPAL
 # =============================================================================
-func _draw_circuit_line(p1: Vector2, p2: Vector2, alpha: float, seed_val: int, is_primary_root: bool = false, is_practice_link: bool = false) -> void:
+func _draw_circuit_line(p1: Vector2, p2: Vector2, alpha: float, seed_val: int, is_primary_root: bool = false, is_practice_link: bool = false, is_purple_link: bool = false) -> void:
 	if is_primary_root:
 		# RAÍZ PRINCIPAL (TUTORIAL -> NIVEL 1): Filamento cian/azul luminoso
 		draw_line(p1, p2, Color(0.0, 0.65, 1.0, 0.35 * alpha), 3.5)
@@ -1267,5 +1435,147 @@ func _draw_circuit_line(p1: Vector2, p2: Vector2, alpha: float, seed_val: int, i
 		var packet_posp = p1.lerp(p2, packet_tp)
 		draw_circle(packet_posp, 3.5, Color(1.0, 0.55, 0.05, min(1.0, alpha * 1.8)))
 		draw_circle(packet_posp, 1.8, Color.WHITE)
+	elif is_purple_link:
+		# ENLACE DE MICRO-TALLER MORADO (INSPECCIÓN CON LUPA): Púrpura Neón vibrante
+		draw_line(p1, p2, Color(0.75, 0.15, 1.0, 0.35 * alpha), 3.5)
+		draw_line(p1, p2, Color(0.9, 0.45, 1.0, alpha), 1.2)
+		
+		var packet_tpurp = fmod(anim_offset * 1.1 + float(seed_val) * 0.14, 1.0)
+		var packet_pospurp = p1.lerp(p2, packet_tpurp)
+		draw_circle(packet_pospurp, 3.5, Color(0.85, 0.25, 1.0, min(1.0, alpha * 1.8)))
+		draw_circle(packet_pospurp, 1.8, Color.WHITE)
 	else:
 		draw_line(p1, p2, Color(1.0, 1.0, 1.0, 0.4 * alpha), 1.0)
+
+# =============================================================================
+# IMPLEMENTACIÓN DE LA NUBE DE GLITCH EN SISTEMAS
+# =============================================================================
+func _init_glitch_cloud() -> void:
+	if glitch_cloud_node != null and is_instance_valid(glitch_cloud_node):
+		return
+
+	glitch_cloud_node = Control.new()
+	glitch_cloud_node.name = "GlitchCloud"
+	glitch_cloud_node.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	glitch_cloud_node.visible = (current_mode == "sistema")
+	glitch_cloud_node.custom_minimum_size = Vector2(100, 90)
+	glitch_cloud_node.size = Vector2(100, 90)
+	glitch_cloud_node.pivot_offset = Vector2(50, 45)
+
+	# 1. Cuerpo difuso de nube pixel art con material glitch
+	glitch_cloud_body = TextureRect.new()
+	glitch_cloud_body.name = "CloudBody"
+	glitch_cloud_body.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if pelusa_tex:
+		glitch_cloud_body.texture = pelusa_tex
+	if glitch_mat:
+		glitch_cloud_body.material = glitch_mat
+	glitch_cloud_body.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	glitch_cloud_body.custom_minimum_size = Vector2(96, 80)
+	glitch_cloud_body.size = Vector2(96, 80)
+	glitch_cloud_body.position = Vector2(2, 5)
+	glitch_cloud_body.modulate = Color(0.12, 0.88, 1.0, 0.72)
+	glitch_cloud_node.add_child(glitch_cloud_body)
+
+	# 2. Icono cibernético de sistemas en el núcleo de la nube
+	glitch_cloud_core = TextureRect.new()
+	glitch_cloud_core.name = "CloudCore"
+	glitch_cloud_core.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if systems_icon_tex:
+		glitch_cloud_core.texture = systems_icon_tex
+	if glitch_mat:
+		glitch_cloud_core.material = glitch_mat
+	glitch_cloud_core.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	glitch_cloud_core.custom_minimum_size = Vector2(36, 34)
+	glitch_cloud_core.size = Vector2(36, 34)
+	glitch_cloud_core.position = Vector2(32, 28)
+	glitch_cloud_core.modulate = Color(1.3, 1.1, 1.6, 0.95)
+	glitch_cloud_node.add_child(glitch_cloud_core)
+
+	# 3. Etiqueta holográfica flotante de anomalía
+	glitch_cloud_label = Label.new()
+	glitch_cloud_label.name = "CloudLabel"
+	glitch_cloud_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	glitch_cloud_label.text = "[ GLITCH_CLOUD ]"
+	glitch_cloud_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	glitch_cloud_label.add_theme_font_size_override("font_size", 8)
+	glitch_cloud_label.add_theme_color_override("font_color", Color(0.15, 0.98, 1.0, 0.95))
+	glitch_cloud_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.95))
+	glitch_cloud_label.add_theme_constant_override("outline_size", 3)
+	glitch_cloud_label.custom_minimum_size = Vector2(100, 16)
+	glitch_cloud_label.size = Vector2(100, 16)
+	glitch_cloud_label.position = Vector2(0, -10)
+	glitch_cloud_node.add_child(glitch_cloud_label)
+
+	add_child(glitch_cloud_node)
+
+func _process_glitch_cloud(eff_delta: float) -> void:
+	if glitch_cloud_node == null or not is_instance_valid(glitch_cloud_node):
+		return
+
+	if current_mode != "sistema":
+		glitch_cloud_node.visible = false
+		glitch_cloud_particles.clear()
+		return
+
+	glitch_cloud_node.visible = true
+
+	# 1. Movimiento errático / Navegación por el mapa de Sistemas
+	glitch_cloud_wander_timer -= eff_delta
+	if glitch_cloud_wander_timer <= 0.0:
+		glitch_cloud_wander_timer = randf_range(1.2, 2.6)
+		glitch_cloud_target = Vector2(
+			randf_range(160.0, 1080.0),
+			randf_range(160.0, 560.0)
+		)
+
+	glitch_cloud_pos = glitch_cloud_pos.lerp(glitch_cloud_target, eff_delta * 1.8)
+
+	# 2. Reacción evasiva errática al cursor del ratón
+	if get_viewport() != null:
+		var mouse_p = get_local_mouse_position()
+		var dist_mouse = mouse_p.distance_to(glitch_cloud_pos)
+		if dist_mouse < 110.0 and dist_mouse > 1.0:
+			var flee_dir = (glitch_cloud_pos - mouse_p).normalized()
+			glitch_cloud_pos += flee_dir * (140.0 - dist_mouse) * eff_delta * 4.5
+			glitch_cloud_pos.x = clamp(glitch_cloud_pos.x, 100.0, 1140.0)
+			glitch_cloud_pos.y = clamp(glitch_cloud_pos.y, 140.0, 580.0)
+			if randf() < 0.28:
+				glitch_cloud_jitter = Vector2(randf_range(-35.0, 35.0), randf_range(-25.0, 25.0))
+
+	# 3. Jitter cuántico, saltos dimensionales y distorsión de escala
+	glitch_cloud_jitter_timer -= eff_delta
+	if glitch_cloud_jitter_timer <= 0.0:
+		glitch_cloud_jitter_timer = randf_range(0.08, 0.18)
+		glitch_cloud_jitter = Vector2(randf_range(-14.0, 14.0), randf_range(-10.0, 10.0))
+		glitch_cloud_scale = randf_range(0.85, 1.25)
+		if randf() < 0.16:
+			# Micro salto dimensional repentino
+			glitch_cloud_jitter = Vector2(randf_range(-42.0, 42.0), randf_range(-30.0, 30.0))
+			var glitch_texts = ["[ GLITCH_CLOUD ]", "[ KERNEL_LEAK ]", "[ 0x7F_CORRUPT ]", "[ SYS_ANOMALY ]", "[ DAEMON_LOST ]"]
+			if glitch_cloud_label and is_instance_valid(glitch_cloud_label):
+				glitch_cloud_label.text = glitch_texts[randi() % glitch_texts.size()]
+
+	# Actualizar posición y escala visual del nodo
+	var render_pos = glitch_cloud_pos + glitch_cloud_jitter
+	glitch_cloud_node.position = render_pos - Vector2(50, 45)
+	glitch_cloud_node.scale = Vector2(glitch_cloud_scale, glitch_cloud_scale)
+
+	# 4. Generación de partículas de estela glitch (pequeños bloques cuánticos)
+	if randf() < 0.40:
+		glitch_cloud_particles.append({
+			"pos": render_pos + Vector2(randf_range(-25.0, 25.0), randf_range(-20.0, 20.0)),
+			"size": Vector2(randf_range(4.0, 14.0), randf_range(2.0, 6.0)),
+			"color": Color(randf_range(0.0, 0.3), randf_range(0.8, 1.0), 1.0, 0.85),
+			"life": randf_range(0.2, 0.5),
+			"max_life": 0.5
+		})
+
+	# Actualizar partículas existentes
+	var i = glitch_cloud_particles.size() - 1
+	while i >= 0:
+		var p = glitch_cloud_particles[i]
+		p["life"] -= eff_delta
+		if p["life"] <= 0.0:
+			glitch_cloud_particles.remove_at(i)
+		i -= 1

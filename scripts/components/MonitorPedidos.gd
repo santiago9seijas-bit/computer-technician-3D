@@ -64,7 +64,7 @@ func _open_terminal() -> void:
 		
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	
-	# Ocultar con animación el contador de errores, score y botones 1 al 5 (el tiempo sigue visible)
+	# Ocultar con animación el contador de errores, score, mochila y botones 1 al 5 (el tiempo sigue visible)
 	var hud = _get_hud()
 	if hud and hud.has_method("hide_gameplay_hud_for_modal"):
 		hud.hide_gameplay_hud_for_modal(true)
@@ -72,9 +72,13 @@ func _open_terminal() -> void:
 	_active_modal = ORDERS_MODAL_SCENE.instantiate()
 	_active_modal.connect("tree_exited", Callable(self, "_on_modal_closed"))
 	
-	# Añadir al viewport raíz o canvas layer
-	var root = get_tree().root
-	root.add_child(_active_modal)
+	var hud_layer = hud.get_parent() if (hud and hud.get_parent() is CanvasLayer) else null
+	if hud_layer:
+		hud_layer.add_child(_active_modal)
+		hud_layer.move_child(_active_modal, hud.get_index())
+	else:
+		var root = get_tree().root
+		root.add_child(_active_modal)
 	
 	if light_3d:
 		var tw = create_tween()

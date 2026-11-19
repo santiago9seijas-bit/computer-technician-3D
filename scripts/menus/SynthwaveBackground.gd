@@ -6,6 +6,7 @@ extends Control
 @export var bg_top_color: Color = Color(0.06, 0.02, 0.13, 1.0)
 @export var bg_horizon_color: Color = Color(0.24, 0.05, 0.38, 1.0)
 @export var bg_bottom_color: Color = Color(0.08, 0.02, 0.16, 1.0)
+@export var horizon_line_color: Color = Color(1.0, 0.2, 0.6, 1.0)
 @export var line_speed: float = 0.45
 
 var offset: float = 0.0
@@ -84,8 +85,12 @@ func _draw() -> void:
 	draw_rect(Rect2(0, hy, w, h - hy), bg_bottom_color, true)
 	
 	# 4. Línea de horizonte de neón con glow
-	draw_line(Vector2(0, hy), Vector2(w, hy), Color(1.0, 0.1, 0.5, 0.4), 8.0)
-	draw_line(Vector2(0, hy), Vector2(w, hy), Color(1.0, 0.3, 0.7, 0.9), 2.5)
+	var hl_glow: Color = horizon_line_color
+	hl_glow.a = 0.4
+	draw_line(Vector2(0, hy), Vector2(w, hy), hl_glow, 8.0)
+	var hl_core: Color = horizon_line_color
+	hl_core.a = 0.9
+	draw_line(Vector2(0, hy), Vector2(w, hy), hl_core, 2.5)
 	draw_line(Vector2(0, hy), Vector2(w, hy), Color(1.0, 1.0, 1.0, 0.8), 1.0)
 	
 	# 5. Grilla en perspectiva (Líneas longitudinales batcheadas en una única llamada)

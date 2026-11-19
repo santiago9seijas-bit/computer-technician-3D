@@ -1,4 +1,4 @@
-[gd_scene format=3 load_steps=12]
+[gd_scene format=3 load_steps=15]
 
 [ext_resource type="Script" path="res://scripts/gameplay/LevelSystems1.gd" id="1_syslvl"]
 [ext_resource type="PackedScene" path="res://scenes/player/Player.tscn" id="2_player"]
@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" path="res://scenes/components/SystemsComputerCase.tscn" id="5_pc"]
 [ext_resource type="PackedScene" uid="uid://bkddyrm8tl53r" path="res://modelos_3d/escenario_3d/mesa de reparacion.glb" id="6_mesa"]
 [ext_resource type="PackedScene" uid="uid://cidts6etijohr" path="res://modelos_3d/escenario_3d/piso.glb" id="7_piso"]
+[ext_resource type="PackedScene" path="res://scenes/components/MonitorPedidos.tscn" id="8_monitor_ped"]
 
 [sub_resource type="Environment" id="Environment_1"]
 background_mode = 1
@@ -23,6 +24,14 @@ size = Vector3(14, 0.2, 14)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_bench"]
 size = Vector3(1.92, 0.912, 0.98)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ceiling"]
+albedo_color = Color(0.24, 0.25, 0.28, 1)
+roughness = 0.9
+
+[sub_resource type="BoxMesh" id="BoxMesh_ceiling"]
+material = SubResource("StandardMaterial3D_ceiling")
+size = Vector3(14, 0.2, 14)
 
 [node name="LevelSystems1" type="Node3D"]
 script = ExtResource("1_syslvl")
@@ -44,6 +53,15 @@ shape = SubResource("BoxShape3D_floor")
 
 [node name="PisoModel" parent="Room/Floor" instance=ExtResource("7_piso")]
 transform = Transform3D(1.75, 0, 0, 0, 1, 0, 0, 0, 1.75, -5.25, -0.546, 1.75)
+
+[node name="Ceiling" type="StaticBody3D" parent="Room"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.0, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Room/Ceiling"]
+shape = SubResource("BoxShape3D_floor")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Room/Ceiling"]
+mesh = SubResource("BoxMesh_ceiling")
 
 [node name="WorkBench" type="StaticBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.8)
@@ -71,3 +89,16 @@ layer = 1
 layer = 20
 
 [node name="PauseMenu" parent="CanvasLayerPause" instance=ExtResource("4_pause")]
+
+[node name="MesaPedidos" type="StaticBody3D" parent="."]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 3.8, 0, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MesaPedidos"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.456, 0)
+shape = SubResource("BoxShape3D_bench")
+
+[node name="MesaReparacion" parent="MesaPedidos" instance=ExtResource("6_mesa")]
+transform = Transform3D(0.012, 0, 0, 0, 0.012, 0, 0, 0, 0.012, 0, 0, 0)
+
+[node name="MonitorPedidos" parent="MesaPedidos" instance=ExtResource("8_monitor_ped")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.912, -0.15)

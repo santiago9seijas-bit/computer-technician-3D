@@ -45,6 +45,9 @@ var bent_pins_data: Array[Dictionary] = [
 var total_bent_pins: int = 0
 var fixed_pins_count: int = 0
 var is_game_completed: bool = false
+var is_intro_active: bool = false
+var countdown_overlay: CanvasLayer = null
+var dialog_box_inst: Control = null
 
 # Referencias a los botones de cada pin
 var pin_nodes: Dictionary = {}
@@ -52,7 +55,13 @@ var pin_nodes: Dictionary = {}
 func _ready() -> void:
 	layer = 12
 	GameManager.select_tool(3)
-	btn_cancel.pressed.connect(func(): minigame_finished.emit(false))
+	btn_cancel.pressed.connect(func():
+		minigame_finished.emit(false)
+		if get_tree().current_scene == self:
+			get_tree().change_scene_to_file("res://scenes/menus/LevelSelect.tscn")
+		else:
+			queue_free()
+	)
 	victory_banner.visible = false
 	warning_label.text = ""
 	total_bent_pins = bent_pins_data.size()
@@ -61,6 +70,99 @@ func _ready() -> void:
 	_build_pin_matrix()
 	_update_ui()
 	_play_microscope_intro_animation.call_deferred()
+	
+	if get_tree().current_scene == self:
+		_start_joa_intro()
+
+func _start_joa_intro() -> void:
+	is_intro_active = true
+	var dlg_scene = load("res://scenes/ui/DialogBox.tscn")
+	if dlg_scene:
+		dialog_box_inst = dlg_scene.instantiate()
+		add_child(dialog_box_inst)
+		if dialog_box_inst.has_method("show_message"):
+			dialog_box_inst.show_message(
+				"JOA",
+				"¡Máxima concentración técnica! Un pin doblado o torcido en el socket o procesador impedirá el arranque del equipo o causará cortocircuito.\n\nUsa el microscopio para localizar los pines fuera de eje (resaltados en naranja) y haz clic sobre cada uno con la pinza de precisión para enderezarlo a 90°.",
+				func():
+					_start_countdown()
+			)
+		else:
+			_start_countdown()
+	else:
+		_start_countdown()
+
+func _start_countdown() -> void:
+	if countdown_overlay:
+		countdown_overlay.queue_free()
+
+	countdown_overlay = CanvasLayer.new()
+	countdown_overlay.layer = 110
+	add_child(countdown_overlay)
+
+	var root_ctrl = Control.new()
+	root_ctrl.set_anchors_preset(Control.PRESET_FULL_RECT)
+	root_ctrl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	countdown_overlay.add_child(root_ctrl)
+
+	var dim_rect = ColorRect.new()
+	dim_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+	dim_rect.color = Color(0.01, 0.03, 0.08, 0.55)
+	dim_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root_ctrl.add_child(dim_rect)
+
+	var center = CenterContainer.new()
+	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root_ctrl.add_child(center)
+
+	var label = Label.new()
+	label.text = ""
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.add_theme_font_size_override("font_size", 120)
+	label.pivot_offset = Vector2(160, 80)
+	center.add_child(label)
+
+	var steps: Array[Dictionary] = [
+		{"text": "3", "color": Color(0.85, 0.25, 1.0), "size": 130},
+		{"text": "2", "color": Color(1.0, 0.9, 0.2),  "size": 130},
+		{"text": "1", "color": Color(1.0, 0.55, 0.1), "size": 130},
+		{"text": "¡A ENDEREZAR!", "color": Color(0.2, 1.0, 0.5), "size": 90}
+	]
+
+	_run_countdown_step(0, steps, label, root_ctrl)
+
+func _run_countdown_step(index: int, steps: Array[Dictionary], label: Label, root_ctrl: Control) -> void:
+	if index >= steps.size():
+		var fade_tw = create_tween()
+		fade_tw.tween_property(root_ctrl, "modulate:a", 0.0, 0.3)
+		fade_tw.chain().tween_callback(func():
+			if countdown_overlay:
+				countdown_overlay.queue_free()
+				countdown_overlay = null
+			is_intro_active = false
+		)
+		return
+
+	var st = steps[index]
+	label.text = st["text"]
+	label.modulate = st["color"]
+	label.add_theme_font_size_override("font_size", st["size"])
+	label.scale = Vector2(0.4, 0.4)
+	label.modulate.a = 0.0
+
+	var gm = get_node_or_null("/root/GameManager")
+	if gm and gm.has_method("play_sfx"):
+		gm.play_sfx("click")
+
+	var tw = create_tween().set_parallel(true)
+	tw.tween_property(label, "scale", Vector2.ONE, 0.2).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tw.tween_property(label, "modulate:a", 1.0, 0.15)
+	tw.chain().tween_interval(0.4)
+	tw.chain().tween_callback(func():
+		_run_countdown_step(index + 1, steps, label, root_ctrl)
+	)
 
 func _play_microscope_intro_animation() -> void:
 	if not is_instance_valid(socket_frame) or not is_instance_valid(lente_overlay):
@@ -165,7 +267,7 @@ func _get_bent_info(r: int, c: int) -> Dictionary:
 	return {}
 
 func _on_pin_clicked(coord: Vector2i) -> void:
-	if is_game_completed: return
+	if is_game_completed or is_intro_active: return
 	
 	var bent_info: Dictionary = _get_bent_info(coord.x, coord.y)
 	if bent_info.is_empty():
@@ -223,8 +325,24 @@ func _trigger_victory() -> void:
 	tw.tween_property(victory_banner, "scale", Vector2(1.0, 1.0), 0.35).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	tw.tween_property(victory_banner, "modulate:a", 1.0, 0.25)
 	
-	await get_tree().create_timer(2.2).timeout
+	var sm = get_node_or_null("/root/SaveManager")
+	if sm:
+		sm.mark_node_completed("reparacion", 29)
+		sm.unlock_glossary("cpu")
+	
+	await get_tree().create_timer(1.8).timeout
 	minigame_finished.emit(true)
+	
+	if get_tree().current_scene == self:
+		CyberPlayTransition.play_exit(
+			get_tree(),
+			"reparacion",
+			"res://scenes/menus/LevelSelect.tscn",
+			"PINES DE CPU ALINEADOS",
+			"// CONTINUIDAD Y GEOMETRÍA LGA RESTAURADAS //"
+		)
+	else:
+		queue_free()
 
 func _show_feedback(msg: String, col: Color) -> void:
 	if col.r > 0.7 and col.g < 0.5:

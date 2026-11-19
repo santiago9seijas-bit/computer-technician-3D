@@ -89,12 +89,37 @@ func update_3d_state() -> void:
 		mat.albedo_color = led_color
 		mat.emission = led_color
 
+func can_pickup_with_f() -> bool:
+	return visible
+
+func pickup_to_arms(_player: Node) -> Dictionary:
+	var data = {
+		"type": "sistema",
+		"pc_id": pc_id,
+		"is_completed": is_fully_repaired(),
+		"components": components.duplicate(true)
+	}
+	visible = false
+	collision_layer = 0
+	collision_mask = 0
+	return data
+
+func restore_from_carried(data: Dictionary) -> void:
+	visible = true
+	collision_layer = 1
+	collision_mask = 1
+	if data.has("components"):
+		components = data["components"]
+	if data.has("is_completed"):
+		is_completed = data["is_completed"]
+	update_3d_state()
+
 func get_interaction_prompt() -> String:
 	if custom_prompt != "":
-		return custom_prompt
+		return "%s  ·  [F] CARGAR EN BRAZOS" % custom_prompt
 	if is_fully_repaired():
-		return "[E] Inspeccionar Terminal de Sistemas (Optimizada ✓)"
-	return "[E] Acceder a la Terminal de Sistemas y Ciberseguridad"
+		return "[E] Terminal de Sistemas (Optimizada ✓)  ·  [F] CARGAR EN BRAZOS"
+	return "[E] Acceder a Terminal de Sistemas  ·  [F] CARGAR EN BRAZOS"
 
 func interact(player) -> void:
 	if custom_interact_callback.is_valid():

@@ -91,7 +91,7 @@ const MODE_PALETTES: Dictionary = {
 @onready var zoom_label: Label = get_node_or_null("MapZoomControls/Margin/HBox/ZoomLabel")
 
 var current_map_zoom: float = 1.0
-const MIN_MAP_ZOOM: float = 0.65
+const MIN_MAP_ZOOM: float = 0.45
 const MAX_MAP_ZOOM: float = 1.6
 
 # --- Arrastre y desplazamiento libre del mapa (Mouse Pan Drag) ---
@@ -103,11 +103,17 @@ var pan_start_area_pos: Vector2 = Vector2.ZERO
 var dev_console_overlay: Control = null
 var dev_console_input: LineEdit = null
 var dev_console_output: RichTextLabel = null
+var dev_console_body_vbox: VBoxContainer = null
+var dev_console_margin_body: MarginContainer = null
+var terminal_pacman_instance: Control = null
 
 # --- Área de Tutoriales (Centro de Entrenamiento) ---
 @onready var tutorial_area: Control = $TutorialArea
 @onready var cards_scroll: ScrollContainer = $TutorialArea/CardsScroll
 @onready var cards_grid: GridContainer = $TutorialArea/CardsScroll/CardsGrid
+@onready var left_scroll_controls: Control = get_node_or_null("TutorialArea/LeftScrollControls")
+@onready var btn_scroll_up: Button = get_node_or_null("TutorialArea/LeftScrollControls/BtnScrollUp")
+@onready var btn_scroll_down: Button = get_node_or_null("TutorialArea/LeftScrollControls/BtnScrollDown")
 
 # --- Modal Desplegado de Tutorial & Simulador (Capa Superior) ---
 @onready var deployed_modal: Control = $DeployedModal
@@ -135,12 +141,14 @@ var PRELOADED_TEXTURES = {
 	"res://pixel art minijuegos/ramstipos/ram ddr.png": preload("res://pixel art minijuegos/ramstipos/ram ddr.png"),
 	"res://pixel art minijuegos/memoriastipos/m.2/memoria M.2.png": preload("res://pixel art minijuegos/memoriastipos/m.2/memoria M.2.png"),
 	"res://pixel art minijuegos/pelusa/pelusa grande.png": preload("res://pixel art minijuegos/pelusa/pelusa grande.png"),
-	"res://pixel art menus/menus/fondos de menus.png": preload("res://pixel art menus/menus/fondos de menus.png")
+	"res://pixel art menus/menus/fondos de menus.png": preload("res://pixel art menus/menus/fondos de menus.png"),
+	"res://pixel art minijuegos/limpiezaprofunda/ramprofunda/destornillador de pala.png": preload("res://pixel art minijuegos/limpiezaprofunda/ramprofunda/destornillador de pala.png")
 }
 
 # Carga bajo demanda de escenas de minijuegos para garantizar 0 ms al alternar pestañas
 var _fancooler_scene = null
 var _ram_scene = null
+var _ram_static_scene = null
 var _hdd_scene = null
 var _gpu_scene = null
 var _cpu_scene = null
@@ -225,8 +233,8 @@ var LEVELS_DATA: Dictionary = {
 			"stage": "TUTORIAL DE HARDWARE // GUIADO POR JOA",
 			"mode_name": "REPARACIÓN",
 			"color_accent": Color(0.0, 0.88, 1.0),
-			"description": "Taller guiado paso a paso con Joa.\nAprende a abrir los seguros laterales (clips) de la ranura DIMM, alinear la muesca y encajar firmemente el módulo DDR.",
-			"requirements": "HERRAMIENTAS: Manos libres / Guantes antiestáticos · MODO TUTORIAL GUIADO",
+			"description": "Taller guiado paso a paso con Joa.\nAbre los seguros laterales del slot DIMM, alinea la muesca de la memoria RAM con el zócalo y presiona con firmeza en ambos extremos hasta escuchar el clic.",
+			"requirements": "HERRAMIENTAS: Manos libres y pulsera antiestática · MODO TUTORIAL GUIADO",
 			"can_play": false
 		},
 		{
@@ -511,6 +519,99 @@ var LEVELS_DATA: Dictionary = {
 			"color_accent": Color(1.0, 0.55, 0.05),
 			"description": "Primer reto cronometrado de hardware.\n3 computadoras con 3 fallas diferentes (RAM, GPU, HDD).\nRepara los 3 equipos en las mesas antes de los 8 minutos.",
 			"requirements": "HERRAMIENTAS: Acceso Total · 3 COMPUTADORAS · LÍMITE: 8 MINUTOS",
+			"can_play": false
+		},
+
+		# --- MICRO-TALLERES MORADOS DE INSPECCIÓN Y LUPA [26 - 29] ---
+		{
+			"number": 26,
+			"is_inspection": true,
+			"is_purple": true,
+			"inspection_id": "dust_ram",
+			"target_scene": "res://scenes/minigames/DustCleanerMinigame.tscn",
+			"title": "TALLER LUPA · LIMPIEZA DE POLVO EN RAM",
+			"stage": "ZONA DE INSPECCIÓN // LUPA TÉCNICA",
+			"mode_name": "REPARACIÓN",
+			"color_accent": Color(0.85, 0.25, 1.0),
+			"description": "Micro-taller de precisión con lupa técnica.\nUsa el soplador y cepillo para remover el polvo acumulado y residuos en los contactos dorados de la memoria RAM.",
+			"requirements": "HERRAMIENTAS: Lupa técnica y soplador · OBJETIVO: 100% LIMPIEZA",
+			"joa_speech": "¡Atento aquí! Los contactos dorados y ranuras de la memoria RAM suelen acumular polvo y pelusa que impiden el arranque del sistema. Usa la lupa técnica para ubicar los cúmulos de suciedad y límpialos hasta dejar los pines impecables.",
+			"can_play": false
+		},
+		{
+			"number": 27,
+			"is_inspection": true,
+			"is_purple": true,
+			"inspection_id": "ram_static",
+			"target_scene": "res://scenes/minigames/RAMStaticMinigame.tscn",
+			"title": "TALLER LUPA · DESCARGA ELECTROSTÁTICA RAM",
+			"stage": "ZONA DE INSPECCIÓN // LUPA TÉCNICA",
+			"mode_name": "REPARACIÓN",
+			"color_accent": Color(0.85, 0.25, 1.0),
+			"description": "Micro-taller de precisión con lupa técnica.\nFrota la memoria RAM contra el destornillador metálico aterrizado a tierra (GND) para drenar la carga estática acumulada antes de manipularla.",
+			"requirements": "HERRAMIENTAS: Destornillador a tierra · OBJETIVO: ESTÁTICA A CERO",
+			"joa_speech": "¡Cuidado con la estática! Una descarga electrostática imperceptible puede freír un chip de memoria. Frota la RAM con firmeza contra el destornillador metálico aterrizado a tierra hasta que la barra de estática llegue a cero.",
+			"can_play": false
+		},
+		{
+			"number": 28,
+			"is_inspection": true,
+			"is_purple": true,
+			"inspection_id": "paste_cpu",
+			"target_scene": "res://scenes/minigames/CPUPasteMinigame.tscn",
+			"title": "TALLER LUPA · RENOVACIÓN PASTA TÉRMICA CPU",
+			"stage": "ZONA DE INSPECCIÓN // LUPA TÉCNICA",
+			"mode_name": "REPARACIÓN",
+			"color_accent": Color(0.85, 0.25, 1.0),
+			"description": "Micro-taller de precisión con lupa técnica.\nRemueve el compuesto térmico solidificado con el pañuelo y aplica una nueva gota uniforme sobre el procesador.",
+			"requirements": "HERRAMIENTAS: Pañuelo y jeringa térmica · OBJETIVO: 100% COBERTURA",
+			"joa_speech": "El compuesto térmico degradado se seca y pierde conductividad, disparando la temperatura del procesador. Usa el pañuelo para limpiar la pasta vieja y luego aplica la nueva dosis con la jeringa con máxima precisión.",
+			"can_play": false
+		},
+		{
+			"number": 29,
+			"is_inspection": true,
+			"is_purple": true,
+			"inspection_id": "pins_cpu",
+			"target_scene": "res://scenes/minigames/CPUPinsMinigame.tscn",
+			"title": "TALLER LUPA · ALINEACIÓN DE PINES CPU",
+			"stage": "ZONA DE INSPECCIÓN // LUPA TÉCNICA",
+			"mode_name": "REPARACIÓN",
+			"color_accent": Color(0.85, 0.25, 1.0),
+			"description": "Micro-taller de precisión con microscopio 100x.\nInspecciona la matriz de pines del socket o procesador y endereza cada pin doblado a 90° con la pinza.",
+			"requirements": "HERRAMIENTAS: Microscopio 100x y pinza de precisión · ALINEACIÓN TOTAL",
+			"joa_speech": "¡Máxima concentración técnica! Un pin torcido o desalineado provocará un cortocircuito o impedirá que el equipo inicie. Ajusta el enfoque del microscopio y endereza cada pin con mucho cuidado.",
+			"can_play": false
+		},
+		{
+			"number": 30,
+			"is_inspection": true,
+			"is_purple": true,
+			"inspection_id": "voltimeter",
+			"target_scene": "res://scenes/minigames/VoltimeterMinigame.tscn",
+			"title": "TALLER LUPA · MEDICIÓN DE VOLTAJE Y MULTÍMETRO",
+			"stage": "ZONA DE INSPECCIÓN // MULTÍMETRO DIGITAL",
+			"mode_name": "REPARACIÓN",
+			"color_accent": Color(0.85, 0.25, 1.0),
+			"description": "Diagnóstico de rieles de potencia y detección de cortocircuitos con multímetro digital.\nMide líneas DC (12V, 5VSB, 3.3V), filtra ruido AC y localiza componentes quemados en modo Ohmios (Ω).",
+			"requirements": "HERRAMIENTAS: Multímetro digital y dial analógico · CALIBRACIÓN COMPLETA",
+			"joa_speech": "¡Hora de medir voltajes! Un riel caído o un cortocircuito a tierra impedirá que la computadora encienda. Usa el multímetro para verificar los voltajes nominales y calibra la aguja en el dial cuando coincida con el objetivo.",
+			"can_play": false
+		},
+		{
+			"number": 31,
+			"is_inspection": true,
+			"is_purple": true,
+			"inspection_id": "dust_psu",
+			"target_scene": "res://scenes/minigames/DustCleanerMinigame.tscn",
+			"target_component": "PSU",
+			"title": "TALLER LUPA · LIMPIEZA INTERNA FUENTE DE PODER",
+			"stage": "ZONA DE INSPECCIÓN // LUPA TÉCNICA",
+			"mode_name": "REPARACIÓN",
+			"color_accent": Color(0.85, 0.25, 1.0),
+			"description": "Limpieza profunda de componentes internos de la fuente ATX.\nDesliza la tapa metálica superior de la fuente de poder y remueve toda la pelusa acumulada en bobinas y disipadores.",
+			"requirements": "HERRAMIENTAS: Lupa técnica y brocha antiestática · LIMPIEZA AL 100%",
+			"joa_speech": "¡Cuidado al abrir la fuente de poder! Desliza la cubierta metálica hacia la derecha para acceder al interior. La acumulación de pelusa y polvo en los disipadores de los transistores de potencia puede provocar un sobrecalentamiento crítico.",
 			"can_play": false
 		}
 	],
@@ -992,6 +1093,21 @@ var LEVELS_DATA: Dictionary = {
 # =============================================================================
 var ALL_TUTORIAL_CARDS: Array[Dictionary] = [
 	# --- DIVISIÓN REPARACIÓN (HARDWARE) ---
+	{
+		"division": "reparacion",
+		"id": "ram_static",
+		"title": "DESCARGA ESTÁTICA RAM",
+		"subtitle": "DISIPACIÓN ELECTROSTÁTICA (ESD) A TIERRA",
+		"category": "PROTECCIÓN ESD & MEMORIA",
+		"texture_path": "res://pixel art minijuegos/limpiezaprofunda/ramprofunda/destornillador de pala.png",
+		"color_accent": Color(1.0, 0.88, 0.15, 1.0),
+		"que_es": "Protocolo técnico de seguridad ESD para drenar las cargas electrostáticas residuales de la memoria RAM antes de manipularla o montarla en la placa madre.",
+		"importancia": "CRÍTICA: Una descarga electrostática imperceptible (>100V) perfora las micro-compuertas de silicio en los chips DDR, quemando la memoria de forma irreversible e instantánea.",
+		"que_hace": "Permite frotar el módulo de RAM contra la varilla metálica de un destornillador aterrizado a tierra (GND), drenando el nivel de estática acumulada del 100% hasta 0%.",
+		"pasos": "1. Mueve el puntero del ratón guiando el módulo de memoria RAM DDR4.\n2. Frota los contactos dorados de la RAM contra la varilla metálica del destornillador a tierra.\n3. Genera arcos de descarga electrostática hasta que la barra amarilla de Estática llegue a 0%.\n4. Al llegar a cero, el componente queda neutralizado y protegido para su manipulación.",
+		"is_ready": true,
+		"handler": "launch_ram_static"
+	},
 	{
 		"division": "reparacion",
 		"id": "cooler",
@@ -1495,9 +1611,11 @@ func _ready() -> void:
 	if difficulty_selector:
 		difficulty_selector.visible = false
 		difficulty_selector.launch_requested.connect(_on_btn_play_level_pressed)
+		difficulty_selector.unlock_requested.connect(_on_level_unlock_requested)
 	if tutorial_info_panel:
 		tutorial_info_panel.visible = false
 		tutorial_info_panel.launch_requested.connect(_on_btn_play_level_pressed)
+		tutorial_info_panel.unlock_requested.connect(_on_level_unlock_requested)
 	if btn_nav_prev:
 		btn_nav_prev.focus_mode = Control.FOCUS_NONE
 		btn_nav_prev.pressed.connect(func(): _navigate_level_camera(-1))
@@ -1522,6 +1640,10 @@ func _ready() -> void:
 	
 	if graph_lines and graph_lines.has_signal("mode_transition_completed"):
 		graph_lines.mode_transition_completed.connect(_update_node_hitboxes_positions)
+		
+	if constellation_area:
+		constellation_area.mouse_filter = Control.MOUSE_FILTER_PASS
+		constellation_area.gui_input.connect(_on_constellation_gui_input)
 		
 	# Selector Circular de Modo & Decoración Flipped en el lateral derecho
 	if decoracion_right and decoracion_right.material:
@@ -1553,6 +1675,11 @@ func _ready() -> void:
 	_create_node_hitboxes()
 	_sync_progression_from_save()
 	_check_and_play_pending_unlock()
+	_setup_tutorial_scroll()
+	
+	var sm_gl = get_node_or_null("/root/SaveManager")
+	if sm_gl and sm_gl.has_method("trigger_pending_glossary_notification"):
+		sm_gl.trigger_pending_glossary_notification()
 	
 	# Configurar pestaña inicial solicitada
 	var start_tab = initial_tab
@@ -1562,6 +1689,84 @@ func _ready() -> void:
 		_switch_main_tab("tutoriales", true)
 	else:
 		_switch_main_tab("niveles", true)
+
+func _setup_tutorial_scroll() -> void:
+	if btn_scroll_up:
+		btn_scroll_up.pressed.connect(func(): _scroll_tutorial_cards(-260.0))
+	if btn_scroll_down:
+		btn_scroll_down.pressed.connect(func(): _scroll_tutorial_cards(260.0))
+		
+	var btn_style = StyleBoxFlat.new()
+	btn_style.bg_color = Color(0.08, 0.05, 0.18, 0.9)
+	btn_style.border_color = Color(0.0, 0.85, 1.0, 0.8)
+	btn_style.border_width_left = 2
+	btn_style.border_width_top = 2
+	btn_style.border_width_right = 2
+	btn_style.border_width_bottom = 2
+	btn_style.corner_radius_top_left = 6
+	btn_style.corner_radius_top_right = 6
+	btn_style.corner_radius_bottom_right = 6
+	btn_style.corner_radius_bottom_left = 6
+	
+	if btn_scroll_up:
+		btn_scroll_up.add_theme_stylebox_override("normal", btn_style)
+		btn_scroll_up.add_theme_stylebox_override("hover", btn_style)
+		btn_scroll_up.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	if btn_scroll_down:
+		btn_scroll_down.add_theme_stylebox_override("normal", btn_style)
+		btn_scroll_down.add_theme_stylebox_override("hover", btn_style)
+		btn_scroll_down.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		
+	if cards_scroll:
+		var v_bar = cards_scroll.get_v_scroll_bar()
+		if v_bar:
+			v_bar.custom_minimum_size = Vector2(16, 0)
+			
+			var sb_grabber = StyleBoxFlat.new()
+			sb_grabber.bg_color = Color(0.0, 0.9, 1.0, 0.95)
+			sb_grabber.corner_radius_top_left = 6
+			sb_grabber.corner_radius_top_right = 6
+			sb_grabber.corner_radius_bottom_right = 6
+			sb_grabber.corner_radius_bottom_left = 6
+			v_bar.add_theme_stylebox_override("grabber", sb_grabber)
+			
+			var sb_grabber_hl = StyleBoxFlat.new()
+			sb_grabber_hl.bg_color = Color(1.0, 0.88, 0.2, 1.0)
+			sb_grabber_hl.corner_radius_top_left = 6
+			sb_grabber_hl.corner_radius_top_right = 6
+			sb_grabber_hl.corner_radius_bottom_right = 6
+			sb_grabber_hl.corner_radius_bottom_left = 6
+			v_bar.add_theme_stylebox_override("grabber_highlight", sb_grabber_hl)
+			
+			var sb_grabber_pr = StyleBoxFlat.new()
+			sb_grabber_pr.bg_color = Color(0.2, 1.0, 0.6, 1.0)
+			sb_grabber_pr.corner_radius_top_left = 6
+			sb_grabber_pr.corner_radius_top_right = 6
+			sb_grabber_pr.corner_radius_bottom_right = 6
+			sb_grabber_pr.corner_radius_bottom_left = 6
+			v_bar.add_theme_stylebox_override("grabber_pressed", sb_grabber_pr)
+			
+			var sb_scroll = StyleBoxFlat.new()
+			sb_scroll.bg_color = Color(0.04, 0.03, 0.1, 0.8)
+			sb_scroll.border_color = Color(0.0, 0.8, 1.0, 0.4)
+			sb_scroll.border_width_left = 1
+			sb_scroll.border_width_right = 1
+			sb_scroll.corner_radius_top_left = 6
+			sb_scroll.corner_radius_top_right = 6
+			sb_scroll.corner_radius_bottom_right = 6
+			sb_scroll.corner_radius_bottom_left = 6
+			v_bar.add_theme_stylebox_override("scroll", sb_scroll)
+
+func _scroll_tutorial_cards(amount: float) -> void:
+	if not cards_scroll:
+		return
+	var v_bar = cards_scroll.get_v_scroll_bar()
+	var max_v = v_bar.max_value if v_bar else 1000.0
+	var current = float(cards_scroll.scroll_vertical)
+	var target = clampf(current + amount, 0.0, max_v)
+	var tw = create_tween()
+	tw.tween_property(cards_scroll, "scroll_vertical", int(target), 0.18)\
+		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 
 func _process(_delta: float) -> void:
 	if current_tab == "niveles" and graph_lines and "is_transitioning" in graph_lines and graph_lines.is_transitioning:
@@ -1729,8 +1934,11 @@ func _apply_mode_palette(mode_name: String, instant: bool = false) -> void:
 # CONMUTACIÓN DE MODO / DIVISIÓN (REPARACIÓN, SISTEMA, SERVIDOR)
 # =============================================================================
 func _switch_mode(mode_name: String, spin_dir: int = 0) -> void:
+	is_panning_map = false
 	if is_level_zoomed:
 		_unzoom_camera()
+	elif constellation_area:
+		constellation_area.position = Vector2.ZERO
 	if current_mode == mode_name and spin_dir == 0:
 		return
 		
@@ -1881,6 +2089,7 @@ func _create_node_hitboxes() -> void:
 		btn.custom_minimum_size = Vector2(60, 60)
 		btn.flat = true
 		btn.focus_mode = Control.FOCUS_NONE
+		btn.mouse_filter = Control.MOUSE_FILTER_STOP
 		btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		btn.button_down.connect(_on_node_pressed.bind(i))
 		btn.pressed.connect(_on_node_clicked.bind(i))
@@ -1929,7 +2138,7 @@ func _on_node_clicked(index: int) -> void:
 		graph_lines.trigger_node_click_zoom(index)
 		
 	# ZOOM DE CÁMARA AL CÍRCULO CLICKEADO:
-	var node_pos = graph_lines.nodes[index] if (graph_lines and index < graph_lines.nodes.size()) else Vector2(580, 410)
+	var node_pos = graph_lines.nodes[index] if (graph_lines and index < graph_lines.nodes.size()) else _get_mode_center()
 	var zoom_factor: float = 2.1
 	var target_screen_pos = Vector2(260, 390)
 	var target_area_pos = target_screen_pos - node_pos * zoom_factor
@@ -1952,29 +2161,45 @@ func _on_node_clicked(index: int) -> void:
 		btn_play_level1.visible = false
 		
 	# Paneles laterales según el tipo de nodo (Tutorial o Nivel)
+	data["node_index"] = index
+	var req_points = get_node_required_points(current_mode, index)
+	var player_points = get_player_points()
+	var prev_completed = is_previous_level_completed(current_mode, index)
+
 	if data.get("is_tutorial", false):
 		# BURBUJA AZUL TUTORIAL - Mostrar Panel de Información del Tutorial
 		if difficulty_selector and difficulty_selector.visible:
 			difficulty_selector.play_exit_animation()
 		if tutorial_info_panel:
-			tutorial_info_panel.open_for_tutorial_node(data)
+			tutorial_info_panel.open_for_tutorial_node(data, req_points, player_points, prev_completed)
 	elif data.get("is_practice", false):
 		# SALA DE PRÁCTICA (NARANJA NEÓN) - Mostrar Panel en modo práctica libre
 		if difficulty_selector and difficulty_selector.visible:
 			difficulty_selector.play_exit_animation()
 		if tutorial_info_panel:
-			tutorial_info_panel.open_for_practice(data)
+			tutorial_info_panel.open_for_practice(data, req_points, player_points, prev_completed)
+	elif data.get("is_inspection", false):
+		# MICRO-TALLER MORADO (LUPA TÉCNICA)
+		if difficulty_selector and difficulty_selector.visible:
+			difficulty_selector.play_exit_animation()
+		if tutorial_info_panel:
+			tutorial_info_panel.open_for_inspection_node(data, req_points, player_points, prev_completed)
 	else:
 		# NIVEL JUGABLE (Nivel 1 al 12)
 		if tutorial_info_panel and tutorial_info_panel.visible:
 			tutorial_info_panel.play_exit_animation()
 		if difficulty_selector:
-			difficulty_selector.open_for_level()
+			difficulty_selector.open_for_level(data, req_points, player_points, prev_completed)
 		
 	# Habilitar el overlay invisible de captura de clics fuera de la tarjeta
 	if card_dim_overlay:
 		card_dim_overlay.visible = true
 		card_dim_overlay.color = Color(0, 0, 0, 0)
+
+func _get_mode_center() -> Vector2:
+	if graph_lines and not graph_lines.nodes.is_empty():
+		return graph_lines.nodes[0]
+	return Vector2(640, 360)
 
 func _unzoom_camera() -> void:
 	is_launching_level = false
@@ -1998,7 +2223,7 @@ func _unzoom_camera() -> void:
 		
 	camera_zoom_tween = create_tween().set_parallel(true)
 	if constellation_area:
-		constellation_area.pivot_offset = Vector2(580, 395)
+		constellation_area.pivot_offset = _get_mode_center()
 		camera_zoom_tween.tween_property(constellation_area, "position", Vector2.ZERO, 0.38)\
 			.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 		camera_zoom_tween.tween_property(constellation_area, "scale", Vector2(current_map_zoom, current_map_zoom), 0.38)\
@@ -2058,7 +2283,7 @@ func _apply_map_zoom(target_zoom: float) -> void:
 		zoom_label.text = "%d%%" % int(round(current_map_zoom * 100.0))
 		
 	if constellation_area:
-		constellation_area.pivot_offset = Vector2(580, 395)
+		constellation_area.pivot_offset = _get_mode_center()
 		if camera_zoom_tween and camera_zoom_tween.is_valid():
 			camera_zoom_tween.kill()
 		camera_zoom_tween = create_tween().set_parallel(true)
@@ -2094,10 +2319,11 @@ func _update_btn_play_level1_visibility() -> void:
 		node_data = list[active_zoomed_index]
 	var is_tut = node_data.get("is_tutorial", false)
 	var is_prac = node_data.get("is_practice", false)
+	var is_insp = node_data.get("is_inspection", false)
 
-	if difficulty_selector and not (is_level_zoomed and not is_tut and not is_prac and current_tab == "niveles"):
+	if difficulty_selector and not (is_level_zoomed and not is_tut and not is_prac and not is_insp and current_tab == "niveles"):
 		difficulty_selector.visible = false
-	if tutorial_info_panel and not (is_level_zoomed and (is_tut or is_prac) and current_tab == "niveles"):
+	if tutorial_info_panel and not (is_level_zoomed and (is_tut or is_prac or is_insp) and current_tab == "niveles"):
 		tutorial_info_panel.visible = false
 
 func _on_btn_play_level_pressed() -> void:
@@ -2123,9 +2349,43 @@ func _on_btn_play_level_pressed() -> void:
 	elif node_data.get("is_practice", false):
 		var practice_id = node_data.get("practice_id", "maestra")
 		_play_practice_level(practice_id)
+	elif node_data.get("is_inspection", false):
+		_play_inspection_level(node_data)
 	else:
 		# NIVEL DE JUEGO (Nivel 1 al 12)
 		_play_level_1()
+
+func _play_inspection_level(node_data: Dictionary) -> void:
+	if is_launching_level:
+		return
+	is_launching_level = true
+	
+	if btn_play_level1:
+		btn_play_level1.visible = false
+		
+	var target_scene = node_data.get("target_scene", "")
+	if target_scene == "":
+		_show_toast("⚠ Módulo en calibración técnica. Próximamente.")
+		is_launching_level = false
+		return
+		
+	var title_text = node_data.get("title", "MICROTALLER DE PRECISIÓN")
+	var sub_text = "// TALLER TÉCNICO CON LUPA //"
+	var target_comp = node_data.get("target_component", "")
+	
+	CyberPlayTransition.play(
+		get_tree(),
+		target_scene,
+		title_text,
+		sub_text,
+		func():
+			var cur_scene = get_tree().current_scene
+			if cur_scene and cur_scene.has_method("setup_component") and target_comp != "":
+				cur_scene.setup_component(target_comp),
+		false,
+		false,
+		current_mode
+	)
 
 func _play_practice_level(practice_id: String = "") -> void:
 	if is_launching_level:
@@ -2544,7 +2804,10 @@ func _open_deployed_card(data: Dictionary) -> void:
 		var is_hardware = data.get("division", "") in ["reparacion", "reparacion_fondo"]
 		var can_tut_3d = is_hardware and data.get("is_ready", false) and data.get("id", "") != "motherboard"
 		deployed_btn_tutorial_3d.visible = can_tut_3d
-		deployed_btn_tutorial_3d.text = "🎓 TUTORIAL 3D CON JOA"
+		if data.get("id", "") == "ram_static":
+			deployed_btn_tutorial_3d.text = "🎓 TUTORIAL CON JOA"
+		else:
+			deployed_btn_tutorial_3d.text = "🎓 TUTORIAL 3D CON JOA"
 		
 	deployed_modal.visible = true
 	deployed_card.scale = Vector2(0.85, 0.85)
@@ -2567,6 +2830,10 @@ func _on_deployed_tutorial_3d_pressed() -> void:
 	if active_card_data.is_empty():
 		return
 	var comp_id = active_card_data.get("id", "general")
+	if comp_id == "ram_static":
+		_close_deployed_card()
+		_play_tutorial_level("ram", "res://scenes/minigames/RAMStaticMinigame.tscn", "TUTORIAL · DESCARGA DE ESTÁTICA RAM")
+		return
 	_close_deployed_card()
 	_play_tutorial_level(comp_id)
 
@@ -2579,6 +2846,10 @@ func _on_deployed_play_pressed() -> void:
 		return
 		
 	match active_card_data.get("handler", ""):
+		"launch_ram_static":
+			if not _ram_static_scene:
+				_ram_static_scene = load("res://scenes/minigames/RAMStaticMinigame.tscn")
+			_launch_minigame(_ram_static_scene)
 		"launch_cooler":
 			if not _fancooler_scene:
 				_fancooler_scene = load("res://scenes/minigames/FanCoolerMinigame.tscn")
@@ -2803,7 +3074,7 @@ func _play_exit_animation() -> void:
 
 	# Constelación de niveles: Implosión hacia el centro con rotación
 	if constellation_area:
-		constellation_area.pivot_offset = Vector2(580, 395)
+		constellation_area.pivot_offset = _get_mode_center()
 		tw_ui.tween_property(constellation_area, "scale", Vector2(0.08, 0.08), 0.28).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
 		tw_ui.tween_property(constellation_area, "rotation", 0.30, 0.28)
 		tw_ui.tween_property(constellation_area, "modulate:a", 0.0, 0.25)
@@ -2820,6 +3091,20 @@ func _play_exit_animation() -> void:
 		get_tree().change_scene_to_file("res://scenes/menus/MainMenu.tscn")
 	)
 
+func _on_constellation_gui_input(event: InputEvent) -> void:
+	if is_level_zoomed or current_tab != "niveles" or (deployed_modal and deployed_modal.visible):
+		return
+	if event is InputEventMouseButton:
+		if event.button_index in [MOUSE_BUTTON_LEFT, MOUSE_BUTTON_RIGHT, MOUSE_BUTTON_MIDDLE]:
+			if event.pressed:
+				is_panning_map = true
+				pan_start_mouse = get_viewport().get_mouse_position()
+				pan_start_area_pos = constellation_area.position if constellation_area else Vector2.ZERO
+				accept_event()
+			else:
+				is_panning_map = false
+				accept_event()
+
 func _input(event: InputEvent) -> void:
 	if is_exiting_scene or is_launching_level:
 		get_viewport().set_input_as_handled()
@@ -2834,6 +3119,10 @@ func _input(event: InputEvent) -> void:
 
 	if dev_console_overlay and dev_console_overlay.visible:
 		if event.is_action_pressed("ui_cancel") or (event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE):
+			if terminal_pacman_instance and terminal_pacman_instance.visible:
+				get_viewport().set_input_as_handled()
+				terminal_pacman_instance.exit_to_terminal()
+				return
 			get_viewport().set_input_as_handled()
 			dev_console_overlay.visible = false
 			return
@@ -2879,23 +3168,36 @@ func _input(event: InputEvent) -> void:
 				_adjust_map_zoom(-0.08)
 				return
 
-	# 2. Arrastre de mapa libre (Pan) con botón derecho o central del ratón
+	# Atajos de teclado para Zoom: Ctrl + '-' (alejar) y Ctrl + '+' (acercar)
+	if not is_level_zoomed and current_tab == "niveles" and not (deployed_modal and deployed_modal.visible):
+		if event is InputEventKey and event.pressed and not event.echo and event.ctrl_pressed:
+			if event.keycode in [KEY_MINUS, KEY_KP_SUBTRACT] or event.physical_keycode in [KEY_MINUS, KEY_KP_SUBTRACT]:
+				get_viewport().set_input_as_handled()
+				_adjust_map_zoom(-0.08)
+				return
+			elif event.keycode in [KEY_PLUS, KEY_EQUAL, KEY_KP_ADD] or event.physical_keycode in [KEY_PLUS, KEY_EQUAL, KEY_KP_ADD]:
+				get_viewport().set_input_as_handled()
+				_adjust_map_zoom(0.08)
+				return
+
+	# 2. Arrastre de mapa libre (Pan) con clic izquierdo (en zona vacía), derecho o central del ratón
 	if not is_level_zoomed and current_tab == "niveles" and not (deployed_modal and deployed_modal.visible):
 		if event is InputEventMouseButton:
-			if event.button_index == MOUSE_BUTTON_RIGHT or event.button_index == MOUSE_BUTTON_MIDDLE or (event.button_index == MOUSE_BUTTON_LEFT and event.shift_pressed):
-				if event.pressed:
-					is_panning_map = true
-					pan_start_mouse = event.position
-					pan_start_area_pos = constellation_area.position if constellation_area else Vector2.ZERO
-					get_viewport().set_input_as_handled()
-					return
-				else:
+			if not event.pressed and (event.button_index in [MOUSE_BUTTON_LEFT, MOUSE_BUTTON_RIGHT, MOUSE_BUTTON_MIDDLE]):
+				if is_panning_map:
 					is_panning_map = false
 					get_viewport().set_input_as_handled()
 					return
+			elif event.pressed and (event.button_index == MOUSE_BUTTON_RIGHT or event.button_index == MOUSE_BUTTON_MIDDLE):
+				is_panning_map = true
+				pan_start_mouse = get_viewport().get_mouse_position()
+				pan_start_area_pos = constellation_area.position if constellation_area else Vector2.ZERO
+				get_viewport().set_input_as_handled()
+				return
 		elif event is InputEventMouseMotion and is_panning_map:
 			if constellation_area:
-				constellation_area.position = pan_start_area_pos + (event.position - pan_start_mouse)
+				var cur_m = get_viewport().get_mouse_position()
+				constellation_area.position = pan_start_area_pos + (cur_m - pan_start_mouse)
 				_update_node_hitboxes_positions()
 				get_viewport().set_input_as_handled()
 				return
@@ -2924,7 +3226,7 @@ func _sync_progression_from_save() -> void:
 	for i in range(list.size()):
 		var is_unl = false
 		if i == 0:
-			is_unl = true # Nivel de introducción (reparación, sistemas y servidor) siempre desbloqueado
+			is_unl = true # Nivel de inducción siempre desbloqueado
 		elif sm and sm.has_method("is_node_unlocked"):
 			is_unl = sm.is_node_unlocked(current_mode, i)
 		else:
@@ -2939,8 +3241,8 @@ func _check_and_play_pending_unlock() -> void:
 	var sm = get_node_or_null("/root/SaveManager")
 	var just_unl = -1
 	if sm and "just_unlocked_node" in sm:
-		just_unl = SaveManager.just_unlocked_node
-		SaveManager.just_unlocked_node = -1
+		just_unl = sm.just_unlocked_node
+		sm.just_unlocked_node = -1
 		
 	if just_unl != -1:
 		var list = LEVELS_DATA.get(current_mode, [])
@@ -2962,6 +3264,145 @@ func _check_and_play_pending_unlock() -> void:
 					_show_toast("⚡ ¡TUTORIAL DE INDUCCIÓN SUPERADO! RETO DE PRÁCTICA DESBLOQUEADO")
 			else:
 				_show_toast("⚡ ¡NUEVO RETO DESBLOQUEADO EN EL MAPA!")
+
+func get_player_points() -> int:
+	var gm = get_node_or_null("/root/GameManager")
+	if gm and "score" in gm:
+		return int(gm.score)
+	var sm = get_node_or_null("/root/SaveManager")
+	if sm and sm.has_method("get_slot"):
+		var slot_data = sm.get_slot(sm.current_slot)
+		return int(slot_data.get("score", 0))
+	return 0
+
+func get_node_required_points(mode: String, node_idx: int) -> int:
+	if node_idx <= 0:
+		return 0
+	var list = LEVELS_DATA.get(mode, [])
+	if node_idx >= list.size():
+		return 100 * node_idx
+	var data = list[node_idx]
+	if data.get("is_tutorial", false):
+		var num = data.get("number", node_idx)
+		return 50 * max(1, num)
+	elif data.get("is_practice", false):
+		var num = data.get("number", node_idx)
+		return 200 + max(0, (num - 19)) * 50
+	elif data.get("is_inspection", false):
+		return 100
+	else:
+		var lvl = data.get("level_number", data.get("number", 1))
+		return 100 * max(1, lvl)
+
+func get_previous_node_index(mode: String, node_idx: int) -> int:
+	if node_idx <= 0:
+		return -1
+	var sm = get_node_or_null("/root/SaveManager")
+	if mode == "servidor":
+		if node_idx == 1:
+			return 0
+		return node_idx - 1
+	# Modo reparacion y sistema:
+	if node_idx in [26, 27]:
+		return 7 # Depende del Nivel 1 de campaña
+	elif node_idx == 28:
+		return 10 # Depende del Nivel 4 de campaña
+	elif node_idx == 29:
+		return 13 # Depende del Nivel 7 de campaña
+	elif node_idx in [30, 31]:
+		return 12 # Depende del Nivel 6 de campaña
+	elif node_idx == 7: # Nivel 1 de campaña
+		if sm and sm.is_node_completed(mode, 6):
+			return 6
+		return 0
+	elif node_idx == 19: # Práctica 1
+		if sm and sm.is_node_completed(mode, 25):
+			return 25
+		elif sm and sm.is_node_completed(mode, 1):
+			return 1
+		return 0
+	elif node_idx == 25: # Práctica Intro
+		return 0
+	else:
+		return node_idx - 1
+
+func is_previous_level_completed(mode: String, node_idx: int) -> bool:
+	if node_idx <= 0:
+		return true
+	var sm = get_node_or_null("/root/SaveManager")
+	if not sm or not sm.has_method("is_node_completed"):
+		return true
+	if mode == "servidor":
+		if node_idx == 1:
+			return sm.is_node_completed(mode, 0)
+		return sm.is_node_completed(mode, node_idx - 1)
+	if node_idx in [26, 27]:
+		return sm.is_node_completed(mode, 7) # Nivel 1 completado
+	elif node_idx == 28:
+		return sm.is_node_completed(mode, 10) # Nivel 4 completado
+	elif node_idx == 29:
+		return sm.is_node_completed(mode, 13) # Nivel 7 completado
+	elif node_idx in [30, 31]:
+		return sm.is_node_completed(mode, 12) # Nivel 6 completado
+	elif node_idx == 7:
+		return sm.is_node_completed(mode, 0) or sm.is_node_completed(mode, 6)
+	elif node_idx == 19:
+		return sm.is_node_completed(mode, 25) or sm.is_node_completed(mode, 1) or sm.is_node_completed(mode, 0)
+	elif node_idx == 25:
+		return sm.is_node_completed(mode, 0)
+	else:
+		return sm.is_node_completed(mode, node_idx - 1)
+
+func _on_level_unlock_requested(node_data: Dictionary) -> void:
+	var node_idx = node_data.get("node_index", active_zoomed_index)
+	if node_idx < 0:
+		return
+	
+	if not is_previous_level_completed(current_mode, node_idx):
+		_show_toast("🔒 Debes completar el nivel anterior para desbloquear.")
+		var gm = get_node_or_null("/root/GameManager")
+		if gm and gm.has_method("play_sfx"):
+			gm.play_sfx("error")
+		return
+		
+	var req_points = get_node_required_points(current_mode, node_idx)
+	var player_points = get_player_points()
+	if player_points < req_points:
+		_show_toast("⚠️ Puntos insuficientes (%d / %d)." % [player_points, req_points])
+		var gm = get_node_or_null("/root/GameManager")
+		if gm and gm.has_method("play_sfx"):
+			gm.play_sfx("error")
+		return
+		
+	# REQUISITO CLAVE: Los puntos NO se gastan pero el nivel sí se desbloquea
+	var sm = get_node_or_null("/root/SaveManager")
+	if sm and sm.has_method("unlock_node"):
+		sm.unlock_node(current_mode, node_idx)
+		
+	var list = LEVELS_DATA.get(current_mode, [])
+	if node_idx < list.size():
+		list[node_idx]["can_play"] = true
+		node_data["can_play"] = true
+		
+	if graph_lines and graph_lines.has_method("play_unlock_animation"):
+		graph_lines.play_unlock_animation(node_idx)
+		
+	var gm = get_node_or_null("/root/GameManager")
+	if gm and gm.has_method("play_sfx"):
+		gm.play_sfx("success")
+		
+	_show_toast("🔓 ¡Nivel desbloqueado con éxito! Tus puntos se conservan intactos.")
+	
+	# Refrescar el panel abierto de inmediato para pasar al botón de iniciar nivel
+	if node_data.get("is_tutorial", false):
+		if tutorial_info_panel:
+			tutorial_info_panel.open_for_tutorial_node(node_data, req_points, player_points, true)
+	elif node_data.get("is_practice", false):
+		if tutorial_info_panel:
+			tutorial_info_panel.open_for_practice(node_data, req_points, player_points, true)
+	else:
+		if difficulty_selector:
+			difficulty_selector.open_for_level(node_data, req_points, player_points, true)
 
 # =============================================================================
 # CONSOLA DE DESARROLLADOR // ANDROMEDA OS TERMINAL (CTRL + SHIFT + R & /levels)
@@ -2985,6 +3426,11 @@ const ANDROMEDA_BANNER_TEXT: String = """[color=#00e5ff]       /\\         [/col
    Active: [color=#50fa7b]active (running)[/color] since Mon 2026-11-17 02:30:00 UTC
 
 [color=#f1fa8c]💡 Comandos disponibles en Andromeda OS:[/color]
+  [color=#bd93f9]magnifying glass- skip[/color]               : Desbloquea todos los niveles morados de micro-taller y lupa
+  [color=#f1fa8c]andro install pacman[/color]                 : Instala y ejecuta el clásico arcade retro Pac-Man en la terminal
+  [color=#00e5ff]/tutorials-skip[/color]                      : Completa y desbloquea todos los tutoriales en los 3 modos
+  [color=#00e5ff]/practice-skip[/color]                       : Completa y desbloquea todas las prácticas en los 3 modos
+  [color=#00e5ff]/actuallylevelskip-nextlevelunlocked[/color] : Desbloquea el siguiente nivel con animación en los 3 modos
   [color=#00e5ff]/levels[/color]   (o [color=#50fa7b]andromeda unlock[/color] / [color=#50fa7b]pacman -S levels[/color]) : Desbloquea todos los niveles y modos
   [color=#00e5ff]/reset[/color]    (o [color=#ff5555]andromeda reset[/color] / [color=#ff5555]pacman -R all[/color])     : Restablece progreso al estado inicial
   [color=#00e5ff]/neofetch[/color] (o [color=#50fa7b]fastfetch[/color])                                : Muestra el logo y specs de Andromeda OS
@@ -2998,6 +3444,9 @@ func _toggle_dev_console() -> void:
 		_build_dev_console()
 	dev_console_overlay.visible = not dev_console_overlay.visible
 	if dev_console_overlay.visible:
+		var sm = get_node_or_null("/root/SaveManager")
+		if sm:
+			sm.unlock_achievement("terminal")
 		if dev_console_input:
 			dev_console_input.text = ""
 			dev_console_input.grab_focus()
@@ -3106,10 +3555,12 @@ func _build_dev_console() -> void:
 	margin_body.add_theme_constant_override("margin_right", 14)
 	margin_body.add_theme_constant_override("margin_bottom", 12)
 	vbox.add_child(margin_body)
+	dev_console_margin_body = margin_body
 	
 	var body_vbox = VBoxContainer.new()
 	body_vbox.add_theme_constant_override("separation", 8)
 	margin_body.add_child(body_vbox)
+	dev_console_body_vbox = body_vbox
 	
 	dev_console_output = RichTextLabel.new()
 	dev_console_output.bbcode_enabled = true
@@ -3172,17 +3623,28 @@ func _build_dev_console() -> void:
 	add_child(dev_console_overlay)
 
 func _on_dev_command_submitted(cmd: String) -> void:
-	if not dev_console_input:
-		return
+	if not dev_console_overlay:
+		_build_dev_console()
 	var text_in = cmd.strip_edges()
-	dev_console_input.text = ""
+	if dev_console_input:
+		dev_console_input.text = ""
 	if text_in == "":
 		return
 	
 	_print_dev_console("\n[color=#50fa7b]user@andromeda[/color]:[color=#00e5ff]~[/color]$ [color=#f8f8f2]" + text_in + "[/color]")
 	var lower = text_in.to_lower()
 	
-	if lower in ["/levels", "/desbloquear", "levels", "andromeda unlock", "pacman -s levels", "pacman -s all-levels", "pacman -syu"]:
+	if lower in ["magnifying glass- skip", "magnifying glass - skip", "magnifying-glass-skip", "magnifying glass skip", "/magnifying-glass-skip", "/magnifying glass- skip", "/magnifying-glass", "magnifying-glass", "magnifying glass"]:
+		_cmd_magnifying_glass_skip()
+	elif lower in ["andro install pacman", "andromeda install pacman", "pacman -s pacman", "sudo pacman -s pacman", "pacman", "./pacman"]:
+		_cmd_andro_install_pacman()
+	elif lower in ["/tutorials-skip", "tutorials-skip", "/tutorial-skip", "tutorial-skip"]:
+		_cmd_tutorials_skip()
+	elif lower in ["/practice-skip", "practice-skip", "/practices-skip", "practices-skip"]:
+		_cmd_practice_skip()
+	elif lower in ["/actuallylevelskip-nextlevelunlocked", "actuallylevelskip-nextlevelunlocked", "/level-skip", "/levelskip"]:
+		_cmd_actually_level_skip()
+	elif lower in ["/levels", "/desbloquear", "levels", "andromeda unlock", "pacman -s levels", "pacman -s all-levels", "pacman -syu"]:
 		_cmd_unlock_all_levels()
 	elif lower in ["/reset", "reset", "andromeda reset", "pacman -r progression", "pacman -r all"]:
 		_cmd_reset_locks()
@@ -3192,19 +3654,25 @@ func _on_dev_command_submitted(cmd: String) -> void:
 		_print_dev_console("""[color=#00e5ff]ANDROMEDA OS UTILITY MANUAL (8)[/color]
 [color=#6272a4]==============================[/color]
 [b]NOMBRE[/b]
-  levels - Desbloqueador de progresión de Computer Technician 3D
+  levels - Desbloqueador de progresión y utilidades de Computer Technician 3D
 
 [b]SINOPSIS[/b]
-  [color=#00e5ff]/levels[/color]                Desbloquea instantáneamente los 26 niveles de Reparación,
-                         26 de Sistemas y 14 de Servidor.
-  [color=#00e5ff]/reset[/color]                 Restaura la progresión al estado inicial (tutoriales de introducción desbloqueados).
-  [color=#00e5ff]/neofetch[/color]              Muestra información del sistema Andromeda OS.
-  [color=#00e5ff]/clear[/color]                 Limpia el búfer de la terminal.
-  [color=#00e5ff]/exit[/color]                  Cierra la ventana de la terminal.
+  [color=#bd93f9]magnifying glass- skip[/color]               Desbloquea todos los niveles morados de inspección y micro-taller (26 al 31).
+  [color=#f1fa8c]andro install pacman[/color]                 Instala y ejecuta el clásico arcade Pac-Man (1980) en la terminal.
+  [color=#00e5ff]/tutorials-skip[/color]                      Completa y desbloquea todos los tutoriales en los 3 modos.
+  [color=#00e5ff]/practice-skip[/color]                       Completa y desbloquea todas las prácticas en los 3 modos.
+  [color=#00e5ff]/actuallylevelskip-nextlevelunlocked[/color]  Desbloquea el siguiente nivel de campaña con animación
+                                         en los 3 modos (Reparación, Sistemas y Servidor).
+  [color=#00e5ff]/levels[/color]                               Desbloquea instantáneamente todos los niveles.
+  [color=#00e5ff]/reset[/color]                                Restaura la progresión al estado inicial.
+  [color=#00e5ff]/neofetch[/color]                             Muestra información del sistema Andromeda OS.
+  [color=#00e5ff]/clear[/color]                                Limpia el búfer de la terminal.
+  [color=#00e5ff]/exit[/color]                                 Cierra la ventana de la terminal.
 
 [b]COMANDOS ALTERNATIVOS[/b]
   [color=#50fa7b]andromeda unlock[/color]   (o pacman -S levels)
-  [color=#ff5555]andromeda reset[/color]    (o pacman -R all)""")
+  [color=#ff5555]andromeda reset[/color]    (o pacman -R all)
+  [color=#f1fa8c]pacman[/color]             (ejecuta directamente el minijuego instalado)""")
 	elif lower in ["/clear", "clear"]:
 		if dev_console_output:
 			dev_console_output.text = ""
@@ -3217,6 +3685,316 @@ func _on_dev_command_submitted(cmd: String) -> void:
 func _print_dev_console(msg: String) -> void:
 	if dev_console_output:
 		dev_console_output.append_text(msg + "\n")
+
+func _cmd_magnifying_glass_skip() -> void:
+	var sm = get_node_or_null("/root/SaveManager")
+	var purple_nodes = [26, 27, 28, 29, 30, 31]
+	for idx in purple_nodes:
+		if sm and sm.has_method("unlock_node"):
+			sm.unlock_node("reparacion", idx)
+		if idx < LEVELS_DATA["reparacion"].size():
+			LEVELS_DATA["reparacion"][idx]["can_play"] = true
+			
+	if sm:
+		sm.just_unlocked_node = 26
+	_sync_progression_from_save()
+	
+	# Cambiar a modo reparación si estábamos en otro para mostrar los satélites morados
+	if current_mode != "reparacion":
+		_switch_mode("reparacion", 0)
+	
+	# Cerrar terminal para mostrar animación en la constelación
+	if dev_console_overlay:
+		dev_console_overlay.visible = false
+	if not is_level_zoomed:
+		_fade_menu_chrome(true)
+		
+	if graph_lines and graph_lines.has_method("play_unlock_animation"):
+		graph_lines.play_unlock_animation(26)
+		
+	var gm = get_node_or_null("/root/GameManager")
+	if gm and gm.has_method("play_sfx"):
+		gm.play_sfx("success")
+		
+	_show_toast("🔍 [MAGNIFYING GLASS] ¡Niveles morados de inspección y micro-taller desbloqueados!")
+	_print_dev_console("""[color=#bd93f9]:: MÓDULO MICRO-INSPECCIÓN TÉCNICA ACTIVADO[/color]
+[color=#bd93f9]✓ [MAGNIFYING GLASS] Niveles morados (26 al 31: Lupa y Micro-Taller) desbloqueados exitosamente.[/color]
+  [26] Limpieza de Polvo en RAM
+  [27] Descarga de Estática en RAM
+  [28] Renovación Pasta Térmica CPU
+  [29] Alineación de Pines CPU
+  [30] Medición de Voltaje y Multímetro
+  [31] Limpieza Profunda Fuente de Poder PSU""")
+
+func _cmd_andro_install_pacman() -> void:
+	_print_dev_console("""[color=#00e5ff]:: Sincronizando repositorios de Andromeda OS...[/color]
+[color=#50fa7b]andromeda-core[/color]        [####################################] 100% (14.2 MiB/s)
+[color=#50fa7b]andromeda-extra[/color]       [####################################] 100% ( 9.8 MiB/s)
+[color=#50fa7b]andromeda-arcade[/color]      [####################################] 100% ( 6.4 MiB/s)
+[color=#00e5ff]:: Resolviendo dependencias para 'pacman-arcade-1980'...[/color]
+   Dependencias: libncurses-dev, retro-crt-vga, chiptune-synth
+[color=#00e5ff]:: Procediendo con la instalación de paquetes (1):[/color]
+   pacman-arcade-1980-1.0.4-1-x86_64  [color=#50fa7b]512.4 KiB[/color]
+(1/1) Verificando integridad de paquetes     [####################] 100%
+(1/1) Desempaquetando archivos en /usr/bin/pacman [################] 100%
+(1/1) Configurando emulador VT100 / ANSI Arcade   [################] 100%
+[color=#50fa7b]✓ ¡PAC-MAN (Namco 1980 Arcade Terminal Edition) instalado y listo![/color]
+[color=#f1fa8c]:: Iniciando emulador arcade en el búfer de la terminal...[/color]""")
+
+	var gm = get_node_or_null("/root/GameManager")
+	if gm and gm.has_method("play_sfx"):
+		gm.play_sfx("success")
+		
+	get_tree().create_timer(0.8).timeout.connect(func():
+		_launch_terminal_pacman()
+	)
+
+func _launch_terminal_pacman() -> void:
+	if not dev_console_margin_body:
+		return
+	if not terminal_pacman_instance:
+		var PacmanScript = load("res://scripts/minigames/TerminalPacman.gd")
+		if PacmanScript:
+			terminal_pacman_instance = PacmanScript.new()
+			terminal_pacman_instance.name = "TerminalPacmanGame"
+			terminal_pacman_instance.closed.connect(_on_terminal_pacman_closed)
+			dev_console_margin_body.add_child(terminal_pacman_instance)
+	
+	if dev_console_body_vbox:
+		dev_console_body_vbox.visible = false
+	if terminal_pacman_instance:
+		terminal_pacman_instance.visible = true
+		terminal_pacman_instance._reset_game_full()
+
+func _on_terminal_pacman_closed(final_score: int) -> void:
+	if terminal_pacman_instance:
+		terminal_pacman_instance.visible = false
+	if dev_console_body_vbox:
+		dev_console_body_vbox.visible = true
+	_print_dev_console("[color=#50fa7b]user@andromeda[/color]:[color=#00e5ff]~[/color]$ [color=#aaaaaa]# Sesión arcade de Pacman finalizada.[/color]")
+	_print_dev_console("[color=#f1fa8c]🕹️ Puntuación obtenida: [b]%d[/b] puntos. Escribe [b]pacman[/b] o [b]andro install pacman[/b] para jugar de nuevo.[/color]" % final_score)
+	if dev_console_input:
+		dev_console_input.grab_focus()
+
+func _cmd_tutorials_skip() -> void:
+	var sm = get_node_or_null("/root/SaveManager")
+	if not sm:
+		return
+	
+	# 1. Modo Reparación: Nodos 0 a 6 (Tutoriales)
+	for i in range(7):
+		sm.mark_node_completed("reparacion", i)
+		sm.unlock_node("reparacion", i)
+		if i < LEVELS_DATA["reparacion"].size():
+			LEVELS_DATA["reparacion"][i]["can_play"] = true
+			
+	# Desbloquear automáticamente el primer nivel de práctica (Nodo 25 y 19)
+	sm.unlock_node("reparacion", 25)
+	if 25 < LEVELS_DATA["reparacion"].size():
+		LEVELS_DATA["reparacion"][25]["can_play"] = true
+	sm.unlock_node("reparacion", 19)
+	if 19 < LEVELS_DATA["reparacion"].size():
+		LEVELS_DATA["reparacion"][19]["can_play"] = true
+			
+	# 2. Modo Sistema: Nodos 0 a 6 (Tutoriales)
+	for i in range(7):
+		sm.mark_node_completed("sistema", i)
+		sm.unlock_node("sistema", i)
+		if i < LEVELS_DATA["sistema"].size():
+			LEVELS_DATA["sistema"][i]["can_play"] = true
+			
+	# Desbloquear automáticamente el primer nivel de práctica en Sistemas
+	sm.unlock_node("sistema", 25)
+	if 25 < LEVELS_DATA["sistema"].size():
+		LEVELS_DATA["sistema"][25]["can_play"] = true
+	sm.unlock_node("sistema", 19)
+	if 19 < LEVELS_DATA["sistema"].size():
+		LEVELS_DATA["sistema"][19]["can_play"] = true
+			
+	# 3. Modo Servidor: Nodo 0 (Tutorial)
+	sm.mark_node_completed("servidor", 0)
+	sm.unlock_node("servidor", 0)
+	if 0 < LEVELS_DATA["servidor"].size():
+		LEVELS_DATA["servidor"][0]["can_play"] = true
+		
+	# Desbloquear automáticamente el primer nivel de práctica en Servidor (Nodo 13)
+	sm.unlock_node("servidor", 13)
+	if 13 < LEVELS_DATA["servidor"].size():
+		LEVELS_DATA["servidor"][13]["can_play"] = true
+		
+	if sm:
+		sm.just_unlocked_node = 25
+	_sync_progression_from_save()
+	
+	# Cerrar terminal para mostrar animación en la constelación
+	if dev_console_overlay:
+		dev_console_overlay.visible = false
+	if not is_level_zoomed:
+		_fade_menu_chrome(true)
+		
+	var anim_node = 25 if current_mode != "servidor" else 13
+	if graph_lines and graph_lines.has_method("play_unlock_animation"):
+		graph_lines.play_unlock_animation(anim_node)
+		
+	var gm = get_node_or_null("/root/GameManager")
+	if gm and gm.has_method("play_sfx"):
+		gm.play_sfx("success")
+		
+	_show_toast("🎓 [TUTORIALS SKIP] ¡Tutoriales completados! Primer nivel de práctica desbloqueado automáticamente.")
+	_print_dev_console("[color=#50fa7b]✓ [TUTORIALS SKIP] Todos los tutoriales completados y primer nivel de práctica desbloqueado con animación en los 3 modos.[/color]")
+
+func _cmd_practice_skip() -> void:
+	var sm = get_node_or_null("/root/SaveManager")
+	if not sm:
+		return
+		
+	# CONDICIÓN 1: Todos los tutoriales deben de haberse terminado primero
+	var tuts_ok = true
+	for i in range(7):
+		if not sm.is_node_completed("reparacion", i) or not sm.is_node_completed("sistema", i):
+			tuts_ok = false
+			break
+	if not sm.is_node_completed("servidor", 0):
+		tuts_ok = false
+		
+	if not tuts_ok:
+		_show_toast("⚠️ Debes completar todos los tutoriales antes de usar /practice-skip.")
+		_print_dev_console("[color=#ff5555]Error: No se puede ejecutar /practice-skip. Todos los tutoriales deben haberse completado primero (usa /tutorials-skip o juégalos primero).[/color]")
+		var gm_err = get_node_or_null("/root/GameManager")
+		if gm_err and gm_err.has_method("play_sfx"):
+			gm_err.play_sfx("error")
+		return
+		
+	# Completar y desbloquear todas las prácticas en los 3 modos
+	var practice_rep_sis = [25, 19, 20, 21, 22, 23, 24]
+	for idx in practice_rep_sis:
+		# Reparación
+		sm.mark_node_completed("reparacion", idx)
+		sm.unlock_node("reparacion", idx)
+		if idx < LEVELS_DATA["reparacion"].size():
+			LEVELS_DATA["reparacion"][idx]["can_play"] = true
+		# Sistema
+		sm.mark_node_completed("sistema", idx)
+		sm.unlock_node("sistema", idx)
+		if idx < LEVELS_DATA["sistema"].size():
+			LEVELS_DATA["sistema"][idx]["can_play"] = true
+			
+	# Servidor: Nodo 13
+	sm.mark_node_completed("servidor", 13)
+	sm.unlock_node("servidor", 13)
+	if 13 < LEVELS_DATA["servidor"].size():
+		LEVELS_DATA["servidor"][13]["can_play"] = true
+		
+	# CONDICIÓN 2: El primer nivel (Nivel 1) se desbloquea automáticamente en los 3 modos
+	sm.unlock_node("reparacion", 7)
+	if 7 < LEVELS_DATA["reparacion"].size():
+		LEVELS_DATA["reparacion"][7]["can_play"] = true
+		
+	sm.unlock_node("sistema", 7)
+	if 7 < LEVELS_DATA["sistema"].size():
+		LEVELS_DATA["sistema"][7]["can_play"] = true
+		
+	sm.unlock_node("servidor", 1)
+	if 1 < LEVELS_DATA["servidor"].size():
+		LEVELS_DATA["servidor"][1]["can_play"] = true
+		
+	_sync_progression_from_save()
+	
+	# Cerrar terminal para mostrar animación en la constelación
+	if dev_console_overlay:
+		dev_console_overlay.visible = false
+	if not is_level_zoomed:
+		_fade_menu_chrome(true)
+		
+	# Animación de desbloqueo en el Nivel 1 del modo actual
+	var anim_node = 1 if current_mode == "servidor" else 7
+	if graph_lines and graph_lines.has_method("play_unlock_animation"):
+		graph_lines.play_unlock_animation(anim_node)
+		
+	var gm = get_node_or_null("/root/GameManager")
+	if gm and gm.has_method("play_sfx"):
+		gm.play_sfx("success")
+		
+	_show_toast("⚡ [PRACTICE SKIP] ¡Prácticas completadas y Nivel 1 desbloqueado automáticamente en los 3 modos!")
+	_print_dev_console("[color=#50fa7b]✓ [PRACTICE SKIP] Prácticas completadas y Nivel 1 desbloqueado automáticamente con animación en Reparación, Sistemas y Servidor.[/color]")
+
+func _cmd_actually_level_skip() -> void:
+	var sm = get_node_or_null("/root/SaveManager")
+	if not sm:
+		return
+		
+	var campaign_rep_sis = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
+	var campaign_srv = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+	
+	var unlocked_in_current: int = -1
+	var current_lvl_number: int = 1
+	
+	for mode_key in ["reparacion", "sistema", "servidor"]:
+		var camp_list = campaign_srv if mode_key == "servidor" else campaign_rep_sis
+		var next_locked_node: int = -1
+		var prev_node: int = -1
+		
+		for idx in range(camp_list.size()):
+			var node_idx = camp_list[idx]
+			if not sm.is_node_unlocked(mode_key, node_idx):
+				next_locked_node = node_idx
+				if idx == 0:
+					prev_node = 0
+				else:
+					prev_node = camp_list[idx - 1]
+				break
+				
+		if next_locked_node != -1:
+			# Marcar anterior como completado
+			if prev_node >= 0:
+				sm.mark_node_completed(mode_key, prev_node)
+				if mode_key in ["reparacion", "sistema"] and prev_node == 0:
+					sm.mark_node_completed(mode_key, 6)
+			
+			# Desbloquear directamente el siguiente nivel
+			sm.unlock_node(mode_key, next_locked_node)
+			if next_locked_node < LEVELS_DATA[mode_key].size():
+				LEVELS_DATA[mode_key][next_locked_node]["can_play"] = true
+				
+			if mode_key == current_mode:
+				unlocked_in_current = next_locked_node
+				current_lvl_number = next_locked_node if mode_key == "servidor" else (next_locked_node - 6)
+				
+	# Asegurar puntos
+	var gm = get_node_or_null("/root/GameManager")
+	if gm and "score" in gm:
+		var req_p = 100 * max(1, current_lvl_number)
+		if gm.score < req_p:
+			gm.score = req_p + 300
+			if sm and sm.has_method("get_slot"):
+				var sdata = sm.get_slot(sm.current_slot)
+				sdata["score"] = gm.score
+				sm.save_slot(sm.current_slot, sdata)
+				
+	_sync_progression_from_save()
+	
+	# Cerrar terminal para que el jugador vea la animación en la constelación
+	if dev_console_overlay:
+		dev_console_overlay.visible = false
+	if not is_level_zoomed:
+		_fade_menu_chrome(true)
+		
+	if unlocked_in_current != -1:
+		if graph_lines and graph_lines.has_method("play_unlock_animation"):
+			graph_lines.play_unlock_animation(unlocked_in_current)
+			
+		# Si estaba abierta una tarjeta, refrescarla de inmediato
+		if is_level_zoomed and active_zoomed_index >= 0:
+			_on_node_clicked(unlocked_in_current)
+			
+		if gm and gm.has_method("play_sfx"):
+			gm.play_sfx("success")
+			
+		_show_toast("🔓 ¡Nivel %d desbloqueado en los 3 modos!" % current_lvl_number)
+		_print_dev_console("""[color=#50fa7b]✓ [ACTUALLY LEVEL SKIP] Nivel %d desbloqueado con animación en los 3 modos.[/color]""" % current_lvl_number)
+	else:
+		_show_toast("✓ Todos los niveles de campaña ya están desbloqueados.")
+		_print_dev_console("[color=#f1fa8c]:: Todos los niveles de campaña ya están desbloqueados en los 3 modos.[/color]")
 
 func _cmd_unlock_all_levels() -> void:
 	for m in LEVELS_DATA.keys():

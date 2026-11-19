@@ -1650,6 +1650,7 @@ func _show_tutorial_victory() -> void:
 			var prac_node = tut_to_practice[current_node_idx]
 			sm.unlock_node(effective_mode, prac_node)
 			SaveManager.just_unlocked_node = prac_node
+		sm.pending_glossary_toast_topic = target_component
 
 	if is_instance_valid(victory_modal):
 		if victory_modal.has_method("setup_mode"):
@@ -1671,6 +1672,9 @@ func _on_reintentar() -> void:
 
 func _on_siguiente() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	var sm = get_node_or_null("/root/SaveManager")
+	if sm:
+		sm.pending_glossary_toast_topic = target_component
 	LevelSelect.initial_tab = "niveles"
 	LevelSelect.initial_mode = current_mode
 	var gm = get_node_or_null("/root/GameManager")

@@ -139,6 +139,9 @@ var active_tp_index: int = -1
 var current_mode: String = "DC" # DC, AC, OHM
 var is_short_repaired: bool = false
 var is_completed: bool = false
+var is_intro_active: bool = false
+var countdown_overlay: CanvasLayer = null
+var dialog_box_inst: Control = null
 var tp_button_nodes: Array[Button] = []
 
 func setup_component(comp_name: String) -> void:
@@ -328,7 +331,13 @@ func _ready() -> void:
 	victory_banner.visible = false
 	repair_box.visible = false
 	
-	btn_cancel.pressed.connect(func(): minigame_finished.emit(false))
+	btn_cancel.pressed.connect(func():
+		minigame_finished.emit(false)
+		if get_tree().current_scene == self:
+			get_tree().change_scene_to_file("res://scenes/menus/LevelSelect.tscn")
+		else:
+			queue_free()
+	)
 	btn_repair.pressed.connect(_on_repair_component_pressed)
 	btn_calibrate.pressed.connect(_attempt_calibration)
 	
@@ -346,6 +355,99 @@ func _ready() -> void:
 	
 	target_mark.visible = false
 	needle.visible = false
+	
+	if get_tree().current_scene == self:
+		_start_joa_intro()
+
+func _start_joa_intro() -> void:
+	is_intro_active = true
+	var dlg_scene = load("res://scenes/ui/DialogBox.tscn")
+	if dlg_scene:
+		dialog_box_inst = dlg_scene.instantiate()
+		add_child(dialog_box_inst)
+		if dialog_box_inst.has_method("show_message"):
+			dialog_box_inst.show_message(
+				"JOA",
+				"¡Bienvenido al laboratorio de medición eléctrica! Los rieles de voltaje inestables o cortocircuitos impiden que la máquina arranque.\n\nSelecciona cada punto de prueba (TP), ajusta el dial en DC, AC u Ohmios según corresponda y pulsa [ESPACIO] o CALIBRAR cuando la aguja coincida con la marca para calibrar el riel.",
+				func():
+					_start_countdown()
+			)
+		else:
+			_start_countdown()
+	else:
+		_start_countdown()
+
+func _start_countdown() -> void:
+	if countdown_overlay:
+		countdown_overlay.queue_free()
+
+	countdown_overlay = CanvasLayer.new()
+	countdown_overlay.layer = 110
+	add_child(countdown_overlay)
+
+	var root_ctrl = Control.new()
+	root_ctrl.set_anchors_preset(Control.PRESET_FULL_RECT)
+	root_ctrl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	countdown_overlay.add_child(root_ctrl)
+
+	var dim_rect = ColorRect.new()
+	dim_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+	dim_rect.color = Color(0.01, 0.03, 0.08, 0.55)
+	dim_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root_ctrl.add_child(dim_rect)
+
+	var center = CenterContainer.new()
+	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root_ctrl.add_child(center)
+
+	var label = Label.new()
+	label.text = ""
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.add_theme_font_size_override("font_size", 120)
+	label.pivot_offset = Vector2(160, 80)
+	center.add_child(label)
+
+	var steps: Array[Dictionary] = [
+		{"text": "3", "color": Color(0.85, 0.25, 1.0), "size": 130},
+		{"text": "2", "color": Color(1.0, 0.9, 0.2),  "size": 130},
+		{"text": "1", "color": Color(1.0, 0.55, 0.1), "size": 130},
+		{"text": "¡A MEDIR!", "color": Color(0.2, 1.0, 0.5), "size": 95}
+	]
+
+	_run_countdown_step(0, steps, label, root_ctrl)
+
+func _run_countdown_step(index: int, steps: Array[Dictionary], label: Label, root_ctrl: Control) -> void:
+	if index >= steps.size():
+		var fade_tw = create_tween()
+		fade_tw.tween_property(root_ctrl, "modulate:a", 0.0, 0.3)
+		fade_tw.chain().tween_callback(func():
+			if countdown_overlay:
+				countdown_overlay.queue_free()
+				countdown_overlay = null
+			is_intro_active = false
+		)
+		return
+
+	var st = steps[index]
+	label.text = st["text"]
+	label.modulate = st["color"]
+	label.add_theme_font_size_override("font_size", st["size"])
+	label.scale = Vector2(0.4, 0.4)
+	label.modulate.a = 0.0
+
+	var gm = get_node_or_null("/root/GameManager")
+	if gm and gm.has_method("play_sfx"):
+		gm.play_sfx("click")
+
+	var tw = create_tween().set_parallel(true)
+	tw.tween_property(label, "scale", Vector2.ONE, 0.2).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tw.tween_property(label, "modulate:a", 1.0, 0.15)
+	tw.chain().tween_interval(0.4)
+	tw.chain().tween_callback(func():
+		_run_countdown_step(index + 1, steps, label, root_ctrl)
+	)
 
 func _process(delta: float) -> void:
 	if not is_needle_spinning or not visible:
@@ -576,7 +678,7 @@ func _position_target_mark(angle: float) -> void:
 	target_mark.rotation = angle # Gira el sprite para concordar radialmente con la curva del círculo
 
 func _attempt_calibration() -> void:
-	if is_completed or active_tp_index < 0:
+	if is_completed or is_intro_active or active_tp_index < 0:
 		return
 		
 	var tp = test_points_data[active_tp_index]
@@ -801,5 +903,21 @@ func _check_victory() -> void:
 	status_label.text = "★ ¡TODOS LOS RIELES MEDIDOS, CALIBRADOS Y REPARADOS! DIAGNÓSTICO EXITOSO (+200 PTS) ★"
 	status_label.modulate = Color(0.2, 1.0, 0.5)
 	
+	var sm = get_node_or_null("/root/SaveManager")
+	if sm:
+		sm.mark_node_completed("reparacion", 30)
+		sm.unlock_glossary("psu")
+		
 	await get_tree().create_timer(1.8).timeout
 	minigame_finished.emit(true)
+	
+	if get_tree().current_scene == self:
+		CyberPlayTransition.play_exit(
+			get_tree(),
+			"reparacion",
+			"res://scenes/menus/LevelSelect.tscn",
+			"DIAGNÓSTICO DE VOLTAJE COMPLETADO",
+			"// RIELES DC Y LÍNEAS DE POTENCIA CALIBRADOS //"
+		)
+	else:
+		queue_free()

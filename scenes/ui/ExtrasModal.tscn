@@ -1,0 +1,211 @@
+[gd_scene format=3 load_steps=6]
+
+[ext_resource type="Script" path="res://scripts/ui/ExtrasModal.gd" id="1_extra"]
+[ext_resource type="Script" path="res://scripts/ui/ExtrasAnimatedBackdrop.gd" id="2_anim_bg"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_modal_bg"]
+bg_color = Color(0.02, 0.04, 0.08, 0.96)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0, 0.85, 1, 0.85)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+content_margin_left = 18.0
+content_margin_top = 16.0
+content_margin_right = 18.0
+content_margin_bottom = 16.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_tab"]
+bg_color = Color(0.04, 0.08, 0.16, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0, 0.85, 1, 0.6)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+content_margin_left = 14.0
+content_margin_top = 6.0
+content_margin_right = 14.0
+content_margin_bottom = 6.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_guide_card"]
+bg_color = Color(0.03, 0.06, 0.12, 0.85)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.15, 0.45, 0.65, 0.5)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+content_margin_left = 14.0
+content_margin_top = 10.0
+content_margin_right = 14.0
+content_margin_bottom = 10.0
+
+[node name="ExtrasModal" type="Control"]
+process_mode = 3
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_extra")
+
+[node name="AnimatedBackdrop" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("2_anim_bg")
+
+[node name="DimBackdrop" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.01, 0.02, 0.05, 0.65)
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+clip_contents = true
+custom_minimum_size = Vector2(820, 560)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -410.0
+offset_top = -280.0
+offset_right = 410.0
+offset_bottom = 280.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_modal_bg")
+
+[node name="VBox" type="VBoxContainer" parent="PanelContainer"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="TabsHBox" type="HBoxContainer" parent="PanelContainer/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="TitleMain" type="Label" parent="PanelContainer/VBox/TabsHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 17
+text = "ANDROMEDA OS // EXTRAS"
+
+[node name="VSeparator" type="VSeparator" parent="PanelContainer/VBox/TabsHBox"]
+layout_mode = 2
+
+[node name="BtnLogros" type="Button" parent="PanelContainer/VBox/TabsHBox"]
+custom_minimum_size = Vector2(130, 36)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_tab")
+text = "🏆 LOGROS"
+
+[node name="BtnExplicaciones" type="Button" parent="PanelContainer/VBox/TabsHBox"]
+custom_minimum_size = Vector2(170, 36)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_tab")
+text = "📖 GUÍA TÉCNICA"
+
+[node name="Spacer" type="Control" parent="PanelContainer/VBox/TabsHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BtnCerrar" type="Button" parent="PanelContainer/VBox/TabsHBox"]
+custom_minimum_size = Vector2(100, 36)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.4, 0.4, 1)
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_tab")
+text = "✕ CERRAR"
+
+[node name="HSeparator" type="HSeparator" parent="PanelContainer/VBox"]
+layout_mode = 2
+
+[node name="Views" type="Control" parent="PanelContainer/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="LogrosView" type="VBoxContainer" parent="PanelContainer/VBox/Views"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 10
+
+[node name="CounterHeader" type="HBoxContainer" parent="PanelContainer/VBox/Views/LogrosView"]
+layout_mode = 2
+
+[node name="LblCounter" type="Label" parent="PanelContainer/VBox/Views/LogrosView/CounterHeader"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 14
+text = "🏆 LOGROS DESBLOQUEADOS: 0 / 12 (0%)"
+
+[node name="ScrollContainer" type="ScrollContainer" parent="PanelContainer/VBox/Views/LogrosView"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 1
+
+[node name="LogrosVBox" type="VBoxContainer" parent="PanelContainer/VBox/Views/LogrosView/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="ExplicacionesView" type="VBoxContainer" parent="PanelContainer/VBox/Views"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 10
+
+[node name="CounterHeader" type="HBoxContainer" parent="PanelContainer/VBox/Views/ExplicacionesView"]
+layout_mode = 2
+
+[node name="LblGuidesCounter" type="Label" parent="PanelContainer/VBox/Views/ExplicacionesView/CounterHeader"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.95, 0.7, 1)
+theme_override_font_sizes/font_size = 14
+text = "📖 GLOSARIO TÉCNICO REGISTRADO: 0 / 9 DESBLOQUEADOS (0%)"
+
+[node name="ScrollContainer" type="ScrollContainer" parent="PanelContainer/VBox/Views/ExplicacionesView"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 1
+
+[node name="GuidesVBox" type="VBoxContainer" parent="PanelContainer/VBox/Views/ExplicacionesView/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12

@@ -96,6 +96,13 @@ var liquid_cooling_scene: PackedScene:
 		return _liquid_cooling_scene
 	set(v): _liquid_cooling_scene = v
 
+var _ram_static_minigame_scene: PackedScene = null
+var ram_static_minigame_scene: PackedScene:
+	get:
+		if not _ram_static_minigame_scene: _ram_static_minigame_scene = load("res://scenes/minigames/RAMStaticMinigame.tscn")
+		return _ram_static_minigame_scene
+	set(v): _ram_static_minigame_scene = v
+
 @onready var modal_control: Control = $ModalControl
 @onready var title_label: Label = get_node_or_null("ModalControl/Panel/VBox/Header/TitleLabel")
 @onready var status_summary: Label = $ModalControl/Panel/VBox/Header/StatusSummary
@@ -282,7 +289,10 @@ func _ready() -> void:
 	# Botones de selección rápida de herramientas
 	btn_tool_1.pressed.connect(func(): GameManager.select_tool(1))
 	btn_tool_2.pressed.connect(func(): GameManager.select_tool(2))
-	btn_tool_3.pressed.connect(func(): GameManager.select_tool(3))
+	btn_tool_3.pressed.connect(func():
+		GameManager.select_tool(3)
+		_open_ram_static_minigame()
+	)
 	btn_tool_4.pressed.connect(func(): GameManager.select_tool(4))
 	btn_tool_5.pressed.connect(func(): GameManager.select_tool(5))
 	
@@ -338,8 +348,9 @@ func _unhandled_input(event: InputEvent) -> void:
 				GameManager.select_tool(1)
 			KEY_2, KEY_KP_2:
 				GameManager.select_tool(2)
-			KEY_3, KEY_KP_3:
+			KEY_3, KEY_KP_3, KEY_L:
 				GameManager.select_tool(3)
+				_open_ram_static_minigame()
 			KEY_4, KEY_KP_4:
 				GameManager.select_tool(4)
 			KEY_5, KEY_KP_5:
@@ -388,8 +399,9 @@ func _unhandled_key_input(event: InputEvent) -> void:
 			KEY_2, KEY_KP_2:
 				GameManager.select_tool(2)
 				get_viewport().set_input_as_handled()
-			KEY_3, KEY_KP_3:
+			KEY_3, KEY_KP_3, KEY_L:
 				GameManager.select_tool(3)
+				_open_ram_static_minigame()
 				get_viewport().set_input_as_handled()
 			KEY_4, KEY_KP_4:
 				GameManager.select_tool(4)
@@ -747,11 +759,31 @@ func _on_pines_pressed(comp_name: String) -> void:
 	if comp_name == "CPU":
 		_open_cpu_pines()
 	elif comp_name == "RAM":
-		_open_ram_pines()
+		_open_ram_static_minigame()
 	else:
 		GameManager.register_repair(50, 3.0)
 		_show_feedback("✓ ¡Inspección con Lupa [3] en [%s] completada! Pines y contactos reparados." % comp_name, true)
 		_refresh_ui()
+
+func _open_ram_static_minigame() -> void:
+	if not modal_control or not modal_control.visible:
+		return
+	modal_control.visible = false
+	var minigame = ram_static_minigame_scene.instantiate()
+	get_tree().root.add_child(minigame)
+	
+	minigame.connect("minigame_finished", func(success: bool):
+		modal_control.visible = true
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+		if success:
+			GameManager.register_repair(80, 5.0)
+			_show_feedback("✓ ¡Estática de la memoria RAM descargada a tierra con éxito!", true)
+			if current_pc and current_pc.components.get("RAM", "") == "broken":
+				current_pc.components["RAM"] = "ok"
+				_set_examined_status("RAM", "ok")
+				current_pc.update_3d_state()
+		_refresh_ui()
+	)
 
 func _open_ram_pines() -> void:
 	if not GameManager.is_soldering_tool_equipped():

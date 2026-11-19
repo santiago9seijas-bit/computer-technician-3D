@@ -31,23 +31,30 @@ func _ready() -> void:
 	mouse_exited.connect(_on_mouse_exited)
 	focus_entered.connect(_on_mouse_entered)
 	focus_exited.connect(_on_mouse_exited)
+	set_process(false)
 
 func _process(delta: float) -> void:
 	if not is_visible_in_tree():
+		set_process(false)
 		return
 	var target_t = 1.0 if (is_hovered or has_focus()) else 0.0
 	if abs(hover_t - target_t) > 0.001:
 		hover_t = lerp(hover_t, target_t, delta * 15.0)
 		if abs(hover_t - target_t) <= 0.001:
 			hover_t = target_t
+			set_process(false)
 		queue_redraw()
+	else:
+		set_process(false)
 
 func _on_mouse_entered() -> void:
 	is_hovered = true
+	set_process(true)
 	queue_redraw()
 
 func _on_mouse_exited() -> void:
 	is_hovered = false
+	set_process(true)
 	queue_redraw()
 
 func _draw() -> void:

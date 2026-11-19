@@ -154,6 +154,16 @@ func update_3d_state() -> void:
 			is_completed = true
 			GameManager.computers_fixed += 1
 			GameManager.register_repair(150, 15.0)
+			
+			var sm = get_node_or_null("/root/SaveManager")
+			if sm:
+				if GameManager.computers_fixed >= 1:
+					sm.unlock_achievement("first_repair")
+				if GameManager.computers_fixed >= 5:
+					sm.unlock_achievement("repair_5")
+				if GameManager.computers_fixed >= 20:
+					sm.unlock_achievement("repair_20")
+					
 			var cur_sc = get_tree().current_scene
 			if cur_sc and cur_sc.has_method("_advance_to_completed"):
 				cur_sc._advance_to_completed()
@@ -195,12 +205,46 @@ func update_3d_state() -> void:
 		mat.albedo_color = current_glow_color
 		mat.emission = current_glow_color
 
+func can_pickup_with_f() -> bool:
+	return visible
+
+func pickup_to_arms(_player: Node) -> Dictionary:
+	var data = {
+		"type": "reparacion",
+		"pc_id": pc_id,
+		"is_completed": is_fully_repaired(),
+		"components": components.duplicate(true),
+		"diagnostic_question": diagnostic_question,
+		"diagnostic_faulty_parts": diagnostic_faulty_parts.duplicate()
+	}
+	visible = false
+	collision_layer = 0
+	collision_mask = 0
+	return data
+
+func restore_from_carried(data: Dictionary) -> void:
+	visible = true
+	collision_layer = 1
+	collision_mask = 1
+	if data.has("components"):
+		components = data["components"]
+	if data.has("is_completed"):
+		is_completed = data["is_completed"]
+	if data.has("diagnostic_question"):
+		diagnostic_question = data["diagnostic_question"]
+	if data.has("diagnostic_faulty_parts"):
+		diagnostic_faulty_parts = data["diagnostic_faulty_parts"]
+	update_3d_state()
+
 func get_interaction_prompt() -> String:
+	var action_txt = ""
 	if is_completed:
-		return "PC #%d: Equipo 100%% reparado y testeado" % pc_id
+		action_txt = "PC #%d: Equipo 100%% reparado" % pc_id
 	elif has_player_inspected:
-		return "[E] PC #%d: Continuar diagnóstico y reparación" % pc_id
-	return "[E] PC #%d: Diagnosticar falla del cliente" % pc_id
+		action_txt = "[E] PC #%d: Continuar reparación" % pc_id
+	else:
+		action_txt = "[E] PC #%d: Diagnosticar falla" % pc_id
+	return "%s  ·  [F] CARGAR EN BRAZOS" % action_txt
 
 func interact(player) -> void:
 	has_player_inspected = true

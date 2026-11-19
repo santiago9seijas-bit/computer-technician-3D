@@ -11,6 +11,14 @@ extends Control
 
 signal difficulty_selected(diff_name: String)
 signal launch_requested()
+signal unlock_requested(node_data: Dictionary)
+
+enum LevelButtonState {
+	PLAYABLE,
+	LOCKED_PREV_INCOMPLETE,
+	LOCKED_INSUFFICIENT_POINTS,
+	CAN_UNLOCK
+}
 
 const DECO_TEXTURE = preload("res://pixel art menus/decoracion de menus/decoracion para selector de dificultad.png")
 const BTN_LAUNCH_NORMAL = preload("res://pixel art menus/botones/fondo de boton.png")
@@ -73,6 +81,7 @@ const LAUNCH_SHADER = preload("res://styles/cyber_launch_button.gdshader")
 @onready var btn_facil: TextureButton = $ButtonsRoot/BtnFacil
 
 @onready var btn_iniciar: TextureButton = $BtnIniciar
+@onready var lbl_iniciar_main: Label = $BtnIniciar/VBox/LblMain
 @onready var lbl_iniciar_sub: Label = $BtnIniciar/VBox/LblSub
 
 var _button_map: Dictionary = {}
@@ -82,6 +91,12 @@ var _deco_material: ShaderMaterial = null
 var _launch_material: ShaderMaterial = null
 var _current_tween: Tween = null
 var _launch_pulse_tween: Tween = null
+var current_node_data: Dictionary = {}
+var is_level_playable: bool = true
+var button_state: LevelButtonState = LevelButtonState.PLAYABLE
+var current_req_points: int = 0
+var current_player_points: int = 0
+var is_prev_completed: bool = true
 
 func _start_idle_launch_pulse() -> void:
 	if _launch_pulse_tween and _launch_pulse_tween.is_valid():
@@ -150,8 +165,22 @@ func _ready() -> void:
 		btn_iniciar.pivot_offset = btn_iniciar.custom_minimum_size * 0.5
 		
 		btn_iniciar.pressed.connect(func():
-			_play_launch_punch()
-			launch_requested.emit()
+			match button_state:
+				LevelButtonState.CAN_UNLOCK:
+					_play_unlock_button_animation(func():
+						unlock_requested.emit(current_node_data)
+					)
+				LevelButtonState.LOCKED_PREV_INCOMPLETE, LevelButtonState.LOCKED_INSUFFICIENT_POINTS:
+					var gm = get_node_or_null("/root/GameManager")
+					if gm and gm.has_method("play_sfx"):
+						gm.play_sfx("error")
+					var shake_tw = create_tween()
+					shake_tw.tween_property(btn_iniciar, "position:x", btn_iniciar.position.x - 6.0, 0.04)
+					shake_tw.tween_property(btn_iniciar, "position:x", btn_iniciar.position.x + 6.0, 0.04)
+					shake_tw.tween_property(btn_iniciar, "position:x", btn_iniciar.position.x, 0.04)
+				LevelButtonState.PLAYABLE:
+					_play_launch_punch()
+					launch_requested.emit()
 		)
 		btn_iniciar.mouse_entered.connect(func():
 			if _launch_pulse_tween and _launch_pulse_tween.is_valid():
@@ -259,13 +288,63 @@ func _update_feedback_text(data: Dictionary, animate: bool) -> void:
 			tw.tween_property(lbl_selected_mode, "scale", Vector2(1.06, 1.06), 0.08)
 			tw.tween_property(lbl_selected_mode, "scale", Vector2.ONE, 0.12)
 			
-	if lbl_desc:
-		lbl_desc.text = loc_desc
-		lbl_desc.add_theme_color_override("font_color", Color(0.85, 0.88, 0.95, 0.95))
-		
-	if lbl_iniciar_sub:
-		lbl_iniciar_sub.text = "[ %s %s ]" % [limite_prefix, loc_time]
-		lbl_iniciar_sub.add_theme_color_override("font_color", data["color"])
+	match button_state:
+		LevelButtonState.PLAYABLE:
+			if lbl_desc:
+				lbl_desc.text = loc_desc
+				lbl_desc.add_theme_color_override("font_color", Color(0.85, 0.88, 0.95, 0.95))
+			if lbl_iniciar_main:
+				lbl_iniciar_main.text = "▶  INICIAR NIVEL  ◀"
+				lbl_iniciar_main.add_theme_color_override("font_color", Color.WHITE)
+			if lbl_iniciar_sub:
+				lbl_iniciar_sub.text = "[ %s %s ]" % [limite_prefix, loc_time]
+				lbl_iniciar_sub.add_theme_color_override("font_color", data["color"])
+			if btn_iniciar:
+				btn_iniciar.modulate = Color.WHITE
+				if _launch_material:
+					_launch_material.set_shader_parameter("border_color", Color(0.0, 0.88, 1.0, 1.0))
+		LevelButtonState.CAN_UNLOCK:
+			if lbl_desc:
+				lbl_desc.text = "✓ ¡TIENES LOS %d PUNTOS NECESARIOS! Los puntos no se gastarán al desbloquear." % current_req_points
+				lbl_desc.add_theme_color_override("font_color", Color(0.3, 1.0, 0.6, 0.95))
+			if lbl_iniciar_main:
+				lbl_iniciar_main.text = "🔓  DESBLOQUEAR NIVEL  🔓"
+				lbl_iniciar_main.add_theme_color_override("font_color", Color(0.35, 1.0, 0.65))
+			if lbl_iniciar_sub:
+				lbl_iniciar_sub.text = "[ PUNTOS NECESARIOS: %d · TIENES: %d ]" % [current_req_points, current_player_points]
+				lbl_iniciar_sub.add_theme_color_override("font_color", Color(0.4, 1.0, 0.8))
+			if btn_iniciar:
+				btn_iniciar.modulate = Color(1.0, 1.0, 1.0, 1.0)
+				if _launch_material:
+					_launch_material.set_shader_parameter("border_color", Color(0.2, 1.0, 0.5, 1.0))
+		LevelButtonState.LOCKED_INSUFFICIENT_POINTS:
+			if lbl_desc:
+				lbl_desc.text = "⚠️ PUNTOS NECESARIOS: %d (Tienes %d PTS) · Completa más retos para conseguir puntos." % [current_req_points, current_player_points]
+				lbl_desc.add_theme_color_override("font_color", Color(1.0, 0.75, 0.25, 0.95))
+			if lbl_iniciar_main:
+				lbl_iniciar_main.text = "🔒  PUNTOS INSUFICIENTES  🔒"
+				lbl_iniciar_main.add_theme_color_override("font_color", Color(1.0, 0.7, 0.3))
+			if lbl_iniciar_sub:
+				lbl_iniciar_sub.text = "[ PUNTOS NECESARIOS: %d · TIENES: %d ]" % [current_req_points, current_player_points]
+				lbl_iniciar_sub.add_theme_color_override("font_color", Color(1.0, 0.8, 0.4))
+			if btn_iniciar:
+				btn_iniciar.modulate = Color(0.85, 0.8, 0.75, 0.8)
+				if _launch_material:
+					_launch_material.set_shader_parameter("border_color", Color(1.0, 0.5, 0.1, 0.8))
+		LevelButtonState.LOCKED_PREV_INCOMPLETE:
+			if lbl_desc:
+				lbl_desc.text = "🔒 Debes completar el nivel anterior para desbloquear este nivel. (Puntos requeridos: %d)" % current_req_points
+				lbl_desc.add_theme_color_override("font_color", Color(1.0, 0.4, 0.4, 0.95))
+			if lbl_iniciar_main:
+				lbl_iniciar_main.text = "🔒  BLOQUEADO  🔒"
+				lbl_iniciar_main.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))
+			if lbl_iniciar_sub:
+				lbl_iniciar_sub.text = "[ PUNTOS NECESARIOS: %d · TIENES: %d ]" % [current_req_points, current_player_points]
+				lbl_iniciar_sub.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
+			if btn_iniciar:
+				btn_iniciar.modulate = Color(0.65, 0.65, 0.65, 0.65)
+				if _launch_material:
+					_launch_material.set_shader_parameter("border_color", Color(0.5, 0.5, 0.5, 0.6))
 
 func _on_difficulty_btn_pressed(diff_key: String) -> void:
 	select_difficulty(diff_key, true)
@@ -300,7 +379,44 @@ func _play_launch_punch() -> void:
 			.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 		tw.tween_property(btn_iniciar, "scale", Vector2.ONE, 0.12)
 
-func open_for_level() -> void:
+func _play_unlock_button_animation(on_finished: Callable = Callable()) -> void:
+	if _launch_pulse_tween and _launch_pulse_tween.is_valid():
+		_launch_pulse_tween.kill()
+	if not btn_iniciar:
+		if on_finished.is_valid():
+			on_finished.call()
+		return
+	btn_iniciar.pivot_offset = btn_iniciar.custom_minimum_size * 0.5
+	var gm = get_node_or_null("/root/GameManager")
+	if gm and gm.has_method("play_sfx"):
+		gm.play_sfx("click")
+	var tw = create_tween()
+	tw.tween_property(btn_iniciar, "scale", Vector2(0.90, 0.90), 0.07).set_trans(Tween.TRANS_QUAD)
+	tw.tween_property(btn_iniciar, "scale", Vector2(1.18, 1.18), 0.12)\
+		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tw.tween_property(btn_iniciar, "scale", Vector2.ONE, 0.12)
+	tw.chain().tween_callback(func():
+		_start_idle_launch_pulse()
+		if on_finished.is_valid():
+			on_finished.call()
+	)
+
+func open_for_level(node_data: Dictionary = {}, req_points: int = 0, player_points: int = 0, prev_completed: bool = true) -> void:
+	current_node_data = node_data
+	current_req_points = req_points
+	current_player_points = player_points
+	is_prev_completed = prev_completed
+	is_level_playable = node_data.get("can_play", false) if not node_data.is_empty() else true
+	
+	if is_level_playable:
+		button_state = LevelButtonState.PLAYABLE
+	elif not prev_completed:
+		button_state = LevelButtonState.LOCKED_PREV_INCOMPLETE
+	elif player_points < req_points:
+		button_state = LevelButtonState.LOCKED_INSUFFICIENT_POINTS
+	else:
+		button_state = LevelButtonState.CAN_UNLOCK
+		
 	# REQUISITO EXPRESO: Siempre al abrir/entrar a un nivel, el predeterminado es NORMAL
 	select_difficulty("normal", false)
 	play_enter_animation()

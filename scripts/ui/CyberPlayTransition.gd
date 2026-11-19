@@ -766,83 +766,17 @@ func _start_sequence(
 		tw.tween_property(center_element, "modulate:a", 1.0, 0.14).set_delay(0.06)
 		tw.tween_property(center_element, "scale", Vector2(1.0, 1.0), 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT).set_delay(0.06)
 	
-	# 4. Llenado exacto y fiable de la barra de progreso optimizado
+	# 4. Progreso inicial fluido mientras se cierran compuertas
 	if prog_bar:
-		tw.tween_property(prog_bar, "value", 100.0, 0.20).set_trans(Tween.TRANS_QUAD).set_delay(0.05)
+		tw.tween_property(prog_bar, "value", 40.0, 0.18).set_trans(Tween.TRANS_QUAD).set_delay(0.02)
 	
-	# Actualizar texto de porcentaje dinámicamente hasta 100%
-	tw.tween_method(func(val: float):
-		if is_instance_valid(lbl_progress_val):
-			var pct = clamp(int(val), 0, 100)
-			if pct >= 100:
-				lbl_progress_val.text = "✓ [ CARGA COMPLETA: 100% OK ]"
-				lbl_progress_val.add_theme_color_override("font_color", Color(0.2, 1.0, 0.5, 1.0))
-				if lbl_telemetry:
-					if _is_exit:
-						if _mode == "servidor":
-							lbl_telemetry.text = "> DATACENTER: TELEMETRÍA GUARDADA // RETORNANDO AL SELECTOR..."
-						elif _mode == "sistema":
-							lbl_telemetry.text = "> SISTEMA_CORE: AUDITORÍA FINALIZADA // RETORNANDO AL SELECTOR..."
-						else:
-							lbl_telemetry.text = "> TALLER_3D: SESIÓN GUARDADA // RETORNANDO AL SELECTOR..."
-					else:
-						if _mode == "servidor":
-							lbl_telemetry.text = "> DATACENTER: PROTOCOLO CONECTADO // ACCEDIENDO A BASTIDOR 2U..."
-						elif _mode == "sistema":
-							lbl_telemetry.text = "> SISTEMA_CORE: KERNEL CONECTADO // ACCEDIENDO A ESTACIÓN DE TRABAJO..."
-						elif _is_practice:
-							lbl_telemetry.text = "> PRÁCTICA_3D: LISTO // ABRIENDO BANCO DE TRABAJO LIBRE..."
-						elif _is_tutorial:
-							lbl_telemetry.text = "> INDUCCION_3D: LISTO // INICIANDO TUTORIAL 3D..."
-						else:
-							lbl_telemetry.text = "> TALLER_HW: BANCO DE MONTAJE LISTO // BIENVENIDO AL TALLER 3D..."
-			elif pct >= 65:
-				lbl_progress_val.text = "[ SINCRONIZANDO NODOS: %d%% ]" % pct
-				if lbl_telemetry:
-					if _is_exit:
-						lbl_telemetry.text = "> MEMORY_CLEANUP: VOLCANDO BÚFERES Y CERRANDO CONEXIONES..."
-					else:
-						if _mode == "servidor":
-							lbl_telemetry.text = "> STORAGE_ARRAY: CALIBRANDO CADDIES SAS Y SWITCH CORE 10GbE..."
-						elif _mode == "sistema":
-							lbl_telemetry.text = "> SECURITY_ENGINE: AUDITANDO INTERFACES Y TABLA DE PARTICIONES..."
-						elif _is_practice:
-							lbl_telemetry.text = "> PRÁCTICA_ROOM: INSTANCIANDO MESA Y COMPONENTES..."
-						elif _is_tutorial:
-							lbl_telemetry.text = "> TUTORIAL_ROOM: PREPARANDO MESA DE REPARACIÓN..."
-						else:
-							lbl_telemetry.text = "> DIAGNOSTIC_BUS: VERIFICANDO SOCKET CPU, LÍNEAS PCIe Y RAM..."
-			elif pct >= 30:
-				lbl_progress_val.text = "[ DESPLEGANDO SISTEMA: %d%% ]" % pct
-				if lbl_telemetry:
-					if _is_exit:
-						lbl_telemetry.text = "> SYNC_DAEMON: GUARDANDO ESTADO DEL NIVEL..."
-					else:
-						if _mode == "servidor":
-							lbl_telemetry.text = "> DATACENTER_CORE: ENLAZANDO TELEMETRÍA DE BASTIDOR Y FUENTES 1+1..."
-						elif _mode == "sistema":
-							lbl_telemetry.text = "> SISTEMAS_CORE: CARGANDO MÓDULOS DE TERMINAL Y CONTROLADORES..."
-						else:
-							lbl_telemetry.text = "> HARDWARE_LINK: INICIANDO CONTROLADORES Y MAPA DE BANCO..."
-			else:
-				lbl_progress_val.text = "[ INICIALIZANDO: %d%% ]" % pct
-	, 0.0, 100.0, 0.20).set_delay(0.05)
+	if is_instance_valid(lbl_progress_val):
+		tw.tween_method(func(val: float):
+			if is_instance_valid(lbl_progress_val):
+				lbl_progress_val.text = "[ INICIALIZANDO: %d%% ]" % int(val)
+		, 0.0, 40.0, 0.18).set_delay(0.02)
 	
-	# Pausa deliberada brevísima para apreciar el 100% sin retrasar
-	tw.chain().tween_callback(func():
-		if is_instance_valid(prog_bar):
-			prog_bar.value = 100.0
-		if is_instance_valid(lbl_progress_val):
-			lbl_progress_val.text = "✓ [ CARGA COMPLETA: 100% OK ]"
-			lbl_progress_val.add_theme_color_override("font_color", Color(0.2, 1.0, 0.5, 1.0))
-	)
-	tw.chain().tween_interval(0.04)
-	
-	# 5. Destello óptico vibrante con el color del modo (desactivado en modo fotosensible)
-	var flash_alpha = 0.0 if is_photo else 0.70
-	tw.chain().tween_property(flash_rect, "color:a", flash_alpha, 0.06).set_trans(Tween.TRANS_QUAD)
-	
-	# 6. Momento pico: Cambio de escena seguro bajo el destello y compuertas cerradas
+	# 5. Conmutación y carga activa de escena tras cerrar compuertas
 	tw.chain().tween_callback(func():
 		_perform_scene_swap_and_reveal(
 			tree,
@@ -856,7 +790,11 @@ func _start_sequence(
 			bg_overlay,
 			half_h,
 			screen_h,
-			on_finished
+			on_finished,
+			prog_bar,
+			lbl_progress_val,
+			lbl_telemetry,
+			is_photo
 		)
 	)
 
@@ -872,21 +810,51 @@ func _perform_scene_swap_and_reveal(
 	bg_overlay: ColorRect,
 	half_h: float,
 	screen_h: float,
-	on_finished: Callable
+	on_finished: Callable,
+	prog_bar: ProgressBar = null,
+	lbl_progress_val: Label = null,
+	lbl_telemetry: Label = null,
+	is_photo: bool = false
 ) -> void:
 	if target_scene_path != "":
 		tree.paused = false
 		
-		# Esperar activamente en hilos si la carga en segundo plano sigue en progreso
-		while ResourceLoader.load_threaded_get_status(target_scene_path) == ResourceLoader.THREAD_LOAD_IN_PROGRESS:
+		# Esperar activamente en hilos actualizando barra de progreso dinámicamente
+		var progress_arr: Array = []
+		var max_frames := 300 # 5 segundos de seguridad máxima
+		var frame_count := 0
+		while ResourceLoader.load_threaded_get_status(target_scene_path, progress_arr) == ResourceLoader.THREAD_LOAD_IN_PROGRESS:
+			frame_count += 1
+			if frame_count > max_frames:
+				break
+			var raw_pct = progress_arr[0] * 100.0 if not progress_arr.is_empty() else 50.0
+			var cur_v = prog_bar.value if is_instance_valid(prog_bar) else 40.0
+			var display_pct = clampf(max(cur_v, raw_pct), 30.0, 95.0)
+			if is_instance_valid(prog_bar):
+				prog_bar.value = display_pct
+			if is_instance_valid(lbl_progress_val):
+				lbl_progress_val.text = "[ SINCRONIZANDO: %d%% ]" % int(display_pct)
 			await tree.process_frame
 			
+		var status = ResourceLoader.load_threaded_get_status(target_scene_path)
 		var packed: PackedScene = null
-		if ResourceLoader.load_threaded_get_status(target_scene_path) == ResourceLoader.THREAD_LOAD_LOADED:
+		if status == ResourceLoader.THREAD_LOAD_LOADED:
 			packed = ResourceLoader.load_threaded_get(target_scene_path) as PackedScene
 			
 		if not packed and ResourceLoader.exists(target_scene_path):
 			packed = load(target_scene_path) as PackedScene
+			
+		if is_instance_valid(prog_bar):
+			prog_bar.value = 100.0
+		if is_instance_valid(lbl_progress_val):
+			lbl_progress_val.text = "✓ [ CARGA COMPLETA: 100% OK ]"
+			lbl_progress_val.add_theme_color_override("font_color", Color(0.2, 1.0, 0.5, 1.0))
+			
+		var flash_alpha = 0.0 if is_photo else 0.70
+		if flash_alpha > 0.0 and is_instance_valid(flash_rect):
+			var tw_flash = tree.create_tween()
+			tw_flash.tween_property(flash_rect, "color:a", flash_alpha, 0.05).set_trans(Tween.TRANS_QUAD)
+			await tw_flash.finished
 			
 		if packed:
 			tree.change_scene_to_packed(packed)

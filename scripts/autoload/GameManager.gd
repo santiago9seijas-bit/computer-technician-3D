@@ -15,6 +15,8 @@ signal examination_points_updated(current_pts: int, max_pts: int, recharge_progr
 signal hardware_monitor_changed(enabled: bool)
 signal photosensitive_mode_changed(enabled: bool)
 signal settings_loaded()
+signal order_accepted(order_data: Dictionary)
+signal order_completed(order_data: Dictionary)
 
 # Sistema de Dificultad: "brutal" (10 min), "dificil" (15 min), "normal" (20 min), "facil" (25 min)
 const DIFFICULTY_TIMES: Dictionary = {

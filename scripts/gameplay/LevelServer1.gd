@@ -36,7 +36,12 @@ func _show_mission_briefing() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	
 	var modal = INTRO_SCENE.instantiate()
-	add_child(modal)
+	var hud_layer = get_node_or_null("CanvasLayerHUD")
+	if hud_layer:
+		hud_layer.add_child(modal)
+	else:
+		add_child(modal)
+		
 	modal.started.connect(func():
 		GameManager.timer_active = true
 		if player and player.has_method("set_movement_enabled"):
@@ -50,4 +55,7 @@ func _on_reintentar() -> void:
 
 func _on_siguiente() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	var sm = get_node_or_null("/root/SaveManager")
+	if sm and sm.has_method("mark_node_completed"):
+		sm.mark_node_completed("servidor", 1)
 	CyberPlayTransition.play_exit(get_tree(), "servidor")

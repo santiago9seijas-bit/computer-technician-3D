@@ -9,6 +9,10 @@ extends Control
 @onready var falla_solucionada_hud: Label = $FallaSolucionadaHUD
 @onready var prompt_label: Label = $Center/PromptLabel
 @onready var stamina_bar: Control = $Center/CurvedStaminaBar
+
+var _throw_charge_container: Control = null
+var _throw_charge_bar: ProgressBar = null
+var _throw_charge_label: Label = null
 @onready var bottom_center_panel: PanelContainer = $BottomCenter
 @onready var tools_bar: HBoxContainer = $BottomCenter/ToolsBar
 @onready var floating_feedback_container: Control = $FloatingFeedback
@@ -58,6 +62,7 @@ func _ready() -> void:
 	
 	# Asegurar que todos los elementos clave del HUD estén completamente visibles
 	ensure_hud_visible()
+	_setup_throw_charge_ui()
 	
 	var gm = get_node_or_null("/root/GameManager")
 	if gm:
@@ -244,12 +249,17 @@ func hide_gameplay_hud_for_modal(animated: bool = true) -> void:
 	if center: panels_to_hide.append(center)
 	var tr = get_node_or_null("TopRight") as Control
 	if tr: panels_to_hide.append(tr)
+	if falla_solucionada_hud: panels_to_hide.append(falla_solucionada_hud)
+	if floating_feedback_container: panels_to_hide.append(floating_feedback_container)
 
 	# Asegurar que el contador de tiempo del nivel (TopCenter) permanezca 100% visible
-	if lbl_tiempo and lbl_tiempo.get_parent():
-		var tc = lbl_tiempo.get_parent() as Control
+	var tc = get_node_or_null("TopCenter") as Control
+	if not tc and lbl_tiempo:
+		tc = lbl_tiempo.get_parent() as Control
+	if tc:
 		tc.visible = true
 		tc.modulate.a = 1.0
+		tc.z_index = 50
 
 	if not animated:
 		for p in panels_to_hide:
@@ -285,6 +295,8 @@ func show_gameplay_hud_from_modal(animated: bool = true) -> void:
 	if bottom_center_panel: panels_to_show.append(bottom_center_panel)
 	var center = get_node_or_null("Center") as Control
 	if center: panels_to_show.append(center)
+	var tr = get_node_or_null("TopRight") as Control
+	if tr: panels_to_show.append(tr)
 
 	# Asegurar que el contador de tiempo continúe 100% visible
 	if lbl_tiempo and lbl_tiempo.get_parent():
@@ -355,6 +367,81 @@ func set_interaction_prompt(text: String) -> void:
 		return
 	_last_prompt = text
 	prompt_label.text = text
+
+func _setup_throw_charge_ui() -> void:
+	if _throw_charge_container:
+		return
+	var center_node = get_node_or_null("Center")
+	if not center_node:
+		return
+		
+	_throw_charge_container = VBoxContainer.new()
+	_throw_charge_container.name = "ThrowChargeContainer"
+	_throw_charge_container.custom_minimum_size = Vector2(240, 36)
+	_throw_charge_container.anchors_preset = Control.PRESET_CENTER_BOTTOM
+	_throw_charge_container.anchor_left = 0.5
+	_throw_charge_container.anchor_right = 0.5
+	_throw_charge_container.anchor_top = 0.5
+	_throw_charge_container.anchor_bottom = 0.5
+	_throw_charge_container.offset_left = -120.0
+	_throw_charge_container.offset_right = 120.0
+	_throw_charge_container.offset_top = 60.0
+	_throw_charge_container.offset_bottom = 96.0
+	_throw_charge_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_throw_charge_container.visible = false
+	
+	_throw_charge_label = Label.new()
+	_throw_charge_label.name = "ThrowChargeLabel"
+	_throw_charge_label.text = "⚡ FUERZA DE LANZAMIENTO"
+	_throw_charge_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_throw_charge_label.add_theme_font_size_override("font_size", 11)
+	_throw_charge_label.modulate = Color(0.0, 0.95, 1.0, 1.0)
+	_throw_charge_container.add_child(_throw_charge_label)
+	
+	_throw_charge_bar = ProgressBar.new()
+	_throw_charge_bar.name = "ThrowChargeBar"
+	_throw_charge_bar.custom_minimum_size = Vector2(240, 14)
+	_throw_charge_bar.min_value = 0.0
+	_throw_charge_bar.max_value = 100.0
+	_throw_charge_bar.value = 0.0
+	_throw_charge_bar.show_percentage = false
+	
+	var sb_bg = StyleBoxFlat.new()
+	sb_bg.bg_color = Color(0.05, 0.06, 0.12, 0.85)
+	sb_bg.border_color = Color(0.0, 0.8, 1.0, 0.45)
+	sb_bg.set_border_width_all(1)
+	sb_bg.set_corner_radius_all(3)
+	_throw_charge_bar.add_theme_stylebox_override("background", sb_bg)
+	
+	var sb_fill = StyleBoxFlat.new()
+	sb_fill.bg_color = Color(0.0, 0.95, 1.0, 0.95)
+	sb_fill.set_corner_radius_all(3)
+	_throw_charge_bar.add_theme_stylebox_override("fill", sb_fill)
+	
+	_throw_charge_container.add_child(_throw_charge_bar)
+	center_node.add_child(_throw_charge_container)
+
+func set_throw_charge(is_shown: bool, progress: float = 0.0) -> void:
+	if not _throw_charge_container:
+		_setup_throw_charge_ui()
+	if not _throw_charge_container:
+		return
+	_throw_charge_container.visible = is_shown
+	if not is_shown:
+		return
+	var pct = clamp(progress, 0.0, 1.0) * 100.0
+	if _throw_charge_bar:
+		_throw_charge_bar.value = pct
+		var fill_sb = _throw_charge_bar.get_theme_stylebox("fill") as StyleBoxFlat
+		if fill_sb:
+			if pct < 45.0:
+				fill_sb.bg_color = Color(0.0, 0.95, 1.0, 0.95) # Cian
+			elif pct < 80.0:
+				fill_sb.bg_color = Color(1.0, 0.85, 0.2, 0.95) # Amarillo
+			else:
+				fill_sb.bg_color = Color(1.0, 0.2, 0.45, 1.0)  # Neón Magenta/Rojo
+	if _throw_charge_label:
+		_throw_charge_label.text = "⚡ FUERZA DE LANZAMIENTO: %d%%" % int(pct)
 
 func _on_score_updated(new_score: int, _delta: int) -> void:
 	var prefix = "Puntaje:"

@@ -84,6 +84,9 @@ var total_clumps: int = 0
 var cleaned_clumps: int = 0
 var is_game_completed: bool = false
 var is_brush_pressed: bool = false
+var is_intro_active: bool = false
+var countdown_overlay: CanvasLayer = null
+var dialog_box_inst: Control = null
 var clump_nodes: Array[Control] = []
 var ram_sprite_node: TextureRect = null
 
@@ -124,6 +127,110 @@ func _ready() -> void:
 		_spawn_dust_clumps()
 	_update_component_texts()
 	_update_ui()
+	
+	if get_tree().current_scene == self:
+		_start_joa_intro()
+
+func _start_joa_intro() -> void:
+	is_intro_active = true
+	if heatsink_area:
+		heatsink_area.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	
+	var msg_txt = ""
+	if is_psu_mode:
+		msg_txt = "¡Atención al mantenimiento de la fuente de poder! La acumulación de pelusa y polvo en bobinas y disipadores de potencia puede causar sobrecalentamiento crítico.\n\nPrimero haz clic y desliza la tapa metálica hacia la derecha para abrir la fuente. Luego usa la brocha antiestática para limpiar toda la suciedad interna."
+	else:
+		msg_txt = "¡Atento técnico! Los contactos dorados y ranuras de la memoria RAM están cubiertos de polvo y residuos que causan fallas de lectura y falsos contactos.\n\nUsa el cepillo de precisión para desincrustar y remover todos los cúmulos de suciedad hasta dejar la pieza 100% limpia."
+	
+	var dlg_scene = load("res://scenes/ui/DialogBox.tscn")
+	if dlg_scene:
+		dialog_box_inst = dlg_scene.instantiate()
+		add_child(dialog_box_inst)
+		if dialog_box_inst.has_method("show_message"):
+			dialog_box_inst.show_message(
+				"JOA",
+				msg_txt,
+				func():
+					_start_countdown()
+			)
+		else:
+			_start_countdown()
+	else:
+		_start_countdown()
+
+func _start_countdown() -> void:
+	if countdown_overlay:
+		countdown_overlay.queue_free()
+
+	countdown_overlay = CanvasLayer.new()
+	countdown_overlay.layer = 110
+	add_child(countdown_overlay)
+
+	var root_ctrl = Control.new()
+	root_ctrl.set_anchors_preset(Control.PRESET_FULL_RECT)
+	root_ctrl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	countdown_overlay.add_child(root_ctrl)
+
+	var dim_rect = ColorRect.new()
+	dim_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+	dim_rect.color = Color(0.01, 0.03, 0.08, 0.55)
+	dim_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root_ctrl.add_child(dim_rect)
+
+	var center = CenterContainer.new()
+	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root_ctrl.add_child(center)
+
+	var label = Label.new()
+	label.text = ""
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.add_theme_font_size_override("font_size", 120)
+	label.pivot_offset = Vector2(160, 80)
+	center.add_child(label)
+
+	var steps: Array[Dictionary] = [
+		{"text": "3", "color": Color(0.85, 0.25, 1.0), "size": 130},
+		{"text": "2", "color": Color(1.0, 0.9, 0.2),  "size": 130},
+		{"text": "1", "color": Color(1.0, 0.55, 0.1), "size": 130},
+		{"text": "¡A LIMPIAR!", "color": Color(0.2, 1.0, 0.5), "size": 95}
+	]
+
+	_run_countdown_step(0, steps, label, root_ctrl)
+
+func _run_countdown_step(index: int, steps: Array[Dictionary], label: Label, root_ctrl: Control) -> void:
+	if index >= steps.size():
+		var fade_tw = create_tween()
+		fade_tw.tween_property(root_ctrl, "modulate:a", 0.0, 0.3)
+		fade_tw.chain().tween_callback(func():
+			if countdown_overlay:
+				countdown_overlay.queue_free()
+				countdown_overlay = null
+			is_intro_active = false
+			if heatsink_area:
+				heatsink_area.mouse_filter = Control.MOUSE_FILTER_STOP
+		)
+		return
+
+	var st = steps[index]
+	label.text = st["text"]
+	label.modulate = st["color"]
+	label.add_theme_font_size_override("font_size", st["size"])
+	label.scale = Vector2(0.4, 0.4)
+	label.modulate.a = 0.0
+
+	var gm = get_node_or_null("/root/GameManager")
+	if gm and gm.has_method("play_sfx"):
+		gm.play_sfx("click")
+
+	var tw = create_tween().set_parallel(true)
+	tw.tween_property(label, "scale", Vector2.ONE, 0.2).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tw.tween_property(label, "modulate:a", 1.0, 0.15)
+	tw.chain().tween_interval(0.4)
+	tw.chain().tween_callback(func():
+		_run_countdown_step(index + 1, steps, label, root_ctrl)
+	)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel") or (event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE):
@@ -614,6 +721,16 @@ func _trigger_victory() -> void:
 	warning_label.text = "✓ ¡Mantenimiento completado! %s al 100%% limpia y libre de obstrucciones." % comp_name
 	warning_label.modulate = Color(0.2, 1.0, 0.5)
 	
+	# Guardar progreso en SaveManager
+	var sm = get_node_or_null("/root/SaveManager")
+	if sm:
+		if is_psu_mode:
+			sm.mark_node_completed("reparacion", 31)
+			sm.unlock_glossary("psu")
+		else:
+			sm.mark_node_completed("reparacion", 26) # Nivel morado: Limpieza Polvo RAM
+			sm.unlock_glossary("ram")
+	
 	btn_cancel.text = "✓ FINALIZAR MANTENIMIENTO"
 	btn_cancel.modulate = Color(0.2, 1.0, 0.5)
 	
@@ -624,3 +741,16 @@ func _trigger_victory() -> void:
 
 func _on_cancel_pressed() -> void:
 	minigame_finished.emit(is_game_completed)
+	
+	if get_tree().current_scene == self:
+		var exit_title = "LIMPIEZA DE FUENTE ATX COMPLETADA" if is_psu_mode else "LIMPIEZA DE RAM COMPLETADA"
+		var exit_sub = "// PELUSA INTERNA Y DISIPADORES DESOBSTRUIDOS AL 100% //" if is_psu_mode else "// CONTACTOS DORADOS DESOBSTRUIDOS AL 100% //"
+		CyberPlayTransition.play_exit(
+			get_tree(),
+			"reparacion",
+			"res://scenes/menus/LevelSelect.tscn",
+			exit_title,
+			exit_sub
+		)
+	else:
+		queue_free()

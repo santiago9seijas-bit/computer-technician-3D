@@ -1,0 +1,33 @@
+[gd_scene format=3 load_steps=4]
+
+[ext_resource type="Script" path="res://scripts/components/DeliveredCabinet.gd" id="1_script"]
+[ext_resource type="PackedScene" uid="uid://dvww3r262wnib" path="res://modelos_3d/escenario_3d/gabinete.glb" id="2_gabinete"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_1"]
+size = Vector3(0.72, 0.68, 0.35)
+
+[node name="DeliveredCabinet" type="CharacterBody3D"]
+script = ExtResource("1_script")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.34, 0)
+shape = SubResource("BoxShape3D_1")
+
+[node name="ModelRoot" type="Node3D" parent="."]
+
+[node name="GabineteModel" parent="ModelRoot" instance=ExtResource("2_gabinete")]
+transform = Transform3D(0, 0, 0.015, 0, 0.015, 0, -0.015, 0, 0, 0, 0, 0)
+
+[node name="OmniLight3D" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
+light_color = Color(0, 0.88, 1, 1)
+light_energy = 1.5
+omni_range = 2.8
+
+[node name="Label3D" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.95, 0)
+billboard = 1
+text = "📦 GABINETE DE PEDIDO\n[F] CARGAR EN BRAZOS"
+font_size = 20
+outline_size = 6
+modulate = Color(0.2, 0.95, 1, 1)
