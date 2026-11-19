@@ -2,7 +2,7 @@ extends Node3D
 
 const INTRO_SCENE: PackedScene = preload("res://scenes/ui/LevelSystemsIntroModal.tscn")
 const DELIVERED_CABINET_SCENE: PackedScene = preload("res://scenes/components/DeliveredCabinet.tscn")
-const DELIVERY_WALL_POS: Vector3 = Vector3(3.2, 0.0, 1.5)
+const DELIVERY_WALL_POS: Vector3 = Vector3(4.2, 0.0, -2.5)
 
 @onready var player: CharacterBody3D = $Player
 @onready var hud: Control = $CanvasLayerHUD/HUD

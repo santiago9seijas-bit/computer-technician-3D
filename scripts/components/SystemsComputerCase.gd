@@ -13,6 +13,7 @@ var components: Dictionary = {
 }
 
 var is_completed: bool = false
+var is_connected: bool = false
 
 @onready var label_3d: Label3D = $Label3D
 @onready var arrow_mesh: MeshInstance3D = $ArrowMesh
@@ -26,6 +27,15 @@ var systems_modal_scene: PackedScene:
 		return _systems_modal_scene
 	set(v):
 		_systems_modal_scene = v
+
+var _conn_minigame_scene: PackedScene = null
+var conn_minigame_scene: PackedScene:
+	get:
+		if not _conn_minigame_scene:
+			_conn_minigame_scene = load("res://scenes/minigames/SystemConnectionMinigame.tscn")
+		return _conn_minigame_scene
+	set(v):
+		_conn_minigame_scene = v
 
 var original_arrow_y: float = 0.0
 var custom_interact_callback: Callable = Callable()
@@ -74,10 +84,14 @@ func update_3d_state() -> void:
 			status_light.light_energy = 1.6
 		if arrow_mesh:
 			arrow_mesh.visible = true
-		label_3d.text = "TERMINAL #%d · SOFTWARE (%d/7)" % [pc_id, fixed_count]
-		label_3d.modulate = Color(0.0, 0.95, 1.0) if fixed_count > 0 else Color(1.0, 0.25, 0.5)
+		if not is_connected:
+			label_3d.text = "TERMINAL #%d · REQUIERE CONEXIÓN (%d/7)" % [pc_id, fixed_count]
+			label_3d.modulate = Color(1.0, 0.75, 0.2)
+		else:
+			label_3d.text = "TERMINAL #%d · ENLAZADA ✓ (%d/7)" % [pc_id, fixed_count]
+			label_3d.modulate = Color(0.0, 0.95, 1.0) if fixed_count > 0 else Color(1.0, 0.25, 0.5)
 
-	var led_color = Color(0.2, 1.0, 0.4) if is_completed else Color(0.0, 0.95, 1.0)
+	var led_color = Color(0.2, 1.0, 0.4) if is_completed else (Color(0.2, 0.95, 1.0) if is_connected else Color(1.0, 0.6, 0.1))
 	var led_node = get_node_or_null("GabineteModel/Led")
 	if led_node and led_node is MeshInstance3D:
 		var mat = led_node.get_surface_override_material(0)
@@ -97,8 +111,10 @@ func pickup_to_arms(_player: Node) -> Dictionary:
 		"type": "sistema",
 		"pc_id": pc_id,
 		"is_completed": is_fully_repaired(),
+		"is_connected": false,
 		"components": components.duplicate(true)
 	}
+	is_connected = false
 	visible = false
 	collision_layer = 0
 	collision_mask = 0
@@ -112,6 +128,7 @@ func restore_from_carried(data: Dictionary) -> void:
 		components = data["components"]
 	if data.has("is_completed"):
 		is_completed = data["is_completed"]
+	is_connected = data.get("is_connected", false)
 	update_3d_state()
 
 func get_interaction_prompt() -> String:
@@ -119,13 +136,53 @@ func get_interaction_prompt() -> String:
 		return "%s  ·  [F] CARGAR EN BRAZOS" % custom_prompt
 	if is_fully_repaired():
 		return "[E] Terminal de Sistemas (Optimizada ✓)  ·  [F] CARGAR EN BRAZOS"
-	return "[E] Acceder a Terminal de Sistemas  ·  [F] CARGAR EN BRAZOS"
+	if not is_connected:
+		return "[E] Enlazar Conexión de Sistemas  ·  [F] CARGAR EN BRAZOS"
+	return "[E] Acceder a Terminal de Sistemas (Enlazada ✓)  ·  [F] CARGAR EN BRAZOS"
 
 func interact(player) -> void:
 	if custom_interact_callback.is_valid():
 		custom_interact_callback.call(player)
 		return
 
+	if get_tree().root.has_node("PCSystemsModal") or get_tree().root.has_node("SystemConnectionMinigame"):
+		return
+
+	if not is_connected:
+		_launch_connection_minigame(player)
+	else:
+		_open_systems_modal(player)
+
+func _launch_connection_minigame(player) -> void:
+	var minigame = conn_minigame_scene.instantiate()
+	minigame.name = "SystemConnectionMinigame"
+	
+	player.set_movement_enabled(false)
+	if player.hud_node:
+		player.hud_node.visible = false
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	
+	minigame.connect("minigame_finished", func(success: bool):
+		if success:
+			is_connected = true
+			update_3d_state()
+			var gm = get_node_or_null("/root/GameManager")
+			if gm and gm.has_method("spawn_floating_text"):
+				gm.spawn_floating_text("¡SISTEMAS CONECTADOS!", true)
+			_open_systems_modal(player)
+		else:
+			player.set_movement_enabled(true)
+			if player.hud_node:
+				player.hud_node.visible = true
+			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+			update_3d_state()
+	)
+	
+	get_tree().root.add_child(minigame)
+	if minigame.has_method("setup_target"):
+		minigame.setup_target(self)
+
+func _open_systems_modal(player) -> void:
 	if get_tree().root.has_node("PCSystemsModal"):
 		return
 		
@@ -138,6 +195,8 @@ func interact(player) -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	
 	modal.connect("inspection_closed", func():
+		if is_instance_valid(modal):
+			modal.queue_free()
 		if is_fully_repaired():
 			player.set_movement_enabled(false)
 			if player.hud_node:

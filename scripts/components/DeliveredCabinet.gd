@@ -104,7 +104,7 @@ func _physics_process(delta: float) -> void:
 		set_physics_process(false)
 		return
 		
-	throw_velocity.y -= 11.0 * delta # Gravedad equilibrada para que vuele con fuerza consistente
+	throw_velocity.y -= 10.5 * delta
 	
 	if model_root and spin_speed > 0.1:
 		model_root.rotate(spin_axis, spin_speed * delta)
@@ -112,9 +112,17 @@ func _physics_process(delta: float) -> void:
 		
 	var col = move_and_collide(throw_velocity * delta)
 	if col:
-		# Rebote con fricción
-		if throw_velocity.length() > 2.5:
-			throw_velocity = throw_velocity.bounce(col.get_normal()) * 0.42
+		var normal = col.get_normal()
+		if normal.dot(Vector3.UP) > 0.6:
+			# Impacto contra el suelo: rebote vertical amortiguado conservando inercia horizontal hacia adelante
+			var horiz_vel = Vector3(throw_velocity.x, 0.0, throw_velocity.z) * 0.78
+			var vert_vel = max(0.0, -throw_velocity.y * 0.35)
+			throw_velocity = horiz_vel + Vector3.UP * vert_vel
+		else:
+			# Impacto contra paredes u obstáculos
+			throw_velocity = throw_velocity.bounce(normal) * 0.5
+			
+		if throw_velocity.length() > 2.0:
 			var gm = get_node_or_null("/root/GameManager")
 			if gm and gm.has_method("play_sfx"):
 				gm.play_sfx("click")

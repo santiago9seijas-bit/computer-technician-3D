@@ -1,0 +1,316 @@
+[gd_scene format=3 load_steps=8]
+
+[ext_resource type="Script" path="res://scripts/minigames/PacketTracerMinigame.gd" id="1_ptmgr"]
+[ext_resource type="Theme" path="res://styles/cyberpunk_theme.tres" id="2_theme"]
+[ext_resource type="FontFile" uid="uid://dbcug8887dro7" path="res://assets/fonts/Bungee-Regular.ttf" id="3_title_font"]
+[ext_resource type="PackedScene" path="res://scenes/ui/CyberBackgroundFrame.tscn" id="4_bg_frame"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
+bg_color = Color(0.04, 0.05, 0.09, 0.98)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.0, 0.85, 1.0, 0.85)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_santiago"]
+bg_color = Color(0.05, 0.08, 0.14, 0.92)
+border_width_left = 2
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.2, 0.9, 0.6, 0.7)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_win"]
+bg_color = Color(0.04, 0.16, 0.08, 0.96)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.2, 1.0, 0.45, 0.95)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[node name="PacketTracerMinigame" type="CanvasLayer"]
+layer = 15
+script = ExtResource("1_ptmgr")
+
+[node name="ModalControl" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_theme")
+
+[node name="DimOverlay" type="ColorRect" parent="ModalControl"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.02, 0.03, 0.06, 0.88)
+
+[node name="Panel" type="PanelContainer" parent="ModalControl"]
+custom_minimum_size = Vector2(1040, 520)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -520.0
+offset_top = -260.0
+offset_right = 520.0
+offset_bottom = 260.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="CyberBackgroundFrame" parent="ModalControl/Panel" instance=ExtResource("4_bg_frame")]
+layout_mode = 2
+
+[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="Header" type="VBoxContainer" parent="ModalControl/Panel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="TopHBox" type="HBoxContainer" parent="ModalControl/Panel/VBox/Header"]
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="ModalControl/Panel/VBox/Header/TopHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("3_title_font")
+theme_override_font_sizes/font_size = 17
+text = "🌐 CISCO PACKET TRACER // SIMULADOR DE REDES"
+horizontal_alignment = 1
+
+[node name="BtnCloseHeader" type="Button" parent="ModalControl/Panel/VBox/Header/TopHBox"]
+custom_minimum_size = Vector2(86, 26)
+layout_mode = 2
+text = "✕ CERRAR"
+
+[node name="SubHeaderHBox" type="HBoxContainer" parent="ModalControl/Panel/VBox/Header"]
+layout_mode = 2
+
+[node name="LevelLabel" type="Label" parent="ModalControl/Panel/VBox/Header/SubHeaderHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 12
+text = "Interconexión y Capa Física de Redes"
+
+[node name="Spacer" type="Control" parent="ModalControl/Panel/VBox/Header/SubHeaderHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="StatusBadge" type="Label" parent="ModalControl/Panel/VBox/Header/SubHeaderHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.75, 0.2, 1)
+theme_override_font_sizes/font_size = 12
+text = "TOPOLOGÍA NO CONECTADA"
+
+[node name="SantiagoPanel" type="PanelContainer" parent="ModalControl/Panel/VBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_santiago")
+
+[node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/SantiagoPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 4
+
+[node name="HBox" type="HBoxContainer" parent="ModalControl/Panel/VBox/SantiagoPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Avatar" type="Label" parent="ModalControl/Panel/VBox/SantiagoPanel/Margin/HBox"]
+custom_minimum_size = Vector2(85, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 1, 0.5, 1)
+theme_override_font_sizes/font_size = 11
+text = "🧑‍💻 SANTIAGO"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="VSep" type="VSeparator" parent="ModalControl/Panel/VBox/SantiagoPanel/Margin/HBox"]
+layout_mode = 2
+
+[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/SantiagoPanel/Margin/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="DialogText" type="Label" parent="ModalControl/Panel/VBox/SantiagoPanel/Margin/HBox/VBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 11
+text = "Instrucciones de Santiago..."
+autowrap_mode = 3
+
+[node name="Workspace" type="HBoxContainer" parent="ModalControl/Panel/VBox"]
+custom_minimum_size = Vector2(0, 305)
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="CanvasArea" type="Control" parent="ModalControl/Panel/VBox/Workspace"]
+clip_contents = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+mouse_filter = 1
+
+[node name="CanvasBg" type="ColorRect" parent="ModalControl/Panel/VBox/Workspace/CanvasArea"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.025, 0.035, 0.065, 0.9)
+
+[node name="TopologyDraw" type="Control" parent="ModalControl/Panel/VBox/Workspace/CanvasArea"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Sidebar" type="PanelContainer" parent="ModalControl/Panel/VBox/Workspace"]
+custom_minimum_size = Vector2(270, 0)
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/Workspace/Sidebar"]
+layout_mode = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 6
+
+[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/Workspace/Sidebar/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Title" type="Label" parent="ModalControl/Panel/VBox/Workspace/Sidebar/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 11
+text = "TERMINAL CLI / LOG"
+
+[node name="TermLog" type="RichTextLabel" parent="ModalControl/Panel/VBox/Workspace/Sidebar/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_font_sizes/normal_font_size = 10
+bbcode_enabled = true
+scroll_following = true
+
+[node name="Toolbar" type="HBoxContainer" parent="ModalControl/Panel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="HBox" type="HBoxContainer" parent="ModalControl/Panel/VBox/Toolbar"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="BtnCableStraight" type="Button" parent="ModalControl/Panel/VBox/Toolbar/HBox"]
+custom_minimum_size = Vector2(110, 34)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.85, 1, 1)
+text = "[1] 🔵 Directo"
+
+[node name="BtnCableCrossover" type="Button" parent="ModalControl/Panel/VBox/Toolbar/HBox"]
+custom_minimum_size = Vector2(110, 34)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.6, 0.2, 1)
+text = "[2] 🟠 Cruzado"
+
+[node name="BtnCableFiber" type="Button" parent="ModalControl/Panel/VBox/Toolbar/HBox"]
+custom_minimum_size = Vector2(110, 34)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.95, 0.3, 1)
+text = "[3] 🟡 Fibra"
+
+[node name="BtnToolDelete" type="Button" parent="ModalControl/Panel/VBox/Toolbar/HBox"]
+custom_minimum_size = Vector2(100, 34)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.3, 0.4, 1)
+text = "[4] ❌ Quitar"
+
+[node name="Spacer" type="Control" parent="ModalControl/Panel/VBox/Toolbar"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HBoxActions" type="HBoxContainer" parent="ModalControl/Panel/VBox/Toolbar"]
+layout_mode = 2
+
+[node name="BtnPing" type="Button" parent="ModalControl/Panel/VBox/Toolbar/HBoxActions"]
+custom_minimum_size = Vector2(190, 34)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 1, 0.5, 1)
+text = "⚡ SIMULAR PING (ICMP)"
+
+[node name="VictoryBanner" type="PanelContainer" parent="ModalControl/Panel/VBox"]
+visible = false
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_win")
+
+[node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/VictoryBanner"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 4
+
+[node name="HBox" type="HBoxContainer" parent="ModalControl/Panel/VBox/VictoryBanner/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Label" type="Label" parent="ModalControl/Panel/VBox/VictoryBanner/Margin/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.3, 1, 0.5, 1)
+theme_override_font_sizes/font_size = 12
+text = "¡TOPOLOGÍA CORRECTA Y PING ICMP 100% OPERATIVO! ✓"
+vertical_alignment = 1
+
+[node name="BtnNextLevel" type="Button" parent="ModalControl/Panel/VBox/VictoryBanner/Margin/HBox"]
+custom_minimum_size = Vector2(220, 30)
+layout_mode = 2
+text = "SIGUIENTE NIVEL ➔"
+
+[node name="Footer" type="HBoxContainer" parent="ModalControl/Panel/VBox"]
+layout_mode = 2
+
+[node name="HelpText" type="Label" parent="ModalControl/Panel/VBox/Footer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.7, 0.75, 1)
+theme_override_font_sizes/font_size = 11
+text = "Atajos: [1] Directo · [2] Cruzado · [3] Fibra · [4] Borrar · [Espacio] Ping · Clic/Arrastrar cable entre equipos"
+
+[node name="Spacer" type="Control" parent="ModalControl/Panel/VBox/Footer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BtnCancel" type="Button" parent="ModalControl/Panel/VBox/Footer"]
+custom_minimum_size = Vector2(140, 26)
+layout_mode = 2
+text = "CERRAR TERMINAL"

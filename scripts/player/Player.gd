@@ -591,10 +591,11 @@ func _place_pc_on_workbench(bench: Node3D) -> bool:
 		
 	var root = get_tree().current_scene
 	var is_systems = false
-	if root and ("Systems" in root.name or root.find_child("SystemsComputer", true, false)):
+	if root and ("Systems" in root.name or root.find_child("SystemsComputer", true, false) or root.name.begins_with("LevelSystems")):
 		is_systems = true
 		
 	var y_offset = 0.912 if is_systems else 0.72
+	var x_offset = 0.48 if is_systems else 0.0
 	
 	# Buscar si esta mesa ya tiene un nodo PC ocultado previamente para reutilizar
 	var pc: Node3D = null
@@ -621,11 +622,11 @@ func _place_pc_on_workbench(bench: Node3D) -> bool:
 			pc.name = ("SystemsComputer" if is_systems else "Computer") + str(id_num)
 			pc.set("pc_id", id_num)
 			bench.add_child(pc)
-			pc.position = Vector3(0.0, y_offset, 0.0)
+			pc.position = Vector3(x_offset, y_offset, 0.0)
 			pc.rotation = Vector3.ZERO
 			
 	if pc:
-		pc.position = Vector3(0.0, y_offset, 0.0)
+		pc.position = Vector3(x_offset, y_offset, 0.0)
 		pc.rotation = Vector3.ZERO
 		if pc.has_method("restore_from_carried"):
 			pc.restore_from_carried(carried_cabinet_data)
@@ -662,8 +663,24 @@ func throw_carried_cabinet(force: float) -> void:
 	if cabinet_scene:
 		var inst = cabinet_scene.instantiate()
 		var throw_origin = camera.global_position + (-camera.global_transform.basis.z * 0.7) + Vector3(0.0, -0.2, 0.0)
-		var aim_dir = -camera.global_transform.basis.z.normalized()
-		var throw_vel = aim_dir * force
+		var cam_forward = -camera.global_transform.basis.z
+		
+		# Dirección horizontal en el plano XZ
+		var horiz_dir = Vector3(cam_forward.x, 0.0, cam_forward.z).normalized()
+		if horiz_dir.length_squared() < 0.001:
+			horiz_dir = -global_transform.basis.z
+			horiz_dir.y = 0.0
+			horiz_dir = horiz_dir.normalized()
+			
+		# Arco consistente y potente:
+		# Mirando recto u horizontal (cam_forward.y ≈ 0), se otorga un arco de elevación base (0.32)
+		# para que el gabinete vuele con fuerza y parábola real en vez de caer en seco a los pies.
+		var pitch_val = clamp(cam_forward.y, -0.6, 0.75)
+		var upward_ratio = clamp(0.32 + (pitch_val * 0.40), 0.18, 0.62)
+		var forward_ratio = sqrt(max(0.0, 1.0 - (upward_ratio * upward_ratio)))
+		
+		var throw_dir = (horiz_dir * forward_ratio + Vector3.UP * upward_ratio).normalized()
+		var throw_vel = throw_dir * force
 		
 		if carried_cabinet_data.get("is_completed", false):
 			inst.is_repaired = true
@@ -778,7 +795,7 @@ func _handle_interaction(delta: float = 0.016) -> void:
 				if _f_hold_time >= MIN_HOLD_FOR_THROW:
 					# LANZAMIENTO CON POTENCIA CARGADA
 					var charge_ratio = clamp((_f_hold_time - MIN_HOLD_FOR_THROW) / (MAX_CHARGE_TIME - MIN_HOLD_FOR_THROW), 0.0, 1.0)
-					var throw_force = lerp(8.0, 24.0, charge_ratio)
+					var throw_force = lerp(12.0, 26.0, charge_ratio)
 					if hud_node and hud_node.has_method("set_throw_charge"):
 						hud_node.set_throw_charge(false)
 					throw_carried_cabinet(throw_force)

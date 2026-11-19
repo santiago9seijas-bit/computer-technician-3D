@@ -10,6 +10,7 @@
 [ext_resource type="PackedScene" uid="uid://cidts6etijohr" path="res://modelos_3d/escenario_3d/piso.glb" id="8_piso"]
 [ext_resource type="PackedScene" path="res://scenes/components/WallDispenser.tscn" id="9_disp"]
 [ext_resource type="PackedScene" path="res://scenes/components/TrashBin.tscn" id="10_trash"]
+[ext_resource type="PackedScene" path="res://scenes/components/NetworkChallengeBubble.tscn" id="11_bubble"]
 
 [sub_resource type="Environment" id="Environment_srv"]
 background_mode = 1
@@ -158,6 +159,24 @@ spare_type = "Grafica"
 
 [node name="WallDispenser" parent="." instance=ExtResource("9_disp")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.5, 1.2, 3.2)
+
+[node name="BurbujasDesafio" type="Node3D" parent="."]
+
+[node name="BubbleTutorial" parent="BurbujasDesafio" instance=ExtResource("11_bubble")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.2, 0, -2.1)
+challenge_id = 0
+
+[node name="BubbleDesafio1" parent="BurbujasDesafio" instance=ExtResource("11_bubble")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.2, 0, -0.7)
+challenge_id = 1
+
+[node name="BubbleDesafio2" parent="BurbujasDesafio" instance=ExtResource("11_bubble")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.2, 0, 0.7)
+challenge_id = 2
+
+[node name="BubbleDesafio3" parent="BurbujasDesafio" instance=ExtResource("11_bubble")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.2, 0, 2.1)
+challenge_id = 3
 
 [node name="Player" parent="." instance=ExtResource("2_player")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 1.2)

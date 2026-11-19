@@ -219,3 +219,4 @@ func _on_volver_pressed() -> void:
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	inspection_closed.emit()
 	queue_free()
+	queue_free()

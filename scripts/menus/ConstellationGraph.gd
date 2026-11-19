@@ -74,12 +74,14 @@ func set_all_unlocked(unlocked: bool) -> void:
 func is_node_unlocked(index: int) -> bool:
 	if index == 0:
 		return true # El nivel de introducción siempre está desbloqueado
+	if current_mode == "servidor" and index == 14:
+		return true # Inducción Cisco abierta desde el inicio
 	if node_unlocked_states.has(index):
 		return node_unlocked_states[index]
 	var sm = get_node_or_null("/root/SaveManager")
 	if sm and sm.has_method("is_node_unlocked"):
 		return sm.is_node_unlocked(current_mode, index)
-	return (index == 0)
+	return (index == 0 or (current_mode == "servidor" and index == 14))
 
 func play_unlock_animation(node_idx: int, on_complete: Callable = Callable()) -> void:
 	if node_idx < 0 or node_idx >= nodes.size():
@@ -302,7 +304,13 @@ var MODE_NODES: Dictionary = {
 		Vector2(16, 720),   # [12] NIVEL 12: Centro NOC Datacenter (Anillo Exterior 8h)
 
 		# --- SATÉLITE DE PRÁCTICA 3D [13] (Radio ~480px) ---
-		Vector2(224, 120)   # [13] SALA DE PRÁCTICA: Distanciada de Servidores 1U y 2U (NARANJA NEÓN)
+		Vector2(224, 120),  # [13] SALA DE PRÁCTICA: Distanciada de Servidores 1U y 2U (NARANJA NEÓN)
+
+		# --- NODOS VERDES: CISCO PACKET TRACER & RETOS DE RED [14 - 17] (Distribuidos en 4 cuadrantes) ---
+		Vector2(480, 210),  # [14] INDUCCIÓN CISCO: Fundamentos & Cable Directo (Noroeste, VERDE ESMERALDA)
+		Vector2(900, 210),  # [15] RETO RED #1: LAN Oficina & Servidor Local (Noreste, VERDE ESMERALDA)
+		Vector2(320, 520),  # [16] RETO RED #2: Router & Subredes (Suroeste, VERDE ESMERALDA)
+		Vector2(1040, 540)  # [17] RETO RED #3: Troncal Fibra Óptica & Crossover (Sureste, VERDE ESMERALDA)
 	]
 }
 
@@ -381,6 +389,11 @@ var MODE_CONNECTIONS: Dictionary = {
 		Vector2i(0, 4), Vector2i(0, 5), Vector2i(0, 6),
 		# Conexión satélite de práctica (Naranja Neón)
 		Vector2i(0, 13), Vector2i(1, 13),
+		# Filamentos y Desbloqueos de Redes Cisco Packet Tracer distribuidos (Verde Esmeralda)
+		Vector2i(0, 14), Vector2i(14, 1),
+		Vector2i(1, 15), Vector2i(15, 4),
+		Vector2i(6, 16), Vector2i(16, 11),
+		Vector2i(5, 17), Vector2i(17, 10),
 		# Anillo de telaraña circular interno
 		Vector2i(1, 2), Vector2i(2, 3), Vector2i(3, 4),
 		Vector2i(4, 5), Vector2i(5, 6), Vector2i(6, 1),
@@ -410,15 +423,11 @@ func _rebuild_connections_cache() -> void:
 			var is_primary_root = false
 			var is_practice_link = false
 			var is_purple_link = false
-			if current_mode == "reparacion":
-				var is_tut_conn = (conn.x <= 6 and conn.y <= 6)
-				var is_lvl1_conn = (conn.x == 7 or conn.y == 7)
-				if conn.x >= 26 or conn.y >= 26:
-					is_purple_link = true
-				elif is_tut_conn or is_lvl1_conn:
-					is_primary_root = true
-				elif conn.x >= 19 or conn.y >= 19:
-					is_practice_link = true
+			var is_network_link = false
+			if current_mode == "servidor":
+				is_primary_root = (conn.x == 0 and conn.y == 1) or (conn.x == 1 and conn.y == 0)
+				is_practice_link = (conn.x == 13 or conn.y == 13)
+				is_network_link = (conn.x >= 14 or conn.y >= 14)
 			elif current_mode == "sistema":
 				var is_tut_conn = (conn.x <= 6 and conn.y <= 6)
 				var is_lvl1_conn = (conn.x == 7 or conn.y == 7)
@@ -427,17 +436,24 @@ func _rebuild_connections_cache() -> void:
 				elif conn.x >= 19 or conn.y >= 19:
 					is_practice_link = true
 			else:
-				is_primary_root = (conn.x == 0 and conn.y == 1) or (conn.x == 1 and conn.y == 0)
-				is_practice_link = (conn.x == 13 or conn.y == 13)
+				var is_tut_conn = (conn.x <= 6 and conn.y <= 6)
+				var is_lvl1_conn = (conn.x == 7 or conn.y == 7)
+				if conn.x >= 26 or conn.y >= 26:
+					is_purple_link = true
+				elif is_tut_conn or is_lvl1_conn:
+					is_primary_root = true
+				elif conn.x >= 19 or conn.y >= 19:
+					is_practice_link = true
 
-			if is_primary_root or is_practice_link or is_purple_link:
+			if is_primary_root or is_practice_link or is_purple_link or is_network_link:
 				_cached_special_conns.append({
 					"p1_idx": conn.x,
 					"p2_idx": conn.y,
 					"seed": conn.x + conn.y,
 					"is_primary": is_primary_root,
 					"is_practice": is_practice_link,
-					"is_purple": is_purple_link
+					"is_purple": is_purple_link,
+					"is_network": is_network_link
 				})
 			else:
 				_cached_std_lines.append(nodes[conn.x])
@@ -718,6 +734,17 @@ func _setup_cached_node_labels() -> void:
 			lbl.add_theme_font_size_override("font_size", 10)
 			lbl.add_theme_color_override("font_color", Color(1.0, 0.65, 0.15, 1.0))
 			lbl.size = Vector2(80, 20)
+		elif current_mode == "servidor" and i in [14, 15, 16, 17]:
+			var net_names = {
+				14: "TUT CISCO",
+				15: "RETO 1 LAN",
+				16: "RETO 2 ROUTER",
+				17: "RETO 3 FIBRA"
+			}
+			lbl.text = net_names.get(i, "RED")
+			lbl.add_theme_font_size_override("font_size", 9)
+			lbl.add_theme_color_override("font_color", Color(0.2, 1.0, 0.5, 1.0))
+			lbl.size = Vector2(80, 20)
 		else:
 			lbl.text = str(i)
 			lbl.add_theme_font_size_override("font_size", 11)
@@ -738,7 +765,7 @@ func _update_label_positions() -> void:
 			continue
 		var np = nodes[i]
 		var zoom_scale = node_zoom_scales[i] if i < node_zoom_scales.size() else 1.0
-		var is_special = (i <= 6 or i >= 19) if current_mode == "reparacion" else (i == 0 or i == 13)
+		var is_special = (i <= 6 or i >= 19) if current_mode == "reparacion" else (i == 0 or i >= 13)
 		if is_special:
 			lbl.position = np + Vector2(-40, -40 * zoom_scale)
 		else:
@@ -1009,7 +1036,7 @@ func _draw() -> void:
 			draw_multiline(_cached_std_lines, std_line_color, 1.0)
 		for sp in _cached_special_conns:
 			if sp["p1_idx"] < nodes.size() and sp["p2_idx"] < nodes.size():
-				_draw_circuit_line(nodes[sp["p1_idx"]], nodes[sp["p2_idx"]], 0.95, sp["seed"], sp["is_primary"], sp["is_practice"], sp["is_purple"])
+				_draw_circuit_line(nodes[sp["p1_idx"]], nodes[sp["p2_idx"]], 0.95, sp["seed"], sp.get("is_primary", false), sp.get("is_practice", false), sp.get("is_purple", false), sp.get("is_network", false))
 
 	# =========================================================================
 	# 6. POLVO DIGITAL AMBIENTAL & ESTELA DE GLITCH
@@ -1057,6 +1084,7 @@ func _draw() -> void:
 		var is_practice = false
 		var is_campaign = false
 		var is_inspection = false
+		var is_network = false
 		if current_mode == "reparacion":
 			is_tutorial = (i >= 0 and i <= 6)
 			is_practice = (i >= 19 and i <= 25)
@@ -1070,11 +1098,12 @@ func _draw() -> void:
 			is_tutorial = (i == 0)
 			is_practice = (i == 13)
 			is_campaign = (i >= 1 and i <= 12)
-		var is_active_node = (is_unlocked and (is_tutorial or is_practice or is_campaign or is_inspection)) or is_hovered
+			is_network = (i >= 14 and i <= 17)
+		var is_active_node = (is_unlocked and (is_tutorial or is_practice or is_campaign or is_inspection or is_network)) or is_hovered
 		var zoom_scale = node_zoom_scales[i] if i < node_zoom_scales.size() else 1.0
 		var ripple = node_ripples[i] if i < node_ripples.size() else 0.0
 
-		var base_radius = (26.0 if is_tutorial else (24.0 if is_practice else (24.0 if is_inspection else 21.0)))
+		var base_radius = (26.0 if is_tutorial else (24.0 if (is_practice or is_network) else (24.0 if is_inspection else 21.0)))
 		if is_hovered:
 			base_radius += 3.5
 		var breath_radius = base_radius * zoom_scale
@@ -1083,7 +1112,7 @@ func _draw() -> void:
 		if ripple > 0.01:
 			var rip_r = lerp(26.0, 72.0, 1.0 - ripple) * zoom_scale
 			var rip_a = ripple * 0.85
-			var rip_col = Color(0.0, 0.88, 1.0, rip_a) if is_tutorial else (Color(1.0, 0.55, 0.05, rip_a) if is_practice else (Color(0.85, 0.25, 1.0, rip_a) if is_inspection else (Color(1.0, 0.1, 0.3, rip_a) if is_campaign else Color(0.2, 0.85, 1.0, rip_a))))
+			var rip_col = Color(0.2, 1.0, 0.45, rip_a) if is_network else (Color(0.0, 0.88, 1.0, rip_a) if is_tutorial else (Color(1.0, 0.55, 0.05, rip_a) if is_practice else (Color(0.85, 0.25, 1.0, rip_a) if is_inspection else (Color(1.0, 0.1, 0.3, rip_a) if is_campaign else Color(0.2, 0.85, 1.0, rip_a)))))
 			draw_arc(np, rip_r, 0, TAU, 24, rip_col, 2.0)
 
 		# --- Zócalo base en la telaraña ---
@@ -1092,6 +1121,9 @@ func _draw() -> void:
 		if not is_unlocked:
 			socket_bg = Color(0.04, 0.06, 0.12, 0.18)
 			socket_arc = Color(0.25, 0.38, 0.52, 0.32)
+		elif is_network:
+			socket_bg = Color(0.02, 0.22, 0.10, 0.30)
+			socket_arc = Color(0.2, 1.0, 0.45, 0.95)
 		elif is_tutorial:
 			socket_bg = Color(0.0, 0.35, 0.65, 0.22)
 			socket_arc = Color(0.0, 0.88, 1.0, 0.75)
@@ -1136,6 +1168,8 @@ func _draw() -> void:
 		var crystal_col = Color(0.03, 0.04, 0.08, 0.95)
 		if not is_unlocked:
 			crystal_col = Color(0.02, 0.03, 0.06, 0.94)
+		elif is_network:
+			crystal_col = Color(0.01, 0.10, 0.05, 0.95)
 		elif is_tutorial:
 			crystal_col = Color(0.02, 0.06, 0.14, 0.95)
 		elif is_practice:
@@ -1212,6 +1246,21 @@ func _draw() -> void:
 				draw_texture_rect(lupa_texture, l_rect, false, l_col)
 			else:
 				draw_circle(np, 6.0 * zoom_scale, Color(0.85, 0.35, 1.0, 1.0))
+		elif is_network:
+			# ICONO DE RED CISCO / TOPOLOGÍA DE 3 NODOS EN TRIÁNGULO
+			var net_col = Color(0.2, 1.0, 0.5, 1.0) if not is_hovered else Color.WHITE
+			var net_glow = Color(0.1, 0.85, 0.4, 0.8)
+			var sz = 7.5 * zoom_scale
+			var n_top = np + Vector2(0, -sz * 0.8)
+			var n_l = np + Vector2(-sz * 0.85, sz * 0.6)
+			var n_r = np + Vector2(sz * 0.85, sz * 0.6)
+			draw_line(n_top, n_l, net_glow, 1.8 * zoom_scale)
+			draw_line(n_top, n_r, net_glow, 1.8 * zoom_scale)
+			draw_line(n_l, n_r, net_glow, 1.8 * zoom_scale)
+			draw_circle(n_top, 2.8 * zoom_scale, net_col)
+			draw_circle(n_l, 2.8 * zoom_scale, net_col)
+			draw_circle(n_r, 2.8 * zoom_scale, net_col)
+			draw_circle(np + Vector2(0, 0.15 * sz), 1.6 * zoom_scale, Color.WHITE)
 		elif is_campaign:
 			var tri_sz = 6.5 * zoom_scale
 			var p_top = np + Vector2(-tri_sz * 0.6, -tri_sz)
@@ -1416,8 +1465,16 @@ func _draw_transition_effect(hub: Vector2, w: float, h: float) -> void:
 # =============================================================================
 # ENLACE CIRCUIT LINE CON SOPORTE PARA RAÍZ PRINCIPAL
 # =============================================================================
-func _draw_circuit_line(p1: Vector2, p2: Vector2, alpha: float, seed_val: int, is_primary_root: bool = false, is_practice_link: bool = false, is_purple_link: bool = false) -> void:
-	if is_primary_root:
+func _draw_circuit_line(p1: Vector2, p2: Vector2, alpha: float, seed_val: int, is_primary_root: bool = false, is_practice_link: bool = false, is_purple_link: bool = false, is_network_link: bool = false) -> void:
+	if is_network_link:
+		# ENLACE DE RED CISCO: Verde Esmeralda neón con pulsos de paquetes de datos
+		draw_line(p1, p2, Color(0.1, 0.75, 0.35, 0.35 * alpha), 3.5)
+		draw_line(p1, p2, Color(0.2, 1.0, 0.45, alpha), 1.3)
+		var packet_tnet = fmod(anim_offset * 1.3 + float(seed_val) * 0.16, 1.0)
+		var packet_posnet = p1.lerp(p2, packet_tnet)
+		draw_circle(packet_posnet, 3.5, Color(0.2, 1.0, 0.45, min(1.0, alpha * 1.8)))
+		draw_circle(packet_posnet, 1.8, Color.WHITE)
+	elif is_primary_root:
 		# RAÍZ PRINCIPAL (TUTORIAL -> NIVEL 1): Filamento cian/azul luminoso
 		draw_line(p1, p2, Color(0.0, 0.65, 1.0, 0.35 * alpha), 3.5)
 		draw_line(p1, p2, Color(0.4, 0.95, 1.0, alpha), 1.2)

@@ -1,0 +1,422 @@
+[gd_scene format=3 load_steps=9]
+
+[ext_resource type="Script" path="res://scripts/minigames/SystemConnectionMinigame.gd" id="1_sysconn"]
+[ext_resource type="Theme" path="res://styles/cyberpunk_theme.tres" id="2_theme"]
+[ext_resource type="FontFile" uid="uid://dbcug8887dro7" path="res://assets/fonts/Bungee-Regular.ttf" id="3_title_font"]
+[ext_resource type="PackedScene" path="res://scenes/ui/CyberBackgroundFrame.tscn" id="4_bg_frame"]
+[ext_resource type="Script" path="res://scripts/menus/CyberButton.gd" id="5_cbtn"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
+bg_color = Color(0.04, 0.05, 0.09, 0.96)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.0, 0.85, 1.0, 0.8)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_subbox"]
+bg_color = Color(0.06, 0.08, 0.14, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.15, 0.5, 0.7, 0.6)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_success"]
+bg_color = Color(0.04, 0.16, 0.08, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.2, 1.0, 0.45, 0.9)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[node name="SystemConnectionMinigame" type="CanvasLayer"]
+layer = 15
+script = ExtResource("1_sysconn")
+
+[node name="ModalControl" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_theme")
+
+[node name="DimOverlay" type="ColorRect" parent="ModalControl"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.02, 0.03, 0.06, 0.88)
+
+[node name="Panel" type="PanelContainer" parent="ModalControl"]
+custom_minimum_size = Vector2(980, 620)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -490.0
+offset_top = -310.0
+offset_right = 490.0
+offset_bottom = 310.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="CyberBackgroundFrame" parent="ModalControl/Panel" instance=ExtResource("4_bg_frame")]
+layout_mode = 2
+
+[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Header" type="VBoxContainer" parent="ModalControl/Panel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="TitleLabel" type="Label" parent="ModalControl/Panel/VBox/Header"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_title_font")
+theme_override_font_sizes/font_size = 22
+text = "📡 PROTOCOLO DE ENLACE // CONEXIÓN DE SISTEMAS"
+horizontal_alignment = 1
+
+[node name="StepCounter" type="Label" parent="ModalControl/Panel/VBox/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "PASO 1 DE 3: ENLACE FÍSICO DE FIBRA / DIAGNÓSTICO"
+horizontal_alignment = 1
+
+[node name="StatusBadge" type="Label" parent="ModalControl/Panel/VBox/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.35, 0.45, 1)
+theme_override_font_sizes/font_size = 13
+text = "ESTADO: DESCONECTADO (ESPERANDO ENLACE CON TERMINAL TALLER)"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="ModalControl/Panel/VBox"]
+layout_mode = 2
+
+[node name="MainHBox" type="HBoxContainer" parent="ModalControl/Panel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 14
+
+[node name="ClientPCPanel" type="PanelContainer" parent="ModalControl/Panel/VBox/MainHBox"]
+custom_minimum_size = Vector2(240, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_subbox")
+
+[node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/MainHBox/ClientPCPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/MainHBox/ClientPCPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Title" type="Label" parent="ModalControl/Panel/VBox/MainHBox/ClientPCPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.4, 0.5, 1)
+theme_override_font_sizes/font_size = 15
+text = "🖥️ PC DAÑADA\n(CLIENTE)"
+horizontal_alignment = 1
+
+[node name="IPLbl" type="Label" parent="ModalControl/Panel/VBox/MainHBox/ClientPCPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.75, 0.85, 1)
+theme_override_font_sizes/font_size = 12
+text = "IP HOST: 192.168.1.105"
+horizontal_alignment = 1
+
+[node name="PortHBox" type="HBoxContainer" parent="ModalControl/Panel/VBox/MainHBox/ClientPCPanel/Margin/VBox"]
+layout_mode = 2
+alignment = 1
+
+[node name="PortLED" type="ColorRect" parent="ModalControl/Panel/VBox/MainHBox/ClientPCPanel/Margin/VBox/PortHBox"]
+custom_minimum_size = Vector2(16, 16)
+layout_mode = 2
+color = Color(0.9, 0.2, 0.2, 1)
+
+[node name="PortName" type="Label" parent="ModalControl/Panel/VBox/MainHBox/ClientPCPanel/Margin/VBox/PortHBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = " PUERTO ETH0 / BUS"
+
+[node name="StatusLabel" type="Label" parent="ModalControl/Panel/VBox/MainHBox/ClientPCPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.4, 0.4, 1)
+theme_override_font_sizes/font_size = 12
+text = "PUERTO RX/TX: DESCONECTADO"
+horizontal_alignment = 1
+
+[node name="HSep" type="HSeparator" parent="ModalControl/Panel/VBox/MainHBox/ClientPCPanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="Telemetry" type="Label" parent="ModalControl/Panel/VBox/MainHBox/ClientPCPanel/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.65, 0.7, 0.8, 1)
+theme_override_font_sizes/font_size = 11
+text = "SISTEMA: Andromeda Linux
+FIREWALL: BLOQUEADO
+SUBSISTEMAS: 7 INCIDENCIAS
+TELEMETRÍA: AISLADA"
+autowrap_mode = 2
+
+[node name="CenterBridge" type="VBoxContainer" parent="ModalControl/Panel/VBox/MainHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="CableBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/MainHBox/CenterBridge"]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+alignment = 1
+
+[node name="CableLine" type="ColorRect" parent="ModalControl/Panel/VBox/MainHBox/CenterBridge/CableBox"]
+custom_minimum_size = Vector2(0, 10)
+layout_mode = 2
+color = Color(0.25, 0.28, 0.35, 0.8)
+
+[node name="PulseLine" type="ColorRect" parent="ModalControl/Panel/VBox/MainHBox/CenterBridge/CableBox/CableLine"]
+visible = false
+custom_minimum_size = Vector2(50, 10)
+layout_mode = 0
+offset_right = 50.0
+offset_bottom = 10.0
+color = Color(0.2, 1, 0.5, 1)
+
+[node name="CableStatusLbl" type="Label" parent="ModalControl/Panel/VBox/MainHBox/CenterBridge/CableBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.65, 0.7, 1)
+theme_override_font_sizes/font_size = 12
+text = "CANAL DE TRANSMISIÓN AISLADO"
+horizontal_alignment = 1
+
+[node name="Step1Box" type="VBoxContainer" parent="ModalControl/Panel/VBox/MainHBox/CenterBridge"]
+layout_mode = 2
+size_flags_vertical = 3
+alignment = 1
+
+[node name="HintLbl" type="Label" parent="ModalControl/Panel/VBox/MainHBox/CenterBridge/Step1Box"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.85, 1, 1)
+theme_override_font_sizes/font_size = 13
+text = "Conecta el cable de fibra de diagnóstico entre la terminal del taller y la PC dañada para comenzar."
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="BtnConnectCable" type="Button" parent="ModalControl/Panel/VBox/MainHBox/CenterBridge/Step1Box"]
+custom_minimum_size = Vector2(320, 50)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 14
+text = "🔌 CONECTAR CABLE DE DIAGNÓSTICO [ESPACIO]"
+script = ExtResource("5_cbtn")
+
+[node name="Step2Box" type="VBoxContainer" parent="ModalControl/Panel/VBox/MainHBox/CenterBridge"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="SyncStatusLbl" type="Label" parent="ModalControl/Panel/VBox/MainHBox/CenterBridge/Step2Box"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.8, 0.2, 1)
+theme_override_font_sizes/font_size = 13
+text = "SINCRONIZANDO: 0 / 3 CANALES ACTIVOS (0%)"
+horizontal_alignment = 1
+
+[node name="SyncProgress" type="ProgressBar" parent="ModalControl/Panel/VBox/MainHBox/CenterBridge/Step2Box"]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+step = 1.0
+
+[node name="ChannelsHBox" type="HBoxContainer" parent="ModalControl/Panel/VBox/MainHBox/CenterBridge/Step2Box"]
+layout_mode = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="BtnChannelA" type="Button" parent="ModalControl/Panel/VBox/MainHBox/CenterBridge/Step2Box/ChannelsHBox"]
+custom_minimum_size = Vector2(130, 60)
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "○ CANAL A: TCP/IP
+[ DESFASADO ]"
+script = ExtResource("5_cbtn")
+
+[node name="BtnChannelB" type="Button" parent="ModalControl/Panel/VBox/MainHBox/CenterBridge/Step2Box/ChannelsHBox"]
+custom_minimum_size = Vector2(130, 60)
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "○ CANAL B: 10 Gbps
+[ DESFASADO ]"
+script = ExtResource("5_cbtn")
+
+[node name="BtnChannelC" type="Button" parent="ModalControl/Panel/VBox/MainHBox/CenterBridge/Step2Box/ChannelsHBox"]
+custom_minimum_size = Vector2(130, 60)
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "○ CANAL C: ROOT
+[ DESFASADO ]"
+script = ExtResource("5_cbtn")
+
+[node name="Step3Box" type="VBoxContainer" parent="ModalControl/Panel/VBox/MainHBox/CenterBridge"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="BtnHandshake" type="Button" parent="ModalControl/Panel/VBox/MainHBox/CenterBridge/Step3Box"]
+custom_minimum_size = Vector2(340, 48)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 14
+text = "⚡ EJECUTAR HANDSHAKE Y VINCULAR SISTEMAS [ESPACIO]"
+script = ExtResource("5_cbtn")
+
+[node name="TermLog" type="RichTextLabel" parent="ModalControl/Panel/VBox/MainHBox/CenterBridge/Step3Box"]
+custom_minimum_size = Vector2(0, 130)
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/default_color = Color(0.8, 0.9, 1, 1)
+theme_override_font_sizes/normal_font_size = 12
+bbcode_enabled = true
+scroll_following = true
+
+[node name="SuccessBanner" type="PanelContainer" parent="ModalControl/Panel/VBox/MainHBox/CenterBridge/Step3Box"]
+visible = false
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_success")
+
+[node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/MainHBox/CenterBridge/Step3Box/SuccessBanner"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/MainHBox/CenterBridge/Step3Box/SuccessBanner/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="SuccessLbl" type="Label" parent="ModalControl/Panel/VBox/MainHBox/CenterBridge/Step3Box/SuccessBanner/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 1, 0.45, 1)
+theme_override_font_sizes/font_size = 14
+text = "★ ¡CONEXIÓN DE SISTEMAS EXITOSA! PUENTE ESTABLECIDO ★"
+horizontal_alignment = 1
+
+[node name="BtnContinue" type="Button" parent="ModalControl/Panel/VBox/MainHBox/CenterBridge/Step3Box/SuccessBanner/Margin/VBox"]
+custom_minimum_size = Vector2(280, 42)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 13
+text = "❯ ENTRAR A REPARAR EL SISTEMA [ENTER]"
+script = ExtResource("5_cbtn")
+
+[node name="WorkshopPanel" type="PanelContainer" parent="ModalControl/Panel/VBox/MainHBox"]
+custom_minimum_size = Vector2(240, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_subbox")
+
+[node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/MainHBox/WorkshopPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/MainHBox/WorkshopPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Title" type="Label" parent="ModalControl/Panel/VBox/MainHBox/WorkshopPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.85, 1, 1)
+theme_override_font_sizes/font_size = 15
+text = "🖥️ TERMINAL TALLER\n(ESTACIÓN TÉCNICA)"
+horizontal_alignment = 1
+
+[node name="IPLbl" type="Label" parent="ModalControl/Panel/VBox/MainHBox/WorkshopPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.75, 0.85, 1)
+theme_override_font_sizes/font_size = 12
+text = "IP GATEWAY: 192.168.1.1"
+horizontal_alignment = 1
+
+[node name="PortHBox" type="HBoxContainer" parent="ModalControl/Panel/VBox/MainHBox/WorkshopPanel/Margin/VBox"]
+layout_mode = 2
+alignment = 1
+
+[node name="PortLED" type="ColorRect" parent="ModalControl/Panel/VBox/MainHBox/WorkshopPanel/Margin/VBox/PortHBox"]
+custom_minimum_size = Vector2(16, 16)
+layout_mode = 2
+color = Color(0.2, 0.7, 1, 1)
+
+[node name="PortName" type="Label" parent="ModalControl/Panel/VBox/MainHBox/WorkshopPanel/Margin/VBox/PortHBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = " PUERTO MASTER TX/RX"
+
+[node name="StatusLabel" type="Label" parent="ModalControl/Panel/VBox/MainHBox/WorkshopPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.85, 1, 1)
+theme_override_font_sizes/font_size = 12
+text = "TERMINAL TALLER: EN ESPERA"
+horizontal_alignment = 1
+
+[node name="HSep" type="HSeparator" parent="ModalControl/Panel/VBox/MainHBox/WorkshopPanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="Telemetry" type="Label" parent="ModalControl/Panel/VBox/MainHBox/WorkshopPanel/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.65, 0.7, 0.8, 1)
+theme_override_font_sizes/font_size = 11
+text = "ROL: Estación de Diagnóstico
+HERRAMIENTAS: 7 Módulos Listos
+CANAL: Bus Local de Alta Frecuencia
+PING: < 1 ms (Loop Local)"
+autowrap_mode = 2
+
+[node name="FeedbackLabel" type="Label" parent="ModalControl/Panel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 1, 0.45, 1)
+theme_override_font_sizes/font_size = 13
+horizontal_alignment = 1
+
+[node name="Footer" type="HBoxContainer" parent="ModalControl/Panel/VBox"]
+layout_mode = 2
+alignment = 2
+
+[node name="BtnCancel" type="Button" parent="ModalControl/Panel/VBox/Footer"]
+custom_minimum_size = Vector2(180, 36)
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "◀ [ ESC ] CANCELAR"
+script = ExtResource("5_cbtn")

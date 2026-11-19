@@ -1,13 +1,16 @@
-[gd_scene format=3 load_steps=15]
+[gd_scene format=3 load_steps=19]
 
 [ext_resource type="Script" path="res://scripts/gameplay/LevelSystems1.gd" id="1_syslvl"]
 [ext_resource type="PackedScene" path="res://scenes/player/Player.tscn" id="2_player"]
 [ext_resource type="PackedScene" path="res://scenes/ui/HUD.tscn" id="3_hud"]
 [ext_resource type="PackedScene" path="res://scenes/menus/PauseMenu.tscn" id="4_pause"]
 [ext_resource type="PackedScene" path="res://scenes/components/SystemsComputerCase.tscn" id="5_pc"]
-[ext_resource type="PackedScene" uid="uid://bkddyrm8tl53r" path="res://modelos_3d/escenario_3d/mesa de reparacion.glb" id="6_mesa"]
+[ext_resource type="PackedScene" uid="uid://djwe0lo04jhsv" path="res://modelos_3d/escenario_3d/mesa de pedidos.glb" id="6_mesa_ped"]
 [ext_resource type="PackedScene" uid="uid://cidts6etijohr" path="res://modelos_3d/escenario_3d/piso.glb" id="7_piso"]
-[ext_resource type="PackedScene" path="res://scenes/components/MonitorPedidos.tscn" id="8_monitor_ped"]
+[ext_resource type="PackedScene" uid="uid://c0hfi6wkv6qj2" path="res://modelos_3d/escenario_3d/pared.glb" id="8_pared"]
+[ext_resource type="PackedScene" path="res://scenes/components/MonitorPedidos.tscn" id="9_monitor_ped"]
+[ext_resource type="PackedScene" uid="uid://d08c8eihvn34l" path="res://modelos_3d/escenario_3d/monitor.glb" id="10_monitor"]
+[ext_resource type="PackedScene" uid="uid://brplmh50v8dna" path="res://modelos_3d/escenario_3d/raton.glb" id="11_raton"]
 
 [sub_resource type="Environment" id="Environment_1"]
 background_mode = 1
@@ -21,6 +24,12 @@ glow_bloom = 0.05
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
 size = Vector3(14, 0.2, 14)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_wall_x"]
+size = Vector3(14, 5, 0.4)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_wall_z"]
+size = Vector3(0.4, 5, 14)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_bench"]
 size = Vector3(1.92, 0.912, 0.98)
@@ -44,6 +53,18 @@ transform = Transform3D(0.866025, -0.353553, 0.353553, 0, 0.707107, 0.707107, -0
 light_color = Color(0.7, 0.85, 1, 1)
 light_energy = 0.9
 
+[node name="CeilingLight1" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.5, 4.2, 0)
+light_color = Color(0.2, 0.85, 1, 1)
+light_energy = 1.4
+omni_range = 14.0
+
+[node name="CeilingLight2" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5, 4.2, 0)
+light_color = Color(0.3, 0.7, 1, 1)
+light_energy = 1.4
+omni_range = 14.0
+
 [node name="Room" type="Node3D" parent="."]
 
 [node name="Floor" type="StaticBody3D" parent="Room"]
@@ -55,7 +76,7 @@ shape = SubResource("BoxShape3D_floor")
 transform = Transform3D(1.75, 0, 0, 0, 1, 0, 0, 0, 1.75, -5.25, -0.546, 1.75)
 
 [node name="Ceiling" type="StaticBody3D" parent="Room"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.0, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, 0)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Room/Ceiling"]
 shape = SubResource("BoxShape3D_floor")
@@ -63,19 +84,169 @@ shape = SubResource("BoxShape3D_floor")
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Room/Ceiling"]
 mesh = SubResource("BoxMesh_ceiling")
 
-[node name="WorkBench" type="StaticBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.8)
+[node name="Walls" type="Node3D" parent="Room"]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="WorkBench"]
+[node name="WallNorth" type="StaticBody3D" parent="Room/Walls"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -7)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Room/Walls/WallNorth"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, 0)
+shape = SubResource("BoxShape3D_wall_x")
+
+[node name="ParedModel" parent="Room/Walls/WallNorth" instance=ExtResource("8_pared")]
+transform = Transform3D(0, 0, 1.556, 0, 1, 0, -1, 0, 0, 0.958, -0.866, 0)
+
+[node name="WallSouth" type="StaticBody3D" parent="Room/Walls"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 7)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Room/Walls/WallSouth"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, 0)
+shape = SubResource("BoxShape3D_wall_x")
+
+[node name="ParedModel" parent="Room/Walls/WallSouth" instance=ExtResource("8_pared")]
+transform = Transform3D(0, 0, -1.556, 0, 1, 0, 1, 0, 0, -0.958, -0.866, 0)
+
+[node name="WallWest" type="StaticBody3D" parent="Room/Walls"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 0, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Room/Walls/WallWest"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, 0)
+shape = SubResource("BoxShape3D_wall_z")
+
+[node name="ParedModel" parent="Room/Walls/WallWest" instance=ExtResource("8_pared")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1.556, 0, -0.866, 0.958)
+
+[node name="WallEast" type="StaticBody3D" parent="Room/Walls"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Room/Walls/WallEast"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, 0)
+shape = SubResource("BoxShape3D_wall_z")
+
+[node name="ParedModel" parent="Room/Walls/WallEast" instance=ExtResource("8_pared")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1.556, 0, -0.866, -0.958)
+
+[node name="MesasTrabajo" type="Node3D" parent="."]
+
+[node name="WorkBench1" type="StaticBody3D" parent="MesasTrabajo"]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -5.2, 0, -4.2)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MesasTrabajo/WorkBench1"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.456, 0)
 shape = SubResource("BoxShape3D_bench")
 
-[node name="MesaReparacion" parent="WorkBench" instance=ExtResource("6_mesa")]
+[node name="MesaModel" parent="MesasTrabajo/WorkBench1" instance=ExtResource("6_mesa_ped")]
 transform = Transform3D(0.012, 0, 0, 0, 0.012, 0, 0, 0, 0.012, 0, 0, 0)
 
-[node name="SystemsComputer" parent="WorkBench" instance=ExtResource("5_pc")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.912, 0)
+[node name="MonitorTaller" type="Node3D" parent="MesasTrabajo/WorkBench1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.15, 0.912, 0.1)
+
+[node name="MonitorModel" parent="MesasTrabajo/WorkBench1/MonitorTaller" instance=ExtResource("10_monitor")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.669, -1.4899, 2.2059)
+
+[node name="ScreenLight" type="OmniLight3D" parent="MesasTrabajo/WorkBench1/MonitorTaller"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.2, 0.25, 0.1)
+light_color = Color(0.12, 0.85, 1, 1)
+light_energy = 0.8
+omni_range = 1.4
+
+[node name="RatonTaller" parent="MesasTrabajo/WorkBench1" instance=ExtResource("11_raton")]
+transform = Transform3D(0.012, 0, 0, 0, 0.012, 0, 0, 0, 0.012, -0.48, 0.912, -0.1)
+
+[node name="SystemsComputer1" parent="MesasTrabajo/WorkBench1" instance=ExtResource("5_pc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.48, 0.912, 0)
 pc_id = 1
+
+[node name="WorkBench2" type="StaticBody3D" parent="MesasTrabajo"]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -5.2, 0, -1.4)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MesasTrabajo/WorkBench2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.456, 0)
+shape = SubResource("BoxShape3D_bench")
+
+[node name="MesaModel" parent="MesasTrabajo/WorkBench2" instance=ExtResource("6_mesa_ped")]
+transform = Transform3D(0.012, 0, 0, 0, 0.012, 0, 0, 0, 0.012, 0, 0, 0)
+
+[node name="MonitorTaller" type="Node3D" parent="MesasTrabajo/WorkBench2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.15, 0.912, 0.1)
+
+[node name="MonitorModel" parent="MesasTrabajo/WorkBench2/MonitorTaller" instance=ExtResource("10_monitor")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.669, -1.4899, 2.2059)
+
+[node name="ScreenLight" type="OmniLight3D" parent="MesasTrabajo/WorkBench2/MonitorTaller"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.2, 0.25, 0.1)
+light_color = Color(0.12, 0.85, 1, 1)
+light_energy = 0.8
+omni_range = 1.4
+
+[node name="RatonTaller" parent="MesasTrabajo/WorkBench2" instance=ExtResource("11_raton")]
+transform = Transform3D(0.012, 0, 0, 0, 0.012, 0, 0, 0, 0.012, -0.48, 0.912, -0.1)
+
+[node name="WorkBench3" type="StaticBody3D" parent="MesasTrabajo"]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -5.2, 0, 1.4)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MesasTrabajo/WorkBench3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.456, 0)
+shape = SubResource("BoxShape3D_bench")
+
+[node name="MesaModel" parent="MesasTrabajo/WorkBench3" instance=ExtResource("6_mesa_ped")]
+transform = Transform3D(0.012, 0, 0, 0, 0.012, 0, 0, 0, 0.012, 0, 0, 0)
+
+[node name="MonitorTaller" type="Node3D" parent="MesasTrabajo/WorkBench3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.15, 0.912, 0.1)
+
+[node name="MonitorModel" parent="MesasTrabajo/WorkBench3/MonitorTaller" instance=ExtResource("10_monitor")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.669, -1.4899, 2.2059)
+
+[node name="ScreenLight" type="OmniLight3D" parent="MesasTrabajo/WorkBench3/MonitorTaller"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.2, 0.25, 0.1)
+light_color = Color(0.12, 0.85, 1, 1)
+light_energy = 0.8
+omni_range = 1.4
+
+[node name="RatonTaller" parent="MesasTrabajo/WorkBench3" instance=ExtResource("11_raton")]
+transform = Transform3D(0.012, 0, 0, 0, 0.012, 0, 0, 0, 0.012, -0.48, 0.912, -0.1)
+
+[node name="WorkBench4" type="StaticBody3D" parent="MesasTrabajo"]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -5.2, 0, 4.2)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MesasTrabajo/WorkBench4"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.456, 0)
+shape = SubResource("BoxShape3D_bench")
+
+[node name="MesaModel" parent="MesasTrabajo/WorkBench4" instance=ExtResource("6_mesa_ped")]
+transform = Transform3D(0.012, 0, 0, 0, 0.012, 0, 0, 0, 0.012, 0, 0, 0)
+
+[node name="MonitorTaller" type="Node3D" parent="MesasTrabajo/WorkBench4"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.15, 0.912, 0.1)
+
+[node name="MonitorModel" parent="MesasTrabajo/WorkBench4/MonitorTaller" instance=ExtResource("10_monitor")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.669, -1.4899, 2.2059)
+
+[node name="ScreenLight" type="OmniLight3D" parent="MesasTrabajo/WorkBench4/MonitorTaller"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.2, 0.25, 0.1)
+light_color = Color(0.12, 0.85, 1, 1)
+light_energy = 0.8
+omni_range = 1.4
+
+[node name="RatonTaller" parent="MesasTrabajo/WorkBench4" instance=ExtResource("11_raton")]
+transform = Transform3D(0.012, 0, 0, 0, 0.012, 0, 0, 0, 0.012, -0.48, 0.912, -0.1)
+
+[node name="MesaPedidos" type="StaticBody3D" parent="."]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 5.2, 0, -4.5)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MesaPedidos"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.456, 0)
+shape = SubResource("BoxShape3D_bench")
+
+[node name="MesaModel" parent="MesaPedidos" instance=ExtResource("6_mesa_ped")]
+transform = Transform3D(0.012, 0, 0, 0, 0.012, 0, 0, 0, 0.012, 0, 0, 0)
+
+[node name="MonitorPedidos" parent="MesaPedidos" instance=ExtResource("9_monitor_ped")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.912, -0.15)
+
+[node name="RatonPedidos" parent="MesaPedidos" instance=ExtResource("11_raton")]
+transform = Transform3D(-0.012, 0, 0, 0, 0.012, 0, 0, 0, -0.012, 0.42, 0.912, 0.1)
 
 [node name="Player" parent="." instance=ExtResource("2_player")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0.8)
@@ -89,16 +260,3 @@ layer = 1
 layer = 20
 
 [node name="PauseMenu" parent="CanvasLayerPause" instance=ExtResource("4_pause")]
-
-[node name="MesaPedidos" type="StaticBody3D" parent="."]
-transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 3.8, 0, 0)
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="MesaPedidos"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.456, 0)
-shape = SubResource("BoxShape3D_bench")
-
-[node name="MesaReparacion" parent="MesaPedidos" instance=ExtResource("6_mesa")]
-transform = Transform3D(0.012, 0, 0, 0, 0.012, 0, 0, 0, 0.012, 0, 0, 0)
-
-[node name="MonitorPedidos" parent="MesaPedidos" instance=ExtResource("8_monitor_ped")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.912, -0.15)
