@@ -1,6 +1,0 @@
-[gd_scene format=3 load_steps=2]
-
-[ext_resource type="Script" path="res://tests/test_packet_tracer.gd" id="1_test"]
-
-[node name="TestPacketTracer" type="Node"]
-script = ExtResource("1_test")

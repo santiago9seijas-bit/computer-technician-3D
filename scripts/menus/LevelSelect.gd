@@ -1084,59 +1084,6 @@ var LEVELS_DATA: Dictionary = {
 			"description": "Entorno libre de pruebas sin presión de tiempo.\nManipulación y montaje de componentes de servidor en bastidores a tu propio ritmo.",
 			"requirements": "HERRAMIENTAS: Acceso Total · MODO PRÁCTICA LIBRE · SIN TIEMPO",
 			"can_play": true
-		},
-		{
-			"number": 14,
-			"is_minigame": true,
-			"is_network": true,
-			"is_tutorial": true,
-			"challenge_id": 0,
-			"title": "🟢 CISCO PACKET TRACER // TUTORIAL & INDUCCIÓN",
-			"stage": "LABORATORIO DE REDES // TUTORIAL CON SANTIAGO",
-			"mode_name": "SERVIDOR",
-			"color_accent": Color(0.2, 1.0, 0.45),
-			"description": "Tutorial e inducción interactiva a redes guiada por Santiago.\nAprende los fundamentos de Cisco Packet Tracer: interconecta la PC de usuario al Switch 2960 con Cable Directo y realiza la prueba de Ping.",
-			"requirements": "TUTORIAL CISCO GUIADO · CABLE DIRECTO · ACCESO LIBRE",
-			"can_play": true
-		},
-		{
-			"number": 15,
-			"is_minigame": true,
-			"is_network": true,
-			"challenge_id": 1,
-			"title": "🟢 DESAFÍO RED #1 // LAN DE OFICINA & SERVIDOR LOCAL",
-			"stage": "LABORATORIO DE REDES // TOPOLOGÍA DE ACCESO",
-			"mode_name": "SERVIDOR",
-			"color_accent": Color(0.2, 1.0, 0.45),
-			"description": "Interconecta las PCs de Ventas y Administración junto al Servidor de Archivos al Switch central usando Cable Directo.\nValida el tráfico con prueba de Ping global.",
-			"requirements": "SIMULADOR PACKET TRACER · REQUIERE: NIVEL 1 O INTRO CISCO",
-			"can_play": false
-		},
-		{
-			"number": 16,
-			"is_minigame": true,
-			"is_network": true,
-			"challenge_id": 2,
-			"title": "🟢 DESAFÍO RED #2 // ENLACE ROUTER & SUBREDES",
-			"stage": "LABORATORIO DE REDES // CAPA 3 Y ENRUTAMIENTO",
-			"mode_name": "SERVIDOR",
-			"color_accent": Color(0.2, 1.0, 0.45),
-			"description": "Conexión entre diferentes áreas departamentales.\nEnlaza los switches de acceso a las interfaces Gigabit del Router central y verifica la comunicación inter-redes.",
-			"requirements": "SIMULADOR PACKET TRACER · REQUIERE: NIVEL 4/6 O RETO 1",
-			"can_play": false
-		},
-		{
-			"number": 17,
-			"is_minigame": true,
-			"is_network": true,
-			"challenge_id": 3,
-			"title": "🟢 DESAFÍO RED #3 // TRONCAL DE FIBRA & CROSSOVER",
-			"stage": "LABORATORIO DE REDES // CAPA FÍSICA AVANZADA",
-			"mode_name": "SERVIDOR",
-			"color_accent": Color(0.2, 1.0, 0.45),
-			"description": "Prueba de infraestructura de Datacenter.\nConecta Switch a Switch usando Cable Cruzado (Crossover) y el Servidor Mainframe al Router con enlace de Fibra Óptica amarilla.",
-			"requirements": "SIMULADOR PACKET TRACER · REQUIERE: NIVEL 5/8 O RETO 2",
-			"can_play": false
 		}
 	]
 }
@@ -1497,21 +1444,6 @@ var ALL_TUTORIAL_CARDS: Array[Dictionary] = [
 	},
 
 	# --- DIVISIÓN SERVIDOR (INFRAESTRUCTURA & RACKS) ---
-	{
-		"division": "servidor",
-		"id": "cisco_packet_tracer",
-		"title": "CISCO PACKET TRACER // REDES",
-		"subtitle": "INTERCONEXIÓN & CABLEADO DE DATACENTER",
-		"category": "REDES & TELECOMUNICACIONES",
-		"texture_path": "",
-		"color_accent": Color(0.2, 1.0, 0.45, 1.0),
-		"que_es": "Simulador de interconexión de redes Cisco Packet Tracer para topologías de red en Datacenter y oficinas corporativas.",
-		"importancia": "CRÍTICA: Elegir el cable correcto (Directo, Cruzado o Fibra) determina la comunicación en Capa 1 y la operatividad de los servidores.",
-		"que_hace": "Permite interconectar PCs, switches, routers y servidores con cable directo, cruzado o fibra óptica y probar la conectividad con Ping ICMP.",
-		"pasos": "1. Selecciona el tipo de cable en la barra inferior (Directo, Cruzado o Fibra).\n2. Haz clic en el primer dispositivo y luego en el dispositivo de destino.\n3. Presiona 'SIMULAR PING (ICMP)' para validar que los enlaces estén UP y el tráfico fluya.",
-		"is_ready": true,
-		"handler": "launch_packet_tracer"
-	},
 	{
 		"division": "servidor",
 		"id": "rack_mount",
@@ -2255,8 +2187,8 @@ func _on_node_clicked(index: int) -> void:
 			difficulty_selector.play_exit_animation()
 		if tutorial_info_panel:
 			tutorial_info_panel.open_for_tutorial_node(data, req_points, player_points, prev_completed)
-	elif data.get("is_practice", false) or data.get("is_network", false) or data.get("is_minigame", false):
-		# SALA DE PRÁCTICA O RETO DE RED CISCO - Mostrar Panel en modo práctica libre
+	elif data.get("is_practice", false):
+		# SALA DE PRÁCTICA - Mostrar Panel en modo práctica libre
 		if difficulty_selector and difficulty_selector.visible:
 			difficulty_selector.play_exit_animation()
 		if tutorial_info_panel:
@@ -2421,9 +2353,7 @@ func _on_btn_play_level_pressed() -> void:
 		_show_toast("🔒 Este módulo está bloqueado. Supera la etapa anterior para desbloquearlo.")
 		return
 
-	if node_data.get("is_network", false) or node_data.get("is_minigame", false):
-		_play_network_minigame(node_data)
-	elif node_data.get("is_tutorial", false):
+	if node_data.get("is_tutorial", false):
 		var target_comp = node_data.get("tutorial_component", "general")
 		var target_scene = node_data.get("target_scene", "")
 		if target_scene == "" and TUTORIAL_SCENES.has(target_comp):
@@ -2439,41 +2369,6 @@ func _on_btn_play_level_pressed() -> void:
 	else:
 		# NIVEL DE JUEGO (Nivel 1 al 12)
 		_play_level_1()
-
-func _play_network_minigame(node_data: Dictionary) -> void:
-	if is_launching_level:
-		return
-	is_launching_level = true
-	
-	if btn_play_level1:
-		btn_play_level1.visible = false
-	if tutorial_info_panel:
-		tutorial_info_panel.visible = false
-	if difficulty_selector:
-		difficulty_selector.visible = false
-	if card_dim_overlay:
-		card_dim_overlay.visible = false
-		
-	var challenge_id: int = int(node_data.get("challenge_id", 0))
-	var pt_scene = load("res://scenes/minigames/PacketTracerMinigame.tscn")
-	if not pt_scene:
-		_show_toast("⚠ Error al cargar simulador de redes Packet Tracer.")
-		is_launching_level = false
-		return
-		
-	var inst = pt_scene.instantiate()
-	current_minigame_instance = inst
-	minigame_container.add_child(inst)
-	if inst.has_method("load_challenge"):
-		inst.load_challenge(challenge_id)
-		
-	inst.minigame_finished.connect(func(success: bool):
-		_on_minigame_finished(success)
-		_unzoom_camera()
-	)
-	inst.tree_exited.connect(func():
-		is_launching_level = false
-	)
 
 func _play_inspection_level(node_data: Dictionary) -> void:
 	if is_launching_level:
@@ -3051,9 +2946,6 @@ func _on_deployed_play_pressed() -> void:
 		"launch_system_connection":
 			var conn_scene = load("res://scenes/minigames/SystemConnectionMinigame.tscn")
 			_launch_minigame(conn_scene)
-		"launch_packet_tracer":
-			var pt_scene = load("res://scenes/minigames/PacketTracerMinigame.tscn")
-			_launch_minigame(pt_scene)
 
 func _launch_minigame(scene: PackedScene) -> void:
 	if not scene:
@@ -3132,12 +3024,18 @@ func _on_volver_pressed() -> void:
 func _play_exit_sfx() -> void:
 	if not ResourceLoader.exists("res://efectos/sonido de entrada.ogg"):
 		return
+	var stream = load("res://efectos/sonido de entrada.ogg")
+	if stream is AudioStreamOggVorbis:
+		stream.loop = false
 	var player = AudioStreamPlayer.new()
-	player.stream = load("res://efectos/sonido de entrada.ogg")
+	player.stream = stream
 	player.volume_db = -2.0
 	player.pitch_scale = 0.82 # Modulación grave sci-fi de desconexión
 	player.bus = "Master"
-	add_child(player)
+	if get_tree() and get_tree().root:
+		get_tree().root.add_child(player)
+	else:
+		add_child(player)
 	player.play()
 	player.finished.connect(player.queue_free)
 
@@ -3353,13 +3251,8 @@ func _sync_progression_from_save() -> void:
 	var list = LEVELS_DATA.get(current_mode, [])
 	for i in range(list.size()):
 		var is_unl = false
-		if i == 0 or (current_mode == "servidor" and i == 14):
-			is_unl = true # Nivel de inducción y Cisco Intro siempre disponibles
-		elif current_mode == "servidor" and i in [15, 16, 17]:
-			if sm and sm.has_method("is_node_unlocked"):
-				is_unl = sm.is_node_unlocked("servidor", i)
-			else:
-				is_unl = false
+		if i == 0:
+			is_unl = true # Nivel de inducción siempre disponible
 		elif sm and sm.has_method("is_node_unlocked"):
 			is_unl = sm.is_node_unlocked(current_mode, i)
 		else:
@@ -3415,9 +3308,7 @@ func get_node_required_points(mode: String, node_idx: int) -> int:
 	if node_idx >= list.size():
 		return 100 * node_idx
 	var data = list[node_idx]
-	if data.get("is_network", false) or data.get("is_minigame", false):
-		return 0
-	elif data.get("is_tutorial", false):
+	if data.get("is_tutorial", false):
 		var num = data.get("number", node_idx)
 		return 50 * max(1, num)
 	elif data.get("is_practice", false):
@@ -3541,7 +3432,7 @@ func _on_level_unlock_requested(node_data: Dictionary) -> void:
 	_show_toast("🔓 ¡Nivel desbloqueado con éxito! Tus puntos se conservan intactos.")
 	
 	# Refrescar el panel abierto de inmediato para pasar al botón de iniciar nivel
-	if node_data.get("is_network", false) or node_data.get("is_minigame", false) or node_data.get("is_practice", false):
+	if node_data.get("is_practice", false):
 		if tutorial_info_panel:
 			tutorial_info_panel.open_for_practice(node_data, req_points, player_points, true)
 	elif node_data.get("is_tutorial", false):

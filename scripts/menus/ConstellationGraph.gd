@@ -74,8 +74,6 @@ func set_all_unlocked(unlocked: bool) -> void:
 func is_node_unlocked(index: int) -> bool:
 	if index == 0:
 		return true # El nivel de introducción siempre está desbloqueado
-	if current_mode == "servidor" and index == 14:
-		return true # Inducción Cisco abierta desde el inicio
 	if node_unlocked_states.has(index):
 		return node_unlocked_states[index]
 	var sm = get_node_or_null("/root/SaveManager")
@@ -304,13 +302,7 @@ var MODE_NODES: Dictionary = {
 		Vector2(16, 720),   # [12] NIVEL 12: Centro NOC Datacenter (Anillo Exterior 8h)
 
 		# --- SATÉLITE DE PRÁCTICA 3D [13] (Radio ~480px) ---
-		Vector2(224, 120),  # [13] SALA DE PRÁCTICA: Distanciada de Servidores 1U y 2U (NARANJA NEÓN)
-
-		# --- NODOS VERDES: CISCO PACKET TRACER & RETOS DE RED [14 - 17] (Distribuidos en 4 cuadrantes) ---
-		Vector2(480, 210),  # [14] INDUCCIÓN CISCO: Fundamentos & Cable Directo (Noroeste, VERDE ESMERALDA)
-		Vector2(900, 210),  # [15] RETO RED #1: LAN Oficina & Servidor Local (Noreste, VERDE ESMERALDA)
-		Vector2(320, 520),  # [16] RETO RED #2: Router & Subredes (Suroeste, VERDE ESMERALDA)
-		Vector2(1040, 540)  # [17] RETO RED #3: Troncal Fibra Óptica & Crossover (Sureste, VERDE ESMERALDA)
+		Vector2(224, 120)   # [13] SALA DE PRÁCTICA: Distanciada de Servidores 1U y 2U (NARANJA NEÓN)
 	]
 }
 
@@ -389,11 +381,6 @@ var MODE_CONNECTIONS: Dictionary = {
 		Vector2i(0, 4), Vector2i(0, 5), Vector2i(0, 6),
 		# Conexión satélite de práctica (Naranja Neón)
 		Vector2i(0, 13), Vector2i(1, 13),
-		# Filamentos y Desbloqueos de Redes Cisco Packet Tracer distribuidos (Verde Esmeralda)
-		Vector2i(0, 14), Vector2i(14, 1),
-		Vector2i(1, 15), Vector2i(15, 4),
-		Vector2i(6, 16), Vector2i(16, 11),
-		Vector2i(5, 17), Vector2i(17, 10),
 		# Anillo de telaraña circular interno
 		Vector2i(1, 2), Vector2i(2, 3), Vector2i(3, 4),
 		Vector2i(4, 5), Vector2i(5, 6), Vector2i(6, 1),
@@ -733,17 +720,6 @@ func _setup_cached_node_labels() -> void:
 			lbl.text = "PRÁCTICA"
 			lbl.add_theme_font_size_override("font_size", 10)
 			lbl.add_theme_color_override("font_color", Color(1.0, 0.65, 0.15, 1.0))
-			lbl.size = Vector2(80, 20)
-		elif current_mode == "servidor" and i in [14, 15, 16, 17]:
-			var net_names = {
-				14: "TUT CISCO",
-				15: "RETO 1 LAN",
-				16: "RETO 2 ROUTER",
-				17: "RETO 3 FIBRA"
-			}
-			lbl.text = net_names.get(i, "RED")
-			lbl.add_theme_font_size_override("font_size", 9)
-			lbl.add_theme_color_override("font_color", Color(0.2, 1.0, 0.5, 1.0))
 			lbl.size = Vector2(80, 20)
 		else:
 			lbl.text = str(i)

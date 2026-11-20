@@ -306,16 +306,6 @@ func is_node_unlocked(mode: String, node_idx: int) -> bool:
 	# El nivel de introducción (nodo 0) de reparación, sistemas y servidor siempre está desbloqueado
 	if node_idx == 0:
 		return true
-	# Modo servidor: Desafíos de red Cisco Packet Tracer distribuidos
-	if mode == "servidor":
-		if node_idx == 14:
-			return true # Cisco Intro siempre disponible como punto de partida
-		if node_idx == 15 and (is_node_completed("servidor", 1) or is_node_completed("servidor", 14)):
-			return true # Reto 1 se desbloquea tras Nivel 1 o Cisco Intro
-		if node_idx == 16 and (is_node_completed("servidor", 4) or is_node_completed("servidor", 6) or is_node_completed("servidor", 15)):
-			return true # Reto 2 se desbloquea tras Nivel 4, Nivel 6 o Reto 1
-		if node_idx == 17 and (is_node_completed("servidor", 5) or is_node_completed("servidor", 8) or is_node_completed("servidor", 16)):
-			return true # Reto 3 se desbloquea tras Nivel 5, Nivel 8 o Reto 2
 	# Los niveles morados de inspección se desbloquean al completar sus niveles de campaña padre
 	if mode == "reparacion":
 		if (node_idx == 26 or node_idx == 27) and is_node_completed("reparacion", 7):

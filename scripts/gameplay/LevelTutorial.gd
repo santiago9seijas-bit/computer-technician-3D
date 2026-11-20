@@ -443,15 +443,6 @@ func _is_modal_currently_open() -> bool:
 	return false
 
 func _play_tutorial_entrance_animation() -> void:
-	var sfx_path = "res://efectos/sonido de entrada.ogg"
-	if ResourceLoader.exists(sfx_path):
-		var audio = AudioStreamPlayer.new()
-		audio.stream = load(sfx_path)
-		audio.volume_db = -8.0
-		add_child(audio)
-		audio.play()
-		audio.finished.connect(audio.queue_free)
-		
 	if player and player.get_node_or_null("Camera3D"):
 		var cam = player.get_node_or_null("Camera3D") as Camera3D
 		var orig_fov = cam.fov

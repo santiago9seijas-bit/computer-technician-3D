@@ -177,22 +177,28 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 # Sonido de entrada / salida de nivel según el modo
-func _play_entry_sfx() -> void:
-	if not ResourceLoader.exists("res://efectos/sonido de entrada.ogg"):
-		return
+func _play_entry_sfx() -> float:
+	var sfx_path = "res://efectos/sonido de entrada.ogg"
+	if not ResourceLoader.exists(sfx_path):
+		return 1.105
+	var stream = load(sfx_path)
+	if not stream:
+		return 1.105
+	if stream is AudioStreamOggVorbis:
+		stream.loop = false
 	var player = AudioStreamPlayer.new()
-	player.stream = load("res://efectos/sonido de entrada.ogg")
+	player.stream = stream
 	player.volume_db = 0.0
-	if _mode == "sistema":
-		player.pitch_scale = 1.08 # Resonancia limpia y aguda ciber-azul
-	elif _mode == "servidor":
-		player.pitch_scale = 0.88 # Resonancia grave y profunda de datacenter naranja
+	if _is_exit:
+		player.pitch_scale = 0.85 # Tono modificado para desconexión
 	else:
-		player.pitch_scale = 1.0 # Resonancia táctica carmesí roja
+		player.pitch_scale = 1.0 # Tono natural perfecto al entrar, claro y sin distorsión
 	player.bus = "Master"
 	add_child(player)
 	player.play()
 	player.finished.connect(player.queue_free)
+	var dur = stream.get_length() / player.pitch_scale
+	return maxf(dur, 0.5)
 
 func _start_sequence(
 	tree: SceneTree,
@@ -207,8 +213,11 @@ func _start_sequence(
 	root_ctrl.mouse_filter = Control.MOUSE_FILTER_STOP
 	add_child(root_ctrl)
 	
-	# Reproducir el audio una única vez aquí al inicio
-	_play_entry_sfx()
+	# Reproducir el audio una única vez aquí al inicio y sincronizar la transición con su duración exacta
+	var sound_duration = _play_entry_sfx()
+	var t_close = sound_duration * 0.28
+	var t_swap  = sound_duration * 0.44
+	var t_open  = sound_duration * 0.28
 	
 	var screen_w = root_ctrl.size.x if root_ctrl.size.x > 0 else 1280.0
 	var screen_h = root_ctrl.size.y if root_ctrl.size.y > 0 else 720.0
@@ -729,20 +738,20 @@ func _start_sequence(
 	tw.set_parallel(true)
 	
 	# 1. Oscurecer fondo y cerrar compuertas con impacto cinemático
-	tw.tween_property(bg_overlay, "color:a", 0.85, 0.16).set_trans(Tween.TRANS_QUAD)
-	tw.tween_property(shutter_top, "position:y", 0.0, 0.18).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	tw.tween_property(shutter_bot, "position:y", half_h, 0.18).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tw.tween_property(bg_overlay, "color:a", 0.90, t_close * 0.9).set_trans(Tween.TRANS_QUAD)
+	tw.tween_property(shutter_top, "position:y", 0.0, t_close).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tw.tween_property(shutter_bot, "position:y", half_h, t_close).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	
 	# Micro impacto shake de las compuertas al cerrarse
-	tw.tween_property(root_ctrl, "position:y", 4.0, 0.02).set_delay(0.18)
-	tw.tween_property(root_ctrl, "position:y", 0.0, 0.02).set_delay(0.20)
+	tw.tween_property(root_ctrl, "position:y", 4.0, 0.02).set_delay(t_close)
+	tw.tween_property(root_ctrl, "position:y", 0.0, 0.02).set_delay(t_close + 0.02)
 	
 	# Activar capa de hologramas
-	tw.tween_property(hologram_layer, "modulate:a", 1.0, 0.12)
+	tw.tween_property(hologram_layer, "modulate:a", 1.0, t_close * 0.7)
 	
 	# Retícula holográfica
-	tw.tween_property(reticle_ctrl, "modulate:a", 0.90, 0.12).set_delay(0.04)
-	tw.tween_property(reticle_ctrl, "scale", Vector2(1.2, 1.2), 0.20).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT).set_delay(0.04)
+	tw.tween_property(reticle_ctrl, "modulate:a", 0.90, t_close * 0.6).set_delay(0.04)
+	tw.tween_property(reticle_ctrl, "scale", Vector2(1.2, 1.2), t_close).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT).set_delay(0.04)
 	
 	# 2. Barrido dual de haces láser cruzados
 	var gm_ref = get_node_or_null("/root/GameManager")
@@ -753,8 +762,8 @@ func _start_sequence(
 		laser_beam_main.position.y = -10.0
 		laser_beam_sub.modulate.a = 0.85
 		laser_beam_sub.position.y = screen_h + 10.0
-		tw.tween_property(laser_beam_main, "position:y", screen_h + 10.0, 0.22).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
-		tw.tween_property(laser_beam_sub, "position:y", -10.0, 0.22).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT).set_delay(0.02)
+		tw.tween_property(laser_beam_main, "position:y", screen_h + 10.0, t_close).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
+		tw.tween_property(laser_beam_sub, "position:y", -10.0, t_close).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT).set_delay(0.02)
 	else:
 		laser_beam_main.modulate.a = 0.0
 		laser_beam_sub.modulate.a = 0.0
@@ -763,18 +772,18 @@ func _start_sequence(
 	if center_element:
 		center_element.modulate.a = 0.0
 		center_element.scale = Vector2(0.85, 0.85)
-		tw.tween_property(center_element, "modulate:a", 1.0, 0.14).set_delay(0.06)
-		tw.tween_property(center_element, "scale", Vector2(1.0, 1.0), 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT).set_delay(0.06)
+		tw.tween_property(center_element, "modulate:a", 1.0, t_close * 0.7).set_delay(0.04)
+		tw.tween_property(center_element, "scale", Vector2(1.0, 1.0), t_close).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT).set_delay(0.04)
 	
 	# 4. Progreso inicial fluido mientras se cierran compuertas
 	if prog_bar:
-		tw.tween_property(prog_bar, "value", 40.0, 0.18).set_trans(Tween.TRANS_QUAD).set_delay(0.02)
+		tw.tween_property(prog_bar, "value", 25.0, t_close).set_trans(Tween.TRANS_QUAD)
 	
 	if is_instance_valid(lbl_progress_val):
 		tw.tween_method(func(val: float):
 			if is_instance_valid(lbl_progress_val):
 				lbl_progress_val.text = "[ INICIALIZANDO: %d%% ]" % int(val)
-		, 0.0, 40.0, 0.18).set_delay(0.02)
+		, 0.0, 25.0, t_close)
 	
 	# 5. Conmutación y carga activa de escena tras cerrar compuertas
 	tw.chain().tween_callback(func():
@@ -794,7 +803,9 @@ func _start_sequence(
 			prog_bar,
 			lbl_progress_val,
 			lbl_telemetry,
-			is_photo
+			is_photo,
+			t_swap,
+			t_open
 		)
 	)
 
@@ -814,12 +825,33 @@ func _perform_scene_swap_and_reveal(
 	prog_bar: ProgressBar = null,
 	lbl_progress_val: Label = null,
 	lbl_telemetry: Label = null,
-	is_photo: bool = false
+	is_photo: bool = false,
+	t_swap: float = 0.48,
+	t_open: float = 0.31
 ) -> void:
 	if target_scene_path != "":
 		tree.paused = false
 		
-		# Esperar activamente en hilos actualizando barra de progreso dinámicamente
+		# Animar progreso y telemetría de 25% a 100% sincronizado exactamente con t_swap
+		var pb_tw = tree.create_tween()
+		pb_tw.set_parallel(true)
+		if is_instance_valid(prog_bar):
+			pb_tw.tween_property(prog_bar, "value", 100.0, t_swap * 0.85).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		if is_instance_valid(lbl_progress_val):
+			pb_tw.tween_method(func(val: float):
+				if is_instance_valid(lbl_progress_val):
+					if val >= 99.0:
+						lbl_progress_val.text = "✓ [ CARGA COMPLETA: 100% OK ]"
+						lbl_progress_val.add_theme_color_override("font_color", Color(0.2, 1.0, 0.5, 1.0))
+					else:
+						lbl_progress_val.text = "[ SINCRONIZANDO: %d%% ]" % int(val)
+			, 25.0, 100.0, t_swap * 0.85)
+		if is_instance_valid(lbl_telemetry):
+			pb_tw.chain().tween_callback(func():
+				if is_instance_valid(lbl_telemetry):
+					lbl_telemetry.text = "> RED_NEURONAL: ENLACE ESTABLECIDO // ACCESO CONCEDIDO"
+			).set_delay(t_swap * 0.45)
+		
 		var progress_arr: Array = []
 		var max_frames := 300 # 5 segundos de seguridad máxima
 		var frame_count := 0
@@ -827,13 +859,6 @@ func _perform_scene_swap_and_reveal(
 			frame_count += 1
 			if frame_count > max_frames:
 				break
-			var raw_pct = progress_arr[0] * 100.0 if not progress_arr.is_empty() else 50.0
-			var cur_v = prog_bar.value if is_instance_valid(prog_bar) else 40.0
-			var display_pct = clampf(max(cur_v, raw_pct), 30.0, 95.0)
-			if is_instance_valid(prog_bar):
-				prog_bar.value = display_pct
-			if is_instance_valid(lbl_progress_val):
-				lbl_progress_val.text = "[ SINCRONIZANDO: %d%% ]" % int(display_pct)
 			await tree.process_frame
 			
 		var status = ResourceLoader.load_threaded_get_status(target_scene_path)
@@ -844,6 +869,10 @@ func _perform_scene_swap_and_reveal(
 		if not packed and ResourceLoader.exists(target_scene_path):
 			packed = load(target_scene_path) as PackedScene
 			
+		# Esperar a que el tween pb_tw culmine para garantizar que el tiempo del sonido se respete
+		if pb_tw and pb_tw.is_running():
+			await pb_tw.finished
+			
 		if is_instance_valid(prog_bar):
 			prog_bar.value = 100.0
 		if is_instance_valid(lbl_progress_val):
@@ -853,7 +882,7 @@ func _perform_scene_swap_and_reveal(
 		var flash_alpha = 0.0 if is_photo else 0.70
 		if flash_alpha > 0.0 and is_instance_valid(flash_rect):
 			var tw_flash = tree.create_tween()
-			tw_flash.tween_property(flash_rect, "color:a", flash_alpha, 0.05).set_trans(Tween.TRANS_QUAD)
+			tw_flash.tween_property(flash_rect, "color:a", flash_alpha, t_swap * 0.15).set_trans(Tween.TRANS_QUAD)
 			await tw_flash.finished
 			
 		if packed:
@@ -864,23 +893,23 @@ func _perform_scene_swap_and_reveal(
 		# Esperar 1 frame con compuertas cerradas para instanciar nodo en el árbol
 		await tree.process_frame
 
-	# Nuevo Tween limpio e independiente para apertura fluida a 60 FPS estables
+	# Apertura sincronizada con t_open hasta completar exactamente la duración del sonido
 	var tw_open = tree.create_tween().set_parallel(true)
-	tw_open.tween_property(flash_rect, "color:a", 0.0, 0.16).set_trans(Tween.TRANS_QUAD)
+	tw_open.tween_property(flash_rect, "color:a", 0.0, t_open * 0.7).set_trans(Tween.TRANS_QUAD)
 	if center_element and is_instance_valid(center_element):
-		tw_open.tween_property(center_element, "modulate:a", 0.0, 0.12).set_trans(Tween.TRANS_QUAD)
-		tw_open.tween_property(center_element, "scale", Vector2(1.15, 1.15), 0.12).set_trans(Tween.TRANS_QUAD)
+		tw_open.tween_property(center_element, "modulate:a", 0.0, t_open * 0.6).set_trans(Tween.TRANS_QUAD)
+		tw_open.tween_property(center_element, "scale", Vector2(1.15, 1.15), t_open * 0.6).set_trans(Tween.TRANS_QUAD)
 	if is_instance_valid(hologram_layer):
-		tw_open.tween_property(hologram_layer, "modulate:a", 0.0, 0.14).set_delay(0.02)
+		tw_open.tween_property(hologram_layer, "modulate:a", 0.0, t_open * 0.7)
 	if is_instance_valid(reticle_ctrl):
-		tw_open.tween_property(reticle_ctrl, "modulate:a", 0.0, 0.14).set_delay(0.02)
+		tw_open.tween_property(reticle_ctrl, "modulate:a", 0.0, t_open * 0.7)
 		
 	if is_instance_valid(shutter_top):
-		tw_open.tween_property(shutter_top, "position:y", -half_h - 20.0, 0.18).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN).set_delay(0.02)
+		tw_open.tween_property(shutter_top, "position:y", -half_h - 20.0, t_open).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
 	if is_instance_valid(shutter_bot):
-		tw_open.tween_property(shutter_bot, "position:y", screen_h + 20.0, 0.18).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN).set_delay(0.02)
+		tw_open.tween_property(shutter_bot, "position:y", screen_h + 20.0, t_open).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
 	if is_instance_valid(bg_overlay):
-		tw_open.tween_property(bg_overlay, "color:a", 0.0, 0.16).set_delay(0.03)
+		tw_open.tween_property(bg_overlay, "color:a", 0.0, t_open)
 		
 	tw_open.chain().tween_callback(func():
 		if on_finished.is_valid():
@@ -1160,8 +1189,11 @@ func _start_code_restored_sequence(
 func _play_glitch_sfx() -> void:
 	if not ResourceLoader.exists("res://efectos/sonido de entrada.ogg"):
 		return
+	var stream = load("res://efectos/sonido de entrada.ogg")
+	if stream is AudioStreamOggVorbis:
+		stream.loop = false
 	var player = AudioStreamPlayer.new()
-	player.stream = load("res://efectos/sonido de entrada.ogg")
+	player.stream = stream
 	player.volume_db = 2.0
 	player.pitch_scale = 0.62
 	player.bus = "Master"
@@ -1172,8 +1204,11 @@ func _play_glitch_sfx() -> void:
 func _play_restored_sfx() -> void:
 	if not ResourceLoader.exists("res://efectos/sonido de entrada.ogg"):
 		return
+	var stream = load("res://efectos/sonido de entrada.ogg")
+	if stream is AudioStreamOggVorbis:
+		stream.loop = false
 	var player = AudioStreamPlayer.new()
-	player.stream = load("res://efectos/sonido de entrada.ogg")
+	player.stream = stream
 	player.volume_db = 0.0
 	player.pitch_scale = 1.25
 	player.bus = "Master"
