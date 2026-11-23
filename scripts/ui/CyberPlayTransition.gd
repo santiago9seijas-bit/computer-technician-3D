@@ -20,6 +20,24 @@ var _mode: String = ""
 var _is_exit: bool = false
 var _transition_type: String = "normal"
 
+# Variables de estado para la cinemática de error glitch sincronizada con audio
+var _glitch_active: bool = false
+var _glitch_time: float = 0.0
+var _glitch_bar_timer: float = 0.0
+var _glitch_total_duration: float = 4.63
+var _glitch_photo_factor: float = 1.0
+var _glitch_screen_w: float = 1280.0
+var _glitch_screen_h: float = 720.0
+var _glitch_audio_player: AudioStreamPlayer = null
+var _glitch_root_ctrl: Control = null
+var _glitch_shake_ctrl: Control = null
+var _glitch_bg: ColorRect = null
+var _glitch_panel: PanelContainer = null
+var _glitch_bars: Array[ColorRect] = []
+var _glitch_target_scene: String = ""
+var _glitch_scene_swapped: bool = false
+var _glitch_on_finished: Callable = Callable()
+
 static func play(
 	tree: SceneTree,
 	target_scene_path: String,
@@ -37,6 +55,9 @@ static func play(
 	var old = tree.root.get_node_or_null("CyberPlayTransition")
 	if old:
 		old.queue_free()
+	var old_glitch = tree.root.get_node_or_null("GlitchAudioPlayer")
+	if old_glitch:
+		old_glitch.queue_free()
 		
 	# Iniciar la carga en segundo plano (threaded loading) inmediatamente
 	# para que los modelos, texturas y shaders de la escena destino se precarguen sin congelar el hilo principal.
@@ -128,6 +149,9 @@ static func play_error_glitch(
 	var old = tree.root.get_node_or_null("CyberPlayTransition")
 	if old:
 		old.queue_free()
+	var old_glitch = tree.root.get_node_or_null("GlitchAudioPlayer")
+	if old_glitch:
+		old_glitch.queue_free()
 	if target_scene_path != "":
 		ResourceLoader.load_threaded_request(target_scene_path)
 	var transition = CyberPlayTransition.new()
@@ -150,6 +174,9 @@ static func play_code_restored(
 	var old = tree.root.get_node_or_null("CyberPlayTransition")
 	if old:
 		old.queue_free()
+	var old_glitch = tree.root.get_node_or_null("GlitchAudioPlayer")
+	if old_glitch:
+		old_glitch.queue_free()
 	if target_scene_path != "":
 		ResourceLoader.load_threaded_request(target_scene_path)
 	var transition = CyberPlayTransition.new()
@@ -166,9 +193,107 @@ func _ready() -> void:
 	if _transition_type == "error":
 		_start_error_glitch_sequence(_tree if _tree else get_tree(), _target_scene, _on_finished)
 	elif _transition_type == "restored":
+		set_process(false)
 		_start_code_restored_sequence(_tree if _tree else get_tree(), _target_scene, _on_finished)
 	else:
+		set_process(false)
 		_start_sequence(_tree if _tree else get_tree(), _target_scene, _title_text, _subtitle_text, _on_finished)
+
+func _exit_tree() -> void:
+	_glitch_active = false
+	if _glitch_audio_player and is_instance_valid(_glitch_audio_player):
+		_glitch_audio_player.queue_free()
+
+func _process(delta: float) -> void:
+	if not _glitch_active:
+		return
+
+	_glitch_time += delta
+	_glitch_bar_timer += delta
+	var progress: float = clampf(_glitch_time / _glitch_total_duration, 0.0, 1.0)
+	var t_swap: float = minf(1.5, _glitch_total_duration * 0.33)
+
+	# FASE 2: Entrada a la zona de sets de guardado (SaveSlotsMenu) y disolución del cartel de error
+	if _glitch_time >= t_swap and not _glitch_scene_swapped:
+		_glitch_scene_swapped = true
+		var tree = _tree if _tree else get_tree()
+		if tree and _glitch_target_scene != "":
+			tree.change_scene_to_file(_glitch_target_scene)
+
+		# Permitir al jugador interactuar con la zona de sets mientras el glitch se va quitando poco a poco
+		if is_instance_valid(_glitch_root_ctrl):
+			_glitch_root_ctrl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+		# Desvanecer en paralelo el recuadro del error y el fondo oscuro
+		var tw_reveal = create_tween().set_parallel(true)
+		if is_instance_valid(_glitch_panel):
+			tw_reveal.tween_property(_glitch_panel, "modulate:a", 0.0, 0.30).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		if is_instance_valid(_glitch_bg):
+			tw_reveal.tween_property(_glitch_bg, "modulate:a", 0.0, 0.50).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+
+		# Destello cibernético suave al cambiar de escena
+		if is_instance_valid(_glitch_root_ctrl):
+			var flash = ColorRect.new()
+			flash.set_anchors_preset(Control.PRESET_FULL_RECT)
+			flash.color = Color(1.0, 0.15, 0.3, 0.40 * _glitch_photo_factor)
+			flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			_glitch_root_ctrl.add_child(flash)
+			var tw_flash = create_tween()
+			tw_flash.tween_property(flash, "color:a", 0.0, 0.22)
+			tw_flash.tween_callback(flash.queue_free)
+
+	# Calcular intensidad del glitch: al inicio al 100%, y a partir de t_swap se disipa poco a poco
+	var glitch_intensity: float
+	if _glitch_time < t_swap:
+		glitch_intensity = 1.0
+	else:
+		var decay_progress = (_glitch_time - t_swap) / maxf(_glitch_total_duration - t_swap, 0.01)
+		# Curva suave para que el glitch se vaya atenuando en sincronía con el sonido
+		glitch_intensity = clampf(pow(1.0 - decay_progress, 1.5), 0.0, 1.0)
+
+	# 1. Sacudida de pantalla (shake) proporcional a la intensidad restante
+	if is_instance_valid(_glitch_shake_ctrl):
+		if glitch_intensity > 0.02:
+			var max_sx = 12.0 * glitch_intensity * _glitch_photo_factor
+			var max_sy = 7.0 * glitch_intensity * _glitch_photo_factor
+			_glitch_shake_ctrl.position = Vector2(randf_range(-max_sx, max_sx), randf_range(-max_sy, max_sy))
+		else:
+			_glitch_shake_ctrl.position = Vector2.ZERO
+
+	# 2. Barras horizontales de glitch (actualizadas a ~25 FPS para máxima eficiencia y auténtica estética retro)
+	if _glitch_bar_timer >= 0.04:
+		_glitch_bar_timer = 0.0
+		for i in range(_glitch_bars.size()):
+			var bar = _glitch_bars[i]
+			if not is_instance_valid(bar):
+				continue
+			if glitch_intensity > 0.03:
+				bar.visible = true
+				var bar_h = randf_range(2.0, lerpf(4.0, 36.0, glitch_intensity))
+				var bar_y = randf_range(0.0, _glitch_screen_h - bar_h)
+				bar.size = Vector2(_glitch_screen_w, bar_h)
+				bar.position = Vector2(randf_range(-30.0, 30.0) * glitch_intensity, bar_y)
+				var base_alpha = randf_range(0.12, 0.50) * glitch_intensity * _glitch_photo_factor
+				bar.color = Color(1.0, 0.05, 0.25, base_alpha) if (i % 2 == 0) else Color(0.1, 0.85, 1.0, base_alpha)
+			elif bar.visible:
+				bar.visible = false
+
+	# 3. Desvanecimiento del audio en el tramo final ("según el sonido se vaya")
+	if is_instance_valid(_glitch_audio_player) and _glitch_audio_player.playing:
+		if progress >= 0.75:
+			var fade_ratio = (progress - 0.75) / 0.25
+			_glitch_audio_player.volume_db = lerpf(-9.0, -45.0, fade_ratio)
+
+	# 4. Finalización total cuando concluye la duración del audio
+	if progress >= 1.0:
+		_glitch_active = false
+		set_process(false)
+		if is_instance_valid(_glitch_audio_player):
+			_glitch_audio_player.queue_free()
+		if _glitch_on_finished.is_valid():
+			_glitch_on_finished.call()
+		transition_completed.emit()
+		queue_free()
 
 func _input(event: InputEvent) -> void:
 	var is_esc = (event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE)
@@ -1026,41 +1151,32 @@ func _start_error_glitch_sequence(
 	lbl_subt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(lbl_subt)
 	
-	_play_glitch_sfx()
-	
-	var tw = tree.create_tween()
-	var shake_steps = 14
-	for s in range(shake_steps):
-		tw.tween_callback(func():
-			if is_instance_valid(shake_ctrl):
-				shake_ctrl.position = Vector2(randf_range(-10.0, 10.0), randf_range(-6.0, 6.0))
-			for b in glitch_bars:
-				if is_instance_valid(b):
-					b.position.x = randf_range(-40.0, 40.0)
-					b.modulate.a = randf_range(0.2, 0.9)
-					b.color = Color(1.0, randf_range(0.0, 0.3), randf_range(0.1, 0.7), randf_range(0.3, 0.7))
-		)
-		tw.tween_interval(0.04)
-		
-	var flash = ColorRect.new()
-	flash.set_anchors_preset(Control.PRESET_FULL_RECT)
-	flash.color = Color(1.0, 0.2, 0.3, 0.0)
-	flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	root_ctrl.add_child(flash)
-	
-	tw.chain().tween_property(flash, "color:a", 0.75, 0.08)
-	tw.chain().tween_callback(func():
-		if target_scene_path != "":
-			tree.change_scene_to_file(target_scene_path)
-	)
-	tw.chain().tween_interval(0.05)
-	tw.chain().tween_property(root_ctrl, "modulate:a", 0.0, 0.25)
-	tw.chain().tween_callback(func():
-		if on_finished.is_valid():
-			on_finished.call()
-		transition_completed.emit()
-		queue_free()
-	)
+	var player = _play_glitch_sfx()
+	var snd_len: float = 4.63
+	if player and player.stream and player.stream.get_length() > 0.5:
+		snd_len = player.stream.get_length() / maxf(player.pitch_scale, 0.1)
+
+	var gm_ref = get_node_or_null("/root/GameManager")
+	var is_photo: bool = gm_ref and gm_ref.has_method("is_photosensitive_mode_enabled") and gm_ref.is_photosensitive_mode_enabled()
+
+	# Inicializar variables de estado del ciclo continuo de glitch sincronizado con el audio
+	_glitch_target_scene = target_scene_path
+	_glitch_on_finished = on_finished
+	_glitch_root_ctrl = root_ctrl
+	_glitch_shake_ctrl = shake_ctrl
+	_glitch_bg = bg
+	_glitch_panel = panel
+	_glitch_bars = glitch_bars
+	_glitch_audio_player = player
+	_glitch_time = 0.0
+	_glitch_bar_timer = 0.0
+	_glitch_total_duration = snd_len
+	_glitch_photo_factor = 0.35 if is_photo else 1.0
+	_glitch_screen_w = screen_w
+	_glitch_screen_h = screen_h
+	_glitch_scene_swapped = false
+	_glitch_active = true
+	set_process(true)
 
 # =============================================================================
 # CINEMÁTICA DE CÓDIGO FUNCIONAL / REPARADO AL VOLVER AL MENÚ PRINCIPAL
@@ -1186,22 +1302,54 @@ func _start_code_restored_sequence(
 		queue_free()
 	)
 
-func _play_glitch_sfx() -> void:
-	if not ResourceLoader.exists("res://efectos/sonido de entrada.ogg"):
-		return
-	var stream = load("res://efectos/sonido de entrada.ogg")
+func _play_glitch_sfx() -> AudioStreamPlayer:
+	var sfx_path = "res://efectos/audio de error.ogg"
+	if not ResourceLoader.exists(sfx_path):
+		sfx_path = "res://efectos/sonido de entrada.ogg"
+	if not ResourceLoader.exists(sfx_path):
+		return null
+	var stream = load(sfx_path)
+	if not stream:
+		return null
 	if stream is AudioStreamOggVorbis:
 		stream.loop = false
+
+	var tree = _tree if _tree else get_tree()
+	if tree and tree.root:
+		var old_player = tree.root.get_node_or_null("GlitchAudioPlayer")
+		if old_player:
+			old_player.queue_free()
+
 	var player = AudioStreamPlayer.new()
+	player.name = "GlitchAudioPlayer"
 	player.stream = stream
-	player.volume_db = 2.0
-	player.pitch_scale = 0.62
+	# Para "audio de error.ogg" (normalizado a 0 dB peak), un volumen de -9.0 dB
+	# resulta adecuado, limpio y balanceado con los demás efectos sin saturar.
+	if sfx_path == "res://efectos/audio de error.ogg":
+		player.volume_db = -9.0
+		player.pitch_scale = 1.0
+	else:
+		player.volume_db = 2.0
+		player.pitch_scale = 0.62
 	player.bus = "Master"
-	add_child(player)
+
+	# Lo agregamos al root del árbol para que se mantenga sonando fluido y natural
+	# al entrar en la zona de sets de guardado (SaveSlotsMenu), sin cortarse abruptamente.
+	if tree and tree.root:
+		tree.root.add_child(player)
+	else:
+		add_child(player)
 	player.play()
 	player.finished.connect(player.queue_free)
+	return player
 
 func _play_restored_sfx() -> void:
+	var tree = _tree if _tree else get_tree()
+	if tree and tree.root:
+		var old_glitch = tree.root.get_node_or_null("GlitchAudioPlayer")
+		if old_glitch:
+			old_glitch.queue_free()
+
 	if not ResourceLoader.exists("res://efectos/sonido de entrada.ogg"):
 		return
 	var stream = load("res://efectos/sonido de entrada.ogg")

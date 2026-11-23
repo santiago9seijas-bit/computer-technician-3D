@@ -384,6 +384,10 @@ func _on_entrar_pressed() -> void:
 		return
 	is_transitioning = true
 
+	var old_glitch = get_tree().root.get_node_or_null("GlitchAudioPlayer")
+	if old_glitch:
+		old_glitch.queue_free()
+
 	# Aplicar el slot seleccionado
 	SaveManager.select_and_apply_slot(current_selected_index)
 
@@ -404,6 +408,9 @@ func _on_volver_pressed() -> void:
 	if is_transitioning:
 		return
 	is_transitioning = true
+	var old_glitch = get_tree().root.get_node_or_null("GlitchAudioPlayer")
+	if old_glitch:
+		old_glitch.queue_free()
 	CyberPlayTransition.play_code_restored(
 		get_tree(),
 		"res://scenes/menus/MainMenu.tscn"
