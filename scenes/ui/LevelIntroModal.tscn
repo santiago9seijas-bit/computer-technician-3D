@@ -7,6 +7,18 @@
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_card"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_desafios"]
+bg_color = Color(0.02, 0.04, 0.09, 0.75)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.2, 0.45, 0.7, 0.4)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
 [node name="LevelIntroModal" type="Control"]
 process_mode = 3
 layout_mode = 3
@@ -155,6 +167,47 @@ theme_override_constants/line_spacing = 3
 text = "HERRAMIENTAS: Pulsa [1] para Destornillador Cruz o [2] para Destornillador Pala.
 PROCEDIMIENTO: Acércate a la PC con [E], abre el panel de inspección y haz clic en la pieza que desees desmontar o montar."
 autowrap_mode = 2
+
+[node name="DesafiosBox" type="PanelContainer" parent="CenterContainer/CardModal/Margin/VBox/ContentVBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_desafios")
+
+[node name="Margin" type="MarginContainer" parent="CenterContainer/CardModal/Margin/VBox/ContentVBox/DesafiosBox"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 6
+
+[node name="Grid" type="GridContainer" parent="CenterContainer/CardModal/Margin/VBox/ContentVBox/DesafiosBox/Margin"]
+layout_mode = 2
+theme_override_constants/h_separation = 14
+theme_override_constants/v_separation = 4
+columns = 2
+
+[node name="LblDesafios" type="Label" parent="CenterContainer/CardModal/Margin/VBox/ContentVBox/DesafiosBox/Margin/Grid"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 11
+text = "🏆 DESAFÍOS: ⬡ 0/3 (EN CURSO)"
+
+[node name="LblErrores" type="Label" parent="CenterContainer/CardModal/Margin/VBox/ContentVBox/DesafiosBox/Margin/Grid"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.85, 1, 1)
+theme_override_font_sizes/font_size = 11
+text = "⬡ PRECISIÓN: 0 ERRORES"
+
+[node name="LblMaxPuntosNivel" type="Label" parent="CenterContainer/CardModal/Margin/VBox/ContentVBox/DesafiosBox/Margin/Grid"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 1, 0.5, 1)
+theme_override_font_sizes/font_size = 11
+text = "★ PUNTOS NIVEL: HASTA 250 PTS"
+
+[node name="LblMaxPuntosModo" type="Label" parent="CenterContainer/CardModal/Margin/VBox/ContentVBox/DesafiosBox/Margin/Grid"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.7, 1, 1)
+theme_override_font_sizes/font_size = 11
+text = "🌐 PUNTOS TOTALES MODO: 1,970 PTS"
 
 [node name="BottomHBox" type="HBoxContainer" parent="CenterContainer/CardModal/Margin/VBox"]
 layout_mode = 2

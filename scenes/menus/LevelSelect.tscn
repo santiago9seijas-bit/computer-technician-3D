@@ -1,4 +1,4 @@
-[gd_scene format=3 load_steps=20]
+[gd_scene format=3 load_steps=30]
 
 [ext_resource type="Script" path="res://scripts/menus/LevelSelect.gd" id="1_sel"]
 [ext_resource type="Script" path="res://scripts/menus/ConstellationGraph.gd" id="2_graph"]
@@ -17,6 +17,9 @@
 [ext_resource type="Texture2D" uid="uid://d22ex8vx2lte6" path="res://pixel art menus/decoracion/reparacion emoticono.png" id="16_icon_rep"]
 [ext_resource type="Texture2D" uid="uid://cmwfo3lakryg1" path="res://pixel art menus/decoracion/emoticono de sistemas.png" id="17_icon_sis"]
 [ext_resource type="Texture2D" uid="uid://cv6ghw3qgaue3" path="res://pixel art menus/decoracion/emoticono de rayo.png" id="18_icon_srv"]
+[ext_resource type="Shader" path="res://styles/cyber_holo_ring.gdshader" id="19_holo_shader"]
+[ext_resource type="Shader" path="res://styles/cyber_holo_card.gdshader" id="20_holo_card_shader"]
+[ext_resource type="Shader" path="res://styles/cyber_terminal_button.gdshader" id="21_term_shader"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_deployed"]
 content_margin_left = 22.0
@@ -39,6 +42,73 @@ corner_radius_bottom_right = 6
 corner_radius_bottom_left = 6
 shadow_color = Color(0, 0.85, 1, 0.2)
 shadow_size = 4
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_holo_ring"]
+shader = ExtResource("19_holo_shader")
+shader_parameter/primary_color = Color(1, 0.2, 0.45, 1)
+shader_parameter/secondary_color = Color(0, 0.85, 1, 1)
+shader_parameter/ring_glow_color = Color(1, 0.15, 0.5, 0.65)
+shader_parameter/speed = 1.4
+shader_parameter/ring_angle = 0.0
+shader_parameter/pulse_intensity = 1.0
+shader_parameter/tilt = 0.52
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_term_reparacion"]
+shader = ExtResource("21_term_shader")
+shader_parameter/term_color = Color(1, 0.25, 0.45, 1)
+shader_parameter/bg_color = Color(0.02, 0.03, 0.06, 0.52)
+shader_parameter/is_selected = true
+shader_parameter/pulse_speed = 2.2
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_term_sistema"]
+shader = ExtResource("21_term_shader")
+shader_parameter/term_color = Color(0, 0.95, 1, 1)
+shader_parameter/bg_color = Color(0.02, 0.03, 0.06, 0.52)
+shader_parameter/is_selected = false
+shader_parameter/pulse_speed = 2.2
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_term_servidor"]
+shader = ExtResource("21_term_shader")
+shader_parameter/term_color = Color(1, 0.65, 0.15, 1)
+shader_parameter/bg_color = Color(0.02, 0.03, 0.06, 0.52)
+shader_parameter/is_selected = false
+shader_parameter/pulse_speed = 2.2
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_holo_card_points"]
+shader = ExtResource("20_holo_card_shader")
+shader_parameter/holo_color = Color(0.65, 0.78, 0.92, 0.5)
+shader_parameter/bg_color = Color(0.015, 0.03, 0.07, 0.50)
+shader_parameter/scanline_speed = 1.2
+shader_parameter/scanline_density = 80.0
+shader_parameter/corner_cut = 0.08
+shader_parameter/border_thickness = 0.035
+shader_parameter/pulse_speed = 1.8
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_holo_card_stars"]
+shader = ExtResource("20_holo_card_shader")
+shader_parameter/holo_color = Color(0.65, 0.78, 0.92, 0.5)
+shader_parameter/bg_color = Color(0.015, 0.03, 0.07, 0.50)
+shader_parameter/scanline_speed = 1.2
+shader_parameter/scanline_density = 80.0
+shader_parameter/corner_cut = 0.08
+shader_parameter/border_thickness = 0.035
+shader_parameter/pulse_speed = 1.8
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_holo_card_dollars"]
+shader = ExtResource("20_holo_card_shader")
+shader_parameter/holo_color = Color(0.65, 0.78, 0.92, 0.5)
+shader_parameter/bg_color = Color(0.015, 0.03, 0.07, 0.50)
+shader_parameter/scanline_speed = 1.2
+shader_parameter/scanline_density = 80.0
+shader_parameter/corner_cut = 0.08
+shader_parameter/border_thickness = 0.035
+shader_parameter/pulse_speed = 1.8
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_card_frame"]
+content_margin_left = 10.0
+content_margin_top = 4.0
+content_margin_right = 10.0
+content_margin_bottom = 4.0
 
 [node name="LevelSelect" type="Control"]
 layout_mode = 3
@@ -238,23 +308,6 @@ slant = 14.0
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="StatsBox" type="PanelContainer" parent="TopBar"]
-layout_mode = 2
-
-[node name="Margin" type="MarginContainer" parent="TopBar/StatsBox"]
-layout_mode = 2
-theme_override_constants/margin_left = 14
-theme_override_constants/margin_top = 4
-theme_override_constants/margin_right = 14
-theme_override_constants/margin_bottom = 4
-
-[node name="StatsLabel" type="Label" parent="TopBar/StatsBox/Margin"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0, 0.9, 1, 1)
-theme_override_colors/font_shadow_color = Color(0, 0.9, 1, 0.4)
-theme_override_font_sizes/font_size = 16
-text = "PUNTOS 1720   ★ 3"
-
 [node name="ModeSelector" type="HBoxContainer" parent="."]
 visible = false
 layout_mode = 1
@@ -300,25 +353,6 @@ flat = true
 script = ExtResource("3_cbtn")
 slant = 14.0
 
-[node name="DecoracionRight" type="TextureRect" parent="."]
-texture_filter = 1
-material = ExtResource("13_deco_mat")
-layout_mode = 1
-anchors_preset = 11
-anchor_left = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -180.0
-offset_top = 80.0
-offset_right = 0.0
-offset_bottom = -20.0
-grow_horizontal = 0
-grow_vertical = 2
-mouse_filter = 2
-texture = ExtResource("14_deco_tex")
-flip_h = true
-expand_mode = 1
-
 [node name="CircularModeSelector" type="Control" parent="."]
 layout_mode = 1
 anchors_preset = 6
@@ -326,15 +360,15 @@ anchor_left = 1.0
 anchor_top = 0.5
 anchor_right = 1.0
 anchor_bottom = 0.5
-offset_left = -165.0
+offset_left = -260.0
 offset_top = -175.0
-offset_right = -15.0
+offset_right = -10.0
 offset_bottom = 175.0
 grow_horizontal = 0
 grow_vertical = 2
 
 [node name="BtnUpArrow" type="Button" parent="CircularModeSelector"]
-custom_minimum_size = Vector2(56, 36)
+custom_minimum_size = Vector2(56, 32)
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
@@ -342,7 +376,7 @@ anchor_right = 0.5
 offset_left = -28.0
 offset_top = 0.0
 offset_right = 28.0
-offset_bottom = 36.0
+offset_bottom = 32.0
 grow_horizontal = 2
 tooltip_text = "Modo anterior (W / Flecha Arriba)"
 mouse_default_cursor_shape = 2
@@ -351,229 +385,168 @@ flat = true
 script = ExtResource("3_cbtn")
 slant = 10.0
 
-[node name="ModeWheelArea" type="Control" parent="CircularModeSelector"]
+[node name="TerminalButtons" type="Control" parent="CircularModeSelector"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = 42.0
-offset_bottom = -42.0
+offset_top = 38.0
+offset_bottom = -38.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
 
-[node name="BubbleReparacion" type="Control" parent="CircularModeSelector/ModeWheelArea"]
+[node name="TermBtnReparacion" type="PanelContainer" parent="CircularModeSelector/TerminalButtons"]
+z_index = 5
+material = SubResource("ShaderMaterial_term_reparacion")
+custom_minimum_size = Vector2(190, 46)
 layout_mode = 0
-offset_left = 50.0
-offset_top = 98.0
-offset_right = 110.0
-offset_bottom = 158.0
-pivot_offset = Vector2(30, 30)
-
-[node name="BgCircle" type="TextureRect" parent="CircularModeSelector/ModeWheelArea/BubbleReparacion"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-texture = ExtResource("15_circulo_tex")
-expand_mode = 1
-stretch_mode = 5
-
-[node name="Icon" type="TextureRect" parent="CircularModeSelector/ModeWheelArea/BubbleReparacion"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
 offset_left = -20.0
-offset_top = -20.0
-offset_right = 20.0
-offset_bottom = 20.0
-grow_horizontal = 2
-grow_vertical = 2
+offset_top = 16.0
+offset_right = 170.0
+offset_bottom = 62.0
+scale = Vector2(1.18, 1.18)
+pivot_offset = Vector2(95, 23)
+mouse_filter = 1
+
+[node name="Margin" type="MarginContainer" parent="CircularModeSelector/TerminalButtons/TermBtnReparacion"]
+layout_mode = 2
 mouse_filter = 2
-texture = ExtResource("16_icon_rep")
-expand_mode = 1
-stretch_mode = 5
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 13
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 2
 
-[node name="TitleLabel" type="Label" parent="CircularModeSelector/ModeWheelArea/BubbleReparacion"]
-layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -55.0
-offset_top = -2.0
-offset_right = 55.0
-offset_bottom = 16.0
-grow_horizontal = 2
-grow_vertical = 0
-theme_override_colors/font_color = Color(1, 0.2, 0.45, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 4
+[node name="HBox" type="HBoxContainer" parent="CircularModeSelector/TerminalButtons/TermBtnReparacion/Margin"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+alignment = 1
+
+[node name="LblPrompt" type="Label" parent="CircularModeSelector/TerminalButtons/TermBtnReparacion/Margin/HBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.25, 0.45, 1)
+theme_override_colors/font_shadow_color = Color(1, 0.1, 0.3, 0.5)
 theme_override_fonts/font = ExtResource("6_title_font")
-theme_override_font_sizes/font_size = 9
-text = "REPARACIÓN"
-horizontal_alignment = 1
+theme_override_font_sizes/font_size = 11
+text = ">_ REPARACIÓN"
+vertical_alignment = 1
 
-[node name="Hitbox" type="Button" parent="CircularModeSelector/ModeWheelArea/BubbleReparacion"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+[node name="LblCursor" type="Label" parent="CircularModeSelector/TerminalButtons/TermBtnReparacion/Margin/HBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.25, 0.45, 1)
+theme_override_fonts/font = ExtResource("6_title_font")
+theme_override_font_sizes/font_size = 11
+text = "█"
+vertical_alignment = 1
+
+[node name="Hitbox" type="Button" parent="CircularModeSelector/TerminalButtons/TermBtnReparacion"]
+layout_mode = 2
 focus_mode = 0
 mouse_default_cursor_shape = 2
 flat = true
 
-[node name="BubbleSistema" type="Control" parent="CircularModeSelector/ModeWheelArea"]
+[node name="TermBtnSistema" type="PanelContainer" parent="CircularModeSelector/TerminalButtons"]
+material = SubResource("ShaderMaterial_term_sistema")
+custom_minimum_size = Vector2(190, 46)
 layout_mode = 0
-offset_left = 50.0
-offset_top = 98.0
-offset_right = 110.0
-offset_bottom = 158.0
-pivot_offset = Vector2(30, 30)
+offset_left = -16.0
+offset_top = 100.0
+offset_right = 174.0
+offset_bottom = 146.0
+scale = Vector2(0.88, 0.88)
+pivot_offset = Vector2(95, 23)
+mouse_filter = 1
 
-[node name="BgCircle" type="TextureRect" parent="CircularModeSelector/ModeWheelArea/BubbleSistema"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+[node name="Margin" type="MarginContainer" parent="CircularModeSelector/TerminalButtons/TermBtnSistema"]
+layout_mode = 2
 mouse_filter = 2
-texture = ExtResource("15_circulo_tex")
-expand_mode = 1
-stretch_mode = 5
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 13
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 2
 
-[node name="Icon" type="TextureRect" parent="CircularModeSelector/ModeWheelArea/BubbleSistema"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -20.0
-offset_top = -20.0
-offset_right = 20.0
-offset_bottom = 20.0
-grow_horizontal = 2
-grow_vertical = 2
+[node name="HBox" type="HBoxContainer" parent="CircularModeSelector/TerminalButtons/TermBtnSistema/Margin"]
+layout_mode = 2
 mouse_filter = 2
-texture = ExtResource("17_icon_sis")
-expand_mode = 1
-stretch_mode = 5
+theme_override_constants/separation = 4
+alignment = 1
 
-[node name="TitleLabel" type="Label" parent="CircularModeSelector/ModeWheelArea/BubbleSistema"]
-layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -55.0
-offset_top = -2.0
-offset_right = 55.0
-offset_bottom = 16.0
-grow_horizontal = 2
-grow_vertical = 0
-theme_override_colors/font_color = Color(0.2, 0.7, 1, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 4
+[node name="LblPrompt" type="Label" parent="CircularModeSelector/TerminalButtons/TermBtnSistema/Margin/HBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.95, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0.95, 1, 0.5)
 theme_override_fonts/font = ExtResource("6_title_font")
-theme_override_font_sizes/font_size = 9
-text = "SISTEMA"
-horizontal_alignment = 1
+theme_override_font_sizes/font_size = 11
+text = ">_ SISTEMAS"
+vertical_alignment = 1
 
-[node name="Hitbox" type="Button" parent="CircularModeSelector/ModeWheelArea/BubbleSistema"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+[node name="LblCursor" type="Label" parent="CircularModeSelector/TerminalButtons/TermBtnSistema/Margin/HBox"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.95, 1, 1)
+theme_override_fonts/font = ExtResource("6_title_font")
+theme_override_font_sizes/font_size = 11
+text = "█"
+vertical_alignment = 1
+
+[node name="Hitbox" type="Button" parent="CircularModeSelector/TerminalButtons/TermBtnSistema"]
+layout_mode = 2
 focus_mode = 0
 mouse_default_cursor_shape = 2
 flat = true
 
-[node name="BubbleServidor" type="Control" parent="CircularModeSelector/ModeWheelArea"]
+[node name="TermBtnServidor" type="PanelContainer" parent="CircularModeSelector/TerminalButtons"]
+material = SubResource("ShaderMaterial_term_servidor")
+custom_minimum_size = Vector2(190, 46)
 layout_mode = 0
-offset_left = 50.0
-offset_top = 98.0
-offset_right = 110.0
-offset_bottom = 158.0
-pivot_offset = Vector2(30, 30)
+offset_left = 25.0
+offset_top = 184.0
+offset_right = 215.0
+offset_bottom = 230.0
+scale = Vector2(0.88, 0.88)
+pivot_offset = Vector2(95, 23)
+mouse_filter = 1
 
-[node name="BgCircle" type="TextureRect" parent="CircularModeSelector/ModeWheelArea/BubbleServidor"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+[node name="Margin" type="MarginContainer" parent="CircularModeSelector/TerminalButtons/TermBtnServidor"]
+layout_mode = 2
 mouse_filter = 2
-texture = ExtResource("15_circulo_tex")
-expand_mode = 1
-stretch_mode = 5
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 13
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 2
 
-[node name="Icon" type="TextureRect" parent="CircularModeSelector/ModeWheelArea/BubbleServidor"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -20.0
-offset_top = -20.0
-offset_right = 20.0
-offset_bottom = 20.0
-grow_horizontal = 2
-grow_vertical = 2
+[node name="HBox" type="HBoxContainer" parent="CircularModeSelector/TerminalButtons/TermBtnServidor/Margin"]
+layout_mode = 2
 mouse_filter = 2
-texture = ExtResource("18_icon_srv")
-expand_mode = 1
-stretch_mode = 5
+theme_override_constants/separation = 4
+alignment = 1
 
-[node name="TitleLabel" type="Label" parent="CircularModeSelector/ModeWheelArea/BubbleServidor"]
-layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -55.0
-offset_top = -2.0
-offset_right = 55.0
-offset_bottom = 16.0
-grow_horizontal = 2
-grow_vertical = 0
+[node name="LblPrompt" type="Label" parent="CircularModeSelector/TerminalButtons/TermBtnServidor/Margin/HBox"]
+layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.6, 0.1, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 4
+theme_override_colors/font_shadow_color = Color(1, 0.6, 0.1, 0.5)
 theme_override_fonts/font = ExtResource("6_title_font")
-theme_override_font_sizes/font_size = 9
-text = "SERVIDOR"
-horizontal_alignment = 1
+theme_override_font_sizes/font_size = 11
+text = ">_ SERVIDORES"
+vertical_alignment = 1
 
-[node name="Hitbox" type="Button" parent="CircularModeSelector/ModeWheelArea/BubbleServidor"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+[node name="LblCursor" type="Label" parent="CircularModeSelector/TerminalButtons/TermBtnServidor/Margin/HBox"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.6, 0.1, 1)
+theme_override_fonts/font = ExtResource("6_title_font")
+theme_override_font_sizes/font_size = 11
+text = "█"
+vertical_alignment = 1
+
+[node name="Hitbox" type="Button" parent="CircularModeSelector/TerminalButtons/TermBtnServidor"]
+layout_mode = 2
 focus_mode = 0
 mouse_default_cursor_shape = 2
 flat = true
 
 [node name="BtnDownArrow" type="Button" parent="CircularModeSelector"]
-custom_minimum_size = Vector2(56, 36)
+custom_minimum_size = Vector2(56, 32)
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -581,7 +554,7 @@ anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
 offset_left = -28.0
-offset_top = -36.0
+offset_top = -32.0
 offset_right = 28.0
 offset_bottom = 0.0
 grow_horizontal = 2
@@ -594,6 +567,7 @@ script = ExtResource("3_cbtn")
 slant = -10.0
 
 [node name="SectionBanner" type="PanelContainer" parent="."]
+visible = false
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
@@ -648,6 +622,111 @@ theme_override_colors/font_color = Color(0.7, 0.2, 0.9, 0.85)
 theme_override_font_sizes/font_size = 13
 text = "ETAPA 3: MAESTRÍA DE DIAGNÓSTICO [9-12]"
 horizontal_alignment = 1
+
+[node name="PlayerStatsHUD" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 28.0
+offset_top = -58.0
+offset_right = 380.0
+offset_bottom = -24.0
+grow_vertical = 0
+theme_override_constants/separation = 12
+
+[node name="CardPoints" type="PanelContainer" parent="PlayerStatsHUD"]
+material = SubResource("ShaderMaterial_holo_card_points")
+custom_minimum_size = Vector2(106, 34)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_card_frame")
+
+[node name="HBox" type="HBoxContainer" parent="PlayerStatsHUD/CardPoints"]
+layout_mode = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="LblHeader" type="Label" parent="PlayerStatsHUD/CardPoints/HBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.95, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0.95, 1, 0.4)
+theme_override_fonts/font = ExtResource("6_title_font")
+theme_override_font_sizes/font_size = 12
+text = "PTS"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="LblPointsVal" type="Label" parent="PlayerStatsHUD/CardPoints/HBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0.95, 1, 0.5)
+theme_override_fonts/font = ExtResource("6_title_font")
+theme_override_font_sizes/font_size = 12
+text = "1,720"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="CardStars" type="PanelContainer" parent="PlayerStatsHUD"]
+material = SubResource("ShaderMaterial_holo_card_stars")
+custom_minimum_size = Vector2(90, 34)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_card_frame")
+
+[node name="HBox" type="HBoxContainer" parent="PlayerStatsHUD/CardStars"]
+layout_mode = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="StarLogo" type="Label" parent="PlayerStatsHUD/CardStars/HBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.15, 1)
+theme_override_colors/font_shadow_color = Color(1, 0.85, 0.15, 0.6)
+theme_override_fonts/font = ExtResource("6_title_font")
+theme_override_font_sizes/font_size = 12
+text = "★"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="LblStarsVal" type="Label" parent="PlayerStatsHUD/CardStars/HBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(1, 0.85, 0.15, 0.45)
+theme_override_fonts/font = ExtResource("6_title_font")
+theme_override_font_sizes/font_size = 12
+text = "3"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="CardDollars" type="PanelContainer" parent="PlayerStatsHUD"]
+material = SubResource("ShaderMaterial_holo_card_dollars")
+custom_minimum_size = Vector2(98, 34)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_card_frame")
+
+[node name="HBox" type="HBoxContainer" parent="PlayerStatsHUD/CardDollars"]
+layout_mode = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="DollarLogo" type="Label" parent="PlayerStatsHUD/CardDollars/HBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 1, 0.5, 1)
+theme_override_colors/font_shadow_color = Color(0.2, 1, 0.5, 0.5)
+theme_override_fonts/font = ExtResource("6_title_font")
+theme_override_font_sizes/font_size = 12
+text = "$"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="LblDollarsVal" type="Label" parent="PlayerStatsHUD/CardDollars/HBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0.2, 1, 0.5, 0.45)
+theme_override_fonts/font = ExtResource("6_title_font")
+theme_override_font_sizes/font_size = 12
+text = "500"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="FooterHint" type="Label" parent="."]
 layout_mode = 1

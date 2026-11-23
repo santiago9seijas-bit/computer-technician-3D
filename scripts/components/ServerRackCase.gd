@@ -32,7 +32,7 @@ var custom_prompt: String = ""
 
 @onready var label_3d: Label3D = $Label3D
 @onready var arrow_mesh: MeshInstance3D = $ArrowMesh
-@onready var status_light: OmniLight3D = $StatusLight
+@onready var status_light: OmniLight3D = get_node_or_null("StatusLight")
 @onready var inner_cyan: OmniLight3D = get_node_or_null("InteriorLights/InnerLightCyan")
 @onready var inner_magenta: OmniLight3D = get_node_or_null("InteriorLights/InnerLightMagenta")
 @onready var inner_amber: OmniLight3D = get_node_or_null("InteriorLights/InnerLightAmber")
@@ -42,7 +42,6 @@ var custom_prompt: String = ""
 var server_modal_scene: PackedScene = preload("res://scenes/ui/ServerInspectionModal.tscn")
 var original_arrow_y: float = 0.0
 
-var light_box_mat: StandardMaterial3D = null
 var arrow_mat: StandardMaterial3D = null
 
 func _ready() -> void:
@@ -60,14 +59,7 @@ func _ready() -> void:
 		tw.tween_property(arrow_mesh, "position:y", original_arrow_y - 0.08, 1.05).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 		
 	if cuadro_de_luz:
-		light_box_mat = StandardMaterial3D.new()
-		light_box_mat.shading_mode = BaseMaterial3D.SHADING_MODE_PER_PIXEL
-		light_box_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-		light_box_mat.albedo_color = Color(current_glow_color.r, current_glow_color.g, current_glow_color.b, 0.72)
-		light_box_mat.emission_enabled = true
-		light_box_mat.emission = current_glow_color
-		light_box_mat.emission_energy_multiplier = 3.5
-		cuadro_de_luz.material_override = light_box_mat
+		cuadro_de_luz.visible = false
 		
 	update_3d_state()
 
@@ -119,21 +111,6 @@ func update_3d_state() -> void:
 		if arrow_mat:
 			arrow_mat.albedo_color = current_glow_color
 			arrow_mat.emission = current_glow_color
-			
-	# Actualizar color del cuadro de luz interior
-	if light_box_mat:
-		light_box_mat.albedo_color = Color(current_glow_color.r, current_glow_color.g, current_glow_color.b, 0.72)
-		light_box_mat.emission = current_glow_color
-			
-	# Aplicar el color a todas las luces interiores y exteriores
-	if inner_cyan:
-		inner_cyan.light_color = current_glow_color
-	if inner_magenta:
-		inner_magenta.light_color = current_glow_color
-	if inner_amber:
-		inner_amber.light_color = current_glow_color
-	if status_light:
-		status_light.light_color = current_glow_color
 
 func get_interaction_prompt() -> String:
 	if custom_prompt != "":

@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://b2h1pmid7pek2"
-path="res://.godot/imported/torre de servidor.glb-389902ccec37e3856e5fd73f751c87f4.scn"
+uid="uid://bgpmr4nn2sbsg"
+path="res://.godot/imported/paredservers.glb-fde3e6b39f5c6e2f82a72884b6a78743.scn"
 
 [deps]
 
-source_file="res://modelos_3d/escenario_3d/torre de servidor.glb"
-dest_files=["res://.godot/imported/torre de servidor.glb-389902ccec37e3856e5fd73f751c87f4.scn"]
+source_file="res://modelos_3d/escenario_3d/paredservers.glb"
+dest_files=["res://.godot/imported/paredservers.glb-fde3e6b39f5c6e2f82a72884b6a78743.scn"]
 
 [params]
 

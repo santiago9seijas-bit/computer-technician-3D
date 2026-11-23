@@ -85,6 +85,8 @@ func _ready() -> void:
 	var init_items: Array = gm.backpack if gm and "backpack" in gm else []
 	_update_backpack_ui(init_items, false)
 	_update_tools_ui(0)
+	if not _is_tools_allowed():
+		set_tools_bar_visible(false)
 	_create_cinematic_overlay()
 	
 	# Conectar botones de la barra de herramientas al hacer clic con el mouse
@@ -333,6 +335,12 @@ func show_gameplay_hud_from_modal(animated: bool = true) -> void:
 		bottom_center_panel.offset_top = _orig_bottom_center_y + 24.0
 		_modal_hud_tween.tween_property(bottom_center_panel, "offset_top", _orig_bottom_center_y, 0.28).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
+func _is_tools_allowed() -> bool:
+	var gm = get_node_or_null("/root/GameManager")
+	if gm and "current_mode" in gm and str(gm.current_mode).to_lower() == "sistema":
+		return false
+	return true
+
 func ensure_hud_visible() -> void:
 	_cache_hud_positions()
 	is_cinematic_active = false
@@ -348,16 +356,17 @@ func ensure_hud_visible() -> void:
 	var bl = get_node_or_null("BottomLeft") as Control
 	if bl:
 		bl.offset_top = _orig_bottom_left_y
+	var can_tools = _is_tools_allowed()
 	if bottom_center_panel:
-		bottom_center_panel.visible = true
-		bottom_center_panel.modulate.a = 1.0
+		bottom_center_panel.visible = can_tools
+		bottom_center_panel.modulate.a = 1.0 if can_tools else 0.0
 		bottom_center_panel.offset_top = _orig_bottom_center_y
 	if tools_bar:
-		tools_bar.visible = true
+		tools_bar.visible = can_tools
 		for i in range(tools_bar.get_child_count()):
 			var btn = tools_bar.get_child(i) as Control
 			if btn:
-				btn.visible = true
+				btn.visible = can_tools
 
 var _last_prompt: String = ""
 var _last_displayed_second: int = -1
@@ -560,6 +569,9 @@ func _set_backpack_visible(show_it: bool, animate: bool = true) -> void:
 func set_visible_tools(count: int) -> void:
 	if not tools_bar:
 		return
+	if not _is_tools_allowed():
+		set_tools_bar_visible(false)
+		return
 	if bottom_center_panel:
 		bottom_center_panel.visible = true
 		bottom_center_panel.modulate.a = 1.0
@@ -569,15 +581,16 @@ func set_visible_tools(count: int) -> void:
 			btn.visible = (count <= 0 or i < count)
 
 func set_tools_bar_visible(enabled: bool) -> void:
+	var can_show = enabled and _is_tools_allowed()
 	if bottom_center_panel:
-		bottom_center_panel.visible = enabled
-		bottom_center_panel.modulate.a = 1.0 if enabled else 0.0
+		bottom_center_panel.visible = can_show
+		bottom_center_panel.modulate.a = 1.0 if can_show else 0.0
 	if tools_bar:
-		tools_bar.visible = enabled
+		tools_bar.visible = can_show
 		for i in range(tools_bar.get_child_count()):
 			var btn = tools_bar.get_child(i) as Control
 			if btn:
-				btn.visible = enabled
+				btn.visible = can_show
 
 func _on_tool_selected(tool_id: int) -> void:
 	_update_tools_ui(tool_id)

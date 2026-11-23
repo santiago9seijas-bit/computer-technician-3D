@@ -18,28 +18,46 @@ static var initial_mode: String = "reparacion"
 @onready var btn_fondo: Button = $ModeSelector/BtnFondo
 @onready var btn_sistema: Button = $ModeSelector/BtnSistema
 @onready var btn_servidor: Button = $ModeSelector/BtnServidor
-@onready var banner_label: Label = $SectionBanner/BannerLabel
+@onready var banner_label: Label = get_node_or_null("SectionBanner/BannerLabel")
+@onready var section_banner: Control = get_node_or_null("SectionBanner")
 @onready var column_headers: HBoxContainer = $ColumnHeaders
 @onready var col1_label: Label = $ColumnHeaders/Col1
 @onready var col2_label: Label = $ColumnHeaders/Col2
 @onready var col3_label: Label = $ColumnHeaders/Col3
 @onready var footer_hint: Label = $FooterHint
 
-# --- Selector Circular de Modo & Decoración Lateral Derecha ---
-@onready var decoracion_right: TextureRect = get_node_or_null("DecoracionRight")
+# --- HUD de Estadísticas del Jugador (Abajo a la Izquierda) ---
+@onready var player_stats_hud: HBoxContainer = get_node_or_null("PlayerStatsHUD")
+@onready var lbl_points_val: Label = (
+	get_node_or_null("PlayerStatsHUD/CardPoints/HBox/LblPointsVal")
+	if get_node_or_null("PlayerStatsHUD/CardPoints/HBox/LblPointsVal")
+	else get_node_or_null("PlayerStatsHUD/CardPoints/VBox/LblPointsVal")
+)
+@onready var lbl_stars_val: Label = (
+	get_node_or_null("PlayerStatsHUD/CardStars/HBox/LblStarsVal")
+	if get_node_or_null("PlayerStatsHUD/CardStars/HBox/LblStarsVal")
+	else get_node_or_null("PlayerStatsHUD/CardStars/VBox/LblStarsVal")
+)
+@onready var lbl_dollars_val: Label = (
+	get_node_or_null("PlayerStatsHUD/CardDollars/HBox/LblDollarsVal")
+	if get_node_or_null("PlayerStatsHUD/CardDollars/HBox/LblDollarsVal")
+	else get_node_or_null("PlayerStatsHUD/CardDollars/VBox/LblDollarsVal")
+)
+
+# --- Selector de Modo Terminal Linux (Lateral Derecho) ---
 @onready var circular_mode_selector: Control = get_node_or_null("CircularModeSelector")
 @onready var btn_up_arrow: Button = get_node_or_null("CircularModeSelector/BtnUpArrow")
 @onready var btn_down_arrow: Button = get_node_or_null("CircularModeSelector/BtnDownArrow")
-@onready var mode_wheel_area: Control = get_node_or_null("CircularModeSelector/ModeWheelArea")
-@onready var bubble_reparacion: Control = get_node_or_null("CircularModeSelector/ModeWheelArea/BubbleReparacion")
-@onready var bubble_sistema: Control = get_node_or_null("CircularModeSelector/ModeWheelArea/BubbleSistema")
-@onready var bubble_servidor: Control = get_node_or_null("CircularModeSelector/ModeWheelArea/BubbleServidor")
+@onready var terminal_buttons: Control = get_node_or_null("CircularModeSelector/TerminalButtons")
+@onready var term_btn_reparacion: PanelContainer = get_node_or_null("CircularModeSelector/TerminalButtons/TermBtnReparacion")
+@onready var term_btn_sistema: PanelContainer = get_node_or_null("CircularModeSelector/TerminalButtons/TermBtnSistema")
+@onready var term_btn_servidor: PanelContainer = get_node_or_null("CircularModeSelector/TerminalButtons/TermBtnServidor")
 
 const MODE_ORDER: Array[String] = ["reparacion", "sistema", "servidor"]
-var _wheel_visual_angle: float = 0.0
-var _wheel_target_angle: float = 0.0
-var _wheel_tween: Tween = null
 var _color_tween: Tween = null
+var _mode_selector_idle_timer: float = 0.0
+var _is_selector_faded: bool = false
+var _cursor_blink_timer: float = 0.0
 
 const MODE_PALETTES: Dictionary = {
 	"reparacion": {
@@ -48,9 +66,9 @@ const MODE_PALETTES: Dictionary = {
 		"accent_dim": Color(0.65, 0.05, 0.45, 0.55),
 		"banner_font": Color(1.0, 0.1, 0.25, 1.0),
 		"banner_shadow": Color(0.65, 0.0, 0.85, 0.8),
-		"holo_top": Color(0.48, 0.04, 0.78, 1.0),
-		"holo_bottom": Color(0.88, 0.02, 0.16, 1.0),
-		"holo_edge": Color(1.0, 0.08, 0.22, 1.0)
+		"holo_ring_pri": Color(1.0, 0.15, 0.45, 1.0),
+		"holo_ring_sec": Color(0.0, 0.85, 1.0, 1.0),
+		"holo_ring_glow": Color(1.0, 0.1, 0.45, 0.75)
 	},
 	"sistema": {
 		"bg_color": Color(0.015, 0.035, 0.12, 1.0),
@@ -58,9 +76,9 @@ const MODE_PALETTES: Dictionary = {
 		"accent_dim": Color(0.04, 0.22, 0.65, 0.55),
 		"banner_font": Color(0.2, 0.7, 1.0, 1.0),
 		"banner_shadow": Color(0.04, 0.2, 0.65, 0.8),
-		"holo_top": Color(0.02, 0.12, 0.45, 1.0),
-		"holo_bottom": Color(0.08, 0.35, 0.85, 1.0),
-		"holo_edge": Color(0.25, 0.7, 1.0, 1.0)
+		"holo_ring_pri": Color(0.0, 0.88, 1.0, 1.0),
+		"holo_ring_sec": Color(0.0, 0.45, 1.0, 1.0),
+		"holo_ring_glow": Color(0.0, 0.85, 1.0, 0.75)
 	},
 	"servidor": {
 		"bg_color": Color(0.08, 0.035, 0.01, 1.0),
@@ -68,9 +86,9 @@ const MODE_PALETTES: Dictionary = {
 		"accent_dim": Color(0.7, 0.25, 0.02, 0.55),
 		"banner_font": Color(1.0, 0.6, 0.1, 1.0),
 		"banner_shadow": Color(0.75, 0.25, 0.02, 0.8),
-		"holo_top": Color(0.45, 0.15, 0.01, 1.0),
-		"holo_bottom": Color(0.95, 0.45, 0.05, 1.0),
-		"holo_edge": Color(1.0, 0.68, 0.12, 1.0)
+		"holo_ring_pri": Color(1.0, 0.55, 0.08, 1.0),
+		"holo_ring_sec": Color(1.0, 0.2, 0.02, 1.0),
+		"holo_ring_glow": Color(1.0, 0.55, 0.1, 0.75)
 	}
 }
 
@@ -1660,35 +1678,52 @@ func _ready() -> void:
 		constellation_area.mouse_filter = Control.MOUSE_FILTER_PASS
 		constellation_area.gui_input.connect(_on_constellation_gui_input)
 		
-	# Selector Circular de Modo & Decoración Flipped en el lateral derecho
-	if decoracion_right and decoracion_right.material:
-		decoracion_right.material = decoracion_right.material.duplicate()
+	# Selector de Modo Terminal Linux
+	if term_btn_reparacion and term_btn_reparacion.material:
+		term_btn_reparacion.material = term_btn_reparacion.material.duplicate()
+	if term_btn_sistema and term_btn_sistema.material:
+		term_btn_sistema.material = term_btn_sistema.material.duplicate()
+	if term_btn_servidor and term_btn_servidor.material:
+		term_btn_servidor.material = term_btn_servidor.material.duplicate()
 		
 	if btn_up_arrow:
-		btn_up_arrow.pressed.connect(func(): _cycle_mode(-1))
+		btn_up_arrow.pressed.connect(func(): _cycle_mode(-1); _wake_mode_selector())
 	if btn_down_arrow:
-		btn_down_arrow.pressed.connect(func(): _cycle_mode(1))
+		btn_down_arrow.pressed.connect(func(): _cycle_mode(1); _wake_mode_selector())
 		
-	if bubble_reparacion:
-		var hit = bubble_reparacion.get_node_or_null("Hitbox")
-		if hit: hit.pressed.connect(func(): _switch_mode("reparacion"))
-	if bubble_sistema:
-		var hit = bubble_sistema.get_node_or_null("Hitbox")
-		if hit: hit.pressed.connect(func(): _switch_mode("sistema"))
-	if bubble_servidor:
-		var hit = bubble_servidor.get_node_or_null("Hitbox")
-		if hit: hit.pressed.connect(func(): _switch_mode("servidor"))
+	if term_btn_reparacion:
+		var hit = term_btn_reparacion.get_node_or_null("Hitbox")
+		if hit: hit.pressed.connect(func(): _switch_mode("reparacion"); _wake_mode_selector())
+	if term_btn_sistema:
+		var hit = term_btn_sistema.get_node_or_null("Hitbox")
+		if hit: hit.pressed.connect(func(): _switch_mode("sistema"); _wake_mode_selector())
+	if term_btn_servidor:
+		var hit = term_btn_servidor.get_node_or_null("Hitbox")
+		if hit: hit.pressed.connect(func(): _switch_mode("servidor"); _wake_mode_selector())
+		
+	if circular_mode_selector:
+		circular_mode_selector.mouse_entered.connect(_wake_mode_selector)
 		
 	if initial_mode != "" and (initial_mode == "reparacion" or initial_mode == "sistema" or initial_mode == "servidor"):
 		current_mode = initial_mode
 		
-	_init_mode_wheel()
+	# Ocultar banner de texto de área
+	if section_banner:
+		section_banner.visible = false
+	if banner_label:
+		banner_label.text = ""
+
+	_update_terminal_buttons()
 	_apply_mode_palette(current_mode, true)
 	if graph_lines and graph_lines.has_method("transition_to_mode") and current_mode != "reparacion":
 		graph_lines.transition_to_mode(current_mode)
 		
 	_create_node_hitboxes()
 	_sync_progression_from_save()
+	_update_player_stats()
+	var sm_inst = get_node_or_null("/root/SaveManager")
+	if sm_inst and sm_inst.has_signal("slot_saved"):
+		sm_inst.slot_saved.connect(func(_slot_idx): _update_player_stats())
 	_check_and_play_pending_unlock()
 	_setup_tutorial_scroll()
 	
@@ -1783,9 +1818,23 @@ func _scroll_tutorial_cards(amount: float) -> void:
 	tw.tween_property(cards_scroll, "scroll_vertical", int(target), 0.18)\
 		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	if current_tab == "niveles" and graph_lines and "is_transitioning" in graph_lines and graph_lines.is_transitioning:
 		_update_node_hitboxes_positions()
+
+	# Cursor parpadeante estilo terminal de Linux
+	_cursor_blink_timer += delta
+	var cursor_visible: bool = fmod(_cursor_blink_timer, 0.8) < 0.45
+	_update_terminal_cursor_blink(cursor_visible)
+
+	# Desvanecimiento por inactividad de los botones terminal y flechas
+	if current_tab == "niveles" and not is_level_zoomed and not is_panning_map:
+		_mode_selector_idle_timer += delta
+		if _mode_selector_idle_timer >= 4.0 and not _is_selector_faded and circular_mode_selector:
+			_is_selector_faded = true
+			var tw = create_tween()
+			tw.tween_property(circular_mode_selector, "modulate:a", 0.0, 0.55)\
+				.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 
 
 
@@ -1819,7 +1868,8 @@ func _switch_main_tab(tab_name: String, instant: bool = false) -> void:
 		constellation_area.visible = false
 		column_headers.visible = false
 		tutorial_area.visible = true
-		banner_label.text = "CENTRO DE ENTRENAMIENTO // GUÍA TÉCNICA Y SIMULADORES"
+		if banner_label and section_banner and section_banner.visible:
+			banner_label.text = "CENTRO DE ENTRENAMIENTO // GUÍA TÉCNICA Y SIMULADORES"
 		footer_hint.text = "⌜  SELECCIONA UNA TARJETA PARA VER DETALLES O PRACTICAR EN EL SIMULADOR  ⌟"
 		_filter_tutorial_cards()
 		
@@ -1853,17 +1903,10 @@ func _update_tab_buttons_visuals() -> void:
 		btn_tutoriales.queue_redraw()
 
 # =============================================================================
-# SELECTOR CIRCULAR DE MODO 3D & RUEDA ORBITAL (LATERAL DERECHO)
+# SELECTOR DE MODO TERMINAL LINUX (LATERAL DERECHO)
 # =============================================================================
-func _init_mode_wheel() -> void:
-	var init_idx = MODE_ORDER.find(current_mode)
-	if init_idx == -1:
-		init_idx = 0
-	_wheel_target_angle = -float(init_idx) * (TAU / 3.0)
-	_wheel_visual_angle = _wheel_target_angle
-	_update_wheel_visuals()
-
 func _cycle_mode(direction: int) -> void:
+	_wake_mode_selector()
 	if is_level_zoomed:
 		return
 	var cur_idx = MODE_ORDER.find(current_mode)
@@ -1872,43 +1915,93 @@ func _cycle_mode(direction: int) -> void:
 	var next_idx = posmod(cur_idx + direction, MODE_ORDER.size())
 	_switch_mode(MODE_ORDER[next_idx], direction)
 
-func _animate_wheel_step(val: float) -> void:
-	_wheel_visual_angle = val
-	_update_wheel_visuals()
-
-func _update_wheel_visuals() -> void:
-	var bubbles = [bubble_reparacion, bubble_sistema, bubble_servidor]
-	if not mode_wheel_area or bubbles.any(func(b): return b == null):
+func _wake_mode_selector() -> void:
+	_mode_selector_idle_timer = 0.0
+	if not circular_mode_selector:
 		return
+	if _is_selector_faded or circular_mode_selector.modulate.a < 0.95:
+		_is_selector_faded = false
+		var tw = create_tween()
+		tw.tween_property(circular_mode_selector, "modulate:a", 1.0, 0.20)\
+			.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 
-	var center = Vector2(mode_wheel_area.size.x * 0.5, mode_wheel_area.size.y * 0.5)
-	var rx = 26.0
-	var ry = 70.0
+# Configuración de posiciones en arco circular y desplazamiento sobresaliente al seleccionar
+const ARC_BUTTON_CONFIG = {
+	"reparacion": {
+		"base_pos": Vector2(25.0, 16.0),
+		"selected_offset_x": -45.0
+	},
+	"sistema": {
+		"base_pos": Vector2(-16.0, 100.0),
+		"selected_offset_x": -45.0
+	},
+	"servidor": {
+		"base_pos": Vector2(25.0, 184.0),
+		"selected_offset_x": -45.0
+	}
+}
 
-	for i in range(bubbles.size()):
-		var b = bubbles[i]
-		var ang = _wheel_visual_angle + float(i) * (TAU / 3.0)
-		var bx = -cos(ang) * rx
-		var by = sin(ang) * ry
-		var depth = (cos(ang) + 1.0) * 0.5 # 1.0 al frente, 0.0 atrás
+func _update_terminal_buttons() -> void:
+	var buttons = {
+		"reparacion": term_btn_reparacion,
+		"sistema": term_btn_sistema,
+		"servidor": term_btn_servidor
+	}
+	var colors = {
+		"reparacion": Color(1.0, 0.25, 0.45, 1.0),
+		"sistema": Color(0.0, 0.95, 1.0, 1.0),
+		"servidor": Color(1.0, 0.65, 0.15, 1.0)
+	}
+	
+	for mode_key in buttons.keys():
+		var btn = buttons[mode_key]
+		if not btn:
+			continue
+		var is_active = (mode_key == current_mode)
+		var col: Color = colors[mode_key]
+		var cfg = ARC_BUTTON_CONFIG.get(mode_key, {"base_pos": Vector2.ZERO, "selected_offset_x": -45.0})
+		
+		# Posición en arco circular: el botón seleccionado sobresale fuertemente hacia la izquierda (-45px)
+		var target_pos: Vector2 = cfg.base_pos
+		if is_active:
+			target_pos.x += cfg.selected_offset_x
+			btn.z_index = 5
+		else:
+			btn.z_index = 0
+			
+		var target_scale = Vector2(1.18, 1.18) if is_active else Vector2(0.88, 0.88)
+		var target_modulate = Color(1.0, 1.0, 1.0, 1.0) if is_active else Color(0.70, 0.72, 0.78, 0.50)
+		
+		var tw = create_tween().set_parallel(true)
+		tw.tween_property(btn, "position", target_pos, 0.22).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		tw.tween_property(btn, "scale", target_scale, 0.22).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		tw.tween_property(btn, "modulate", target_modulate, 0.20).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		
+		# Shader de terminal con marco neutro
+		if btn.material is ShaderMaterial:
+			var smat = btn.material as ShaderMaterial
+			smat.set_shader_parameter("is_selected", is_active)
+			smat.set_shader_parameter("term_color", col)
+		
+		var cursor = btn.get_node_or_null("Margin/HBox/LblCursor")
+		if cursor:
+			cursor.visible = is_active
+			cursor.modulate = col
+		var prompt = btn.get_node_or_null("Margin/HBox/LblPrompt")
+		if prompt:
+			prompt.modulate = col if is_active else Color(0.75, 0.75, 0.8, 0.7)
 
-		b.position = center + Vector2(bx - 30.0, by - 30.0)
-		var sc = lerp(0.74, 1.25, depth)
-		b.scale = Vector2(sc, sc)
-		b.modulate.a = lerp(0.42, 1.0, depth)
-		b.z_index = int(depth * 10)
-		b.rotation = sin(ang) * 0.12
-
-		var title_lbl = b.get_node_or_null("TitleLabel")
-		var bg_circle = b.get_node_or_null("BgCircle")
-		var is_front = (depth > 0.82)
-
-		if title_lbl:
-			title_lbl.modulate.a = lerp(0.0, 1.0, clampf((depth - 0.6) / 0.35, 0.0, 1.0))
-		if bg_circle:
-			var mode_name = MODE_ORDER[i]
-			var pal = MODE_PALETTES.get(mode_name, MODE_PALETTES["reparacion"])
-			bg_circle.modulate = pal.accent if is_front else pal.accent_dim
+func _update_terminal_cursor_blink(cursor_visible: bool) -> void:
+	var buttons = {
+		"reparacion": term_btn_reparacion,
+		"sistema": term_btn_sistema,
+		"servidor": term_btn_servidor
+	}
+	var active_btn = buttons.get(current_mode, null)
+	if active_btn:
+		var cursor = active_btn.get_node_or_null("Margin/HBox/LblCursor")
+		if cursor:
+			cursor.visible = cursor_visible
 
 func _apply_mode_palette(mode_name: String, instant: bool = false) -> void:
 	var pal = MODE_PALETTES.get(mode_name, MODE_PALETTES["reparacion"])
@@ -1916,14 +2009,6 @@ func _apply_mode_palette(mode_name: String, instant: bool = false) -> void:
 	if instant:
 		if background_rect:
 			background_rect.color = pal.bg_color
-		if decoracion_right and decoracion_right.material is ShaderMaterial:
-			var mat: ShaderMaterial = decoracion_right.material
-			mat.set_shader_parameter("top_color", pal.holo_top)
-			mat.set_shader_parameter("bottom_color", pal.holo_bottom)
-			mat.set_shader_parameter("edge_color", pal.holo_edge)
-		if banner_label:
-			banner_label.add_theme_color_override("font_color", pal.banner_font)
-			banner_label.add_theme_color_override("font_shadow_color", pal.banner_shadow)
 		return
 
 	if _color_tween and _color_tween.is_valid():
@@ -1933,22 +2018,42 @@ func _apply_mode_palette(mode_name: String, instant: bool = false) -> void:
 	if background_rect:
 		_color_tween.tween_property(background_rect, "color", pal.bg_color, 0.20)
 
-	if decoracion_right and decoracion_right.material is ShaderMaterial:
-		var mat: ShaderMaterial = decoracion_right.material
-		_color_tween.tween_property(mat, "shader_parameter/top_color", pal.holo_top, 0.20)
-		_color_tween.tween_property(mat, "shader_parameter/bottom_color", pal.holo_bottom, 0.20)
-		_color_tween.tween_property(mat, "shader_parameter/edge_color", pal.holo_edge, 0.20)
+func _update_player_stats() -> void:
+	var sm = get_node_or_null("/root/SaveManager")
+	if not sm:
+		return
+	var data = sm.get_slot(sm.current_slot)
+	var pts: int = int(data.get("score", 0))
+	var stars: int = int(data.get("stars", 0))
+	var dollars: int = int(data.get("dollars", 500 if sm.current_slot == 1 else 0))
 
-	if banner_label:
-		var cur_font_c = banner_label.get_theme_color("font_color")
-		var cur_shad_c = banner_label.get_theme_color("font_shadow_color")
-		_color_tween.tween_method(func(c: Color): banner_label.add_theme_color_override("font_color", c), cur_font_c, pal.banner_font, 0.20)
-		_color_tween.tween_method(func(c: Color): banner_label.add_theme_color_override("font_shadow_color", c), cur_shad_c, pal.banner_shadow, 0.20)
+	if lbl_points_val:
+		lbl_points_val.text = _format_thousands(pts)
+	if lbl_stars_val:
+		lbl_stars_val.text = str(stars)
+	if lbl_dollars_val:
+		var has_logo = lbl_dollars_val.get_parent().get_node_or_null("DollarLogo") != null
+		if has_logo:
+			lbl_dollars_val.text = _format_thousands(dollars)
+		else:
+			lbl_dollars_val.text = "$ %s" % [_format_thousands(dollars)]
+
+func _format_thousands(val: int) -> String:
+	var s = str(val)
+	var res = ""
+	var count = 0
+	for i in range(s.length() - 1, -1, -1):
+		res = s[i] + res
+		count += 1
+		if count % 3 == 0 and i > 0:
+			res = "," + res
+	return res
 
 # =============================================================================
 # CONMUTACIÓN DE MODO / DIVISIÓN (REPARACIÓN, SISTEMA, SERVIDOR)
 # =============================================================================
 func _switch_mode(mode_name: String, spin_dir: int = 0) -> void:
+	_wake_mode_selector()
 	is_panning_map = false
 	if is_level_zoomed:
 		_unzoom_camera()
@@ -1958,22 +2063,6 @@ func _switch_mode(mode_name: String, spin_dir: int = 0) -> void:
 		return
 		
 	current_mode = mode_name
-	var cur_idx = MODE_ORDER.find(current_mode)
-	if cur_idx == -1:
-		cur_idx = 0
-
-	if spin_dir != 0:
-		_wheel_target_angle -= float(spin_dir) * (TAU / 3.0)
-	else:
-		var target_base = -float(cur_idx) * (TAU / 3.0)
-		var diff = wrapf(target_base - _wheel_visual_angle, -PI, PI)
-		_wheel_target_angle = _wheel_visual_angle + diff
-
-	if _wheel_tween and _wheel_tween.is_valid():
-		_wheel_tween.kill()
-	_wheel_tween = create_tween().set_parallel(true)
-	_wheel_tween.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	_wheel_tween.tween_method(_animate_wheel_step, _wheel_visual_angle, _wheel_target_angle, 0.22)
 
 	if btn_up_arrow and spin_dir < 0:
 		var tw_arr = create_tween()
@@ -1983,6 +2072,8 @@ func _switch_mode(mode_name: String, spin_dir: int = 0) -> void:
 		var tw_arr = create_tween()
 		tw_arr.tween_property(btn_down_arrow, "scale", Vector2(1.2, 1.2), 0.08)
 		tw_arr.tween_property(btn_down_arrow, "scale", Vector2.ONE, 0.12)
+
+	_update_terminal_buttons()
 
 	_apply_mode_palette(current_mode, false)
 	_play_mode_switch_animation(current_mode)
@@ -2010,7 +2101,7 @@ func _play_mode_switch_animation(mode_name: String) -> void:
 		constellation_area.modulate = Color(1.8, 1.8, 2.3, 1.0)
 		tw.tween_property(constellation_area, "modulate", Color.WHITE, 0.32).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	
-	if banner_label:
+	if banner_label and section_banner and section_banner.visible:
 		banner_label.pivot_offset = banner_label.size * 0.5
 		var tw_b = create_tween()
 		banner_label.scale = Vector2(1.06, 1.06)
@@ -2068,24 +2159,24 @@ func _update_mode_buttons() -> void:
 			t["btn"].queue_redraw()
 
 func _update_headers_for_mode() -> void:
+	if section_banner:
+		section_banner.visible = false
+	if banner_label:
+		banner_label.text = ""
 	match current_mode:
 		"reparacion":
-			banner_label.text = "SECCIÓN DE REPARACIÓN // TELARAÑA DE HARDWARE"
 			col1_label.text = "NÚCLEO TUTORIAL & ETAPA 1 [1-4]"
 			col2_label.text = "ETAPA 2: HARDWARE AVANZADO [5-8]"
 			col3_label.text = "ETAPA 3: MAESTRÍA DE DIAGNÓSTICO [9-12]"
 		"reparacion_fondo":
-			banner_label.text = "SECCIÓN: REPARACIÓN A FONDO // MANTENIMIENTO AVANZADO DE CPU"
 			col1_label.text = "PASTA TÉRMICA"
 			col2_label.text = "ALINEACIÓN DE PINES"
 			col3_label.text = "CALIBRACIÓN"
 		"sistema":
-			banner_label.text = "SECCIÓN DE SISTEMA // TELARAÑA DE RED LÓGICA"
 			col1_label.text = "NÚCLEO TUTORIAL & ETAPA 1 [1-4]"
 			col2_label.text = "ETAPA 2: KERNEL & DRIVERS [5-8]"
 			col3_label.text = "ETAPA 3: CIBERSEGURIDAD & RESCATE [9-12]"
 		"servidor":
-			banner_label.text = "SECCIÓN DE SERVIDOR // TELARAÑA DE DATACENTER"
 			col1_label.text = "NÚCLEO TUTORIAL & ETAPA 1 [1-4]"
 			col2_label.text = "ETAPA 2: ALMACENAMIENTO RAID [5-8]"
 			col3_label.text = "ETAPA 3: DATACENTER & CLOUD [9-12]"
@@ -2316,7 +2407,7 @@ func _fade_menu_chrome(visible_state: bool) -> void:
 		get_node_or_null("SectionBanner"),
 		get_node_or_null("ColumnHeaders"),
 		get_node_or_null("FooterHint"),
-		decoracion_right,
+		player_stats_hud,
 		circular_mode_selector
 	]
 	for node in chrome_nodes:
@@ -3085,18 +3176,13 @@ func _play_exit_animation() -> void:
 		tw_ui.tween_property(footer_hint, "position:y", footer_hint.position.y + 55.0, 0.24)
 		tw_ui.tween_property(footer_hint, "modulate:a", 0.0, 0.22)
 
-	# Selector de modo y decoración derecha se deslizan a la derecha
-	if decoracion_right:
-		tw_ui.tween_property(decoracion_right, "position:x", decoracion_right.position.x + 220.0, 0.30)
-		tw_ui.tween_property(decoracion_right, "modulate:a", 0.0, 0.26)
+	# HUD de estadísticas abajo a la izquierda se desliza
+	if player_stats_hud:
+		tw_ui.tween_property(player_stats_hud, "position:y", player_stats_hud.position.y + 60.0, 0.24)
+		tw_ui.tween_property(player_stats_hud, "modulate:a", 0.0, 0.22)
 	if circular_mode_selector:
 		tw_ui.tween_property(circular_mode_selector, "position:x", circular_mode_selector.position.x + 220.0, 0.30)
 		tw_ui.tween_property(circular_mode_selector, "modulate:a", 0.0, 0.26)
-		_wheel_target_angle += TAU * 1.5
-		if _wheel_tween and _wheel_tween.is_valid():
-			_wheel_tween.kill()
-		_wheel_tween = create_tween()
-		_wheel_tween.tween_method(_animate_wheel_step, _wheel_visual_angle, _wheel_target_angle, 0.30)
 
 	# Constelación de niveles: Implosión hacia el centro con rotación
 	if constellation_area:

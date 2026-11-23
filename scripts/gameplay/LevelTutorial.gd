@@ -290,9 +290,15 @@ func _setup_sistemas_environment() -> void:
 	_set_holo_banner_text("LABORATORIO DE SOFTWARE // SISTEMAS OPERATIVOS")
 	_set_holo_sub_text("[PASO 1] ACÉRCATE A LA TERMINAL Y PRESIONA [E]")
 
-	# En sistemas no se usan herramientas físicas (puro mouse y teclado)
+	# Forzar modo sistema para que el HUD oculte la barra y círculos de herramientas
+	var gm = get_node_or_null("/root/GameManager")
+	if gm:
+		gm.current_mode = "sistema"
+
 	if hud and hud.has_method("set_tools_bar_visible"):
 		hud.set_tools_bar_visible(false)
+	if hud and hud.has_method("set_visible_tools"):
+		hud.set_visible_tools(0)
 
 	if pc:
 		pc.visible = false
@@ -301,23 +307,81 @@ func _setup_sistemas_environment() -> void:
 
 	_hide_hardware_workshop_props()
 
-	systems_pc_inst = SYSTEMS_PC_SCENE.instantiate()
-	systems_pc_inst.name = "SystemsComputerTutorial"
-	systems_pc_inst.position = Vector3(0, 0.912, 0)
-	work_bench.add_child(systems_pc_inst)
+	# En el área de sistemas la mesa es el modelo 'mesa de pedidos.glb' (no la de reparación)
+	var old_mesa = work_bench.get_node_or_null("MesaModel")
+	if old_mesa:
+		old_mesa.visible = false
 
-	systems_pc_inst.components = {
-		"Sistema Operativo": "broken",
-		"Drivers": "broken",
-		"Malware": "broken",
-		"Adware": "fixed",
-		"Debugger": "fixed",
-		"Pendrive USB": "fixed",
-		"Arcade Ciberdefensa": "fixed"
-	}
-	systems_pc_inst.custom_prompt = "[E] Iniciar Instalación de Andromeda OS"
-	systems_pc_inst.custom_interact_callback = Callable(self, "_on_interact_systems_pc")
-	systems_pc_inst.update_3d_state()
+	var mesa_ped_scene = load("res://modelos_3d/escenario_3d/mesa de pedidos.glb")
+	if mesa_ped_scene:
+		var mesa_ped = mesa_ped_scene.instantiate()
+		mesa_ped.name = "MesaPedidosModel"
+		mesa_ped.scale = Vector3(0.012, 0.012, 0.012)
+		mesa_ped.position = Vector3.ZERO
+		work_bench.add_child(mesa_ped)
+
+	# Monitor en el escritorio: OBJETO INTERACTIVO CON FLECHA AZUL Y PROMPT [E]
+	var monitor_scene = load("res://scenes/components/SystemsMonitor.tscn")
+	if monitor_scene:
+		systems_pc_inst = monitor_scene.instantiate()
+		systems_pc_inst.name = "MonitorTutorial"
+		systems_pc_inst.position = Vector3(0.0, 0.912, -0.15)
+		work_bench.add_child(systems_pc_inst)
+
+	# Teclado en el escritorio
+	var teclado_scene = load("res://modelos_3d/escenario_3d/teclado.glb")
+	if teclado_scene:
+		var tec = teclado_scene.instantiate()
+		tec.name = "TecladoTutorial"
+		tec.scale = Vector3(0.012, 0.012, 0.012)
+		tec.position = Vector3(0.0, 0.912, 0.15)
+		work_bench.add_child(tec)
+
+	# Mouse en el escritorio
+	var raton_scene = load("res://modelos_3d/escenario_3d/raton.glb")
+	if raton_scene:
+		var rat = raton_scene.instantiate()
+		rat.name = "RatonTutorial"
+		rat.scale = Vector3(0.012, 0.012, 0.012)
+		rat.position = Vector3(0.38, 0.912, 0.15)
+		work_bench.add_child(rat)
+
+	# PC que se va a reparar: LADO IZQUIERDO ARRIBA sobre el escritorio, GIRADA PARA VER AL JUGADOR (modelo visual sin prompt [E])
+	var pc_visual = SYSTEMS_PC_SCENE.instantiate()
+	pc_visual.name = "SystemsComputerTutorial"
+	pc_visual.position = Vector3(-0.55, 0.912, 0.0)
+	pc_visual.rotation_degrees.y = -90.0
+	pc_visual.collision_layer = 0
+	pc_visual.collision_mask = 0
+	if pc_visual.has_node("ArrowMesh"):
+		pc_visual.get_node("ArrowMesh").visible = false
+	if pc_visual.has_node("Label3D"):
+		pc_visual.get_node("Label3D").visible = false
+	work_bench.add_child(pc_visual)
+
+	# Otra PC del sistema: LADO DERECHO AFUERA AL LADO DEL ESCRITORIO (en el piso)
+	var gabinete_scene = load("res://modelos_3d/escenario_3d/gabinete.glb")
+	if gabinete_scene:
+		var gab_abajo = gabinete_scene.instantiate()
+		gab_abajo.name = "GabineteAbajoTutorial"
+		gab_abajo.scale = Vector3(0.013, 0.013, 0.013)
+		gab_abajo.position = Vector3(1.25, 0.0, 0.0)
+		gab_abajo.rotation_degrees.y = 0.0
+		work_bench.add_child(gab_abajo)
+
+	if is_instance_valid(systems_pc_inst):
+		systems_pc_inst.components = {
+			"Sistema Operativo": "broken",
+			"Drivers": "broken",
+			"Malware": "broken",
+			"Adware": "fixed",
+			"Debugger": "fixed",
+			"Pendrive USB": "fixed",
+			"Arcade Ciberdefensa": "fixed"
+		}
+		systems_pc_inst.custom_prompt = "[E] Instalar Andromeda OS"
+		systems_pc_inst.custom_interact_callback = Callable(self, "_on_interact_systems_pc")
+		systems_pc_inst.update_3d_state()
 
 func _setup_servidor_environment() -> void:
 	_set_holo_banner_text("INFRAESTRUCTURA ENTERPRISE // DATA CENTER 3D")
@@ -388,6 +452,12 @@ func _hide_hardware_workshop_props() -> void:
 				n.collision_layer = 0
 			if "collision_mask" in n:
 				n.collision_mask = 0
+	# Ocultar cualquier caja de repuestos (SparesBox) restante en el área
+	for child in find_children("*", "StaticBody3D", true, false):
+		if child and ("Spares" in child.name or child.scene_file_path.ends_with("SparesBox.tscn")):
+			child.visible = false
+			child.collision_layer = 0
+			child.collision_mask = 0
 
 func _set_holo_banner_text(text: String) -> void:
 	if holo_banner and holo_banner.mesh is TextMesh:
@@ -1218,26 +1288,18 @@ func _start_sistemas_intro() -> void:
 	var intro_dialogs: Array = [
 		{
 			"speaker": "[JEREMIAS // SYSADMIN & DEV]",
-			"text": "¡Epaaa, qué onda, fiera! ¿Te perdiste o viniste a aprender con el mejor? Soy Jeremias, el de los rulos rebeldes y el amo y señor del software en este laboratorio."
+			"text": "¡Epaaa, qué onda, fiera! ¿Te perdiste o viniste a aprender con el mejor? Soy Jeremias, el amo y señor del software en este laboratorio. ¡Bienvenido!"
 		},
 		{
-			"speaker": "[JEREMIAS // FILOSOFÍA DE SOFTWARE]",
-			"text": "Aquí no nos manchamos las manos con pasta térmica ni polvo, crack. Aquí dominamos el sistema operativo, cazamos virus y ajustamos el kernel como verdaderos hackers de película."
-		},
-		{
-			"speaker": "[JEREMIAS // ¿HERRAMIENTAS? ¡JA!]",
-			"text": "¿Y las herramientas? ¡Olvídate de ellas! Aquí es puro mouse y teclado, fiera, así que nada de andar con eso de [ 1 ], [ 2 ], [ 3 ], [ 4 ] ni [ 5 ]. Aquí el único fierro que vas a tocar es tu teclado."
-		},
-		{
-			"speaker": "[JEREMIAS // PASO 1 · INSTALACIÓN DE OS]",
-			"text": "Paso 1: Cuando termine de hablarte, camina libremente hacia esa terminal en la mesa y presiona [E] tú mismo. Vamos a particionar el disco en GPT e instalar Andromeda OS. ¡A ver qué tan rápido eres con las particiones!"
+			"speaker": "[JEREMIAS // BIENVENIDA A SISTEMAS]",
+			"text": "Acércate al monitor en el escritorio y presiona [E] para entrar a la terminal. Allá adentro te enseño todo lo que necesitas saber paso a paso."
 		}
 	]
 
 	_show_dialog_sequence(intro_dialogs, func():
 		sys_step = SistemasStep.WAIT_INTERACT_OS
-		_set_holo_sub_text("[PASO 1] ACÉRCATE A LA TERMINAL Y PRESIONA [E]")
-		GameManager.spawn_floating_text("Paso 1: Camina a la terminal y presiona [E]", true)
+		_set_holo_sub_text("[PASO 1] ACÉRCATE AL MONITOR Y PRESIONA [E]")
+		GameManager.spawn_floating_text("Paso 1: Camina al monitor y presiona [E]", true)
 		if is_instance_valid(systems_pc_inst):
 			systems_pc_inst.custom_prompt = "[E] Instalar Andromeda OS (Partición GPT)"
 		_restore_player_free_movement()
@@ -1248,42 +1310,42 @@ func _start_targeted_sistemas_tutorial() -> void:
 		"os_install": {
 			"sub": "TUTORIAL // INSTALACIÓN DE SISTEMAS & GPT",
 			"prompt": "[E] Instalar Andromeda OS (Partición GPT)",
-			"dialog": "¡A ver esa agilidad con las particiones, crack! Camina a la terminal y presiona [E] para crear la tabla GPT e instalar Andromeda OS.",
+			"dialog": "¡A ver esa agilidad con las particiones, crack! Camina al monitor y presiona [E] para crear la tabla GPT e instalar Andromeda OS.",
 			"scene": OS_MINIGAME_SCENE,
 			"key": "Sistema Operativo"
 		},
 		"malware_scan": {
 			"sub": "TUTORIAL // CIBERDEFENSA & ESCANEO DE MALWARE",
 			"prompt": "[E] Ejecutar Escáner de Malware ClamAV",
-			"dialog": "¡Cuidado que hay gusanos sueltos en memoria, fiera! Camina a la terminal y presiona [E] para pasar el antivirus heurístico.",
+			"dialog": "¡Cuidado que hay gusanos sueltos en memoria, fiera! Camina al monitor y presiona [E] para pasar el antivirus heurístico.",
 			"scene": MALWARE_MINIGAME_SCENE,
 			"key": "Malware"
 		},
 		"driver_install": {
 			"sub": "TUTORIAL // CONTROLADORES WHQL & MÓDULOS DE KERNEL",
 			"prompt": "[E] Actualizar Controladores WHQL",
-			"dialog": "¡A calibrar esa gráfica y red sin pantallas azules! Camina a la terminal y presiona [E] para instalar los drivers certificados.",
+			"dialog": "¡A calibrar esa gráfica y red sin pantallas azules! Camina al monitor y presiona [E] para instalar los drivers certificados.",
 			"scene": DRIVER_MINIGAME_SCENE,
 			"key": "Drivers"
 		},
 		"adware_cleaner": {
 			"sub": "TUTORIAL // DESINFECCIÓN DE ADWARE & POP-UPS",
 			"prompt": "[E] Iniciar Limpieza de Adware",
-			"dialog": "¡El navegador está infestado de pop-ups engañosos, fiera! Camina a la terminal y presiona [E] para activar el escudo Ad-Blocker.",
+			"dialog": "¡El navegador está infestado de pop-ups engañosos, fiera! Camina al monitor y presiona [E] para activar el escudo Ad-Blocker.",
 			"scene": ADWARE_MINIGAME_SCENE,
 			"key": "Adware"
 		},
 		"code_debugger": {
-			"sub": "TUTORIAL // PROGRAMACIÓN & DEPURADOR DE CÓDIGO",
-			"prompt": "[E] Abrir IDE de Depuración y Corregir Bugs",
-			"dialog": "¡Se rompió el script de arranque, fiera! Camina a la terminal y presiona [E] para cazar los bugs en el IDE y pasar los tests.",
+			"sub": "TUTORIAL // PROGRAMACIÓN & TERMINAL DE SISTEMAS",
+			"prompt": "[E] Abrir Terminal de Programación",
+			"dialog": "¡Epa, fiera! Bienvenido a la consola de programación. Camina hacia el monitor y presiona [E] para entrar a la terminal. Adentro te explico cada comando paso a paso.",
 			"scene": DEBUGGER_MINIGAME_SCENE,
 			"key": "Debugger"
 		},
 		"usb_backup": {
 			"sub": "TUTORIAL // UNIDADES BOOTEABLES USB & RESPALDO",
 			"prompt": "[E] Crear Unidad USB Booteable de Rescate",
-			"dialog": "¡Hora de preparar el pendrive salvavidas, crack! Camina a la terminal y presiona [E] para flashear la ISO con dd/Ventoy.",
+			"dialog": "¡Hora de preparar el pendrive salvavidas, crack! Camina al monitor y presiona [E] para flashear la ISO con dd/Ventoy.",
 			"scene": USB_MINIGAME_SCENE,
 			"key": "Pendrive USB"
 		}
@@ -1291,12 +1353,22 @@ func _start_targeted_sistemas_tutorial() -> void:
 
 	var conf = tut_configs.get(target_component, tut_configs["os_install"])
 	_set_holo_sub_text(conf["sub"])
-	var dialogs: Array = [
-		{
-			"speaker": "[JEREMIAS // ENTRENAMIENTO GUIADO]",
-			"text": conf["dialog"]
-		}
-	]
+	var dialogs: Array = []
+	if conf.has("dialogs"):
+		dialogs = conf["dialogs"]
+	else:
+		dialogs = [
+			{
+				"speaker": "[JEREMIAS // ENTRENAMIENTO GUIADO]",
+				"text": conf.get("dialog", "")
+			}
+		]
+		
+	if target_component == "code_debugger":
+		var sm = get_node_or_null("/root/SaveManager")
+		if sm and sm.has_method("unlock_glossary"):
+			sm.unlock_glossary("sistemas_programacion")
+
 	_show_dialog_sequence(dialogs, func():
 		_set_holo_sub_text(conf["sub"])
 		GameManager.spawn_floating_text("Camina a la terminal y presiona [E]", true)
@@ -1305,6 +1377,10 @@ func _start_targeted_sistemas_tutorial() -> void:
 			systems_pc_inst.custom_interact_callback = func(_p):
 				_launch_minigame_sistemas(conf["scene"], conf["key"], func(success: bool):
 					if success:
+						if target_component == "code_debugger":
+							var sm_win = get_node_or_null("/root/SaveManager")
+							if sm_win and sm_win.has_method("unlock_glossary"):
+								sm_win.unlock_glossary("sistemas_programacion")
 						var win_dialogs: Array = [
 							{
 								"speaker": "[JEREMIAS // ¡EXCELENTE TRABAJO!]",
@@ -1546,8 +1622,8 @@ func _launch_minigame_servidor(minigame_scene: PackedScene, comp_key: String, on
 func _on_debugger_completed() -> void:
 	var dialogs: Array = [
 		{
-			"speaker": "[SANTIAGO // ¡CÓDIGO DEPURADO!]",
-			"text": "Vaya, miren al señor Neo saliendo de la Matrix... Ni un solo 'null pointer exception'. Casi me haces creer que sabes lo que haces."
+			"speaker": "[JEREMIAS // ¡CÓDIGO PROGRAMADO CON ÉXITO!]",
+			"text": "¡Naaaaah, qué crack! Has dominado todos los comandos: /sistem-configure, node name() {}, delimitadores [] para var y const, {} para funcs y la lógica if/else. ¡Todo compilado con exit al 100%!"
 		},
 		{
 			"speaker": "[SANTIAGO // PASO 2 · LOOP LÍQUIDO CUSTOM]",

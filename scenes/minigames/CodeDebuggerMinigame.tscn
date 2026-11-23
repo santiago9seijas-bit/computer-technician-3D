@@ -1,4 +1,4 @@
-[gd_scene format=3 load_steps=10]
+[gd_scene format=3 load_steps=11]
 
 [ext_resource type="Script" path="res://scripts/minigames/CodeDebuggerMinigame.gd" id="1_debug"]
 [ext_resource type="Script" path="res://scripts/menus/CyberButton.gd" id="2_cbtn"]
@@ -31,6 +31,18 @@ border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
 border_color = Color(0.1, 0.7, 0.5, 0.7)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_instruction"]
+bg_color = Color(0.04, 0.07, 0.12, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.15, 0.85, 1.0, 0.6)
 corner_radius_top_left = 6
 corner_radius_top_right = 6
 corner_radius_bottom_right = 6
@@ -106,15 +118,15 @@ theme_override_constants/outline_size = 8
 theme_override_colors/font_shadow_color = Color(0.05, 0.5, 0.8, 0.8)
 theme_override_constants/shadow_outline_size = 8
 theme_override_fonts/font = ExtResource("4_title_font")
-theme_override_font_sizes/font_size = 18
-text = "PROGRAMACIÓN: TERMINAL DE DEPURACIÓN DE CÓDIGO (DEBUGGER)"
+theme_override_font_sizes/font_size = 17
+text = "PROGRAMACIÓN: TERMINAL DE DESARROLLO Y CONFIGURACIÓN"
 horizontal_alignment = 1
 
 [node name="StatusLabel" type="Label" parent="ModalControl/Panel/VBox/Header"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9, 0.9, 0.95, 1)
 theme_override_font_sizes/font_size = 12
-text = "Haz clic en las líneas con errores marcadas en rojo para desplegar el menú de corrección."
+text = "Escribe '/sistem-configure' en la consola para iniciar."
 horizontal_alignment = 1
 
 [node name="Metrics" type="HBoxContainer" parent="ModalControl/Panel/VBox/Header"]
@@ -122,14 +134,14 @@ layout_mode = 2
 theme_override_constants/separation = 16
 alignment = 1
 
-[node name="LblBugsCount" type="Label" parent="ModalControl/Panel/VBox/Header/Metrics"]
+[node name="LblStepCount" type="Label" parent="ModalControl/Panel/VBox/Header/Metrics"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1.0, 0.35, 0.35, 1)
+theme_override_colors/font_color = Color(1.0, 0.85, 0.2, 1)
 theme_override_font_sizes/font_size = 12
-text = "BUGS RESUELTOS: 0 / 4"
+text = "PROGRESO: 0 / 6 PASOS"
 
 [node name="ProgressBar" type="ProgressBar" parent="ModalControl/Panel/VBox/Header/Metrics"]
-custom_minimum_size = Vector2(240, 14)
+custom_minimum_size = Vector2(260, 14)
 layout_mode = 2
 size_flags_vertical = 4
 step = 1.0
@@ -140,104 +152,166 @@ size_flags_vertical = 3
 theme_override_constants/separation = 14
 
 [node name="LeftCol" type="PanelContainer" parent="ModalControl/Panel/VBox/WorkHBox"]
-custom_minimum_size = Vector2(530, 0)
+custom_minimum_size = Vector2(580, 0)
 layout_mode = 2
+size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_col")
 
-[node name="Scroll" type="ScrollContainer" parent="ModalControl/Panel/VBox/WorkHBox/LeftCol"]
+[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/WorkHBox/LeftCol"]
 layout_mode = 2
-horizontal_scroll_mode = 0
+theme_override_constants/separation = 8
 
-[node name="CodeLinesVBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/WorkHBox/LeftCol/Scroll"]
+[node name="EditorTopBar" type="HBoxContainer" parent="ModalControl/Panel/VBox/WorkHBox/LeftCol/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="TabTitle" type="Label" parent="ModalControl/Panel/VBox/WorkHBox/LeftCol/VBox/EditorTopBar"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.95, 0.6, 1)
+theme_override_font_sizes/font_size = 11
+text = "💻 [TERMINAL BASH - CyberCore.sys]"
+
+[node name="CodePanel" type="PanelContainer" parent="ModalControl/Panel/VBox/WorkHBox/LeftCol/VBox"]
+custom_minimum_size = Vector2(0, 190)
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_terminal")
+
+[node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/WorkHBox/LeftCol/VBox/CodePanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="CodeRichText" type="RichTextLabel" parent="ModalControl/Panel/VBox/WorkHBox/LeftCol/VBox/CodePanel/Margin"]
+layout_mode = 2
+bbcode_enabled = true
+text = "[color=#667788]# Esperando comando /sistem-configure...[/color]"
+scroll_following = true
+
+[node name="InstructionPanel" type="PanelContainer" parent="ModalControl/Panel/VBox/WorkHBox/LeftCol/VBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_instruction")
+
+[node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/WorkHBox/LeftCol/VBox/InstructionPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 6
+
+[node name="InstructionLabel" type="Label" parent="ModalControl/Panel/VBox/WorkHBox/LeftCol/VBox/InstructionPanel/Margin"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.95, 0.7, 1)
+theme_override_font_sizes/font_size = 11
+text = "🎯 PASO 1 / 6: Escribe '/sistem-configure' para inicializar el sistema."
+autowrap_mode = 2
+
+[node name="InputBar" type="HBoxContainer" parent="ModalControl/Panel/VBox/WorkHBox/LeftCol/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="PromptLabel" type="Label" parent="ModalControl/Panel/VBox/WorkHBox/LeftCol/VBox/InputBar"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.1, 0.85, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "❯ $"
+
+[node name="CommandInput" type="LineEdit" parent="ModalControl/Panel/VBox/WorkHBox/LeftCol/VBox/InputBar"]
+custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 2
+placeholder_text = "Escribe comando aquí o haz clic en la lista..."
+clear_button_enabled = true
+caret_blink = true
+
+[node name="BtnExecute" type="Button" parent="ModalControl/Panel/VBox/WorkHBox/LeftCol/VBox/InputBar"]
+custom_minimum_size = Vector2(100, 36)
+layout_mode = 2
+text = "▶ ENTER"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 10.0
+
+[node name="BtnClean" type="Button" parent="ModalControl/Panel/VBox/WorkHBox/LeftCol/VBox/InputBar"]
+custom_minimum_size = Vector2(80, 36)
+layout_mode = 2
+text = "🧹 CLEAN"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 10.0
+
+[node name="ConsoleFeedback" type="Label" parent="ModalControl/Panel/VBox/WorkHBox/LeftCol/VBox"]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.85, 1, 1)
+theme_override_font_sizes/font_size = 10
+text = "Consola lista para comandos."
+autowrap_mode = 2
 
 [node name="RightCol" type="PanelContainer" parent="ModalControl/Panel/VBox/WorkHBox"]
+custom_minimum_size = Vector2(460, 0)
 layout_mode = 2
-size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_col")
 
 [node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/WorkHBox/RightCol"]
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 6
 
-[node name="GuideBox" type="PanelContainer" parent="ModalControl/Panel/VBox/WorkHBox/RightCol/VBox"]
-layout_mode = 2
-
-[node name="Margin" type="MarginContainer" parent="ModalControl/Panel/VBox/WorkHBox/RightCol/VBox/GuideBox"]
-layout_mode = 2
-theme_override_constants/margin_left = 8
-theme_override_constants/margin_top = 6
-theme_override_constants/margin_right = 8
-theme_override_constants/margin_bottom = 6
-
-[node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/WorkHBox/RightCol/VBox/GuideBox/Margin"]
-layout_mode = 2
-theme_override_constants/separation = 2
-
-[node name="Title" type="Label" parent="ModalControl/Panel/VBox/WorkHBox/RightCol/VBox/GuideBox/Margin/VBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.1, 0.45, 1)
-theme_override_font_sizes/font_size = 11
-text = "📋 GUÍA PASO A PASO"
-
-[node name="Desc" type="Label" parent="ModalControl/Panel/VBox/WorkHBox/RightCol/VBox/GuideBox/Margin/VBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.85, 0.9, 1.0, 0.9)
-theme_override_font_sizes/font_size = 10
-text = "1. Haz clic en las líneas de código marcadas en rojo/advertencia.
-2. Lee el error de sintaxis reportado por el compilador.
-3. Elige el parche de código correcto y presiona 'Compilar y Aplicar Parche'."
-autowrap_mode = 2
-
-[node name="BugTitle" type="Label" parent="ModalControl/Panel/VBox/WorkHBox/RightCol/VBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.3, 0.85, 1.0, 1)
-theme_override_font_sizes/font_size = 13
-text = "INSPECCIÓN DE ERROR"
-
-[node name="BugDesc" type="Label" parent="ModalControl/Panel/VBox/WorkHBox/RightCol/VBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.85, 0.88, 0.92, 1)
-theme_override_font_sizes/font_size = 11
-text = "Selecciona una línea bugueada a la izquierda..."
-autowrap_mode = 2
-
-[node name="PatchesHeader" type="Label" parent="ModalControl/Panel/VBox/WorkHBox/RightCol/VBox"]
+[node name="HeaderTitle" type="Label" parent="ModalControl/Panel/VBox/WorkHBox/RightCol/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1.0, 0.85, 0.2, 1)
-theme_override_font_sizes/font_size = 11
-text = "PARCHES DE CORRECCIÓN (HOT-PATCH):"
+theme_override_font_sizes/font_size = 12
+text = "📖 RECUADRO DE COMANDOS & SINTAXIS"
+horizontal_alignment = 1
 
-[node name="PatchesVBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/WorkHBox/RightCol/VBox"]
+[node name="Scroll" type="ScrollContainer" parent="ModalControl/Panel/VBox/WorkHBox/RightCol/VBox"]
 layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="CommandsVBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/WorkHBox/RightCol/VBox/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
 theme_override_constants/separation = 4
 
-[node name="BtnCompile" type="Button" parent="ModalControl/Panel/VBox/WorkHBox/RightCol/VBox"]
-custom_minimum_size = Vector2(0, 36)
+[node name="DelimitersHeader" type="Label" parent="ModalControl/Panel/VBox/WorkHBox/RightCol/VBox"]
 layout_mode = 2
-text = "🚀 COMPILAR Y EJECUTAR TESTS"
+theme_override_colors/font_color = Color(0, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 11
+text = "REGLAS DE DELIMITADORES (CLIC RÁPIDO):"
+
+[node name="DelimitersGrid" type="HBoxContainer" parent="ModalControl/Panel/VBox/WorkHBox/RightCol/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="BtnParens" type="Button" parent="ModalControl/Panel/VBox/WorkHBox/RightCol/VBox/DelimitersGrid"]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "( ) [name]"
 flat = true
 script = ExtResource("2_cbtn")
-slant = 12.0
+slant = 8.0
 
-[node name="TerminalConsole" type="Label" parent="ModalControl/Panel/VBox/WorkHBox/RightCol/VBox"]
-custom_minimum_size = Vector2(0, 80)
+[node name="BtnBrackets" type="Button" parent="ModalControl/Panel/VBox/WorkHBox/RightCol/VBox/DelimitersGrid"]
+custom_minimum_size = Vector2(0, 32)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.2, 0.95, 0.6, 1)
-theme_override_font_sizes/font_size = 10
-theme_override_styles/normal = SubResource("StyleBoxFlat_terminal")
-text = "$ Consola de compilación lista."
-autowrap_mode = 2
+size_flags_horizontal = 3
+text = "[ ] [var/const]"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 8.0
 
-[node name="ToastLabel" type="Label" parent="ModalControl/Panel/VBox/WorkHBox/RightCol/VBox"]
-visible = false
+[node name="BtnBraces" type="Button" parent="ModalControl/Panel/VBox/WorkHBox/RightCol/VBox/DelimitersGrid"]
+custom_minimum_size = Vector2(0, 32)
 layout_mode = 2
-theme_override_colors/font_color = Color(1.0, 0.85, 0.2, 1)
-theme_override_font_sizes/font_size = 11
-text = "Notificación de corrección"
-horizontal_alignment = 1
+size_flags_horizontal = 3
+text = "{ } [node/funcs]"
+flat = true
+script = ExtResource("2_cbtn")
+slant = 8.0
 
 [node name="VictoryBanner" type="PanelContainer" parent="ModalControl/Panel/VBox/WorkHBox/RightCol/VBox"]
 visible = false
@@ -246,22 +320,22 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_victory")
 
 [node name="VBox" type="VBoxContainer" parent="ModalControl/Panel/VBox/WorkHBox/RightCol/VBox/VictoryBanner"]
 layout_mode = 2
-theme_override_constants/separation = 6
+theme_override_constants/separation = 4
 alignment = 1
 
 [node name="Title" type="Label" parent="ModalControl/Panel/VBox/WorkHBox/RightCol/VBox/VictoryBanner/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 1.0, 0.5, 1)
 theme_override_fonts/font = ExtResource("4_title_font")
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 13
 text = "✓ ¡COMPILACIÓN Y TESTS EXITOSOS!"
 horizontal_alignment = 1
 
 [node name="Desc" type="Label" parent="ModalControl/Panel/VBox/WorkHBox/RightCol/VBox/VictoryBanner/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9, 0.95, 1, 1)
-theme_override_font_sizes/font_size = 11
-text = "Todos los tests unitarios pasaron sin fallos.\nEl script de ciberdefensa está en producción."
+theme_override_font_sizes/font_size = 10
+text = "Código compilado sin errores de sintaxis.\nTodos los módulos están activos y en producción."
 horizontal_alignment = 1
 
 [node name="Footer" type="HBoxContainer" parent="ModalControl/Panel/VBox"]
@@ -270,9 +344,9 @@ theme_override_constants/separation = 16
 alignment = 1
 
 [node name="BtnCancel" type="Button" parent="ModalControl/Panel/VBox/Footer"]
-custom_minimum_size = Vector2(200, 36)
+custom_minimum_size = Vector2(220, 36)
 layout_mode = 2
-text = "CERRAR EDITOR"
+text = "CERRAR TERMINAL"
 flat = true
 script = ExtResource("2_cbtn")
 slant = 14.0

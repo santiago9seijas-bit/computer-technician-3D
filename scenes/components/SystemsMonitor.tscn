@@ -1,0 +1,48 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scripts/components/SystemsMonitor.gd" id="1_sysmon"]
+[ext_resource type="PackedScene" path="res://modelos_3d/escenario_3d/monitor.glb" id="2_monitor"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_mon"]
+size = Vector3(0.55, 0.55, 0.35)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_arrow"]
+albedo_color = Color(0, 0.65, 1, 1)
+emission_enabled = true
+emission = Color(0, 0.65, 1, 1)
+emission_energy_multiplier = 3.0
+
+[sub_resource type="PrismMesh" id="PrismMesh_arrow"]
+material = SubResource("StandardMaterial3D_arrow")
+size = Vector3(0.2, 0.25, 0.06)
+
+[node name="SystemsMonitor" type="StaticBody3D"]
+script = ExtResource("1_sysmon")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.275, 0)
+shape = SubResource("BoxShape3D_mon")
+
+[node name="ModelPivot" type="Node3D" parent="."]
+
+[node name="MonitorModel" parent="ModelPivot" instance=ExtResource("2_monitor")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.669, -1.4899, 2.2059)
+
+[node name="ScreenLight" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0.1)
+light_color = Color(0.12, 0.85, 1, 1)
+light_energy = 1.0
+omni_range = 1.6
+
+[node name="ArrowMesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -1, 8.74228e-08, 0, -8.74228e-08, -1, 0, 0.85, 0)
+mesh = SubResource("PrismMesh_arrow")
+
+[node name="Label3D" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.15, 0)
+billboard = 1
+text = "TERMINAL #1 · [ SIN REVISAR ]"
+font_size = 22
+outline_size = 6
+outline_modulate = Color(0, 0, 0, 1)
+modulate = Color(0, 0.65, 1, 1)

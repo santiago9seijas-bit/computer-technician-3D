@@ -1,4 +1,4 @@
-[gd_scene format=3 load_steps=19]
+[gd_scene format=3 load_steps=21]
 
 [ext_resource type="Script" path="res://scripts/gameplay/LevelSystems1.gd" id="1_syslvl"]
 [ext_resource type="PackedScene" path="res://scenes/player/Player.tscn" id="2_player"]
@@ -11,6 +11,9 @@
 [ext_resource type="PackedScene" path="res://scenes/components/MonitorPedidos.tscn" id="9_monitor_ped"]
 [ext_resource type="PackedScene" uid="uid://d08c8eihvn34l" path="res://modelos_3d/escenario_3d/monitor.glb" id="10_monitor"]
 [ext_resource type="PackedScene" uid="uid://brplmh50v8dna" path="res://modelos_3d/escenario_3d/raton.glb" id="11_raton"]
+[ext_resource type="PackedScene" uid="uid://nhovupvk2fel" path="res://modelos_3d/escenario_3d/teclado.glb" id="12_teclado"]
+[ext_resource type="PackedScene" uid="uid://dvww3r262wnib" path="res://modelos_3d/escenario_3d/gabinete.glb" id="13_gabinete"]
+[ext_resource type="PackedScene" path="res://scenes/components/SystemsMonitor.tscn" id="14_sysmon"]
 
 [sub_resource type="Environment" id="Environment_1"]
 background_mode = 1
@@ -138,20 +141,18 @@ shape = SubResource("BoxShape3D_bench")
 [node name="MesaModel" parent="MesasTrabajo/WorkBench1" instance=ExtResource("6_mesa_ped")]
 transform = Transform3D(0.012, 0, 0, 0, 0.012, 0, 0, 0, 0.012, 0, 0, 0)
 
-[node name="MonitorTaller" type="Node3D" parent="MesasTrabajo/WorkBench1"]
+[node name="SystemsMonitor1" parent="MesasTrabajo/WorkBench1" instance=ExtResource("14_sysmon")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.15, 0.912, 0.1)
-
-[node name="MonitorModel" parent="MesasTrabajo/WorkBench1/MonitorTaller" instance=ExtResource("10_monitor")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.669, -1.4899, 2.2059)
-
-[node name="ScreenLight" type="OmniLight3D" parent="MesasTrabajo/WorkBench1/MonitorTaller"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.2, 0.25, 0.1)
-light_color = Color(0.12, 0.85, 1, 1)
-light_energy = 0.8
-omni_range = 1.4
+pc_id = 1
 
 [node name="RatonTaller" parent="MesasTrabajo/WorkBench1" instance=ExtResource("11_raton")]
 transform = Transform3D(0.012, 0, 0, 0, 0.012, 0, 0, 0, 0.012, -0.48, 0.912, -0.1)
+
+[node name="TecladoTaller" parent="MesasTrabajo/WorkBench1" instance=ExtResource("12_teclado")]
+transform = Transform3D(-0.012, 0, 0, 0, 0.012, 0, 0, 0, -0.012, -0.12, 0.912, -0.1)
+
+[node name="GabineteTaller" parent="MesasTrabajo/WorkBench1" instance=ExtResource("13_gabinete")]
+transform = Transform3D(0, 0, 0.013, 0, 0.013, 0, -0.013, 0, 0, 0.48, 0, 0)
 
 [node name="SystemsComputer1" parent="MesasTrabajo/WorkBench1" instance=ExtResource("5_pc")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.48, 0.912, 0)
@@ -182,6 +183,12 @@ omni_range = 1.4
 [node name="RatonTaller" parent="MesasTrabajo/WorkBench2" instance=ExtResource("11_raton")]
 transform = Transform3D(0.012, 0, 0, 0, 0.012, 0, 0, 0, 0.012, -0.48, 0.912, -0.1)
 
+[node name="TecladoTaller" parent="MesasTrabajo/WorkBench2" instance=ExtResource("12_teclado")]
+transform = Transform3D(-0.012, 0, 0, 0, 0.012, 0, 0, 0, -0.012, -0.12, 0.912, -0.1)
+
+[node name="GabineteTaller" parent="MesasTrabajo/WorkBench2" instance=ExtResource("13_gabinete")]
+transform = Transform3D(0, 0, 0.013, 0, 0.013, 0, -0.013, 0, 0, 0.48, 0, 0)
+
 [node name="WorkBench3" type="StaticBody3D" parent="MesasTrabajo"]
 transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -5.2, 0, 1.4)
 
@@ -206,6 +213,12 @@ omni_range = 1.4
 
 [node name="RatonTaller" parent="MesasTrabajo/WorkBench3" instance=ExtResource("11_raton")]
 transform = Transform3D(0.012, 0, 0, 0, 0.012, 0, 0, 0, 0.012, -0.48, 0.912, -0.1)
+
+[node name="TecladoTaller" parent="MesasTrabajo/WorkBench3" instance=ExtResource("12_teclado")]
+transform = Transform3D(-0.012, 0, 0, 0, 0.012, 0, 0, 0, -0.012, -0.12, 0.912, -0.1)
+
+[node name="GabineteTaller" parent="MesasTrabajo/WorkBench3" instance=ExtResource("13_gabinete")]
+transform = Transform3D(0, 0, 0.013, 0, 0.013, 0, -0.013, 0, 0, 0.48, 0, 0)
 
 [node name="WorkBench4" type="StaticBody3D" parent="MesasTrabajo"]
 transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -5.2, 0, 4.2)
@@ -232,8 +245,14 @@ omni_range = 1.4
 [node name="RatonTaller" parent="MesasTrabajo/WorkBench4" instance=ExtResource("11_raton")]
 transform = Transform3D(0.012, 0, 0, 0, 0.012, 0, 0, 0, 0.012, -0.48, 0.912, -0.1)
 
+[node name="TecladoTaller" parent="MesasTrabajo/WorkBench4" instance=ExtResource("12_teclado")]
+transform = Transform3D(-0.012, 0, 0, 0, 0.012, 0, 0, 0, -0.012, -0.12, 0.912, -0.1)
+
+[node name="GabineteTaller" parent="MesasTrabajo/WorkBench4" instance=ExtResource("13_gabinete")]
+transform = Transform3D(0, 0, 0.013, 0, 0.013, 0, -0.013, 0, 0, 0.48, 0, 0)
+
 [node name="MesaPedidos" type="StaticBody3D" parent="."]
-transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 5.2, 0, -4.5)
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 6.25, 0, -4.5)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="MesaPedidos"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.456, 0)
@@ -247,6 +266,18 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.912, -0.15)
 
 [node name="RatonPedidos" parent="MesaPedidos" instance=ExtResource("11_raton")]
 transform = Transform3D(-0.012, 0, 0, 0, 0.012, 0, 0, 0, -0.012, 0.42, 0.912, 0.1)
+
+[node name="TecladoPedidos" parent="MesaPedidos" instance=ExtResource("12_teclado")]
+transform = Transform3D(0.012, 0, 0, 0, 0.012, 0, 0, 0, 0.012, -0.05, 0.912, 0.1)
+
+[node name="GabinetePedidos" parent="MesaPedidos" instance=ExtResource("13_gabinete")]
+transform = Transform3D(0.013, 0, 0, 0, 0.013, 0, 0, 0, 0.013, -1.15, 0, 0)
+
+[node name="MesaLight" type="OmniLight3D" parent="MesaPedidos"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.8, 0)
+light_color = Color(0.2, 0.9, 1, 1)
+light_energy = 1.2
+omni_range = 3.5
 
 [node name="Player" parent="." instance=ExtResource("2_player")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0.8)

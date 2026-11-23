@@ -43,11 +43,11 @@ var custom_prompt: String = ""
 
 func _ready() -> void:
 	set_process(false)
+	# En el área de sistemas, la flecha y el acceso de reparación [E] están en el monitor
 	if arrow_mesh:
-		original_arrow_y = arrow_mesh.position.y
-		var tw = create_tween().set_loops()
-		tw.tween_property(arrow_mesh, "position:y", original_arrow_y + 0.08, 1.05).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-		tw.tween_property(arrow_mesh, "position:y", original_arrow_y - 0.08, 1.05).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+		arrow_mesh.visible = false
+	if label_3d:
+		label_3d.visible = false
 	update_3d_state()
 
 func is_fully_repaired() -> bool:
@@ -134,16 +134,20 @@ func restore_from_carried(data: Dictionary) -> void:
 func get_interaction_prompt() -> String:
 	if custom_prompt != "":
 		return "%s  ·  [F] CARGAR EN BRAZOS" % custom_prompt
-	if is_fully_repaired():
-		return "[E] Terminal de Sistemas (Optimizada ✓)  ·  [F] CARGAR EN BRAZOS"
-	if not is_connected:
-		return "[E] Enlazar Conexión de Sistemas  ·  [F] CARGAR EN BRAZOS"
-	return "[E] Acceder a Terminal de Sistemas (Enlazada ✓)  ·  [F] CARGAR EN BRAZOS"
+	return "[F] CARGAR GABINETE EN BRAZOS"
 
 func interact(player) -> void:
 	if custom_interact_callback.is_valid():
 		custom_interact_callback.call(player)
 		return
+
+	# Delegar al monitor de la misma mesa de trabajo
+	var parent_bench = get_parent()
+	if parent_bench:
+		var mon = parent_bench.find_child("SystemsMonitor*", true, false)
+		if mon and mon.has_method("interact"):
+			mon.interact(player)
+			return
 
 	if get_tree().root.has_node("PCSystemsModal") or get_tree().root.has_node("SystemConnectionMinigame"):
 		return

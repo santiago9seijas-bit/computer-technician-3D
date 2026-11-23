@@ -141,6 +141,7 @@ func _create_default_slot_data(slot_index: int) -> Dictionary:
 		"last_played": "13/11/2026 - 18:00" if is_first_slot else "--/--/----",
 		"score": 1720 if is_first_slot else 0,
 		"stars": 3 if is_first_slot else 0,
+		"dollars": 500 if is_first_slot else 0,
 		# 5 herramientas: Cruz (+), Pala (-), Cautín, Multímetro, Limpiador
 		"tools": [
 			{"id": 1, "name": "Destornillador Cruz (+)", "unlocked": true},
@@ -280,6 +281,7 @@ func reset_slot(slot_index: int) -> Dictionary:
 	fresh_data["is_empty"] = true
 	fresh_data["score"] = 0
 	fresh_data["stars"] = 0
+	fresh_data["dollars"] = 0
 	fresh_data["last_played"] = "--/--/----"
 	fresh_data["completion_percentage"] = 0.0
 	for t in fresh_data["tools"]:
@@ -349,14 +351,65 @@ func mark_node_completed(mode: String, node_idx: int) -> void:
 	var list: Array = comp_dict[mode]
 	if not (node_idx in list):
 		list.append(node_idx)
+		var dollar_reward = 250
+		var score_reward = 200
 		if mode == "reparacion":
 			if node_idx in [0, 1, 2, 3, 4, 5, 6]:
 				data["tutorials_completed"] = int(data.get("tutorials_completed", 0)) + 1
+				dollar_reward = 100
+				score_reward = 150
 			elif node_idx in [25, 19, 20, 21, 22, 23, 24]:
 				data["practice_completed"] = int(data.get("practice_completed", 0)) + 1
+				dollar_reward = 150
+				score_reward = 180
 			elif node_idx in range(7, 19):
 				data["levels_completed"] = int(data.get("levels_completed", 0)) + 1
+				dollar_reward = 250
+				score_reward = 250
+		elif mode == "sistema":
+			dollar_reward = 300
+			score_reward = 300
+		elif mode == "servidor":
+			dollar_reward = 400
+			score_reward = 400
+		
+		# Incrementar dólares, puntos y estrellas al ganar un nivel
+		data["dollars"] = int(data.get("dollars", 0)) + dollar_reward
+		data["score"] = int(data.get("score", 0)) + score_reward
+		data["stars"] = int(data.get("stars", 0)) + 1
+		
+		var gm = get_node_or_null("/root/GameManager")
+		if gm:
+			gm.score = data["score"]
+			if gm.has_signal("score_updated"):
+				gm.score_updated.emit(gm.score, score_reward)
+				
 		save_slot(current_slot, data)
+
+func get_dollars() -> int:
+	var data = get_slot(current_slot)
+	return int(data.get("dollars", 500 if current_slot == 1 else 0))
+
+func add_dollars(amount: int) -> int:
+	if amount <= 0:
+		return get_dollars()
+	var data = get_slot(current_slot)
+	var current = int(data.get("dollars", 0))
+	var new_total = current + amount
+	data["dollars"] = new_total
+	save_slot(current_slot, data)
+	return new_total
+
+func spend_dollars(amount: int) -> bool:
+	if amount <= 0:
+		return true
+	var data = get_slot(current_slot)
+	var current = int(data.get("dollars", 0))
+	if current < amount:
+		return false
+	data["dollars"] = current - amount
+	save_slot(current_slot, data)
+	return true
 
 func unlock_all_levels() -> void:
 	var data = get_slot(current_slot)
@@ -602,6 +655,44 @@ Garantiza que el paquete de controladores ha superado pruebas exhaustivas de est
 1. Purgar controladores obsoletos utilizando utilidades de limpieza en modo a prueba de fallos.
 2. Validar que la firma digital del nuevo paquete coincida con la autoridad de certificación oficial.
 3. Reiniciar el subsistema gráfico para calibrar resoluciones nativas y frecuencias de refresco."""
+	},
+	"sistemas_programacion": {
+		"id": "sistemas_programacion",
+		"title": "Programación Modular & Terminal de Sistemas",
+		"category": "SISTEMAS",
+		"tutorial_node": 104,
+		"component_key": "code_debugger",
+		"icon": "💻",
+		"summary": "Conceptos sencillos de node, name, var, const, funcs, if, else y delimitadores.",
+		"content": """• Programación de Sistemas Explicada Sencilla Paso a Paso:
+
+1. /sistem-configure:
+Comando inicial que enciende la terminal e inicializa el entorno interactivo de código.
+
+2. ¿Qué es un 'node' y 'name'?:
+El 'node' es el bloque o módulo principal de tu programa (como la caja contenedora de tu software).
+Siempre va acompañado de 'name':
+- node name("NombreDelNivel") {}
+- Los paréntesis () encierran el nombre identificador del módulo.
+- Las llaves {} encierran todo el bloque de código que pertenece a ese nodo.
+
+3. ¿Qué son 'var' y 'const'?:
+Son espacios de memoria para guardar datos:
+- 'var[]': Es una VARIABLE. Los datos que guarda pueden cambiar durante el programa. Usa corchetes: var[contador].
+- 'const[]': Es una CONSTANTE. Su valor queda fijo y protegido contra cambios. Usa corchetes: const[MODO].
+
+4. ¿Qué es 'funcs'?:
+Representa una FUNCIÓN o acción que ejecuta el sistema.
+- Se escribe con llaves: funcs{accion_a_ejecutar}.
+
+5. ¿Qué son 'if' y 'else'?:
+Estructuras de decisión y control:
+- 'if': Evalúa una condición o bucle (ej: si se detecta una amenaza, actúa).
+- 'else': Se activa en caso de error o cuando no se cumple la condición del 'if'.
+
+6. Comandos de Control:
+- 'clean': Limpia la línea de comando si cometiste un error de sintaxis y quieres reescribirla.
+- 'exit': Compila el código, verifica la integridad y despliega el firmware en el núcleo del sistema."""
 	}
 }
 
@@ -661,6 +752,8 @@ func unlock_glossary(topic_id: String) -> bool:
 		norm_id = "sistemas_malware"
 	elif norm_id == "driver_install":
 		norm_id = "sistemas_drivers"
+	elif norm_id in ["code_debugger", "debugger", "programacion", "sistemas_programacion"]:
+		norm_id = "sistemas_programacion"
 		
 	if not GLOSSARY_TOPICS.has(norm_id):
 		return false
@@ -691,6 +784,14 @@ func is_glossary_unlocked(topic_id: String) -> bool:
 	var norm_id = topic_id.to_lower()
 	if norm_id in ["general", "intro"]:
 		return true # Siempre disponible al inicio
+	elif norm_id == "os_install":
+		norm_id = "sistemas_os"
+	elif norm_id == "malware_scan":
+		norm_id = "sistemas_malware"
+	elif norm_id == "driver_install":
+		norm_id = "sistemas_drivers"
+	elif norm_id in ["code_debugger", "debugger", "programacion", "sistemas_programacion"]:
+		norm_id = "sistemas_programacion"
 	var data = get_slot(current_slot)
 	var gl_dict = data.get("glossary_unlocked", {})
 	if typeof(gl_dict) != TYPE_DICTIONARY:
@@ -708,13 +809,13 @@ func show_toast_notification(header: String, title: String, type: String = "achi
 		_toast_canvas = CanvasLayer.new()
 		_toast_canvas.layer = 250
 		_toast_canvas.name = "CyberToastCanvas"
-		get_tree().root.add_child(_toast_canvas)
+		get_tree().root.call_deferred("add_child", _toast_canvas)
 		
 	var toast_scene = load("res://scenes/ui/CyberNotificationToast.tscn")
 	if not toast_scene:
 		return
 	var toast = toast_scene.instantiate()
-	_toast_canvas.add_child(toast)
+	_toast_canvas.call_deferred("add_child", toast)
 	
 	if type == "achievement":
 		toast.setup_achievement(title, header, callback)
