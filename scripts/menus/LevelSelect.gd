@@ -12,7 +12,10 @@ static var initial_mode: String = "reparacion"
 # --- Nodos Principales ---
 @onready var background_rect: ColorRect = $Background
 @onready var btn_volver: Button = $TopBar/BtnVolver
-@onready var btn_niveles: Button = $TopBar/Tabs/BtnNiveles
+@onready var mode_header: VBoxContainer = get_node_or_null("TopBar/ModeHeader")
+@onready var lbl_mode_title: Label = get_node_or_null("TopBar/ModeHeader/LblModeTitle")
+@onready var lbl_mode_director: Label = get_node_or_null("TopBar/ModeHeader/LblModeDirector")
+@onready var btn_niveles: Button = get_node_or_null("TopBar/Tabs/BtnNiveles")
 @onready var btn_tutoriales: Button = get_node_or_null("TopBar/Tabs/BtnTutoriales")
 @onready var btn_reparacion: Button = $ModeSelector/BtnReparacion
 @onready var btn_fondo: Button = $ModeSelector/BtnFondo
@@ -126,9 +129,9 @@ var dev_console_margin_body: MarginContainer = null
 var terminal_pacman_instance: Control = null
 
 # --- Área de Tutoriales (Centro de Entrenamiento) ---
-@onready var tutorial_area: Control = $TutorialArea
-@onready var cards_scroll: ScrollContainer = $TutorialArea/CardsScroll
-@onready var cards_grid: GridContainer = $TutorialArea/CardsScroll/CardsGrid
+@onready var tutorial_area: Control = get_node_or_null("TutorialArea")
+@onready var cards_scroll: ScrollContainer = get_node_or_null("TutorialArea/CardsScroll")
+@onready var cards_grid: GridContainer = get_node_or_null("TutorialArea/CardsScroll/CardsGrid")
 @onready var left_scroll_controls: Control = get_node_or_null("TutorialArea/LeftScrollControls")
 @onready var btn_scroll_up: Button = get_node_or_null("TutorialArea/LeftScrollControls/BtnScrollUp")
 @onready var btn_scroll_down: Button = get_node_or_null("TutorialArea/LeftScrollControls/BtnScrollDown")
@@ -1109,495 +1112,48 @@ var LEVELS_DATA: Dictionary = {
 # =============================================================================
 # BASE DE DATOS DE TARJETAS TÉCNICAS (PACK DE TUTORIALES)
 # =============================================================================
-var ALL_TUTORIAL_CARDS: Array[Dictionary] = [
-	# --- DIVISIÓN REPARACIÓN (HARDWARE) ---
-	{
-		"division": "reparacion",
-		"id": "ram_static",
-		"title": "DESCARGA ESTÁTICA RAM",
-		"subtitle": "DISIPACIÓN ELECTROSTÁTICA (ESD) A TIERRA",
-		"category": "PROTECCIÓN ESD & MEMORIA",
-		"texture_path": "res://pixel art minijuegos/limpiezaprofunda/ramprofunda/destornillador de pala.png",
-		"color_accent": Color(1.0, 0.88, 0.15, 1.0),
-		"que_es": "Protocolo técnico de seguridad ESD para drenar las cargas electrostáticas residuales de la memoria RAM antes de manipularla o montarla en la placa madre.",
-		"importancia": "CRÍTICA: Una descarga electrostática imperceptible (>100V) perfora las micro-compuertas de silicio en los chips DDR, quemando la memoria de forma irreversible e instantánea.",
-		"que_hace": "Permite frotar el módulo de RAM contra la varilla metálica de un destornillador aterrizado a tierra (GND), drenando el nivel de estática acumulada del 100% hasta 0%.",
-		"pasos": "1. Mueve el puntero del ratón guiando el módulo de memoria RAM DDR4.\n2. Frota los contactos dorados de la RAM contra la varilla metálica del destornillador a tierra.\n3. Genera arcos de descarga electrostática hasta que la barra amarilla de Estática llegue a 0%.\n4. Al llegar a cero, el componente queda neutralizado y protegido para su manipulación.",
-		"is_ready": true,
-		"handler": "launch_ram_static"
-	},
-	{
-		"division": "reparacion",
-		"id": "cooler",
-		"title": "FAN COOLER",
-		"subtitle": "DISIPADOR TÉRMICO ACTIVO PWM",
-		"category": "REFRIGERACIÓN",
-		"texture_path": "res://pixel art minijuegos/fancooler/fancooler.png",
-		"color_accent": Color(1.0, 0.15, 0.35, 1.0),
-		"que_es": "Disipador de aleación metálica (aluminio/cobre) acoplado mecánicamente sobre el microprocesador con ventilador de velocidad regulada.",
-		"importancia": "CRÍTICA: Sin disipador activo, la CPU supera los 95°C en segundos, provocando apagados forzados de emergencia o degradación irreversible del silicio.",
-		"que_hace": "Transfiere el calor por contacto térmico hacia las aletas y el ventilador expulsa el flujo de aire caliente al exterior según la curva PWM de 4 pines.",
-		"pasos": "🔻 FASE 1: DESMONTAJE (QUITAR):\n1. Desconecta el cable de alimentación PWM.\n2. Retira los 4 tornillos con Cruz [1] o Pala [2].\n3. Levanta el disipador.\n\n🔺 FASE 2: MONTAJE INVERSO (PONER):\n1. Coloca el Fan Cooler nuevo sobre el socket de la CPU.\n2. Ajusta los 4 tornillos en cruz con Cruz [1] o Pala [2].\n3. Conecta el cable PWM de 4 pines a la placa madre.",
-		"is_ready": true,
-		"handler": "launch_cooler"
-	},
-	{
-		"division": "reparacion",
-		"id": "ram",
-		"title": "MEMORIA RAM",
-		"subtitle": "MÓDULOS DE MEMORIA DDR",
-		"category": "MEMORIA",
-		"texture_path": "res://pixel art minijuegos/ramstipos/ram ddr.png",
-		"color_accent": Color(0.85, 0.1, 0.95, 1.0),
-		"que_es": "Memoria de acceso aleatorio de ultra alta velocidad y almacenamiento volátil, con conexión directa al controlador de memoria de la CPU.",
-		"importancia": "FUNDAMENTAL: Celdas defectuosas o pistas con falso contacto causan cuelgues repentinos, pantallas azules (BSOD) o ausencia de video al encender.",
-		"que_hace": "Almacena en tiempo real el código ejecutable y datos temporales del sistema operativo y programas abiertos, permitiendo transferencias a gigabytes por segundo.",
-		"pasos": "🔻 FASE 1: DESMONTAJE (QUITAR):\n1. Arrastra las trabas laterales (izq/der) hacia ARRIBA (se levantan un poquitito).\n2. Arrastra el centro de la RAM hacia ARRIBA para retirarla por completo.\n\n🔺 FASE 2: MONTAJE INVERSO (PONER):\n1. Con el zócalo vacío, arrastra hacia ABAJO las flechas superiores (izq y der).\n2. Al tercer jalón hacia ABAJO (flecha central), la RAM desciende y se engancha en la ranura gris.",
-		"is_ready": true,
-		"handler": "launch_ram"
-	},
-	{
-		"division": "reparacion",
-		"id": "hdd",
-		"title": "DISCO DURO",
-		"subtitle": "UNIDAD DE ALMACENAMIENTO SATA",
-		"category": "ALMACENAMIENTO",
-		"texture_path": "res://pixel art minijuegos/memoriastipos/m.2/memoria M.2.png",
-		"color_accent": Color(1.0, 0.2, 0.45, 1.0),
-		"que_es": "Unidad de almacenamiento masivo y persistente del sistema (discos magnéticos o celdas flash de estado sólido SATA/NVMe).",
-		"importancia": "VITAL: En él reside el Sistema Operativo, sectores de booteo y archivos del usuario. Errores mecánicos o SMART impiden que la máquina bootee.",
-		"que_hace": "Lee y graba permanentemente los datos a través del bus serie SATA de 6 Gb/s, recibiendo energía desde rieles de 12V y 5V de la fuente.",
-		"pasos": "🔻 FASE 1: DESMONTAJE (QUITAR):\n1. Retira el tornillo de la bahía con Cruz [1] o Pala [2].\n2. Arrastra la unidad averiada hacia ARRIBA para extraerla.\n\n🔺 FASE 2: MONTAJE INVERSO (PONER):\n1. Coloca el disco nuevo en la bahía vacía.\n2. Arrastra el disco hacia ABAJO para encajar en el puerto SATA.\n3. Fija y ajusta el tornillo de sujeción.",
-		"is_ready": true,
-		"handler": "launch_hdd"
-	},
-	{
-		"division": "reparacion",
-		"id": "gpu",
-		"title": "TARJETA GPU",
-		"subtitle": "ACELERADORA GRÁFICA PCIE",
-		"category": "GRÁFICOS",
-		"texture_path": "",
-		"color_accent": Color(1.0, 0.15, 0.45, 1.0),
-		"que_es": "Unidad de procesamiento gráfico de alto rendimiento montada en el puerto PCIe x16 con alimentación dedicada de 8 pines.",
-		"importancia": "CRÍTICA: Es la pieza más propensa a roturas si se tira sin liberar el pestillo plástico del zócalo PCIe de la placa madre.",
-		"que_hace": "Procesa y renderiza gráficos 3D en tiempo real, conectada al bus de datos de alta velocidad PCIe y a la salida de pantalla.",
-		"pasos": "🔻 FASE 1: DESMONTAJE (QUITAR):\n1. Desconecta el cable PCIe de 8 pines con clip.\n2. Retira los 2 tornillos del bracket metálico con [1]/[2].\n3. Presiona el pestillo de retención plástico PCIe x16.\n4. Extrae la GPU hacia arriba.\n\n🔺 FASE 2: MONTAJE INVERSO (PONER):\n1. Asienta la GPU nueva en la ranura PCIe x16.\n2. Cierra y traba el pestillo plástico PCIe.\n3. Atornilla los 2 tornillos del bracket metálico con [1]/[2].\n4. Conecta el cable PCIe de 8 pines con seguro.",
-		"is_ready": true,
-		"handler": "launch_gpu"
-	},
-	{
-		"division": "reparacion",
-		"id": "cpu",
-		"title": "PROCESADOR (CPU)",
-		"subtitle": "MICROPROCESADOR & ZÓCALO LGA",
-		"category": "PROCESAMIENTO",
-		"texture_path": "",
-		"color_accent": Color(0.9, 0.15, 0.9, 1.0),
-		"que_es": "Unidad central de procesamiento montada sobre la matriz de pines del zócalo con placa de sujeción metálica y palanca de tensión.",
-		"importancia": "MÁXIMA: Manipular correctamente la palanca y la placa de carga previene doblar pines o quebrar la matriz del zócalo.",
-		"que_hace": "Ejecuta todas las operaciones del computador coordinando reloj y memoria a miles de millones de ciclos por segundo.",
-		"pasos": "🔻 FASE 1: DESMONTAJE (SACAR):\n1. Arrastra la palanca lateral hacia abajo para liberar la retención del socket.\n2. La placa de protección metálica se retira automáticamente.\n3. Haz clic sobre el CPU para extraerlo del zócalo.\n\n🔺 FASE 2: MONTAJE INVERSO (PONER):\n1. Con el socket abierto, haz clic en el zócalo para colocar el nuevo procesador.\n2. La protección metálica desciende cubriendo el procesador.\n3. Arrastra la palanca hacia arriba (al lado contrario) para asegurar y bloquear.",
-		"is_ready": true,
-		"handler": "launch_cpu"
-	},
-	{
-		"division": "reparacion",
-		"id": "m2",
-		"title": "SSD M.2 NVME",
-		"subtitle": "UNIDAD DE ALMACENAMIENTO PCIE",
-		"category": "ALMACENAMIENTO",
-		"texture_path": "",
-		"color_accent": Color(0.2, 0.9, 0.7, 1.0),
-		"que_es": "Unidad de almacenamiento en estado sólido formato 2280 conectada directamente a líneas PCIe del chipset/CPU.",
-		"importancia": "ALTA: Al quitar el tornillo, los resortes internos del zócalo elevan la unidad a 30°. Retirarla en ángulo previene partir el conector.",
-		"que_hace": "Lectura y escritura ultrarrápida de archivos y sistema operativo a través del protocolo NVMe sobre memoria 3D NAND.",
-		"pasos": "1. Retira el tornillo de la armadura térmica M.2 con [1] Cruz.\n2. Retira el micro-tornillo de sujeción sobre el standoff.\n3. Observa cómo la unidad se eleva a 30° impulsada por el resorte del socket.\n4. Desliza suavemente la unidad en diagonal para extraerla.",
-		"is_ready": true,
-		"handler": "launch_m2"
-	},
-	{
-		"division": "reparacion",
-		"id": "psu",
-		"title": "FUENTE PSU",
-		"subtitle": "ALIMENTACIÓN ELÉCTRICA ATX",
-		"category": "ENERGÍA",
-		"texture_path": "",
-		"color_accent": Color(1.0, 0.65, 0.2, 1.0),
-		"que_es": "Fuente de alimentación conmutada modular que entrega energía estabilizada a todos los rieles del equipo.",
-		"importancia": "CRÍTICA: Tirar de los cables sin presionar los clips de seguridad puede fracturar los puertos de la placa madre.",
-		"que_hace": "Distribuye potencia a la placa madre (24 pines), procesador (EPS 8 pines) y componentes periféricos.",
-		"pasos": "🔻 FASE 1: DESMONTAJE (QUITAR):\n1. Desconecta el conector principal ATX de 24 pines.\n2. Desconecta el conector auxiliar EPS de 8 pines.\n3. Retira los 4 tornillos hexagonales con [1] Cruz o [2] Pala.\n4. Desliza la fuente hacia afuera del túnel.\n\n🔺 FASE 2: MONTAJE INVERSO (PONER):\n1. Desliza la fuente nueva dentro del túnel del chasis.\n2. Fija los 4 tornillos de chasis con [1] Cruz o [2] Pala.\n3. Conecta el cable EPS auxiliar de 8 pines.\n4. Conecta el conector principal ATX de 24 pines.",
-		"is_ready": true,
-		"handler": "launch_psu"
-	},
-	{
-		"division": "reparacion",
-		"id": "motherboard",
-		"title": "PLACA MADRE",
-		"subtitle": "EN DESARROLLO (PRÓXIMAMENTE)",
-		"category": "ARQUITECTURA & DESARME",
-		"texture_path": "",
-		"color_accent": Color(0.5, 0.5, 0.6, 0.7),
-		"que_es": "Desafío maestro de taller en desarrollo. Este módulo estará disponible en la próxima actualización del taller.",
-		"importancia": "AVISO: Módulo en fase de calibración técnica.",
-		"que_hace": "Interconecta todos los buses de hardware del sistema.",
-		"pasos": "Próximamente disponible.",
-		"is_ready": false,
-		"handler": "launch_mobo"
-	},
-	{
-		"division": "reparacion",
-		"id": "liquid_cooling",
-		"title": "REFRIGERACIÓN LÍQUIDA",
-		"subtitle": "CIRCUITO CUSTOM LOOP & PURGADO",
-		"category": "REFRIGERACIÓN EXTREMA",
-		"texture_path": "",
-		"color_accent": Color(0.1, 0.9, 1.0, 1.0),
-		"que_es": "Sistema de refrigeración líquida personalizada compuesto por bomba D5, bloque de GPU, bloques acrílicos de CPU y RAM, depósito y radiador 360mm.",
-		"importancia": "CRÍTICA: Una bomba encendida en seco (Dry-running) se quema en segundos. Siempre debes cerrar el circuito de tubos y llenar el depósito antes de encender la bomba.",
-		"que_hace": "Disipa cargas térmicas extremas haciendo circular refrigerante con base glicol a través de microcanales en GPU, CPU y RAM hacia el radiador.",
-		"pasos": "1. Arrastra cada tubo rígido desde el rack izquierdo hacia sus racores en el mapa del chasis (Bomba ➔ GPU ➔ CPU ➔ RAM ➔ Radiador ➔ Depósito) hasta cerrar el circuito.\n2. Arrastra el bidón de líquido refrigerante hacia el tapón del depósito hasta alcanzar el 100% de llenado.\n3. Enciende el interruptor de la bomba D5 para purgar burbujas de aire y disipar el calor de GPU, CPU y RAM.",
-		"is_ready": true,
-		"handler": "launch_liquid_cooling"
-	},
+var ALL_TUTORIAL_CARDS: Array[Dictionary] = []
 
-	# --- DIVISIÓN REPARACIÓN A FONDO (MICROMECÁNICA Y LIMPIEZA PROFUNDA) ---
-	{
-		"division": "reparacion_fondo",
-		"id": "thermal_paste",
-		"title": "LIMPIEZA DE PASTA TÉRMICA",
-		"subtitle": "DESINFECCIÓN CON ISOPROPÍLICO",
-		"category": "MANTENIMIENTO PROFUNDO",
-		"texture_path": "",
-		"color_accent": Color(0.1, 0.95, 0.7, 1.0),
-		"que_es": "Limpieza y remoción de compuesto térmico degradado, seco o solidificado sobre el dispersor térmico integrado (IHS) de la CPU.",
-		"importancia": "CRÍTICA: Una pasta térmica reseca pierde conductividad térmica, elevando la temperatura del procesador y provocando apagados forzados o estrangulamiento térmico.",
-		"que_hace": "Disuelve químicamente los silicatos y partículas metálicas secas con alcohol isopropílico al 99% mediante fricción circular sin dejar residuos conductores.",
-		"pasos": "1. Selecciona la herramienta Limpiador [5] para acceder a la estación de mantenimiento.\n2. Con el paño isopropílico, frota continuamente sobre el procesador hasta disolver la pasta seca.\n3. Arrastra el dispensador varias veces sobre la CPU para distribuir la nueva pasta térmica al 100%.",
-		"is_ready": true,
-		"handler": "launch_thermal_paste"
+const MODE_DIRECTORS: Dictionary = {
+	"reparacion": {
+		"title": "MODO REPARACIÓN",
+		"director": "DIRECTOR DEL MODO: JOA",
+		"title_color": Color(1.0, 0.22, 0.42, 1.0),
+		"director_color": Color(1.0, 0.75, 0.85, 0.95),
+		"shadow_color": Color(0.8, 0.05, 0.25, 0.8)
 	},
-	{
-		"division": "reparacion_fondo",
-		"id": "voltimeter",
-		"title": "DIAGNÓSTICO CON MULTÍMETRO // VOLTÍMETRO",
-		"subtitle": "MEDICIÓN DE RIELES Y CONTINUIDAD",
-		"category": "ELECTRÓNICA & DIAGNÓSTICO",
-		"texture_path": "",
-		"color_accent": Color(1.0, 0.85, 0.15, 1.0),
-		"que_es": "Multímetro digital de banco para verificación de rieles de alimentación ATX (12V, 5VSB, 3.3V, VCore) y detección de cortocircuitos en condensadores cerámicos y MOSFETs.",
-		"importancia": "MÁXIMA: Un componente en cortocircuito en el riel de 12V o VCore tumba la fuente de poder por protección OCP/SCP, dejando la placa madre completamente inerte.",
-		"que_hace": "Mide en tiempo real la tensión en los Puntos de Prueba (Test Points). Permite aislar componentes dañados, sustituirlos y comprobar el retorno de la señal POWER_GOOD.",
-		"pasos": "1. Conecta la sonda COM a tierra (GND) del chasis.\n2. Haz clic en cada Punto de Prueba (TP) de la placa madre para medir su voltaje con la sonda roja.\n3. Identifica el riel con cortocircuito (0.00V / Alarma acústica continua).\n4. Presiona 'REEMPLAZAR CONDENSADOR SMD C124' para soldar un nuevo componente.\n5. Vuelve a medir para comprobar la estabilización de los rieles y la activación de PWR_GOOD (3.3V).",
-		"is_ready": true,
-		"handler": "launch_voltimeter"
+	"reparacion_fondo": {
+		"title": "MODO REPARACIÓN",
+		"director": "DIRECTOR DEL MODO: JOA",
+		"title_color": Color(1.0, 0.22, 0.42, 1.0),
+		"director_color": Color(1.0, 0.75, 0.85, 0.95),
+		"shadow_color": Color(0.8, 0.05, 0.25, 0.8)
 	},
-	{
-		"division": "reparacion_fondo",
-		"id": "cpu_pins",
-		"title": "ALINEACIÓN DE PINES (CPU)",
-		"subtitle": "MICROSCOPIA & CALIBRACIÓN A 90°",
-		"category": "MICROMECÁNICA AVANZADA",
-		"texture_path": "",
-		"color_accent": Color(1.0, 0.8, 0.15, 1.0),
-		"que_es": "Inspección microscópica y corrección angular de la matriz de pines del procesador o zócalo LGA/PGA dañados por mala inserción.",
-		"importancia": "VITAL: Un solo pin doblado que toque un contacto contiguo genera un cortocircuito directo entre rieles de voltaje (VCC) o líneas PCIe/DRAM, impidiendo que la placa encienda.",
-		"que_hace": "Restaura la verticalidad ortogonal de 90° de cada pin desviado mediante presión micrométrica guiada hasta garantizar contacto eléctrico óptimo.",
-		"pasos": "1. Selecciona la herramienta Lupa [3] para habilitar la micro-inspección.\n2. Inspecciona la matriz de 8x10 pines bajo el microscopio óptico.\n3. Identifica los pines con desvío angular resaltados en advertencia naranja.\n4. Haz clic cuidadosamente sobre cada pin doblado para enderezarlo a 90°.\n5. Completa la corrección del 100% de los pines averiados.",
-		"is_ready": true,
-		"handler": "launch_cpu_pins"
+	"sistema": {
+		"title": "MODO SISTEMAS",
+		"director": "DIRECTOR DEL MODO: JEREMÍAS",
+		"title_color": Color(0.0, 0.92, 1.0, 1.0),
+		"director_color": Color(0.7, 0.92, 1.0, 0.95),
+		"shadow_color": Color(0.0, 0.45, 0.85, 0.8)
 	},
-	{
-		"division": "reparacion_fondo",
-		"id": "dust_cleaner",
-		"title": "DESOBSTRUCCIÓN DE PELUSA",
-		"subtitle": "LIMPIEZA DE DISIPADORES & ALETAS",
-		"category": "MANTENIMIENTO TÉRMICO",
-		"texture_path": "res://pixel art minijuegos/pelusa/pelusa grande.png",
-		"color_accent": Color(0.2, 0.95, 0.7, 1.0),
-		"que_es": "Limpieza profunda de cúmulos de pelusa, polvo apelmazado y fibras alojadas entre las aletas de disipación y aspas.",
-		"importancia": "MÁXIMA: Las aletas de aluminio tupidas por pelusa estrangulan el flujo de aire, provocando sobrecalentamiento crítico de más de 95°C y thermal throttling.",
-		"que_hace": "Remueve mecánicamente cada obstrucción de pelusa y polvo con el Limpiador [5] hasta recuperar el 100% del paso de aire frío.",
-		"pasos": "1. Selecciona la herramienta Limpiador [5].\n2. Cepilla o haz clic sobre cada cúmulo de pelusa alojado en el disipador.\n3. Desobstruye todas las áreas hasta restaurar el 100% del flujo de aire.",
-		"is_ready": true,
-		"handler": "launch_dust_cleaner"
-	},
-	{
-		"division": "reparacion_fondo",
-		"id": "ram_cleaner",
-		"title": "LIMPIEZA DE RAM",
-		"subtitle": "DESOBSTRUCCIÓN DE PELUSA Y PINES DDR",
-		"category": "MANTENIMIENTO DE MEMORIA",
-		"texture_path": "res://pixel art minijuegos/pelusa/pelusa grande.png",
-		"color_accent": Color(0.2, 0.95, 0.7, 1.0),
-		"que_es": "Limpieza profunda de cúmulos de pelusa, polvo apelmazado y fibras alojadas sobre los chips y contactos dorados de la memoria RAM.",
-		"importancia": "MÁXIMA: La pelusa acumulada retiene humedad y estática, provocando falsos contactos en las líneas de datos DDR, errores de paridad, pantallas azules (BSOD) o reinicios inesperados.",
-		"que_hace": "Remueve mecánicamente cada cúmulo de pelusa y polvo con el Limpiador [5] pasando la brocha sobre el módulo hasta restaurar el 100% de limpieza de la RAM.",
-		"pasos": "1. Selecciona la herramienta Limpiador [5] (Brocha antiestática).\n2. Pasa la brocha o haz clic sobre cada cúmulo de pelusa alojado en la memoria RAM.\n3. Desobstruye todos los cúmulos hasta dejar la superficie y pines al 100% limpios.",
-		"is_ready": true,
-		"handler": "launch_ram_cleaner"
-	},
-
-	# --- DIVISIÓN SISTEMA (SOFTWARE & CIBERSEGURIDAD) ---
-	{
-		"division": "sistema",
-		"id": "adware_cleaner",
-		"title": "LIMPIEZA DE ANUNCIOS",
-		"subtitle": "POP-UPS, ADWARE & PUPS EN EL NAVEGADOR",
-		"category": "CIBERSEGURIDAD",
-		"texture_path": "",
-		"color_accent": Color(1.0, 0.2, 0.45, 1.0),
-		"que_es": "Desinfección de navegadores y escritorios infestados por software publicitario intrusivo (Adware) y programas no deseados (PUPs).",
-		"importancia": "CRÍTICA: Los pop-ups fraudulentos engañan al usuario con falsas alertas técnicas e inyectan mineros web que colapsan el uso de CPU.",
-		"que_hace": "Identifica los botones trampa de cierre falso, desmarca casillas de instalación oculta y despliega un escudo bloqueador Ad-Blocker.",
-		"pasos": "1. Inspecciona cada ventana emergente y ubica el botón de cierre [X] auténtico en la cabecera.\n2. Evita hacer clic en botones verdes llamativos engañosos.\n3. Desmarca casillas de consentimiento que intenten instalar barras de búsqueda espías.\n4. Al cerrar 4 anuncios, activa el Escudo Ad-Blocker para purgar el resto con un pulso defensivo.",
-		"is_ready": true,
-		"handler": "launch_adware_cleaner"
-	},
-	{
-		"division": "sistema",
-		"id": "malware_scan",
-		"title": "LIMPIEZA DE MALWARE",
-		"subtitle": "ESCÁNER HEURÍSTICO & ANÁLISIS DE FIRMAS",
-		"category": "CIBERSEGURIDAD",
-		"texture_path": "",
-		"color_accent": Color(0.95, 0.15, 0.35, 1.0),
-		"que_es": "Monitoreo técnico de procesos en tiempo real para detección heurística de troyanos, keyloggers, gusanos y ransomware.",
-		"importancia": "VITAL: El malware activo secuestra credenciales bancarias, encripta archivos personales y degrada irreversiblemente el sistema.",
-		"que_hace": "Compara firmas criptográficas hash SHA-256, inspecciona el consumo de RAM/CPU de cada hilo y aísla los procesos infecciosos en Sandbox.",
-		"pasos": "1. Selecciona un proceso de la lista activa del sistema.\n2. Presiona 'EJECUTAR ANÁLISIS DE FIRMA' para evaluar el comportamiento del ejecutable.\n3. Si se confirma malware, presiona 'AISLAR EN CUARENTENA' para congelar sus hilos.\n4. Presiona 'PURGAR PROCESO' para triturar el código malicioso de la memoria.",
-		"is_ready": true,
-		"handler": "launch_malware_scan"
-	},
-	{
-		"division": "sistema",
-		"id": "os_install",
-		"title": "INSTALACIÓN DE SISTEMAS",
-		"subtitle": "PARTICIONADO GPT & DESPLIEGUE UEFI",
-		"category": "SISTEMAS OPERATIVOS",
-		"texture_path": "",
-		"color_accent": Color(0.2, 0.85, 1.0, 1.0),
-		"que_es": "Asistente maestro de instalación limpia de Sistema Operativo con preparación de tabla GUID (GPT) y estructura de archivos.",
-		"importancia": "FUNDAMENTAL: Sin una tabla de partición GPT y partición EFI formateada en FAT32, las placas madre modernas UEFI no pueden bootear el sistema.",
-		"que_hace": "Configura los volúmenes lógicos (ESP, Raíz '/', Swap), formatea con superbloque EXT4 y despliega el kernel con el gestor de arranque GRUB.",
-		"pasos": "1. Selecciona el esquema de partición moderno GPT.\n2. Asigna la partición EFI (/boot/efi), la partición de sistema Raíz (/) y el área de memoria virtual Swap.\n3. Presiona 'INICIAR DESPLIEGUE DE CYBER-OS' y verifica el desempaquetado de paquetes del kernel.",
-		"is_ready": true,
-		"handler": "launch_os_install"
-	},
-	{
-		"division": "sistema",
-		"id": "driver_install",
-		"title": "ACTUALIZACIÓN DE DRIVERS",
-		"subtitle": "CONTROLADORES WHQL & GESTOR DE PAQUETES",
-		"category": "CONTROLADORES",
-		"texture_path": "",
-		"color_accent": Color(0.85, 0.2, 0.95, 1.0),
-		"que_es": "Depuración y actualización de controladores de hardware esenciales (GPU, Wi-Fi 6, Audio HD, Chipset PCIe Bus Master).",
-		"importancia": "ALTA: Controladores obsoletos provocan microcortes de red, artefactos gráficos, ruidos estáticos y cuellos de botella en buses de datos.",
-		"que_hace": "Conecta con los repositorios oficiales y descarga versiones certificadas WHQL, descartando compilaciones experimentales inestables.",
-		"pasos": "1. Selecciona un componente desactualizado en la columna izquierda.\n2. Revisa el diagnóstico de falla y evalúa los paquetes disponibles en el repositorio.\n3. Selecciona la versión oficial certificada WHQL (evitando versiones Beta o drivers genéricos).\n4. Aplica la actualización limpia y verifica la calibración del dispositivo.",
-		"is_ready": true,
-		"handler": "launch_driver_install"
-	},
-	{
-		"division": "sistema",
-		"id": "code_debugger",
-		"title": "PROGRAMACIÓN Y DEBUGGING",
-		"subtitle": "TERMINAL DE CÓDIGO & RESOLUCIÓN DE BUGS",
-		"category": "DESARROLLO DE SOFTWARE",
-		"texture_path": "",
-		"color_accent": Color(0.2, 0.9, 0.6, 1.0),
-		"que_es": "Entorno de desarrollo integrado (IDE) con análisis estático de código para scripts de automatización y defensa de red.",
-		"importancia": "CRÍTICA: Errores de sintaxis o bucles infinitos en scripts de seguridad congelan los firewalls y dejan el perímetro expuesto.",
-		"que_hace": "Permite inspeccionar el árbol sintáctico (AST), aplicar Hot-Patches directos y compilar pasando suites completas de pruebas unitarias.",
-		"pasos": "1. Haz clic sobre cada línea de código marcada con errores en rojo.\n2. Analiza el diagnóstico (sintaxis ':', typos de identificadores, bucle infinito, retornos).\n3. Selecciona la corrección técnica correcta para aplicar el parche en tiempo real.\n4. Presiona 'COMPILAR Y EJECUTAR TESTS' para verificar que los 4 tests unitarios pasen.",
-		"is_ready": true,
-		"handler": "launch_code_debugger"
-	},
-	{
-		"division": "sistema",
-		"id": "malware_invaders",
-		"title": "ARCADE: INVASIÓN ALIENÍGENA",
-		"subtitle": "DEFENSA RETRO CONTRA OLEADAS DE MALWARE",
-		"category": "MINIJUEGO ESPECIAL RETRO",
-		"texture_path": "",
-		"color_accent": Color(0.2, 1.0, 0.55, 1.0),
-		"que_es": "Minijuego especial estilo arcade clásico de los 80s: combate la invasión de oleadas alienígenas de malware en el espacio digital.",
-		"importancia": "ENTRENAMIENTO: Pon a prueba tus reflejos tácticos, administra coberturas en tus cortafuegos defensivos y elimina la nave nodriza de datos.",
-		"que_hace": "Simula la clásica mecánica de Space Invaders con aceleración dinámica de aliens, bunkers destructibles y naves nodrizas OVNI con bonificación.",
-		"pasos": "1. Muévete hacia los lados con las teclas [A]/[D] o [←]/[→].\n2. Dispara proyectiles con la barra espaciadora [Espacio] o Clic izquierdo.\n3. Utiliza los escudos defensivos para protegerte de los disparos alienígenas.\n4. Dispara a la nave nodriza roja superior para obtener 100 puntos extra y erradica a los 32 invasores.",
-		"is_ready": true,
-		"handler": "launch_malware_invaders"
-	},
-	{
-		"division": "sistema",
-		"id": "usb_backup",
-		"title": "PENDRIVE BOOTEABLE & RESPALDO",
-		"subtitle": "HERRAMIENTA USB · TRANSFERENCIA Y FLASHEO",
-		"category": "HERRAMIENTA TÉCNICA",
-		"texture_path": "",
-		"color_accent": Color(0.15, 0.9, 1.0, 1.0),
-		"que_es": "Preparación y uso de la herramienta principal de Sistemas: la unidad flash USB booteable para instalación, respaldo de datos y recuperación.",
-		"importancia": "CRÍTICA: Es el instrumento físico indispensable del técnico de soporte. La desconexión en caliente sin sincronizar búferes corrompe las particiones.",
-		"que_hace": "Conecta la unidad en el puerto USB 3.2, transfiere imágenes ISO y copias de seguridad de clientes, y ejecuta la extracción segura.",
-		"pasos": "1. Conecta el pendrive en el puerto USB 3.2 del equipo.\n2. Selecciona y transfiere los 4 archivos críticos (ISO, Backup, Drivers, Kit de Rescate).\n3. Presiona 'INICIAR ESCRITURA Y RESPALDO' para grabar los datos a 185 MB/s.\n4. Presiona 'EXPULSAR Y DESCONECTAR' para retirar el pendrive de forma segura.",
-		"is_ready": true,
-		"handler": "launch_usb_backup"
-	},
-	{
-		"division": "sistema",
-		"id": "system_connection",
-		"title": "ENLACE DE SISTEMAS // TALLER",
-		"subtitle": "PUENTE DE TELEMETRÍA & CONEXIÓN DE ESTACIÓN",
-		"category": "COMUNICACIONES & RED",
-		"texture_path": "",
-		"color_accent": Color(0.2, 0.95, 1.0, 1.0),
-		"que_es": "Protocolo de enlace seguro entre la estación técnica del taller y la computadora del cliente mediante bus de fibra de 10 Gbps.",
-		"importancia": "Aísla la máquina dañada de la red principal mientras permite el escaneo remoto y la ejecución de herramientas de reparación de bajo nivel.",
-		"que_hace": "Establece el canal físico de transmisión, sincroniza los buses de control y autentica el handshake SSH para acceder a la consola Andromeda Linux.",
-		"pasos": "1. Conecta el cable de diagnóstico al puerto RX/TX.\n2. Sincroniza los canales de frecuencia A, B y C.\n3. Ejecuta el handshake criptográfico para habilitar la consola de mantenimiento.",
-		"is_ready": true,
-		"handler": "launch_system_connection"
-	},
-
-	# --- DIVISIÓN SERVIDOR (INFRAESTRUCTURA & RACKS) ---
-	{
-		"division": "servidor",
-		"id": "rack_mount",
-		"title": "MONTAJE EN RACK",
-		"subtitle": "CHASIS DE 19 PULGADAS (1U - 4U)",
-		"category": "INFRAESTRUCTURA",
-		"texture_path": "",
-		"color_accent": Color(1.0, 0.12, 0.3, 1.0),
-		"que_es": "Instalación física estandarizada de servidores de alta densidad en cabinas tipo rack mediante rieles telescópicos y cerrojos Quick-Release.",
-		"importancia": "ALTA: Maximiza la densidad física en el datacenter y garantiza una estructura sismorresistente con flujo de aire canalizado.",
-		"que_hace": "Permite deslizar el chasis del servidor hacia afuera para realizar mantenimiento y cambio de partes sin desconectar el resto del rack.",
-		"pasos": "1. Identifica las unidades de rack (U) asignadas en el bastidor.\n2. Desacopla las trabas de seguridad de los rieles telescópicos.\n3. Desliza el chasis hasta la posición de servicio para inspección de placa.",
-		"is_ready": true,
-		"handler": "launch_mobo"
-	},
-	{
-		"division": "servidor",
-		"id": "raid_array",
-		"title": "BAHÍAS SAS CADDIES & RAID",
-		"subtitle": "DISCOS HOT-SWAP SAS 15K / U.3 NVME",
-		"category": "ALMACENAMIENTO EMPRESARIAL",
-		"texture_path": "",
-		"color_accent": Color(0.95, 0.18, 0.45, 1.0),
-		"que_es": "Bandejas extraíbles frontales con traba mecánica para sustitución de discos en caliente sin apagar el servidor.",
-		"importancia": "CRÍTICA: En un entorno de producción 24/7, un disco defectuoso debe sustituirse de inmediato sin interrumpir bases de datos.",
-		"que_hace": "Conecta unidades de alta velocidad al backplane SAS a 12 Gb/s con sincronización automática de paridad RAID.",
-		"pasos": "1. Presiona el botón de expulsión de la bandeja frontal (Caddy).\n2. Tira de la palanca basculante y extrae la unidad defectuosa.\n3. Inserta el disco SAS funcional y cierra la palanca hasta escuchar el 'clic'.",
-		"is_ready": true,
-		"handler": "launch_hdd"
-	},
-	{
-		"division": "servidor",
-		"id": "server_psu",
-		"title": "FUENTES 1+1 HOT-SWAP",
-		"subtitle": "REDUNDANCIA DE POTENCIA 1200W PLATINUM",
-		"category": "ENERGÍA CRÍTICA",
-		"texture_path": "",
-		"color_accent": Color(1.0, 0.65, 0.2, 1.0),
-		"que_es": "Módulos de potencia redundantes en caliente N+1 que distribuyen corriente continua al busbar del chasis.",
-		"importancia": "MÁXIMA: Si una fuente falla por sobretensión, la segunda unidad absorbe instantáneamente la carga sin apagar el sistema.",
-		"que_hace": "Suministra energía ininterrumpida y permite extraer el módulo dañado tirando de la manija ergonómica.",
-		"pasos": "1. Presiona la palanca de liberación rápida en el frontal del módulo de poder.\n2. Tira de la manija para deslizar la fuente averiada fuera del túnel.\n3. Desliza la nueva fuente Platinum hasta el enganche mecánico del conector ciego.",
-		"is_ready": true,
-		"handler": "launch_psu"
-	},
-	{
-		"division": "servidor",
-		"id": "server_fan",
-		"title": "FAN WALL DE TURBINAS",
-		"subtitle": "MÓDULOS DE PRESIÓN ESTÁTICA TOOL-LESS",
-		"category": "REFRIGERACIÓN RACK",
-		"texture_path": "",
-		"color_accent": Color(0.2, 0.95, 0.7, 1.0),
-		"que_es": "Matriz intermedia de ventiladores contrarrotativos de alta presión con extracción vertical sin herramientas.",
-		"importancia": "CRÍTICA: Las toberas deben superar la resistencia del radiador y los bancos de memoria para evitar estrangulamiento térmico.",
-		"que_hace": "Fuerza un caudal de aire continuo desde el pasillo frío hacia el pasillo caliente manteniendo los CPUs a menos de 65°C.",
-		"pasos": "1. Levanta el seguro del módulo de ventilación correspondiente.\n2. Extrae la turbina defectuosa verticalmente del zócalo ciego.\n3. Inserta la turbina de repuesto asegurando el contacto en la bahía de alimentación.",
-		"is_ready": true,
-		"handler": "launch_cooler"
-	},
-	{
-		"division": "servidor",
-		"id": "server_ram",
-		"title": "BANCOS RAM ECC REGISTRADA",
-		"subtitle": "OCTA-CHANNEL DDR5 CON PROTECCIÓN DE BIT",
-		"category": "MEMORIA EMPRESARIAL",
-		"texture_path": "",
-		"color_accent": Color(0.85, 0.1, 0.95, 1.0),
-		"que_es": "Módulos de memoria con registro de búfer (RDIMM) y circuito integrado para corrección de errores de un solo bit (ECC).",
-		"importancia": "VITAL: Previene la corrupción de memoria causada por rayos cósmicos o fluctuaciones de voltaje en servidores de alta densidad.",
-		"que_hace": "Mantiene la integridad de datos corporativos procesando accesos paralelos en arquitectura de 8 canales por socket.",
-		"pasos": "1. Abre los dos pestillos reforzados de seguridad en los extremos del slot.\n2. Extrae el módulo defectuoso en línea recta hacia arriba.\n3. Alinea la muesca polarizada de la RAM ECC y presiona firmemente hasta trabar los seguros.",
-		"is_ready": true,
-		"handler": "launch_ram"
-	},
-	{
-		"division": "servidor",
-		"id": "server_cpu",
-		"title": "DUAL CPU ENTERPRISE",
-		"subtitle": "SOCKETS INDUSTRIALES LGA 4189 / SP5",
-		"category": "PROCESAMIENTO RACK",
-		"texture_path": "",
-		"color_accent": Color(0.9, 0.15, 0.9, 1.0),
-		"que_es": "Configuración de doble procesador Xeon/EPYC montados sobre matrices de miles de pines con marco portador (Carrier Frame).",
-		"importancia": "MÁXIMA: La torsión asimétrica puede destruir los pines microscópicos del zócalo o causar desconexión en buses PCIe.",
-		"que_hace": "Coordina cientos de hilos de procesamiento y controladores de memoria dedicados a escala de centros de datos.",
-		"pasos": "1. Libera las palancas de tensión mecánica del socket industrial.\n2. Retira la cubierta de carga con cuidado uniforme.\n3. Posiciona el procesador guiándote por el triángulo indicador y bloquea la sujeción.",
-		"is_ready": true,
-		"handler": "launch_cpu"
-	},
-	{
-		"division": "servidor",
-		"id": "server_smartnic",
-		"title": "RISER PCIE & SMARTNIC 100G",
-		"subtitle": "EXPANSIÓN MODULAR DE RED",
-		"category": "CONECTIVIDAD RACK",
-		"texture_path": "",
-		"color_accent": Color(0.9, 0.15, 0.45, 1.0),
-		"que_es": "Tarjeta de red aceleradora SmartNIC de 100 GbE montada sobre ranura Riser de perfil bajo.",
-		"importancia": "ALTA: Conecta el chasis al switch Top-of-Rack sin generar cuellos de botella en el tráfico este-oeste.",
-		"que_hace": "Descarga procesamiento de red del CPU y encamina paquetes a velocidad de cable.",
-		"pasos": "1. Asienta la tarjeta SmartNIC en la ranura Riser PCIe.\n2. Traba el pestillo de seguridad del slot.\n3. Asegura el tornillo del bracket metálico y conecta el enlace.",
-		"is_ready": true,
-		"handler": "launch_gpu"
-	},
-	{
-		"division": "servidor",
-		"id": "vlan_switch",
-		"title": "TERMINAL & SCRIPTING DE RED",
-		"subtitle": "PROGRAMACIÓN Y DEPURACIÓN DE SERVIDOR",
-		"category": "AUTOMATIZACIÓN & SISTEMAS",
-		"texture_path": "",
-		"color_accent": Color(0.2, 0.9, 0.6, 1.0),
-		"que_es": "Terminal de consola para depuración y compilación de scripts de automatización, enrutamiento y cortafuegos del servidor.",
-		"importancia": "CRÍTICA: Errores de sintaxis o bucles infinitos en scripts de administración congelan los servicios y tumban la red.",
-		"que_hace": "Permite auditar el código fuente en tiempo real, corregir variables y verificar pruebas unitarias de conectividad.",
-		"pasos": "1. Abre la terminal de depuración en la estación del servidor.\n2. Corrige los errores de sintaxis y tipografía en el código de auditoría.\n3. Asegura el incremento de bucles de control y compila pasando todos los tests unitarios.",
-		"is_ready": true,
-		"handler": "launch_code_debugger"
-	},
-	{
-		"division": "servidor",
-		"id": "cold_aisle",
-		"title": "LOOP LÍQUIDO & GESTIÓN TÉRMICA",
-		"subtitle": "DIRECT-TO-CHIP CON RACORES QDC",
-		"category": "REFRIGERACIÓN INDUSTRIAL",
-		"texture_path": "",
-		"color_accent": Color(0.1, 0.9, 1.0, 1.0),
-		"que_es": "Circuito de refrigeración líquida industrial con acoples rápidos antigoteo (Quick Disconnect Couplings) y purga de rack.",
-		"importancia": "VITAL: Un fallo en la circulación de refrigerante en racks de 30kW provoca daños irreversibles por calor en minutos.",
-		"que_hace": "Remueve el calor directamente de los dies de CPUs y aceleradores enviándolo al intercambiador de calor del datacenter.",
-		"pasos": "1. Conecta los tubos y racores QDC cerrando el circuito de refrigeración.\n2. Llena el depósito de fluido refrigerante al 100% de capacidad.\n3. Activa la bomba para purgar el aire y estabilizar la presión y temperatura.",
-		"is_ready": true,
-		"handler": "launch_liquid_cooling"
+	"servidor": {
+		"title": "MODO SERVIDORES",
+		"director": "DIRECTOR DEL MODO: SANTIGO",
+		"title_color": Color(1.0, 0.65, 0.12, 1.0),
+		"director_color": Color(1.0, 0.88, 0.72, 0.95),
+		"shadow_color": Color(0.8, 0.35, 0.05, 0.8)
 	}
-]
+}
+
+func _update_mode_header_display() -> void:
+	if not lbl_mode_title or not lbl_mode_director:
+		return
+	var info = MODE_DIRECTORS.get(current_mode, MODE_DIRECTORS["reparacion"])
+	lbl_mode_title.text = info["title"]
+	lbl_mode_director.text = info["director"]
+	lbl_mode_title.add_theme_color_override("font_color", info["title_color"])
+	lbl_mode_title.add_theme_color_override("font_shadow_color", info["shadow_color"])
+	lbl_mode_director.add_theme_color_override("font_color", info["director_color"])
 
 # =============================================================================
 # INICIALIZACIÓN
@@ -1608,9 +1164,11 @@ func _ready() -> void:
 	btn_volver.pressed.connect(_on_volver_pressed)
 	
 	# Pestañas principales (Niveles) - Conexión instantánea
-	btn_niveles.pressed.connect(func(): _switch_main_tab("niveles"))
+	if btn_niveles:
+		btn_niveles.pressed.connect(func(): _switch_main_tab("niveles"))
 	if btn_tutoriales:
 		btn_tutoriales.pressed.connect(func(): _switch_main_tab("tutoriales"))
+	_update_mode_header_display()
 	
 	# Selectores de modo/división
 	btn_reparacion.pressed.connect(func(): _switch_mode("reparacion"))
@@ -1855,26 +1413,32 @@ func _switch_main_tab(tab_name: String, instant: bool = false) -> void:
 		map_zoom_controls.visible = not is_level_zoomed and (current_tab == "niveles")
 
 	if current_tab == "niveles":
-		tutorial_area.visible = false
-		constellation_area.visible = true
-		column_headers.visible = true
+		if tutorial_area:
+			tutorial_area.visible = false
+		if constellation_area:
+			constellation_area.visible = true
+		if column_headers:
+			column_headers.visible = true
 		_update_headers_for_mode()
 		footer_hint.text = "⌜  CLIC EN CUALQUIER NODO PARA INSPECCIONAR SUS DATOS TÉCNICOS  ⌟"
 		
-		if not instant:
+		if not instant and constellation_area:
 			constellation_area.modulate.a = 0.5
 			var tw = create_tween()
 			tw.tween_property(constellation_area, "modulate:a", 1.0, 0.12).set_trans(Tween.TRANS_QUAD)
 	else:
-		constellation_area.visible = false
-		column_headers.visible = false
-		tutorial_area.visible = true
+		if constellation_area:
+			constellation_area.visible = false
+		if column_headers:
+			column_headers.visible = false
+		if tutorial_area:
+			tutorial_area.visible = true
 		if banner_label and section_banner and section_banner.visible:
 			banner_label.text = "CENTRO DE ENTRENAMIENTO // GUÍA TÉCNICA Y SIMULADORES"
 		footer_hint.text = "⌜  SELECCIONA UNA TARJETA PARA VER DETALLES O PRACTICAR EN EL SIMULADOR  ⌟"
 		_filter_tutorial_cards()
 		
-		if not instant:
+		if not instant and tutorial_area:
 			tutorial_area.modulate.a = 0.5
 			var tw = create_tween()
 			tw.tween_property(tutorial_area, "modulate:a", 1.0, 0.12).set_trans(Tween.TRANS_QUAD)
@@ -1884,9 +1448,10 @@ func _update_tab_buttons_visuals() -> void:
 	var pal = MODE_PALETTES.get(current_mode, MODE_PALETTES["reparacion"])
 	
 	if is_niv:
-		btn_niveles.modulate = Color(1.3, 1.3, 1.3, 1.0)
-		if "border_color" in btn_niveles:
-			btn_niveles.border_color = pal.accent
+		if btn_niveles:
+			btn_niveles.modulate = Color(1.3, 1.3, 1.3, 1.0)
+			if "border_color" in btn_niveles:
+				btn_niveles.border_color = pal.accent
 		if btn_tutoriales:
 			btn_tutoriales.modulate = Color(0.65, 0.65, 0.72, 0.75)
 			if "border_color" in btn_tutoriales:
@@ -1896,11 +1461,12 @@ func _update_tab_buttons_visuals() -> void:
 			btn_tutoriales.modulate = Color(1.3, 1.3, 1.3, 1.0)
 			if "border_color" in btn_tutoriales:
 				btn_tutoriales.border_color = pal.accent
-		btn_niveles.modulate = Color(0.65, 0.65, 0.72, 0.75)
-		if "border_color" in btn_niveles:
-			btn_niveles.border_color = Color(0.45, 0.15, 0.6, 0.6)
+		if btn_niveles:
+			btn_niveles.modulate = Color(0.65, 0.65, 0.72, 0.75)
+			if "border_color" in btn_niveles:
+				btn_niveles.border_color = Color(0.45, 0.15, 0.6, 0.6)
 			
-	if btn_niveles.has_method("queue_redraw"):
+	if btn_niveles and btn_niveles.has_method("queue_redraw"):
 		btn_niveles.queue_redraw()
 	if btn_tutoriales and btn_tutoriales.has_method("queue_redraw"):
 		btn_tutoriales.queue_redraw()
@@ -2082,6 +1648,7 @@ func _switch_mode(mode_name: String, spin_dir: int = 0) -> void:
 	_play_mode_switch_animation(current_mode)
 	_update_mode_buttons()
 	_update_tab_buttons_visuals()
+	_update_mode_header_display()
 	_update_btn_play_level1_visibility()
 	
 	if current_tab == "niveles":
@@ -2103,6 +1670,12 @@ func _play_mode_switch_animation(mode_name: String) -> void:
 		var tw = create_tween()
 		constellation_area.modulate = Color(1.8, 1.8, 2.3, 1.0)
 		tw.tween_property(constellation_area, "modulate", Color.WHITE, 0.32).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	
+	if mode_header:
+		mode_header.pivot_offset = mode_header.size * 0.5
+		var tw_h = create_tween()
+		mode_header.scale = Vector2(1.06, 1.06)
+		tw_h.tween_property(mode_header, "scale", Vector2.ONE, 0.22).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	
 	if banner_label and section_banner and section_banner.visible:
 		banner_label.pivot_offset = banner_label.size * 0.5
@@ -2646,6 +2219,8 @@ func _play_level_1() -> void:
 # CONSTRUCCIÓN Y FILTRADO INSTANTÁNEO DE TARJETAS (REUTILIZACIÓN DE SLOTS, 0 MS)
 # =============================================================================
 func _filter_tutorial_cards() -> void:
+	if not cards_grid:
+		return
 	var mode_cards: Array[Dictionary] = []
 	for c in ALL_TUTORIAL_CARDS:
 		var d = c.get("division", "")

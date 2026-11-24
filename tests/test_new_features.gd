@@ -175,6 +175,29 @@ func test_level_select_hud_and_holo_ring() -> void:
 	assert(instance._is_selector_faded == false, "El selector debe reaparecer al interactuar")
 	assert(instance._mode_selector_idle_timer == 0.0, "El timer de inactividad debe reiniciarse a 0.0")
 
+	# 6. Verificar eliminación de TutorialArea y recuadro antiguo, y nuevo ModeHeader con directores
+	assert(instance.get_node_or_null("TutorialArea") == null, "TutorialArea debe haber sido completamente eliminada")
+	assert(instance.get_node_or_null("TopBar/Tabs") == null, "El recuadro antiguo de pestañas en TopBar debe haber sido eliminado")
+	var mode_hdr = instance.get_node_or_null("TopBar/ModeHeader")
+	assert(mode_hdr != null, "ModeHeader debe existir en TopBar")
+	var lbl_m_title = mode_hdr.get_node_or_null("LblModeTitle")
+	var lbl_m_dir = mode_hdr.get_node_or_null("LblModeDirector")
+	assert(lbl_m_title != null and lbl_m_dir != null, "LblModeTitle y LblModeDirector deben existir en ModeHeader")
+
+	# Probar títulos y directores por cada modo
+	instance._switch_mode("reparacion")
+	assert(lbl_m_title.text == "MODO REPARACIÓN", "Título en reparación incorrecto")
+	assert(lbl_m_dir.text == "DIRECTOR DEL MODO: JOA", "Director en reparación incorrecto")
+
+	instance._switch_mode("sistema")
+	assert(lbl_m_title.text == "MODO SISTEMAS", "Título en sistemas incorrecto")
+	assert(lbl_m_dir.text == "DIRECTOR DEL MODO: JEREMÍAS", "Director en sistemas incorrecto")
+
+	instance._switch_mode("servidor")
+	assert(lbl_m_title.text == "MODO SERVIDORES", "Título en servidores incorrecto")
+	assert(lbl_m_dir.text == "DIRECTOR DEL MODO: SANTIGO", "Director en servidores incorrecto")
+	print("  Títulos grandes legibles con color y subtítulos de directores (Joa, Jeremías, Santigo) verificados [OK]")
+
 	instance.queue_free()
 	print("  [OK] LevelSelect, HUD de estadísticas alineado y Terminal Linux de modos verificados.")
 
