@@ -137,6 +137,10 @@ func _ready() -> void:
 	# Configurar el escenario según el modo activo
 	_setup_mode_environment()
 
+	# Iniciar música de fondo de tutorial en bucle continuo para cualquier modo (Reparación, Sistemas, etc.)
+	if has_node("/root/MusicManager"):
+		get_node("/root/MusicManager").play_tutorial()
+
 	# Iniciar cinemática de entrada o secuencia directa
 	if player and player.has_method("play_intro_cinematic"):
 		player.play_intro_cinematic(func():
@@ -308,6 +312,9 @@ func _setup_sistemas_environment() -> void:
 		pc.visible = false
 		pc.collision_layer = 0
 		pc.collision_mask = 0
+		var orig_arrow = pc.get_node_or_null("ArrowMesh")
+		if orig_arrow:
+			orig_arrow.visible = false
 
 	_hide_hardware_workshop_props()
 
@@ -350,18 +357,22 @@ func _setup_sistemas_environment() -> void:
 		rat.position = Vector3(0.38, 0.912, 0.15)
 		work_bench.add_child(rat)
 
-	# PC que se va a reparar: LADO IZQUIERDO ARRIBA sobre el escritorio, GIRADA PARA VER AL JUGADOR (modelo visual sin prompt [E])
+	# PC que se va a reparar: LADO IZQUIERDO ARRIBA sobre el escritorio, GIRADA PARA VER AL JUGADOR (modelo visual sin prompt [E] ni flecha redundante)
 	var pc_visual = SYSTEMS_PC_SCENE.instantiate()
 	pc_visual.name = "SystemsComputerTutorial"
 	pc_visual.position = Vector3(-0.55, 0.912, 0.0)
 	pc_visual.rotation_degrees.y = -90.0
 	pc_visual.collision_layer = 0
 	pc_visual.collision_mask = 0
-	if pc_visual.has_node("ArrowMesh"):
-		pc_visual.get_node("ArrowMesh").visible = false
-	if pc_visual.has_node("Label3D"):
-		pc_visual.get_node("Label3D").visible = false
+	pc_visual.disable_arrow = true
 	work_bench.add_child(pc_visual)
+	var arrow = pc_visual.get_node_or_null("ArrowMesh")
+	if arrow:
+		arrow.visible = false
+		arrow.queue_free()
+	var lbl = pc_visual.get_node_or_null("Label3D")
+	if lbl:
+		lbl.visible = false
 
 	# Otra PC del sistema: LADO DERECHO AFUERA AL LADO DEL ESCRITORIO (en el piso)
 	var gabinete_scene = load("res://modelos_3d/escenario_3d/gabinete.glb")
@@ -452,6 +463,7 @@ func _hide_hardware_workshop_props() -> void:
 	for n in nodes_to_hide:
 		if is_instance_valid(n):
 			n.visible = false
+			n.process_mode = Node.PROCESS_MODE_DISABLED
 			if "collision_layer" in n:
 				n.collision_layer = 0
 			if "collision_mask" in n:
@@ -460,6 +472,7 @@ func _hide_hardware_workshop_props() -> void:
 	for child in find_children("*", "StaticBody3D", true, false):
 		if child and ("Spares" in child.name or child.scene_file_path.ends_with("SparesBox.tscn")):
 			child.visible = false
+			child.process_mode = Node.PROCESS_MODE_DISABLED
 			child.collision_layer = 0
 			child.collision_mask = 0
 

@@ -201,6 +201,8 @@ func _generate_arpeggio_wav(freqs: Array, note_duration: float) -> AudioStreamWA
 # =============================================================================
 
 func _reset_game_full() -> void:
+	set_process(true)
+	set_process_input(true)
 	grid.clear()
 	for y in range(ROWS):
 		var row: Array = []
@@ -245,12 +247,25 @@ func _spawn_next_piece() -> void:
 		is_game_over = true
 		_play_sfx("game_over")
 
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_VISIBILITY_CHANGED or what == NOTIFICATION_PREDELETE:
+		if not is_visible_in_tree():
+			if sfx_player:
+				sfx_player.stop()
+			is_paused = true
+			set_process(false)
+			set_process_input(false)
+
+func _exit_tree() -> void:
+	if sfx_player:
+		sfx_player.stop()
+
 # =============================================================================
 # ENTRADA DE USUARIO
 # =============================================================================
 
 func _input(event: InputEvent) -> void:
-	if not visible:
+	if not is_visible_in_tree() or not visible or not is_processing_input():
 		return
 
 	if event is InputEventKey and event.pressed and not event.echo:
@@ -295,6 +310,12 @@ func _input(event: InputEvent) -> void:
 
 func exit_to_terminal() -> void:
 	visible = false
+	is_paused = true
+	is_game_over = true
+	set_process(false)
+	set_process_input(false)
+	if sfx_player:
+		sfx_player.stop()
 	closed.emit(score)
 
 # =============================================================================
@@ -302,7 +323,7 @@ func exit_to_terminal() -> void:
 # =============================================================================
 
 func _process(delta: float) -> void:
-	if not visible or is_paused or is_game_over:
+	if not is_visible_in_tree() or not visible or is_paused or is_game_over:
 		return
 
 	# Si se están despejando líneas (efecto visual de flash)

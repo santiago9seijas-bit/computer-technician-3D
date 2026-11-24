@@ -130,6 +130,20 @@ func _dismiss(instant: bool = false) -> void:
 	tw.tween_property(self, "modulate:a", 0.0, 0.25)
 	tw.chain().tween_callback(queue_free)
 
+func _exit_tree() -> void:
+	for child in get_children():
+		if child is AudioStreamPlayer:
+			if child.playing:
+				child.stop()
+			child.stream = null
+
+static func dismiss_all(tree: SceneTree) -> void:
+	if not tree or not tree.root:
+		return
+	for child in tree.root.get_children():
+		if child is Control and child.name.begins_with("CyberNotificationToast"):
+			child.free()
+
 func _play_notification_sfx() -> void:
 	var asp = AudioStreamPlayer.new()
 	asp.bus = "Master"

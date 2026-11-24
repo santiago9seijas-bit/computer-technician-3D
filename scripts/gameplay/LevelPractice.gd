@@ -5,6 +5,7 @@ extends Node3D
 # CADA COMPUTADORA PRESENTA UNA FALLA DE HARDWARE DIFERENTE
 # =============================================================================
 
+const LevelCountdown = preload("res://scripts/ui/LevelCountdown.gd")
 const INTRO_SCENE: PackedScene = preload("res://scenes/ui/LevelIntroModal.tscn")
 const DIALOG_SCENE: PackedScene = preload("res://scenes/ui/DialogBox.tscn")
 
@@ -459,87 +460,27 @@ func _start_countdown() -> void:
 	if player and player.has_method("set_movement_enabled"):
 		player.set_movement_enabled(false)
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	GameManager.timer_active = false
 
 	if countdown_overlay:
 		countdown_overlay.queue_free()
+		countdown_overlay = null
 
-	countdown_overlay = CanvasLayer.new()
-	countdown_overlay.layer = 110
-	add_child(countdown_overlay)
+	var gm = get_node_or_null("/root/GameManager")
+	var m = gm.current_mode if gm and "current_mode" in gm and gm.current_mode != "" else "reparacion"
 
-	var root_ctrl = Control.new()
-	root_ctrl.set_anchors_preset(Control.PRESET_FULL_RECT)
-	root_ctrl.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	countdown_overlay.add_child(root_ctrl)
-
-	# Fondo con destello sutil
-	var dim_rect = ColorRect.new()
-	dim_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
-	dim_rect.color = Color(0.01, 0.03, 0.08, 0.55)
-	dim_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	root_ctrl.add_child(dim_rect)
-
-	# Contenedor central para el número animado
-	var center = CenterContainer.new()
-	center.set_anchors_preset(Control.PRESET_FULL_RECT)
-	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	root_ctrl.add_child(center)
-
-	var label = Label.new()
-	label.text = ""
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	label.add_theme_font_size_override("font_size", 120)
-	label.pivot_offset = Vector2(160, 80)
-	center.add_child(label)
-
-	var steps: Array[Dictionary] = [
-		{"text": "3", "color": Color(0.0, 0.95, 1.0), "size": 130, "pitch": 1.0, "confirm": false},
-		{"text": "2", "color": Color(1.0, 0.9, 0.2),  "size": 130, "pitch": 1.25, "confirm": false},
-		{"text": "1", "color": Color(1.0, 0.55, 0.1), "size": 130, "pitch": 1.5, "confirm": false},
-		{"text": "¡A REPARAR!", "color": Color(0.2, 1.0, 0.4), "size": 95, "pitch": 1.8, "confirm": true}
-	]
-
-	_run_countdown_step(0, steps, label, root_ctrl)
-
-func _run_countdown_step(index: int, steps: Array[Dictionary], label: Label, root_ctrl: Control) -> void:
-	if index >= steps.size():
-		# Fin de la cuenta regresiva: iniciar juego
-		var fade_tw = create_tween()
-		fade_tw.tween_property(root_ctrl, "modulate:a", 0.0, 0.35)
-		fade_tw.chain().tween_callback(func():
-			if countdown_overlay:
-				countdown_overlay.queue_free()
-				countdown_overlay = null
-			# Arrancar cronómetro y habilitar al jugador
-			GameManager.timer_active = true
-			if player and player.has_method("set_movement_enabled"):
-				player.set_movement_enabled(true)
-			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
-			# Mostrar y animar panel de desafíos extra
-			if extra_challenges_panel:
-				extra_challenges_panel.visible = true
-				_animate_panel_entrance(extra_challenges_panel)
-				_update_extra_challenges_ui()
-		)
-		return
-
-	var st = steps[index]
-	label.text = st["text"]
-	label.modulate = st["color"]
-	label.add_theme_font_size_override("font_size", st["size"])
-	label.scale = Vector2(1.8, 1.8)
-	label.modulate.a = 0.0
-
-	_play_sfx(st["pitch"], st["confirm"])
-
-	var tw = create_tween().set_parallel(true)
-	tw.tween_property(label, "scale", Vector2(1.0, 1.0), 0.32).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	tw.tween_property(label, "modulate:a", 1.0, 0.18)
-
-	var hold_time = 0.65 if index < steps.size() - 1 else 0.85
-	get_tree().create_timer(hold_time).timeout.connect(func():
-		_run_countdown_step(index + 1, steps, label, root_ctrl)
+	countdown_overlay = LevelCountdown.start_countdown(get_tree(), self, m, func():
+		countdown_overlay = null
+		# Arrancar cronómetro y habilitar al jugador
+		GameManager.timer_active = true
+		if player and player.has_method("set_movement_enabled"):
+			player.set_movement_enabled(true)
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+		# Mostrar y animar panel de desafíos extra
+		if extra_challenges_panel:
+			extra_challenges_panel.visible = true
+			_animate_panel_entrance(extra_challenges_panel)
+			_update_extra_challenges_ui()
 	)
 
 # -----------------------------------------------------------------------------

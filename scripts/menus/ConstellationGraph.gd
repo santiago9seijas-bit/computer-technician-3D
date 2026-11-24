@@ -39,6 +39,7 @@ var node_ripples: Array[float] = [
 var lupa_texture: Texture2D = preload("res://pixel art menus/decoracion/emoticon de lupa.png")
 var node_press_tweens: Dictionary = {}
 var node_unlocked_states: Dictionary = {}
+var node_completed_states: Dictionary = {}
 
 # =============================================================================
 # ENTIDAD: NUBE DE GLITCH ERRÁTICA EN MODO SISTEMA
@@ -62,6 +63,10 @@ var unlocking_node_index: int = -1
 var unlock_anim_progress: float = 0.0
 var _unlock_tween: Tween = null
 
+var purging_glitch_node_index: int = -1
+var purge_anim_progress: float = 0.0
+var _purge_tween: Tween = null
+
 func set_node_unlocked(index: int, unlocked: bool) -> void:
 	node_unlocked_states[index] = unlocked
 	queue_redraw()
@@ -80,6 +85,18 @@ func is_node_unlocked(index: int) -> bool:
 	if sm and sm.has_method("is_node_unlocked"):
 		return sm.is_node_unlocked(current_mode, index)
 	return (index == 0 or (current_mode == "servidor" and index == 14))
+
+func set_node_completed(index: int, completed: bool) -> void:
+	node_completed_states[index] = completed
+	queue_redraw()
+
+func is_node_completed(index: int) -> bool:
+	if node_completed_states.has(index):
+		return node_completed_states[index]
+	var sm = get_node_or_null("/root/SaveManager")
+	if sm and sm.has_method("is_node_completed"):
+		return sm.is_node_completed(current_mode, index)
+	return false
 
 func play_unlock_animation(node_idx: int, on_complete: Callable = Callable()) -> void:
 	if node_idx < 0 or node_idx >= nodes.size():
@@ -102,6 +119,34 @@ func play_unlock_animation(node_idx: int, on_complete: Callable = Callable()) ->
 	_unlock_tween.chain().tween_callback(func():
 		unlocking_node_index = -1
 		unlock_anim_progress = 0.0
+		queue_redraw()
+		if on_complete.is_valid():
+			on_complete.call()
+	)
+
+func play_glitch_purge_animation(node_idx: int, on_complete: Callable = Callable()) -> void:
+	if node_idx < 0 or node_idx >= nodes.size():
+		if on_complete.is_valid():
+			on_complete.call()
+		return
+	purging_glitch_node_index = node_idx
+	purge_anim_progress = 0.0
+	set_node_completed(node_idx, true)
+	trigger_node_click_zoom(node_idx)
+	
+	if _purge_tween and _purge_tween.is_valid():
+		_purge_tween.kill()
+		
+	_purge_tween = create_tween()
+	_purge_tween.tween_method(func(v: float):
+		purge_anim_progress = v
+		queue_redraw()
+	, 0.0, 1.0, 1.8).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	
+	_purge_tween.chain().tween_callback(func():
+		purging_glitch_node_index = -1
+		purge_anim_progress = 0.0
+		set_node_completed(node_idx, true)
 		queue_redraw()
 		if on_complete.is_valid():
 			on_complete.call()
@@ -244,41 +289,49 @@ var MODE_NODES: Dictionary = {
 		Vector2(1529, 122), # [30] NIVEL MORADO: Medición de Voltaje Multímetro
 		Vector2(1529, 598)  # [31] NIVEL MORADO: Limpieza Profunda Fuente PSU
 	],
-	# 2. SISTEMA: Telaraña de Diamante Cibernético y Matriz de Kernel Ampliada y Espaciada (26 Nodos)
+	# 2. SISTEMA: Red Neuronal Cibernética y Malla Glitch Ampliada y Espaciada (32 Nodos)
 	"sistema": [
 		# --- NÚCLEO CENTRAL TUTORIAL [0] ---
 		Vector2(640, 360),  # [0] TUTORIAL: Protocolo de Boot & BIOS // Andromeda OS (AZUL)
 
 		# --- TUTORIALES ESPECÍFICOS DE SISTEMAS [1 - 6] (Anillo Hexagonal Interior, Radio ~230px) ---
-		Vector2(441, 245),  # [1] TUTORIAL: Instalación de Sistemas & Tabla GPT
+		Vector2(440, 240),  # [1] TUTORIAL: Instalación de Sistemas & Tabla GPT
 		Vector2(640, 130),  # [2] TUTORIAL: Ciberdefensa & Escaneo de Malware ClamAV
-		Vector2(839, 245),  # [3] TUTORIAL: Controladores WHQL & Módulos de Kernel
-		Vector2(839, 475),  # [4] TUTORIAL: Desinfección de Adware & Escudo Pop-ups
+		Vector2(840, 240),  # [3] TUTORIAL: Controladores WHQL & Módulos de Kernel
+		Vector2(840, 480),  # [4] TUTORIAL: Desinfección de Adware & Escudo Pop-ups
 		Vector2(640, 590),  # [5] TUTORIAL: Programación & Depurador de Código
-		Vector2(441, 475),  # [6] TUTORIAL: Unidades Booteables USB & Respaldo dd
+		Vector2(440, 480),  # [6] TUTORIAL: Unidades Booteables USB & Respaldo dd
 
-		# --- NIVELES DE CAMPAÑA DE SISTEMAS (1 AL 12) [7 - 18] (Perímetro Exterior Ampliado, Radio ~700px) ---
-		Vector2(-60, 360),  # [7]  NIVEL 1 · TERMINAL DE SISTEMAS Y SOFTWARE (ROJO/CIAN)
-		Vector2(34, 10),    # [8]  NIVEL 2 · FLASH DE FIRMWARE BIOS
-		Vector2(290, -246), # [9]  NIVEL 3 · SECTORES MBR & GPT CORRUPTOS
-		Vector2(640, -340), # [10] NIVEL 4 · CONFIGURACIÓN RESIZABLE-BAR
-		Vector2(990, -246), # [11] NIVEL 5 · DESINFECCIÓN DE ROOTKIT
-		Vector2(1246, 10),  # [12] NIVEL 6 · CONFLICTO DE CONTROLADORES IRQ
-		Vector2(1340, 360), # [13] NIVEL 7 · PURGA DE REGISTRO DAÑADO
-		Vector2(1246, 710), # [14] NIVEL 8 · RECUPERACIÓN VOLUMEN BITLOCKER
-		Vector2(990, 966),  # [15] NIVEL 9 · CLONACIÓN FORENSE SECTOR A SECTOR
-		Vector2(640, 1060), # [16] NIVEL 10 · ANÁLISIS DE VOLCADO MEMORY.DMP
-		Vector2(290, 966),  # [17] NIVEL 11 · AISLAMIENTO DE RANSOMWARE
-		Vector2(34, 710),   # [18] NIVEL 12 · ARQUITECTO SUPREMO DE SO
+		# --- NIVELES DE CAMPAÑA DE SISTEMAS (1 AL 12) [7 - 18] (Perímetro Cibernético Ampliado, Radio ~650-750px) ---
+		Vector2(80, 360),   # [7]  NIVEL 1 · TERMINAL DE SISTEMAS Y SOFTWARE (ROJO/CIAN)
+		Vector2(170, 40),   # [8]  NIVEL 2 · FLASH DE FIRMWARE BIOS
+		Vector2(390, -190), # [9]  NIVEL 3 · SECTORES MBR & GPT CORRUPTOS
+		Vector2(640, -290), # [10] NIVEL 4 · CONFIGURACIÓN RESIZABLE-BAR
+		Vector2(890, -190), # [11] NIVEL 5 · DESINFECCIÓN DE ROOTKIT
+		Vector2(1110, 40),  # [12] NIVEL 6 · CONFLICTO DE CONTROLADORES IRQ
+		Vector2(1200, 360), # [13] NIVEL 7 · PURGA DE REGISTRO DAÑADO
+		Vector2(1110, 680), # [14] NIVEL 8 · RECUPERACIÓN VOLUMEN BITLOCKER
+		Vector2(890, 910),  # [15] NIVEL 9 · CLONACIÓN FORENSE SECTOR A SECTOR
+		Vector2(640, 1010), # [16] NIVEL 10 · ANÁLISIS DE VOLCADO MEMORY.DMP
+		Vector2(390, 910),  # [17] NIVEL 11 · AISLAMIENTO DE RANSOMWARE
+		Vector2(170, 680),  # [18] NIVEL 12 · ARQUITECTO SUPREMO DE SO
 
-		# --- RETOS DE PRÁCTICA CRONOMETRADOS (3 TERMINALES / 8 MINUTOS) [19 - 25] (Radio ~440px) ---
-		Vector2(259, 140),  # [19] RETO PRÁCTICA: Despliegue Masivo de SO & GPT (Noroeste)
-		Vector2(640, -80),  # [20] RETO PRÁCTICA: Purga Heurística de Malware (Norte)
-		Vector2(1021, 140), # [21] RETO PRÁCTICA: Controladores WHQL & DMA (Noreste)
-		Vector2(1021, 580), # [22] RETO PRÁCTICA: Filtrado Defensivo de Adware (Sureste)
-		Vector2(640, 800),  # [23] RETO PRÁCTICA: Parcheo de Kernel & Debugging (Sur)
-		Vector2(259, 580),  # [24] RETO PRÁCTICA: Clonación y Pendrives Booteables (Suroeste)
-		Vector2(770, 360)   # [25] RETO PRÁCTICA: Inducción / 3 Terminales Inicial (Centro Este, NARANJA NEÓN)
+		# --- RETOS DE PRÁCTICA CRONOMETRADOS (3 TERMINALES / 8 MINUTOS) [19 - 25] (Radio ~420px) ---
+		Vector2(280, 150),  # [19] RETO PRÁCTICA: Despliegue Masivo de SO & GPT (Noroeste)
+		Vector2(640, -60),  # [20] RETO PRÁCTICA: Purga Heurística de Malware (Norte)
+		Vector2(1000, 150), # [21] RETO PRÁCTICA: Controladores WHQL & DMA (Noreste)
+		Vector2(1000, 570), # [22] RETO PRÁCTICA: Filtrado Defensivo de Adware (Sureste)
+		Vector2(640, 780),  # [23] RETO PRÁCTICA: Parcheo de Kernel & Debugging (Sur)
+		Vector2(280, 570),  # [24] RETO PRÁCTICA: Clonación y Pendrives Booteables (Suroeste)
+		Vector2(760, 360),  # [25] RETO PRÁCTICA: Inducción / 3 Terminales Inicial (Centro Este, NARANJA NEÓN)
+
+		# --- NUEVAS BURBUJAS MORADAS // ANOMALÍAS GLITCH FORENSE & KERNEL [26 - 31] (Radio ~950-1150px) ---
+		Vector2(60, -160),   # [26] NIVEL MORADO: Anomalía Glitch en Memoria VRAM (Noroeste Exterior)
+		Vector2(640, -480),  # [27] NIVEL MORADO: Inyección de Código & Buffer Overflow (Norte Profundo)
+		Vector2(1220, -160), # [28] NIVEL MORADO: Adware Criptominero Residual (Noreste Exterior)
+		Vector2(1330, 520),  # [29] NIVEL MORADO: Corrupción de Controlador WHQL (Este Exterior)
+		Vector2(640, 1200),  # [30] NIVEL MORADO: Rescate de Tabla EFI & GPT (Sur Profundo)
+		Vector2(-60, 520)    # [31] NIVEL MORADO: Enjambre Alienígena Glitch Purge (Oeste Exterior)
 	],
 	# 3. SERVIDOR: Hiper-Malla Circular de Datacenter y Anillos de Fibra Óptica Ampliada y Espaciada
 	"servidor": [
@@ -368,12 +421,21 @@ var MODE_CONNECTIONS: Dictionary = {
 
 		# 2. Vía perimetral de Campaña: Niveles 1 al 12
 		Vector2i(7, 8), Vector2i(8, 9), Vector2i(9, 10), Vector2i(10, 11), Vector2i(11, 12), Vector2i(12, 13),
-		Vector2i(13, 14), Vector2i(14, 15), Vector2i(15, 16), Vector2i(16, 17), Vector2i(17, 18),
+		Vector2i(13, 14), Vector2i(14, 15), Vector2i(15, 16), Vector2i(16, 17), Vector2i(17, 18), Vector2i(18, 7),
 
-		# 3. Malla cibernética de diamante entre subsistemas
+		# 3. Malla cibernética de diamante y enlaces transversales entre subsistemas
 		Vector2i(0, 1), Vector2i(0, 2), Vector2i(0, 3), Vector2i(0, 4), Vector2i(0, 5), Vector2i(0, 6),
 		Vector2i(1, 2), Vector2i(2, 3), Vector2i(3, 4), Vector2i(4, 5), Vector2i(5, 6), Vector2i(6, 25),
-		Vector2i(19, 20), Vector2i(20, 21), Vector2i(21, 22), Vector2i(22, 23), Vector2i(23, 24)
+		Vector2i(19, 20), Vector2i(20, 21), Vector2i(21, 22), Vector2i(22, 23), Vector2i(23, 24), Vector2i(24, 19),
+		Vector2i(19, 8), Vector2i(20, 10), Vector2i(21, 12), Vector2i(22, 14), Vector2i(23, 16), Vector2i(24, 18),
+
+		# 4. Enlaces de Anomalías Glitch Moradas [26 - 31] (Ramas de inspección forense y bucle exterior)
+		Vector2i(8, 26), Vector2i(9, 26), Vector2i(26, 27),
+		Vector2i(10, 27), Vector2i(11, 27), Vector2i(27, 28),
+		Vector2i(11, 28), Vector2i(12, 28), Vector2i(28, 29),
+		Vector2i(13, 29), Vector2i(14, 29), Vector2i(29, 30),
+		Vector2i(15, 30), Vector2i(16, 30), Vector2i(30, 31),
+		Vector2i(17, 31), Vector2i(18, 31), Vector2i(7, 31), Vector2i(31, 26)
 	],
 	"servidor": [
 		# Raíces orbitales directas desde el núcleo tutorial (0)
@@ -418,7 +480,9 @@ func _rebuild_connections_cache() -> void:
 			elif current_mode == "sistema":
 				var is_tut_conn = (conn.x <= 6 and conn.y <= 6)
 				var is_lvl1_conn = (conn.x == 7 or conn.y == 7)
-				if is_tut_conn or is_lvl1_conn:
+				if conn.x >= 26 or conn.y >= 26:
+					is_purple_link = true
+				elif is_tut_conn or is_lvl1_conn:
 					is_primary_root = true
 				elif conn.x >= 19 or conn.y >= 19:
 					is_practice_link = true
@@ -699,18 +763,18 @@ func _setup_cached_node_labels() -> void:
 				lbl.add_theme_color_override("font_color", Color(1.0, 0.65, 0.15, 1.0))
 				lbl.size = Vector2(80, 20)
 			elif i in range(26, 32):
-				var insp_names = {
-					26: "POLVO RAM",
-					27: "ESTÁTICA",
-					28: "PASTA CPU",
-					29: "PINES CPU",
-					30: "VOLTAJE",
-					31: "POLVO PSU"
+				var sis_glitch_names = {
+					26: "GLITCH VRAM",
+					27: "OVERFLOW",
+					28: "CRIPTOMINERO",
+					29: "DRV GLITCH",
+					30: "GPT SALVAGE",
+					31: "INVASIÓN"
 				}
-				lbl.text = insp_names.get(i, "TALLER")
+				lbl.text = sis_glitch_names.get(i, "ANOMALÍA")
 				lbl.add_theme_font_size_override("font_size", 8)
-				lbl.add_theme_color_override("font_color", Color(0.85, 0.35, 1.0, 1.0))
-				lbl.size = Vector2(80, 20)
+				lbl.add_theme_color_override("font_color", Color(1.0, 0.88, 0.15, 1.0))
+				lbl.size = Vector2(90, 20)
 		elif i == 0:
 			lbl.text = "TUTORIAL"
 			lbl.add_theme_font_size_override("font_size", 10)
@@ -741,7 +805,7 @@ func _update_label_positions() -> void:
 			continue
 		var np = nodes[i]
 		var zoom_scale = node_zoom_scales[i] if i < node_zoom_scales.size() else 1.0
-		var is_special = (i <= 6 or i >= 19) if current_mode == "reparacion" else (i == 0 or i >= 13)
+		var is_special = (i <= 6 or i >= 19) if (current_mode == "reparacion" or current_mode == "sistema") else (i == 0 or i >= 13)
 		if is_special:
 			lbl.position = np + Vector2(-40, -40 * zoom_scale)
 		else:
@@ -784,7 +848,7 @@ func _rebuild_dynamic_traces() -> void:
 				PackedVector2Array([hub, nodes[2]])
 			]
 	elif current_mode == "sistema":
-		if nodes.size() >= 26:
+		if nodes.size() >= 32:
 			raw_traces = [
 				PackedVector2Array([nodes[0], nodes[25], nodes[1], nodes[19], nodes[7]]),
 				PackedVector2Array([nodes[0], nodes[2], nodes[20], nodes[8]]),
@@ -795,7 +859,10 @@ func _rebuild_dynamic_traces() -> void:
 				PackedVector2Array([nodes[1], nodes[2], nodes[3], nodes[4], nodes[5], nodes[6], nodes[1]]),
 				PackedVector2Array([nodes[19], nodes[20], nodes[21], nodes[22], nodes[23], nodes[24], nodes[19]]),
 				PackedVector2Array([nodes[7], nodes[8], nodes[9], nodes[10], nodes[11], nodes[12], nodes[13]]),
-				PackedVector2Array([nodes[13], nodes[14], nodes[15], nodes[16], nodes[17], nodes[18], nodes[7]])
+				PackedVector2Array([nodes[13], nodes[14], nodes[15], nodes[16], nodes[17], nodes[18], nodes[7]]),
+				PackedVector2Array([nodes[8], nodes[26], nodes[27], nodes[10]]),
+				PackedVector2Array([nodes[12], nodes[28], nodes[29], nodes[14]]),
+				PackedVector2Array([nodes[16], nodes[30], nodes[31], nodes[18], nodes[7]])
 			]
 		else:
 			raw_traces = [
@@ -1070,13 +1137,27 @@ func _draw() -> void:
 			is_tutorial = (i >= 0 and i <= 6)
 			is_practice = (i >= 19 and i <= 25)
 			is_campaign = (i >= 7 and i <= 18)
+			is_inspection = (i >= 26)
 		else:
 			is_tutorial = (i == 0)
 			is_practice = (i == 13)
 			is_campaign = (i >= 1 and i <= 12)
 			is_network = (i >= 14 and i <= 17)
-		var is_active_node = (is_unlocked and (is_tutorial or is_practice or is_campaign or is_inspection or is_network)) or is_hovered
+
+		var is_completed = is_node_completed(i)
+		var is_purging_this = (purging_glitch_node_index == i)
+		var is_glitch_bubble = (current_mode == "sistema" and is_inspection and i >= 27 and (not is_completed or is_purging_this))
 		var zoom_scale = node_zoom_scales[i] if i < node_zoom_scales.size() else 1.0
+
+		# Micro-sacudida y jitter cuántico como en la pantalla de guardar partida
+		if is_glitch_bubble:
+			var t_g = Time.get_ticks_msec() * 0.001 + float(i) * 2.19
+			if fmod(t_g * 6.0, 1.0) < 0.35:
+				var jitter_mult = (1.0 - purge_anim_progress) if is_purging_this else 1.0
+				var jitter_amp = 3.6 * zoom_scale * jitter_mult
+				np += Vector2(sin(t_g * 47.0) * jitter_amp, cos(t_g * 33.0) * (jitter_amp * 0.65))
+
+		var is_active_node = (is_unlocked and (is_tutorial or is_practice or is_campaign or is_inspection or is_network)) or is_hovered
 		var ripple = node_ripples[i] if i < node_ripples.size() else 0.0
 
 		var base_radius = (26.0 if is_tutorial else (24.0 if (is_practice or is_network) else (24.0 if is_inspection else 21.0)))
@@ -1088,7 +1169,7 @@ func _draw() -> void:
 		if ripple > 0.01:
 			var rip_r = lerp(26.0, 72.0, 1.0 - ripple) * zoom_scale
 			var rip_a = ripple * 0.85
-			var rip_col = Color(0.2, 1.0, 0.45, rip_a) if is_network else (Color(0.0, 0.88, 1.0, rip_a) if is_tutorial else (Color(1.0, 0.55, 0.05, rip_a) if is_practice else (Color(0.85, 0.25, 1.0, rip_a) if is_inspection else (Color(1.0, 0.1, 0.3, rip_a) if is_campaign else Color(0.2, 0.85, 1.0, rip_a)))))
+			var rip_col = Color(0.2, 1.0, 0.45, rip_a) if is_network else (Color(0.0, 0.88, 1.0, rip_a) if is_tutorial else (Color(1.0, 0.55, 0.05, rip_a) if is_practice else (Color(1.0, 0.88, 0.15, rip_a) if (is_inspection and current_mode == "sistema") else (Color(0.85, 0.25, 1.0, rip_a) if is_inspection else (Color(1.0, 0.1, 0.3, rip_a) if is_campaign else Color(0.2, 0.85, 1.0, rip_a))))))
 			draw_arc(np, rip_r, 0, TAU, 24, rip_col, 2.0)
 
 		# --- Zócalo base en la telaraña ---
@@ -1107,8 +1188,24 @@ func _draw() -> void:
 			socket_bg = Color(0.9, 0.45, 0.02, 0.22)
 			socket_arc = Color(1.0, 0.55, 0.05, 0.85)
 		elif is_inspection:
-			socket_bg = Color(0.28, 0.05, 0.48, 0.28)
-			socket_arc = Color(0.85, 0.25, 1.0, 0.90)
+			if current_mode == "sistema":
+				if is_completed:
+					socket_bg = Color(0.35, 0.28, 0.02, 0.40)
+					socket_arc = Color(1.0, 0.88, 0.15, 0.95)
+				elif is_glitch_bubble:
+					socket_bg = Color(0.35, 0.25, 0.02, 0.35)
+					var glitch_flash = fmod(Time.get_ticks_msec() * 0.007 + float(i) * 3.7, 1.0) < 0.20
+					socket_arc = Color(0.2, 0.95, 1.0, 0.95) if glitch_flash else Color(1.0, 0.85, 0.15, 0.95)
+				else:
+					socket_bg = Color(0.30, 0.24, 0.02, 0.28)
+					socket_arc = Color(1.0, 0.88, 0.15, 0.90)
+			elif is_glitch_bubble:
+				socket_bg = Color(0.32, 0.04, 0.55, 0.35)
+				var glitch_flash = fmod(Time.get_ticks_msec() * 0.007 + float(i) * 3.7, 1.0) < 0.20
+				socket_arc = Color(0.1, 0.95, 1.0, 0.95) if glitch_flash else Color(0.92, 0.3, 1.0, 0.95)
+			else:
+				socket_bg = Color(0.28, 0.05, 0.48, 0.28)
+				socket_arc = Color(0.85, 0.25, 1.0, 0.90)
 		elif is_campaign:
 			if current_mode == "sistema":
 				socket_bg = Color(0.03, 0.15, 0.5, 0.25)
@@ -1126,6 +1223,14 @@ func _draw() -> void:
 		var socket_sz = (36.0 if is_tutorial else (34.0 if is_practice else 32.0)) * zoom_scale
 		draw_circle(np, socket_sz, socket_bg)
 		draw_arc(np, socket_sz - 4.0 * zoom_scale, 0, TAU, 20, socket_arc, 1.0)
+
+		# --- Anillos de anomalía glitch cuántica para burbujas moradas en sistemas ---
+		if is_glitch_bubble and is_unlocked:
+			var t_arc = Time.get_ticks_msec() * 0.002 + float(i) * 1.5
+			var r_glitch = (socket_sz + 2.5 * zoom_scale)
+			var a_len = PI * 0.4
+			draw_arc(np, r_glitch, t_arc, t_arc + a_len, 6, Color(0.88, 0.25, 1.0, 0.85), 1.3)
+			draw_arc(np, r_glitch, t_arc + PI, t_arc + PI + a_len * 0.8, 6, Color(0.1, 0.95, 1.0, 0.75), 1.3)
 
 		# --- Anillos segmentados rotatorios SOLO en nodo hovered para máximo impacto visual y rendimiento 60 FPS ---
 		if is_hovered and is_unlocked:
@@ -1151,12 +1256,37 @@ func _draw() -> void:
 		elif is_practice:
 			crystal_col = Color(0.12, 0.05, 0.01, 0.95)
 		elif is_inspection:
-			crystal_col = Color(0.12, 0.02, 0.18, 0.95)
+			if current_mode == "sistema":
+				crystal_col = Color(0.18, 0.14, 0.02, 0.95)
+			else:
+				crystal_col = Color(0.14, 0.02, 0.22, 0.95) if is_glitch_bubble else Color(0.12, 0.02, 0.18, 0.95)
 		elif is_campaign:
 			crystal_col = Color(0.10, 0.02, 0.05, 0.95)
 
 		draw_circle(np, breath_radius, crystal_col)
 		draw_arc(np, breath_radius, 0, TAU, 18, socket_arc, 1.0)
+
+		# --- Efecto Glitch Estilo Save Slots (Barras horizontales desplazadas de distorsión cromática) ---
+		if is_glitch_bubble and is_unlocked:
+			var g_alpha_mult = (1.0 - purge_anim_progress) if is_purging_this else 1.0
+			if g_alpha_mult > 0.02:
+				var t_bars = Time.get_ticks_msec() * 0.001
+				var step_b = floor(t_bars * 18.0)
+				for b_idx in range(4):
+					var bar_hash = sin(float(i * 17 + b_idx * 9) + step_b)
+					if bar_hash > 0.12:
+						var b_w = breath_radius * (1.7 + abs(bar_hash) * 0.7)
+						var b_h = clampf(abs(bar_hash * 4.5) * zoom_scale, 2.0, 5.0 * zoom_scale)
+						var b_off_y = (bar_hash * breath_radius * 0.75)
+						var b_shift_x = sin(bar_hash * 37.0) * 8.5 * zoom_scale * g_alpha_mult
+						var bar_cols = [
+							Color(1.0, 0.85, 0.15, 0.80 * g_alpha_mult),
+							Color(0.0, 0.95, 1.0, 0.70 * g_alpha_mult),
+							Color(1.0, 1.0, 1.0, 0.85 * g_alpha_mult),
+							Color(1.0, 0.35, 0.1, 0.75 * g_alpha_mult)
+						]
+						var b_col = bar_cols[b_idx % bar_cols.size()]
+						draw_rect(Rect2(np.x - b_w * 0.5 + b_shift_x, np.y + b_off_y - b_h * 0.5, b_w, b_h), b_col, true)
 
 		# --- Iconografía interior de cada nodo ---
 		if not is_unlocked:
@@ -1214,8 +1344,58 @@ func _draw() -> void:
 			draw_circle(np, 2.6 * zoom_scale, Color(1.0, 0.9, 0.4, 1.0))
 			draw_circle(np, 1.2 * zoom_scale, Color.WHITE)
 		elif is_inspection:
-			# Icono de lupa para niveles morados de inspección/micro-taller
-			if lupa_texture:
+			if current_mode == "sistema":
+				if i == 26:
+					# NODO 26: NIVEL INTRODUCTORIO CON JEREMÍAS · CÍRCULO CON LA NAVE NIER
+					var arrow_sz = 9.0 * zoom_scale
+					var a_nose = np + Vector2(0, -arrow_sz * 1.25)
+					var a_wing_r = np + Vector2(arrow_sz * 0.95, arrow_sz * 0.85)
+					var a_wing_l = np + Vector2(-arrow_sz * 0.95, arrow_sz * 0.85)
+					var a_notch = np + Vector2(0, arrow_sz * 0.35)
+					var arrow_pts = PackedVector2Array([a_nose, a_wing_r, a_notch, a_wing_l])
+					draw_colored_polygon(arrow_pts, Color(0.25, 0.20, 0.02, 0.95))
+					draw_polyline(PackedVector2Array([a_nose, a_wing_r, a_notch, a_wing_l, a_nose]), Color(1.0, 0.88, 0.15) if not is_hovered else Color.WHITE, 1.8 * zoom_scale)
+					draw_circle(np + Vector2(0, -arrow_sz * 0.1), 2.4 * zoom_scale, Color(1.0, 0.92, 0.3))
+					draw_circle(np + Vector2(0, -arrow_sz * 0.1), 1.2 * zoom_scale, Color.WHITE)
+				elif is_completed or (is_purging_this and purge_anim_progress >= 0.35):
+					# NIVELES [27-31] PURGADOS: SE QUEDA EL DIAMANTE DEL NIVEL SIN GLITCH (LIMPIO)
+					var d_sz = 9.0 * zoom_scale
+					var p_t = np + Vector2(0, -d_sz)
+					var p_r = np + Vector2(d_sz * 1.15, 0)
+					var p_b = np + Vector2(0, d_sz)
+					var p_l = np + Vector2(-d_sz * 1.15, 0)
+					var diamond_pts = PackedVector2Array([p_t, p_r, p_b, p_l])
+					var clean_fade = clampf((purge_anim_progress - 0.35) / 0.45, 0.0, 1.0) if is_purging_this else 1.0
+					draw_colored_polygon(diamond_pts, Color(0.35, 0.28, 0.03, 0.92 * clean_fade))
+					draw_polyline(PackedVector2Array([p_t, p_r, p_b, p_l, p_t]), Color(1.0, 0.88, 0.15, clean_fade) if not is_hovered else Color(1.0, 1.0, 1.0, clean_fade), 1.8 * zoom_scale)
+					draw_line(p_t, p_b, Color(1.0, 0.92, 0.4, 0.85 * clean_fade), 1.2 * zoom_scale)
+					draw_line(p_l, p_r, Color(1.0, 0.92, 0.4, 0.85 * clean_fade), 1.2 * zoom_scale)
+					draw_circle(np, 2.5 * zoom_scale, Color(1.0, 1.0, 1.0, 0.95 * clean_fade))
+				else:
+					# NIVELES [27-31] CORRUPTOS: DIAMANTE CON GLITCH Y ABERRACIÓN CROMÁTICA
+					var g_sz = 8.5 * zoom_scale
+					var t_icon = Time.get_ticks_msec() * 0.01 + float(i) * 2.5
+					var split_x = 2.4 * zoom_scale * (sin(t_icon) * 0.5 + 0.5)
+					var p_t = np + Vector2(0, -g_sz)
+					var p_r = np + Vector2(g_sz * 1.15, 0)
+					var p_b = np + Vector2(0, g_sz)
+					var p_l = np + Vector2(-g_sz * 1.15, 0)
+					
+					var g_alpha = (1.0 - purge_anim_progress * 2.0) if is_purging_this else 1.0
+					g_alpha = clampf(g_alpha, 0.0, 1.0)
+					# Sombra cian desplazada a la izquierda (Aberración cromática)
+					draw_colored_polygon([p_t + Vector2(-split_x, 0), p_r + Vector2(-split_x, 0), p_b + Vector2(-split_x, 0), p_l + Vector2(-split_x, 0)], Color(0.0, 0.95, 1.0, 0.45 * g_alpha))
+					# Sombra roja/naranja a la derecha
+					draw_colored_polygon([p_t + Vector2(split_x, 0), p_r + Vector2(split_x, 0), p_b + Vector2(split_x, 0), p_l + Vector2(split_x, 0)], Color(1.0, 0.3, 0.1, 0.45 * g_alpha))
+					# Núcleo amarillo neón
+					draw_colored_polygon([p_t, p_r, p_b, p_l], Color(0.4, 0.32, 0.04, 0.92 * g_alpha))
+					draw_polyline([p_t, p_r, p_b, p_l, p_t], Color(1.0, 0.85, 0.15, g_alpha) if not is_hovered else Color(1.0, 1.0, 1.0, g_alpha), 1.5 * zoom_scale)
+					# Cruz interna y núcleo cuántico
+					draw_line(p_t, p_b, Color(1.0, 1.0, 1.0, 0.85 * g_alpha), 1.2 * zoom_scale)
+					draw_line(p_l, p_r, Color(1.0, 1.0, 1.0, 0.85 * g_alpha), 1.2 * zoom_scale)
+					draw_circle(np, 2.5 * zoom_scale, Color(1.0, 1.0, 1.0, 0.95 * g_alpha))
+			elif lupa_texture:
+				# Icono de lupa para niveles morados de inspección/micro-taller en reparación
 				var l_sz = Vector2(24.0, 24.0) * zoom_scale
 				var l_rect = Rect2(np - l_sz * 0.5, l_sz)
 				var l_col = Color.WHITE if not is_hovered else Color(1.3, 1.1, 1.5, 1.0)
@@ -1270,6 +1450,21 @@ func _draw() -> void:
 		draw_arc(up, u_rad * 0.68, 0, TAU, 28, Color(1.0, 1.0, 1.0, u_alpha * 0.85), 2.0)
 		draw_circle(up, 24.0 * (1.0 - unlock_anim_progress), Color(1.0, 1.0, 1.0, u_alpha * 0.7))
 
+	# =========================================================================
+	# 10. ANIMACIÓN DE PURGA DE GLITCH (SECTOR DE HACKEO LIMPIADO Y DESINFECTADO)
+	# =========================================================================
+	if purging_glitch_node_index >= 0 and purging_glitch_node_index < nodes.size():
+		var pp = nodes[purging_glitch_node_index]
+		var p_rad = lerp(18.0, 170.0, purge_anim_progress)
+		var p_alpha = (1.0 - purge_anim_progress) * 0.95
+		# Anillos de choque cibernético purificador dorado y cian
+		draw_arc(pp, p_rad, 0, TAU, 36, Color(1.0, 0.88, 0.15, p_alpha), 3.2)
+		draw_arc(pp, p_rad * 0.72, 0, TAU, 28, Color(0.2, 0.95, 1.0, p_alpha * 0.8), 2.0)
+		draw_arc(pp, p_rad * 0.42, 0, TAU, 20, Color(1.0, 1.0, 1.0, p_alpha * 0.9), 1.5)
+		if purge_anim_progress < 0.35:
+			var flash_a = (1.0 - (purge_anim_progress / 0.35)) * 0.85
+			draw_circle(pp, 28.0 * (1.0 - purge_anim_progress), Color(1.0, 0.95, 0.4, flash_a))
+
 # =============================================================================
 # FONDO DE TELARAÑA GEOMÉTRICA CONCÉNTRICA Y RADIAL SEGÚN EL MODO (BATCHEADO)
 # =============================================================================
@@ -1287,49 +1482,43 @@ func _draw_spiderweb_background(w: float, h: float, hub: Vector2) -> void:
 	if not _cached_grid_lines.is_empty():
 		draw_multiline(_cached_grid_lines, grid_color, 1.0)
 
-	var spoke_count: int
-	var spoke_angles: Array[float] = []
 	var web_radii: Array[float] = [150.0, 260.0, 380.0, 520.0, 680.0]
 	var web_color: Color
 	var spoke_length: float = 680.0
+	var is_12_spokes: bool = false
 
 	match current_mode:
 		"reparacion":
-			spoke_count = 8
 			web_color = Color(0.85, 0.08, 0.32, 0.16)
 			web_radii = [230.0, 440.0, 700.0, 920.0, 1150.0]
 			spoke_length = 1150.0
-			for i in range(spoke_count):
-				spoke_angles.append(float(i) * TAU / 8.0)
+			is_12_spokes = false
 		"sistema":
-			spoke_count = 12
 			web_color = Color(0.08, 0.35, 0.88, 0.22)
 			web_radii = [230.0, 440.0, 700.0, 950.0, 1150.0]
 			spoke_length = 1150.0
-			for i in range(spoke_count):
-				spoke_angles.append(float(i) * TAU / 12.0)
+			is_12_spokes = true
 		"servidor":
-			spoke_count = 12
 			web_color = Color(1.0, 0.52, 0.08, 0.24)
 			web_radii = [340.0, 520.0, 720.0, 920.0, 1150.0]
 			spoke_length = 1150.0
-			for i in range(spoke_count):
-				spoke_angles.append(float(i) * TAU / 12.0)
+			is_12_spokes = true
 		_:
-			spoke_count = 8
 			web_color = Color(0.85, 0.08, 0.32, 0.16)
 			web_radii = [150.0, 260.0, 380.0, 520.0, 680.0]
 			spoke_length = 680.0
-			for i in range(spoke_count):
-				spoke_angles.append(float(i) * TAU / 8.0)
+			is_12_spokes = false
 
 	# 2. Filamentos radiales batcheados en multiline
+	var spoke_count: int = 12 if is_12_spokes else 8
 	var spoke_lines = PackedVector2Array()
-	for ang in spoke_angles:
+	spoke_lines.resize(spoke_count * 2)
+	var step_angle: float = TAU / float(spoke_count)
+	for i in range(spoke_count):
+		var ang: float = float(i) * step_angle
 		var dir = Vector2(cos(ang), sin(ang))
-		var end_pt = hub + dir * spoke_length
-		spoke_lines.append(hub)
-		spoke_lines.append(end_pt)
+		spoke_lines[i * 2] = hub
+		spoke_lines[i * 2 + 1] = hub + dir * spoke_length
 	if not spoke_lines.is_empty():
 		draw_multiline(spoke_lines, web_color, 1.0)
 
@@ -1339,11 +1528,13 @@ func _draw_spiderweb_background(w: float, h: float, hub: Vector2) -> void:
 		var wave_osc = sin(anim_offset * 1.6 + float(r_idx) * 1.1) * 2.2
 		var cur_r = base_r + wave_osc
 		
-		var ring_pts: PackedVector2Array = []
-		for ang in spoke_angles:
+		var ring_pts = PackedVector2Array()
+		ring_pts.resize(spoke_count + 1)
+		for i in range(spoke_count):
+			var ang: float = float(i) * step_angle
 			var dir = Vector2(cos(ang), sin(ang))
-			ring_pts.append(hub + dir * cur_r)
-		ring_pts.append(ring_pts[0])
+			ring_pts[i] = hub + dir * cur_r
+		ring_pts[spoke_count] = ring_pts[0]
 
 		draw_polyline(ring_pts, web_color, 1.0, false)
 
@@ -1469,14 +1660,23 @@ func _draw_circuit_line(p1: Vector2, p2: Vector2, alpha: float, seed_val: int, i
 		draw_circle(packet_posp, 3.5, Color(1.0, 0.55, 0.05, min(1.0, alpha * 1.8)))
 		draw_circle(packet_posp, 1.8, Color.WHITE)
 	elif is_purple_link:
-		# ENLACE DE MICRO-TALLER MORADO (INSPECCIÓN CON LUPA): Púrpura Neón vibrante
-		draw_line(p1, p2, Color(0.75, 0.15, 1.0, 0.35 * alpha), 3.5)
-		draw_line(p1, p2, Color(0.9, 0.45, 1.0, alpha), 1.2)
-		
-		var packet_tpurp = fmod(anim_offset * 1.1 + float(seed_val) * 0.14, 1.0)
-		var packet_pospurp = p1.lerp(p2, packet_tpurp)
-		draw_circle(packet_pospurp, 3.5, Color(0.85, 0.25, 1.0, min(1.0, alpha * 1.8)))
-		draw_circle(packet_pospurp, 1.8, Color.WHITE)
+		if current_mode == "sistema":
+			# ENLACE DE HACKEO CIBERNÉTICO AMARILLO
+			draw_line(p1, p2, Color(1.0, 0.75, 0.1, 0.35 * alpha), 3.5)
+			draw_line(p1, p2, Color(1.0, 0.88, 0.15, alpha), 1.2)
+			var packet_ty = fmod(anim_offset * 1.1 + float(seed_val) * 0.14, 1.0)
+			var packet_posy = p1.lerp(p2, packet_ty)
+			draw_circle(packet_posy, 3.5, Color(1.0, 0.88, 0.15, min(1.0, alpha * 1.8)))
+			draw_circle(packet_posy, 1.8, Color.WHITE)
+		else:
+			# ENLACE DE MICRO-TALLER MORADO (INSPECCIÓN CON LUPA): Púrpura Neón vibrante
+			draw_line(p1, p2, Color(0.75, 0.15, 1.0, 0.35 * alpha), 3.5)
+			draw_line(p1, p2, Color(0.9, 0.45, 1.0, alpha), 1.2)
+			
+			var packet_tpurp = fmod(anim_offset * 1.1 + float(seed_val) * 0.14, 1.0)
+			var packet_pospurp = p1.lerp(p2, packet_tpurp)
+			draw_circle(packet_pospurp, 3.5, Color(0.85, 0.25, 1.0, min(1.0, alpha * 1.8)))
+			draw_circle(packet_pospurp, 1.8, Color.WHITE)
 	else:
 		draw_line(p1, p2, Color(1.0, 1.0, 1.0, 0.4 * alpha), 1.0)
 

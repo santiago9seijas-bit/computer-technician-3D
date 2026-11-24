@@ -119,17 +119,15 @@ func _draw() -> void:
 			draw_line(Vector2(x1, pkt.lane_y), Vector2(x2, pkt.lane_y), col, 2.0)
 			draw_circle(Vector2(x2, pkt.lane_y), 3.0, Color(1.0, 1.0, 1.0, 0.95))
 
-	# LED activity lights on server sidebars
+	# LED activity lights on server sidebars (optimizado)
 	for l_arr in led_arrays:
 		var lx: float = l_arr.x
 		for led in l_arr.leds:
 			var pulse: float = sin(time * led.blink_speed + led.offset)
-			var is_on: bool = pulse > 0.1
-			var c: Color = led.base_color if is_on else Color(0.1, 0.15, 0.25, 0.3)
-			var alpha: float = 0.85 if is_on else 0.25
-			draw_circle(Vector2(lx, led.y), 2.5, Color(c.r, c.g, c.b, alpha))
-			if is_on:
-				draw_circle(Vector2(lx, led.y), 4.5, Color(c.r, c.g, c.b, 0.25))
+			if pulse > 0.1:
+				draw_circle(Vector2(lx, led.y), 2.5, Color(led.base_color.r, led.base_color.g, led.base_color.b, 0.85))
+			else:
+				draw_circle(Vector2(lx, led.y), 2.0, Color(0.1, 0.15, 0.25, 0.22))
 
 	# Telemetry network throughput waveform at bottom
 	var wave_pts = PackedVector2Array()

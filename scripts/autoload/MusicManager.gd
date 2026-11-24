@@ -83,20 +83,28 @@ func play_track(track_path: String, base_volume_db: float, fade_duration: float 
 	_fade_tween.tween_property(music_player, "volume_db", target_base_db, fade_duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 
 func stop_music(fade_duration: float = 0.8) -> void:
-	if not music_player or not music_player.playing:
-		current_track = ""
-		return
-
 	if _fade_tween and _fade_tween.is_valid():
 		_fade_tween.kill()
 
 	current_track = ""
+	if not is_instance_valid(music_player):
+		return
+
+	if fade_duration <= 0.0 or not music_player.playing:
+		music_player.stop()
+		music_player.stream = null
+		return
+
 	_fade_tween = create_tween()
 	_fade_tween.tween_property(music_player, "volume_db", music_player.volume_db - 28.0, fade_duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 	_fade_tween.tween_callback(func():
 		if is_instance_valid(music_player):
 			music_player.stop()
+			music_player.stream = null
 	)
+
+func stop_immediate() -> void:
+	stop_music(0.0)
 
 func _on_player_finished() -> void:
 	# Respaldo automático para garantizar bucle eterno en caso de que el stream no tenga loop flag

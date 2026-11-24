@@ -1,11 +1,10 @@
-[gd_scene format=3 load_steps=27]
+[gd_scene format=3 load_steps=26]
 
 [ext_resource type="Script" path="res://scripts/gameplay/LevelServer1.gd" id="1_srvlvl"]
 [ext_resource type="PackedScene" path="res://scenes/player/Player.tscn" id="2_player"]
 [ext_resource type="PackedScene" path="res://scenes/ui/HUD.tscn" id="3_hud"]
 [ext_resource type="PackedScene" path="res://scenes/menus/PauseMenu.tscn" id="4_pause"]
 [ext_resource type="PackedScene" path="res://scenes/components/ServerRackCase.tscn" id="5_rack"]
-[ext_resource type="PackedScene" uid="uid://teo78dvs42eq" path="res://modelos_3d/escenario_3d/torreserver.glb" id="6_torre"]
 [ext_resource type="PackedScene" path="res://scenes/components/SparesBox.tscn" id="7_spares"]
 [ext_resource type="PackedScene" uid="uid://c4ja7urk0pj4s" path="res://modelos_3d/escenario_3d/sueloservs.glb" id="8_suelo"]
 [ext_resource type="PackedScene" path="res://scenes/components/WallDispenser.tscn" id="9_disp"]
@@ -26,8 +25,8 @@ ambient_light_source = 2
 ambient_light_color = Color(0.12, 0.18, 0.35, 1)
 ambient_light_energy = 1.35
 glow_enabled = true
-glow_intensity = 0.7
-glow_bloom = 0.06
+glow_intensity = 0.5
+glow_bloom = 0.035
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_floor_main"]
 size = Vector3(18.72, 0.2, 9.36)
@@ -272,29 +271,31 @@ shape = SubResource("BoxShape3D_floor_annex")
 
 [node name="MeshMain" type="MeshInstance3D" parent="Room/Ceiling"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, -1.56)
+cast_shadow = 0
 mesh = SubResource("BoxMesh_ceiling_main")
 
 [node name="MeshAnnex" type="MeshInstance3D" parent="Room/Ceiling"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.68, 0.1, 6.24)
+cast_shadow = 0
 mesh = SubResource("BoxMesh_ceiling_annex")
 
 [node name="CeilingLightMain" type="OmniLight3D" parent="Room"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.95, -1.5)
 light_color = Color(0.2, 0.9, 1, 1)
-light_energy = 1.85
-omni_range = 14.0
+light_energy = 1.6
+omni_range = 11.0
 
 [node name="CeilingLightAnnex" type="OmniLight3D" parent="Room"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.68, 2.95, 6.24)
 light_color = Color(0.3, 0.85, 1, 1)
-light_energy = 1.85
-omni_range = 10.0
+light_energy = 1.5
+omni_range = 8.0
 
 [node name="SparesLight" type="OmniLight3D" parent="Room"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5, 2.8, 2.4)
 light_color = Color(0.25, 0.9, 1, 1)
-light_energy = 2.0
-omni_range = 8.0
+light_energy = 1.3
+omni_range = 5.0
 
 [node name="MesaPedidos" type="StaticBody3D" parent="."]
 transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 8.65, 0, 6.8)

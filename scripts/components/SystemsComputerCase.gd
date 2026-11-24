@@ -1,6 +1,7 @@
 extends StaticBody3D
 
 @export var pc_id: int = 1
+@export var disable_arrow: bool = false
 
 var components: Dictionary = {
 	"Sistema Operativo": "broken",
@@ -83,7 +84,7 @@ func update_3d_state() -> void:
 			status_light.light_color = Color(0.0, 0.85, 1.0)
 			status_light.light_energy = 1.6
 		if arrow_mesh:
-			arrow_mesh.visible = true
+			arrow_mesh.visible = not disable_arrow
 		if not is_connected:
 			label_3d.text = "TERMINAL #%d · REQUIERE CONEXIÓN (%d/7)" % [pc_id, fixed_count]
 			label_3d.modulate = Color(1.0, 0.75, 0.2)

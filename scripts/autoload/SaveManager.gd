@@ -414,10 +414,10 @@ func spend_dollars(amount: int) -> bool:
 func unlock_all_levels() -> void:
 	var data = get_slot(current_slot)
 	var all_rep: Array = []
-	for i in range(26):
+	for i in range(32):
 		all_rep.append(i)
 	var all_sis: Array = []
-	for i in range(26):
+	for i in range(32):
 		all_sis.append(i)
 	var all_srv: Array = []
 	for i in range(18):
@@ -821,6 +821,11 @@ func show_toast_notification(header: String, title: String, type: String = "achi
 		toast.setup_achievement(title, header, callback)
 	else:
 		toast.setup_glossary(title, callback)
+
+func clear_toasts() -> void:
+	if is_instance_valid(_toast_canvas):
+		_toast_canvas.queue_free()
+		_toast_canvas = null
 
 func open_extras_modal(initial_tab: String = "logros") -> void:
 	var existing = get_tree().root.find_child("ExtrasModal", true, false)

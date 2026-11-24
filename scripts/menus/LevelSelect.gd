@@ -8,6 +8,7 @@ extends Control
 
 static var initial_tab: String = "niveles"
 static var initial_mode: String = "reparacion"
+static var pending_glitch_purge_node: int = -1
 
 # --- Nodos Principales ---
 @onready var background_rect: ColorRect = $Background
@@ -962,6 +963,110 @@ var LEVELS_DATA: Dictionary = {
 			"description": "Primer reto cronometrado de software y ciberseguridad.\n3 terminales con fallas simultáneas de partición GPT, malware y drivers.\nRepara las 3 estaciones de trabajo antes de que se agoten los 8 minutos.",
 			"requirements": "CONSOLA DE SISTEMAS · 3 TERMINALES · LÍMITE: 8 MINUTOS",
 			"can_play": false
+		},
+
+		# --- NIVELES AMARILLOS DE ANOMALÍAS GLITCH // HACKEO NIE-R AUTOMATA [26 - 31] ---
+		{
+			"number": 26,
+			"is_inspection": true,
+			"is_purple": true,
+			"is_yellow": true,
+			"stage_index": 0,
+			"inspection_id": "glitch_vram",
+			"target_scene": "res://scenes/minigames/CyberHackingMinigame.tscn",
+			"title": "HACKEO // INDUCCIÓN & PROTOCOLO NIE-R",
+			"stage": "ZONA DE ENTRENAMIENTO // INDUCCIÓN CON JEREMÍAS",
+			"mode_name": "SISTEMA",
+			"color_accent": Color(1.0, 0.88, 0.15),
+			"description": "Nivel introductorio de hackeo ciberespacial guiado paso a paso por Jeremías.\nAprende los controles de la nave, destrucción de paquetes de datos, relays de seguridad y purga de núcleos anómalos.",
+			"requirements": "INSTRUCTOR: Jeremías · NAVE: Ciberespacial · PROTOCOLO: Inducción",
+			"jeremias_speech": "¡Atento, técnico! He configurado este sector de entrenamiento para enseñarte las bases del hackeo ciberespacial. Te explicaré los controles, cómo romper las defensas y cómo derribar el Núcleo Rojo.",
+			"can_play": false
+		},
+		{
+			"number": 27,
+			"is_inspection": true,
+			"is_purple": true,
+			"is_yellow": true,
+			"stage_index": 1,
+			"inspection_id": "buffer_overflow",
+			"target_scene": "res://scenes/minigames/CyberHackingMinigame.tscn",
+			"title": "HACKEO // OVERFLOW & CADENA EXPLOSIVA",
+			"stage": "ZONA DE ANOMALÍAS // KERNEL STACK",
+			"mode_name": "SISTEMA",
+			"color_accent": Color(1.0, 0.88, 0.15),
+			"description": "Exploit en el Call Stack con drones patrulleros.\nDetona bloques volátiles en reacción en cadena para abrir paso al interruptor y purgar el Núcleo.",
+			"requirements": "PROTOCOLO: Reacción en Cadena · TIEMPO: Libre",
+			"jeremias_speech": "¡Alerta en la pila! Un proceso anómalo levantó drones patrulleros para blindar el Núcleo. Aprovecha los bloques explosivos para detonar las defensas en cadena y destruye las balas enemigas con tus disparos.",
+			"can_play": false
+		},
+		{
+			"number": 28,
+			"is_inspection": true,
+			"is_purple": true,
+			"is_yellow": true,
+			"stage_index": 2,
+			"inspection_id": "adware_miner",
+			"target_scene": "res://scenes/minigames/CyberHackingMinigame.tscn",
+			"title": "HACKEO // CRIPTOMINERO RESIDUAL",
+			"stage": "ZONA DE ANOMALÍAS // MINERO EN CUARENTENA",
+			"mode_name": "SISTEMA",
+			"color_accent": Color(1.0, 0.88, 0.15),
+			"description": "Proceso oculto consumiendo recursos con doble cierre de seguridad.\nActiva los interruptores Alpha y Beta simultáneos para neutralizar la jaula de fuerza.",
+			"requirements": "PROTOCOLO: Doble Interruptor Alpha/Beta",
+			"jeremias_speech": "El script minero ha cerrado el Núcleo bajo una jaula electromagnética dual. Debes llegar a ambos interruptores en los flancos para bajar las barreras antes de atacar el núcleo.",
+			"can_play": false
+		},
+		{
+			"number": 29,
+			"is_inspection": true,
+			"is_purple": true,
+			"is_yellow": true,
+			"stage_index": 3,
+			"inspection_id": "driver_corrupt",
+			"target_scene": "res://scenes/minigames/CyberHackingMinigame.tscn",
+			"title": "HACKEO // TRÍADA WHQL CORRUPTA",
+			"stage": "ZONA DE ANOMALÍAS // CONTROLADOR GPU",
+			"mode_name": "SISTEMA",
+			"color_accent": Color(1.0, 0.88, 0.15),
+			"description": "Firma digital rota protegida por 3 torretas de defensa.\nSobrecarga los 3 relays de seguridad para retirar las capas del escudo del Núcleo.",
+			"requirements": "PROTOCOLO: Tríada de Seguridad WHQL",
+			"jeremias_speech": "El controlador gráfico no pasa la comprobación criptográfica y sus subprocesos defienden el sector con fuego cruzado. Neutraliza los 3 nodos de la tríada para dejar al descubierto el núcleo dañado.",
+			"can_play": false
+		},
+		{
+			"number": 30,
+			"is_inspection": true,
+			"is_purple": true,
+			"is_yellow": true,
+			"stage_index": 4,
+			"inspection_id": "gpt_salvage",
+			"target_scene": "res://scenes/minigames/CyberHackingMinigame.tscn",
+			"title": "HACKEO // LABERINTO GPT & RESCATE EFI",
+			"stage": "ZONA DE ANOMALÍAS // GPT SALVAGE",
+			"mode_name": "SISTEMA",
+			"color_accent": Color(1.0, 0.88, 0.15),
+			"description": "Sectores de arranque primarios infectados organizados en un laberinto fortificado.\nNavega entre torretas y compuertas secuenciales hasta la raíz.",
+			"requirements": "PROTOCOLO: Infiltración de Laberinto EFI",
+			"jeremias_speech": "La cabecera de partición GPT fue secuestrada dentro de un laberinto de cortafuegos. Ábrete paso disparando a través de las compuertas y purga el Núcleo corrupto para restaurar la tabla de arranque.",
+			"can_play": false
+		},
+		{
+			"number": 31,
+			"is_inspection": true,
+			"is_purple": true,
+			"is_yellow": true,
+			"stage_index": 5,
+			"inspection_id": "alien_invasion",
+			"target_scene": "res://scenes/minigames/CyberHackingMinigame.tscn",
+			"title": "HACKEO // PURGA FINAL DEL NÚCLEO MAESTRO",
+			"stage": "ZONA DE ANOMALÍAS // NÚCLEO JEFE RAÍZ",
+			"mode_name": "SISTEMA",
+			"color_accent": Color(1.0, 0.88, 0.15),
+			"description": "Enjambre de malware militar protegiendo el Núcleo Anómalo Maestro.\nSatélites rotatorios blindados y torretas de asedio en patrón bullet-hell.",
+			"requirements": "PROTOCOLO: Purga Total de Raíz ★★★",
+			"jeremias_speech": "¡Infección crítica en el corazón del sistema! El Núcleo Maestro ha desplegado satélites giratorios impenetrables. Sobrecarga los interruptores maestros para desactivar temporalmente los satélites y concentra todo tu fuego en el Núcleo.",
+			"can_play": false
 		}
 	],
 	"servidor": [
@@ -1152,6 +1257,8 @@ func _update_mode_header_display() -> void:
 	var info = MODE_DIRECTORS.get(current_mode, MODE_DIRECTORS["reparacion"])
 	lbl_mode_title.text = info["title"]
 	lbl_mode_director.text = info["director"]
+	lbl_mode_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lbl_mode_director.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	lbl_mode_title.add_theme_color_override("font_color", info["title_color"])
 	lbl_mode_title.add_theme_color_override("font_shadow_color", info["shadow_color"])
 	lbl_mode_director.add_theme_color_override("font_color", info["director_color"])
@@ -1300,6 +1407,17 @@ func _ready() -> void:
 	else:
 		_switch_main_tab("niveles", true)
 
+	if pending_glitch_purge_node >= 0:
+		var purge_node = pending_glitch_purge_node
+		pending_glitch_purge_node = -1
+		get_tree().create_timer(0.4).timeout.connect(func():
+			if is_instance_valid(graph_lines) and graph_lines.has_method("play_glitch_purge_animation"):
+				graph_lines.play_glitch_purge_animation(purge_node)
+				var gm = get_node_or_null("/root/GameManager")
+				if gm and gm.has_method("play_sfx"):
+					gm.play_sfx("success")
+		)
+
 func _setup_tutorial_scroll() -> void:
 	if btn_scroll_up:
 		btn_scroll_up.pressed.connect(func(): _scroll_tutorial_cards(-260.0))
@@ -1414,6 +1532,8 @@ func _switch_main_tab(tab_name: String, instant: bool = false) -> void:
 		map_zoom_controls.visible = not is_level_zoomed and (current_tab == "niveles")
 
 	if current_tab == "niveles":
+		if has_node("/root/MusicManager"):
+			get_node("/root/MusicManager").stop_music(0.8)
 		if tutorial_area:
 			tutorial_area.visible = false
 		if constellation_area:
@@ -1428,6 +1548,8 @@ func _switch_main_tab(tab_name: String, instant: bool = false) -> void:
 			var tw = create_tween()
 			tw.tween_property(constellation_area, "modulate:a", 1.0, 0.12).set_trans(Tween.TRANS_QUAD)
 	else:
+		if has_node("/root/MusicManager"):
+			get_node("/root/MusicManager").play_tutorial()
 		if constellation_area:
 			constellation_area.visible = false
 		if column_headers:
@@ -1924,15 +2046,15 @@ func _unzoom_camera() -> void:
 	_fade_menu_chrome(true)
 
 func _navigate_level_camera(direction: int) -> void:
-	if not is_level_zoomed:
-		return
 	var list = LEVELS_DATA.get(current_mode, [])
 	if list.is_empty():
 		return
 		
 	var total = list.size()
 	var new_index = active_zoomed_index + direction
-	if new_index < 0:
+	if active_zoomed_index < 0:
+		new_index = 0 if direction >= 0 else total - 1
+	elif new_index < 0:
 		new_index = total - 1
 	elif new_index >= total:
 		new_index = 0
@@ -2063,8 +2185,11 @@ func _play_inspection_level(node_data: Dictionary) -> void:
 		sub_text,
 		func():
 			var cur_scene = get_tree().current_scene
-			if cur_scene and cur_scene.has_method("setup_component") and target_comp != "":
-				cur_scene.setup_component(target_comp),
+			if cur_scene:
+				if cur_scene.has_method("setup_component") and target_comp != "":
+					cur_scene.setup_component(target_comp)
+				if cur_scene.has_method("setup_hacking"):
+					cur_scene.setup_hacking(node_data),
 		false,
 		false,
 		current_mode
@@ -2095,6 +2220,7 @@ func _play_practice_level(practice_id: String = "") -> void:
 		LevelPracticeScript.practice_zone = chosen_zone
 	if gm:
 		gm.practice_target_mode = chosen_zone
+		gm.current_mode = current_mode
 
 	var zone_titles: Dictionary = {
 		"ram": "BANCO DE PRÁCTICA: MEMORIAS RAM",
@@ -2627,9 +2753,8 @@ func _launch_minigame(scene: PackedScene) -> void:
 	current_minigame_instance = inst
 	minigame_container.add_child(inst)
 	
-	if active_card_data.get("division", "") == "sistema" or current_mode == "sistema":
-		if has_node("/root/MusicManager"):
-			get_node("/root/MusicManager").play_tutorial()
+	if has_node("/root/MusicManager"):
+		get_node("/root/MusicManager").play_tutorial()
 	
 	if inst.has_signal("minigame_finished"):
 		inst.minigame_finished.connect(_on_minigame_finished)
@@ -2825,7 +2950,7 @@ func _input(event: InputEvent) -> void:
 				terminal_tetris_instance.exit_to_terminal()
 				return
 			get_viewport().set_input_as_handled()
-			dev_console_overlay.visible = false
+			_close_dev_console()
 			return
 		return
 		
@@ -2903,19 +3028,27 @@ func _input(event: InputEvent) -> void:
 				get_viewport().set_input_as_handled()
 				return
 
-	# 3. Navegación de cámara entre niveles con flechas de teclado (activa cuando se está inspeccionando un nivel)
-	if is_level_zoomed and current_tab == "niveles" and not (deployed_modal and deployed_modal.visible):
-		var is_left: bool = (event is InputEventKey and event.pressed and not event.echo and (event.keycode == KEY_LEFT or event.physical_keycode == KEY_LEFT or event.keycode == KEY_A)) \
+	# 3. Navegación entre niveles con flechas de teclado o teclas A / D
+	if current_tab == "niveles" and not (deployed_modal and deployed_modal.visible):
+		var is_left: bool = (event is InputEventKey and event.pressed and not event.echo and (event.keycode == KEY_LEFT or event.physical_keycode == KEY_LEFT or event.keycode == KEY_A or event.physical_keycode == KEY_A)) \
 			or event.is_action_pressed("ui_left")
-		var is_right: bool = (event is InputEventKey and event.pressed and not event.echo and (event.keycode == KEY_RIGHT or event.physical_keycode == KEY_RIGHT or event.keycode == KEY_D)) \
+		var is_right: bool = (event is InputEventKey and event.pressed and not event.echo and (event.keycode == KEY_RIGHT or event.physical_keycode == KEY_RIGHT or event.keycode == KEY_D or event.physical_keycode == KEY_D)) \
 			or event.is_action_pressed("ui_right")
 		if is_left:
 			get_viewport().set_input_as_handled()
-			_navigate_level_camera(-1)
+			if is_level_zoomed:
+				_navigate_level_camera(-1)
+			else:
+				var target_idx = active_zoomed_index if active_zoomed_index >= 0 else 0
+				_on_node_clicked(target_idx)
 			return
 		elif is_right:
 			get_viewport().set_input_as_handled()
-			_navigate_level_camera(1)
+			if is_level_zoomed:
+				_navigate_level_camera(1)
+			else:
+				var target_idx = active_zoomed_index if active_zoomed_index >= 0 else 0
+				_on_node_clicked(target_idx)
 			return
 
 # =============================================================================
@@ -2935,6 +3068,11 @@ func _sync_progression_from_save() -> void:
 		list[i]["can_play"] = is_unl
 		if graph_lines and graph_lines.has_method("set_node_unlocked"):
 			graph_lines.set_node_unlocked(i, is_unl)
+		var is_comp = false
+		if sm and sm.has_method("is_node_completed"):
+			is_comp = sm.is_node_completed(current_mode, i)
+		if graph_lines and graph_lines.has_method("set_node_completed"):
+			graph_lines.set_node_completed(i, is_comp)
 	if graph_lines:
 		graph_lines.queue_redraw()
 
@@ -3155,20 +3293,40 @@ const ANDROMEDA_BANNER_TEXT: String = """[color=#00e5ff]       /\\         [/col
   [color=#00e5ff]/exit[/color]     (o [color=#ff5555]exit[/color])                                     : Cerrar terminal
 """
 
+func _close_dev_console() -> void:
+	if is_instance_valid(terminal_tetris_instance):
+		terminal_tetris_instance.exit_to_terminal()
+		terminal_tetris_instance.queue_free()
+		terminal_tetris_instance = null
+	if is_instance_valid(terminal_pacman_instance):
+		terminal_pacman_instance.exit_to_terminal()
+		terminal_pacman_instance.queue_free()
+		terminal_pacman_instance = null
+	if dev_console_body_vbox:
+		dev_console_body_vbox.visible = true
+	if dev_console_overlay:
+		dev_console_overlay.visible = false
+	if dev_console_input:
+		dev_console_input.release_focus()
+	var cur_f = get_viewport().gui_get_focus_owner()
+	if cur_f:
+		cur_f.release_focus()
+	if not is_level_zoomed:
+		_fade_menu_chrome(true)
+
 func _toggle_dev_console() -> void:
 	if not dev_console_overlay:
 		_build_dev_console()
-	dev_console_overlay.visible = not dev_console_overlay.visible
 	if dev_console_overlay.visible:
+		_close_dev_console()
+	else:
+		dev_console_overlay.visible = true
 		var sm = get_node_or_null("/root/SaveManager")
 		if sm:
 			sm.unlock_achievement("terminal")
 		if dev_console_input:
 			dev_console_input.text = ""
 			dev_console_input.grab_focus()
-	else:
-		if not is_level_zoomed:
-			_fade_menu_chrome(true)
 
 func _build_dev_console() -> void:
 	dev_console_overlay = Control.new()
@@ -3259,7 +3417,7 @@ func _build_dev_console() -> void:
 	btn_close.text = " [ ✕ ] "
 	btn_close.flat = true
 	btn_close.add_theme_color_override("font_color", Color(0.65, 0.75, 0.85))
-	btn_close.pressed.connect(func(): dev_console_overlay.visible = false)
+	btn_close.pressed.connect(func(): _close_dev_console())
 	hbox_tb.add_child(btn_close)
 	vbox.add_child(titlebar)
 	
@@ -3397,8 +3555,7 @@ func _on_dev_command_submitted(cmd: String) -> void:
 		if dev_console_output:
 			dev_console_output.text = ""
 	elif lower in ["/exit", "exit", "quit", ":q"]:
-		if dev_console_overlay:
-			dev_console_overlay.visible = false
+		_close_dev_console()
 	else:
 		_print_dev_console("[color=#ff5555]andromeda-sh: command not found: " + text_in + "[/color]\n[color=#aaaaaa]Escribe [b]/levels[/b] o [b]/help[/b] para ver las opciones disponibles.[/color]")
 
@@ -3412,8 +3569,11 @@ func _cmd_magnifying_glass_skip() -> void:
 	for idx in purple_nodes:
 		if sm and sm.has_method("unlock_node"):
 			sm.unlock_node("reparacion", idx)
+			sm.unlock_node("sistema", idx)
 		if idx < LEVELS_DATA["reparacion"].size():
 			LEVELS_DATA["reparacion"][idx]["can_play"] = true
+		if idx < LEVELS_DATA["sistema"].size():
+			LEVELS_DATA["sistema"][idx]["can_play"] = true
 			
 	if sm:
 		sm.just_unlocked_node = 26
@@ -3424,10 +3584,7 @@ func _cmd_magnifying_glass_skip() -> void:
 		_switch_mode("reparacion", 0)
 	
 	# Cerrar terminal para mostrar animación en la constelación
-	if dev_console_overlay:
-		dev_console_overlay.visible = false
-	if not is_level_zoomed:
-		_fade_menu_chrome(true)
+	_close_dev_console()
 		
 	if graph_lines and graph_lines.has_method("play_unlock_animation"):
 		graph_lines.play_unlock_animation(26)
@@ -3487,8 +3644,12 @@ func _launch_terminal_pacman() -> void:
 		terminal_pacman_instance._reset_game_full()
 
 func _on_terminal_pacman_closed(final_score: int) -> void:
-	if terminal_pacman_instance:
+	if is_instance_valid(terminal_pacman_instance):
 		terminal_pacman_instance.visible = false
+		terminal_pacman_instance.set_process(false)
+		terminal_pacman_instance.set_process_input(false)
+		terminal_pacman_instance.queue_free()
+		terminal_pacman_instance = null
 	if dev_console_body_vbox:
 		dev_console_body_vbox.visible = true
 	_print_dev_console("[color=#50fa7b]user@andromeda[/color]:[color=#00e5ff]~[/color]$ [color=#aaaaaa]# Sesión arcade de Pacman finalizada.[/color]")
@@ -3522,13 +3683,15 @@ func _cmd_andro_install_tetris() -> void:
 func _launch_terminal_tetris() -> void:
 	if not dev_console_margin_body:
 		return
-	if not terminal_tetris_instance:
-		var TetrisScript = load("res://scripts/minigames/TerminalTetris.gd")
-		if TetrisScript:
-			terminal_tetris_instance = TetrisScript.new()
-			terminal_tetris_instance.name = "TerminalTetrisGame"
-			terminal_tetris_instance.closed.connect(_on_terminal_tetris_closed)
-			dev_console_margin_body.add_child(terminal_tetris_instance)
+	if is_instance_valid(terminal_tetris_instance):
+		terminal_tetris_instance.queue_free()
+		terminal_tetris_instance = null
+	var TetrisScript = load("res://scripts/minigames/TerminalTetris.gd")
+	if TetrisScript:
+		terminal_tetris_instance = TetrisScript.new()
+		terminal_tetris_instance.name = "TerminalTetrisGame"
+		terminal_tetris_instance.closed.connect(_on_terminal_tetris_closed)
+		dev_console_margin_body.add_child(terminal_tetris_instance)
 	
 	if dev_console_body_vbox:
 		dev_console_body_vbox.visible = false
@@ -3537,8 +3700,12 @@ func _launch_terminal_tetris() -> void:
 		terminal_tetris_instance._reset_game_full()
 
 func _on_terminal_tetris_closed(final_score: int) -> void:
-	if terminal_tetris_instance:
+	if is_instance_valid(terminal_tetris_instance):
 		terminal_tetris_instance.visible = false
+		terminal_tetris_instance.set_process(false)
+		terminal_tetris_instance.set_process_input(false)
+		terminal_tetris_instance.queue_free()
+		terminal_tetris_instance = null
 	if dev_console_body_vbox:
 		dev_console_body_vbox.visible = true
 	_print_dev_console("[color=#50fa7b]user@andromeda[/color]:[color=#00e5ff]~[/color]$ [color=#aaaaaa]# Sesión arcade de Tetris finalizada.[/color]")
@@ -3597,10 +3764,7 @@ func _cmd_tutorials_skip() -> void:
 	_sync_progression_from_save()
 	
 	# Cerrar terminal para mostrar animación en la constelación
-	if dev_console_overlay:
-		dev_console_overlay.visible = false
-	if not is_level_zoomed:
-		_fade_menu_chrome(true)
+	_close_dev_console()
 		
 	var anim_node = 25 if current_mode != "servidor" else 13
 	if graph_lines and graph_lines.has_method("play_unlock_animation"):
@@ -3671,10 +3835,7 @@ func _cmd_practice_skip() -> void:
 	_sync_progression_from_save()
 	
 	# Cerrar terminal para mostrar animación en la constelación
-	if dev_console_overlay:
-		dev_console_overlay.visible = false
-	if not is_level_zoomed:
-		_fade_menu_chrome(true)
+	_close_dev_console()
 		
 	# Animación de desbloqueo en el Nivel 1 del modo actual
 	var anim_node = 1 if current_mode == "servidor" else 7
@@ -3744,10 +3905,7 @@ func _cmd_actually_level_skip() -> void:
 	_sync_progression_from_save()
 	
 	# Cerrar terminal para que el jugador vea la animación en la constelación
-	if dev_console_overlay:
-		dev_console_overlay.visible = false
-	if not is_level_zoomed:
-		_fade_menu_chrome(true)
+	_close_dev_console()
 		
 	if unlocked_in_current != -1:
 		if graph_lines and graph_lines.has_method("play_unlock_animation"):

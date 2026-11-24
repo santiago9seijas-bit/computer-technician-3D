@@ -1,5 +1,6 @@
 extends Node3D
 
+const LevelCountdown = preload("res://scripts/ui/LevelCountdown.gd")
 const INTRO_SCENE: PackedScene = preload("res://scenes/ui/LevelSystemsIntroModal.tscn")
 const DELIVERED_CABINET_SCENE: PackedScene = preload("res://scenes/components/DeliveredCabinet.tscn")
 const DELIVERY_WALL_POS: Vector3 = Vector3(4.2, 0.0, -2.5)
@@ -47,6 +48,15 @@ func _show_mission_briefing() -> void:
 		add_child(modal)
 		
 	modal.started.connect(func():
+		_start_countdown()
+	)
+
+func _start_countdown() -> void:
+	GameManager.timer_active = false
+	if player and player.has_method("set_movement_enabled"):
+		player.set_movement_enabled(false)
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	LevelCountdown.start_countdown(get_tree(), self, "sistema", func():
 		GameManager.timer_active = true
 		if player and player.has_method("set_movement_enabled"):
 			player.set_movement_enabled(true)

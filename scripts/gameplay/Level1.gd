@@ -1,5 +1,6 @@
 extends Node3D
 
+const LevelCountdown = preload("res://scripts/ui/LevelCountdown.gd")
 const INTRO_SCENE: PackedScene = preload("res://scenes/ui/LevelIntroModal.tscn")
 const DELIVERED_CABINET_SCENE: PackedScene = preload("res://scenes/components/DeliveredCabinet.tscn")
 const RAM_STATIC_MINIGAME_SCENE: PackedScene = preload("res://scenes/minigames/RAMStaticMinigame.tscn")
@@ -73,7 +74,15 @@ func _show_mission_briefing() -> void:
 		modal.set_mission_data(t_info[0], t_info[1], t_info[2])
 
 	modal.started.connect(func():
-		# Hasta que el jugador no cierre con la 'X' o 'Iniciar', el contador no baja
+		_start_countdown()
+	)
+
+func _start_countdown() -> void:
+	GameManager.timer_active = false
+	if player and player.has_method("set_movement_enabled"):
+		player.set_movement_enabled(false)
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	LevelCountdown.start_countdown(get_tree(), self, "reparacion", func():
 		GameManager.timer_active = true
 		if player and player.has_method("set_movement_enabled"):
 			player.set_movement_enabled(true)

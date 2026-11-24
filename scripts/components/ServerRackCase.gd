@@ -33,13 +33,20 @@ var custom_prompt: String = ""
 @onready var label_3d: Label3D = $Label3D
 @onready var arrow_mesh: MeshInstance3D = $ArrowMesh
 @onready var status_light: OmniLight3D = get_node_or_null("StatusLight")
-@onready var inner_cyan: OmniLight3D = get_node_or_null("InteriorLights/InnerLightCyan")
-@onready var inner_magenta: OmniLight3D = get_node_or_null("InteriorLights/InnerLightMagenta")
-@onready var inner_amber: OmniLight3D = get_node_or_null("InteriorLights/InnerLightAmber")
+var inner_cyan: OmniLight3D = null
+var inner_magenta: OmniLight3D = null
+var inner_amber: OmniLight3D = null
 @onready var cuadro_de_luz: MeshInstance3D = get_node_or_null("CuadroDeLuz")
 @onready var torre_model: Node3D = get_node_or_null("TorreServidorModel")
 
-var server_modal_scene: PackedScene = preload("res://scenes/ui/ServerInspectionModal.tscn")
+static var _cached_server_modal: PackedScene = null
+var server_modal_scene: PackedScene:
+	get:
+		if not _cached_server_modal:
+			_cached_server_modal = load("res://scenes/ui/ServerInspectionModal.tscn")
+		return _cached_server_modal
+	set(v):
+		_cached_server_modal = v
 var original_arrow_y: float = 0.0
 
 var arrow_mat: StandardMaterial3D = null

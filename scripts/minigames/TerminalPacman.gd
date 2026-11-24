@@ -328,12 +328,25 @@ func _reset_positions() -> void:
 		}
 	]
 
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_VISIBILITY_CHANGED or what == NOTIFICATION_PREDELETE:
+		if not is_visible_in_tree():
+			if sfx_player:
+				sfx_player.stop()
+			is_paused = true
+			set_process(false)
+			set_process_input(false)
+
+func _exit_tree() -> void:
+	if sfx_player:
+		sfx_player.stop()
+
 # =============================================================================
 # ENTRADA DE USUARIO
 # =============================================================================
 
 func _input(event: InputEvent) -> void:
-	if not visible:
+	if not is_visible_in_tree() or not visible or not is_processing_input():
 		return
 
 	if event is InputEventKey and event.pressed and not event.echo:
@@ -363,6 +376,11 @@ func _input(event: InputEvent) -> void:
 
 func exit_to_terminal() -> void:
 	visible = false
+	is_paused = true
+	set_process(false)
+	set_process_input(false)
+	if sfx_player:
+		sfx_player.stop()
 	closed.emit(score)
 
 # =============================================================================
@@ -370,7 +388,7 @@ func exit_to_terminal() -> void:
 # =============================================================================
 
 func _process(delta: float) -> void:
-	if not visible or is_paused:
+	if not is_visible_in_tree() or not visible or is_paused:
 		return
 
 	if is_game_over:

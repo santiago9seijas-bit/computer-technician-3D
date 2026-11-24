@@ -190,6 +190,15 @@ func _finish_typing() -> void:
 	if is_instance_valid(typing_audio) and typing_audio.playing:
 		typing_audio.stop()
 
+func _exit_tree() -> void:
+	is_typing = false
+	if typing_tween and typing_tween.is_valid():
+		typing_tween.kill()
+	if is_instance_valid(typing_audio):
+		if typing_audio.playing:
+			typing_audio.stop()
+		typing_audio.stream = null
+
 func _ensure_choice_buttons() -> void:
 	if btn_choice_a != null and btn_choice_b != null:
 		return

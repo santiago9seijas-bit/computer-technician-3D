@@ -244,12 +244,17 @@ func open_for_inspection_node(data: Dictionary = {}, req_points: int = 0, player
 	else:
 		button_state = LevelButtonState.CAN_UNLOCK
 	
+	var is_jer = data.has("jeremias_speech") or data.get("mode_name", "") == "SISTEMA" or data.get("is_yellow", false)
 	if card_panel:
 		var sb = card_panel.get_theme_stylebox("panel")
 		if sb is StyleBoxFlat:
 			var nsb = sb.duplicate() as StyleBoxFlat
-			nsb.border_color = Color(0.85, 0.25, 1.0, 0.95)
-			nsb.shadow_color = Color(0.65, 0.10, 0.90, 0.35)
+			if is_jer:
+				nsb.border_color = Color(1.0, 0.88, 0.15, 0.95)
+				nsb.shadow_color = Color(0.65, 0.45, 0.05, 0.35)
+			else:
+				nsb.border_color = Color(0.85, 0.25, 1.0, 0.95)
+				nsb.shadow_color = Color(0.65, 0.10, 0.90, 0.35)
 			card_panel.add_theme_stylebox_override("panel", nsb)
 			
 	if title_label:
@@ -268,38 +273,39 @@ func open_for_inspection_node(data: Dictionary = {}, req_points: int = 0, player
 		desc_lbl.add_theme_color_override("font_color", Color(0.95, 0.85, 1.0, 0.92))
 		pieces_container.add_child(desc_lbl)
 		
-		# Cuadro destacado con el mensaje de Joa
-		if data.has("joa_speech") and data["joa_speech"] != "":
-			var joa_panel = PanelContainer.new()
-			var joa_sb = StyleBoxFlat.new()
-			joa_sb.bg_color = Color(0.18, 0.04, 0.28, 0.75)
-			joa_sb.border_color = Color(0.85, 0.35, 1.0, 0.8)
-			joa_sb.set_border_width_all(1)
-			joa_sb.set_corner_radius_all(6)
-			joa_sb.content_margin_left = 10
-			joa_sb.content_margin_top = 8
-			joa_sb.content_margin_right = 10
-			joa_sb.content_margin_bottom = 8
-			joa_panel.add_theme_stylebox_override("panel", joa_sb)
+		# Cuadro destacado con el mensaje del personaje (Joa o Jeremías)
+		var speech_text = data.get("jeremias_speech", data.get("joa_speech", ""))
+		if speech_text != "":
+			var speaker_panel = PanelContainer.new()
+			var speaker_sb = StyleBoxFlat.new()
+			speaker_sb.bg_color = Color(0.04, 0.12, 0.28, 0.8) if is_jer else Color(0.18, 0.04, 0.28, 0.75)
+			speaker_sb.border_color = Color(1.0, 0.88, 0.15, 0.9) if is_jer else Color(0.85, 0.35, 1.0, 0.8)
+			speaker_sb.set_border_width_all(1)
+			speaker_sb.set_corner_radius_all(6)
+			speaker_sb.content_margin_left = 10
+			speaker_sb.content_margin_top = 8
+			speaker_sb.content_margin_right = 10
+			speaker_sb.content_margin_bottom = 8
+			speaker_panel.add_theme_stylebox_override("panel", speaker_sb)
 			
-			var joa_vbox = VBoxContainer.new()
-			joa_vbox.add_theme_constant_override("separation", 4)
+			var speaker_vbox = VBoxContainer.new()
+			speaker_vbox.add_theme_constant_override("separation", 4)
 			
-			var joa_title = Label.new()
-			joa_title.text = "💬 JOA // ASISTENTE TÉCNICA:"
-			joa_title.add_theme_font_size_override("font_size", 10)
-			joa_title.add_theme_color_override("font_color", Color(1.0, 0.65, 0.95, 1.0))
-			joa_vbox.add_child(joa_title)
+			var speaker_title = Label.new()
+			speaker_title.text = "💬 JEREMÍAS // DIRECTOR DE SISTEMAS:" if is_jer else "💬 JOA // ASISTENTE TÉCNICA:"
+			speaker_title.add_theme_font_size_override("font_size", 10)
+			speaker_title.add_theme_color_override("font_color", Color(0.35, 0.9, 1.0, 1.0) if is_jer else Color(1.0, 0.65, 0.95, 1.0))
+			speaker_vbox.add_child(speaker_title)
 			
-			var joa_txt = Label.new()
-			joa_txt.text = data.get("joa_speech", "")
-			joa_txt.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-			joa_txt.add_theme_font_size_override("font_size", 10)
-			joa_txt.add_theme_color_override("font_color", Color(0.92, 0.88, 1.0, 0.95))
-			joa_vbox.add_child(joa_txt)
+			var speaker_txt = Label.new()
+			speaker_txt.text = speech_text
+			speaker_txt.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			speaker_txt.add_theme_font_size_override("font_size", 10)
+			speaker_txt.add_theme_color_override("font_color", Color(0.92, 0.95, 1.0, 0.95))
+			speaker_vbox.add_child(speaker_txt)
 			
-			joa_panel.add_child(joa_vbox)
-			pieces_container.add_child(joa_panel)
+			speaker_panel.add_child(speaker_vbox)
+			pieces_container.add_child(speaker_panel)
 			
 		if data.has("requirements"):
 			var req_lbl = Label.new()
@@ -335,11 +341,11 @@ func open_for_inspection_node(data: Dictionary = {}, req_points: int = 0, player
 	match button_state:
 		LevelButtonState.PLAYABLE:
 			if btn_label:
-				btn_label.text = "▶ INICIAR MINIJUEGO"
+				btn_label.text = "⚡ HACKEAR SISTEMA" if is_jer else "▶ INICIAR MINIJUEGO"
 			if btn_iniciar:
 				btn_iniciar.modulate = Color.WHITE
 			if btn_shader_mat:
-				btn_shader_mat.set_shader_parameter("border_color", Color(0.85, 0.25, 1.0, 1.0))
+				btn_shader_mat.set_shader_parameter("border_color", Color(1.0, 0.88, 0.15, 1.0) if is_jer else Color(0.85, 0.25, 1.0, 1.0))
 		LevelButtonState.CAN_UNLOCK:
 			if btn_label:
 				btn_label.text = "🔓 DESBLOQUEAR (%d PTS)" % req_points

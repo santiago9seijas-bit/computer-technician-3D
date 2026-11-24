@@ -218,6 +218,11 @@ vertical_alignment = 1
 layout_mode = 2
 size_flags_horizontal = 3
 
+[node name="SpacerRightDummy" type="Control" parent="TopBar"]
+custom_minimum_size = Vector2(130, 68)
+layout_mode = 2
+mouse_filter = 2
+
 [node name="ModeSelector" type="HBoxContainer" parent="."]
 visible = false
 layout_mode = 1

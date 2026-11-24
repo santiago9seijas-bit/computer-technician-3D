@@ -12,6 +12,12 @@ func _ready() -> void:
 	test_terminal_pacman_levels_and_ghost_revive()
 	test_malware_invaders_waves()
 	test_terminal_tetris_and_console_install()
+	test_systems_purple_glitch_bubbles()
+	test_user_fixes_batch()
+	test_hacking_variety_and_jeremias_tutorial()
+	test_level_countdown_phrases()
+	if get_node_or_null("/root/MusicManager"):
+		MusicManager.stop_immediate()
 	print("--- TODOS LOS TESTS COMPLETADOS CON ÉXITO [OK] ---")
 	get_tree().quit(0)
 
@@ -559,7 +565,7 @@ func test_programming_minigame_and_tutorial() -> void:
 	assert(dbg_inst.jeremias_step_idx == 1, "Debe avanzar de comando")
 	dbg_inst._finish_jeremias_tutorial()
 	assert(dbg_inst.is_jeremias_tutorial_active == false, "Tutorial debe finalizar al omitir o completar")
-	dbg_inst.queue_free()
+	dbg_inst.free()
 	print("  Explicación de comandos con diálogo abajo y avance por [E] validada [OK]")
 
 	print("  [OK] Minijuego de programación y diálogo de Jeremías validados exitosamente.")
@@ -628,7 +634,7 @@ func test_terminal_pacman_levels_and_ghost_revive() -> void:
 	assert(blinky["mode"] == pacman.GhostMode.CHASE, "Fantasma comido debe revivir a modo CHASE al llegar al centro")
 	assert(blinky["dir"] == pacman.DIR_UP, "Fantasma revivido debe apuntar hacia arriba para salir")
 	
-	pacman.queue_free()
+	pacman.free()
 	print("  [OK] TerminalPacman: Niveles 1, 2, 3 y sistema de revivir fantasmas validados.")
 
 func test_malware_invaders_waves() -> void:
@@ -662,7 +668,7 @@ func test_malware_invaders_waves() -> void:
 	assert(invaders.is_wave_advancing == true, "Al limpiar oleada debe activarse is_wave_advancing")
 	assert(invaders.player_score > 0, "Limpiar oleada debe otorgar bonificación de puntuación")
 	
-	invaders.queue_free()
+	invaders.free()
 	print("  [OK] Malware Invaders: Múltiples oleadas, escalado de dificultad y bunkers validados.")
 
 func test_terminal_tetris_and_console_install() -> void:
@@ -692,7 +698,7 @@ func test_terminal_tetris_and_console_install() -> void:
 	tetris._hard_drop()
 	assert(tetris.current_type != "", "Debe generarse una nueva pieza tras hard drop")
 	
-	tetris.queue_free()
+	tetris.free()
 	
 	# 5. Probar comando 'andro install tetris' en LevelSelect
 	var LevelSelectScene = load("res://scenes/menus/LevelSelect.tscn")
@@ -705,5 +711,301 @@ func test_terminal_tetris_and_console_install() -> void:
 	var out_text = level_select.dev_console_output.text
 	assert(out_text.find("TETRIS") != -1 or out_text.find("tetris") != -1, "La terminal debe confirmar la instalación de Tetris")
 	
-	level_select.queue_free()
+	level_select.free()
 	print("  [OK] TerminalTetris y comando 'andro install tetris' validados con éxito.")
+
+func test_systems_purple_glitch_bubbles() -> void:
+	print("[TEST] Verificando nuevas burbujas amarillas de hackeo NieR: Automata con glitch en el área de sistemas...")
+	var LevelSelectScene = load("res://scenes/menus/LevelSelect.tscn")
+	assert(LevelSelectScene != null, "LevelSelect.tscn debe existir")
+	var level_select = LevelSelectScene.instantiate()
+	add_child(level_select)
+	
+	# 1. Validar que LEVELS_DATA["sistema"] tenga 32 nodos
+	assert(level_select.LEVELS_DATA["sistema"].size() == 32, "El área de sistemas debe tener exactamente 32 nodos")
+	
+	# 2. Validar que los nodos 26 al 31 sean amarillos de inspección / hackeo NieR
+	for idx in range(26, 32):
+		var node = level_select.LEVELS_DATA["sistema"][idx]
+		assert(node.get("is_inspection", false) == true, "Nodo %d debe ser de inspección" % idx)
+		assert(node.get("color_accent") == Color(1.0, 0.88, 0.15), "Nodo %d debe tener acento amarillo" % idx)
+		assert(node.has("jeremias_speech") and node["jeremias_speech"] != "", "Nodo %d debe tener diálogo técnico de Jeremías" % idx)
+		assert(node.get("target_scene", "") == "res://scenes/minigames/CyberHackingMinigame.tscn", "Nodo %d debe apuntar a CyberHackingMinigame.tscn" % idx)
+		assert(ResourceLoader.exists(node["target_scene"]), "Escena de hackeo debe existir")
+	
+	# 3. Validar ConstellationGraph y conexiones en modo sistema
+	var graph = level_select.get_node_or_null("ConstellationArea/GraphLines")
+	assert(graph != null, "ConstellationGraph debe existir en ConstellationArea/GraphLines")
+	assert(graph.MODE_NODES["sistema"].size() == 32, "ConstellationGraph debe tener 32 nodos definidos en 'sistema'")
+	
+	# Conexiones con niveles de hackeo (26 al 31)
+	var hack_conns_found = 0
+	for conn in graph.MODE_CONNECTIONS["sistema"]:
+		if conn.x >= 26 or conn.y >= 26:
+			hack_conns_found += 1
+	assert(hack_conns_found >= 6, "Debe haber múltiples conexiones enlazando las burbujas amarillas con los niveles de campaña")
+	
+	# 4. Validar panel de información con diálogo de Jeremías en nodo de hackeo
+	level_select._switch_mode("sistema", 0)
+	var tut_panel = level_select.get_node_or_null("TutorialInfoPanel")
+	assert(tut_panel != null, "TutorialInfoPanel debe existir")
+	tut_panel.open_for_inspection_node(level_select.LEVELS_DATA["sistema"][26], 100, 200, true)
+	assert(tut_panel.visible == true, "El panel de información debe abrirse para el nodo de hackeo")
+	
+	# 5. Validar estado de completado en ConstellationGraph (Sin glitch y con flecha NieR)
+	assert(graph.has_method("is_node_completed"), "ConstellationGraph debe tener is_node_completed")
+	assert(graph.has_method("set_node_completed"), "ConstellationGraph debe tener set_node_completed")
+	graph.set_node_completed(26, false)
+	assert(graph.is_node_completed(26) == false, "El nodo 26 inicialmente no debe estar completado")
+	graph.set_node_completed(26, true)
+	assert(graph.is_node_completed(26) == true, "El nodo 26 debe marcarse como completado")
+	
+	# 6. Validar instanciación y mecánicas del Minijuego de Hackeo NieR: Automata
+	var HackScene = load("res://scenes/minigames/CyberHackingMinigame.tscn")
+	assert(HackScene != null, "CyberHackingMinigame.tscn debe compilar y cargar")
+	var hack_game = HackScene.instantiate()
+	add_child(hack_game)
+	
+	# Probar las 6 etapas (0 a 5)
+	for st_idx in range(6):
+		hack_game._build_stage_layout(st_idx)
+		assert(hack_game.red_core["alive"] == true, "Etapa %d debe tener un Red Core activo" % st_idx)
+		assert(hack_game.red_core["hp"] > 0, "Etapa %d Red Core debe tener vida" % st_idx)
+		assert(hack_game.blocks.size() > 0, "Etapa %d debe tener bloques" % st_idx)
+		assert(hack_game.buttons.size() > 0, "Etapa %d debe tener botones/interruptores" % st_idx)
+		assert(hack_game.enemies.size() > 0, "Etapa %d debe tener enemigos que disparen" % st_idx)
+	
+	# Probar disparo de bala del jugador y daño al Red Core
+	hack_game._build_stage_layout(0)
+	var prev_hp = hack_game.red_core["hp"]
+	hack_game._hit_red_core(1)
+	assert(hack_game.red_core["hp"] == prev_hp - 1, "Disparar al Núcleo Rojo debe reducir sus puntos de vida")
+	
+	# Probar que activar un botón desactiva las barreras conectadas
+	var btn0 = hack_game.buttons[0]
+	var has_alive_barrier_before = false
+	for b in hack_game.blocks:
+		if b["type"] == hack_game.BLOCK_BARRIER and b["switch_id"] in btn0["links"] and b["alive"]:
+			has_alive_barrier_before = true
+			break
+	assert(has_alive_barrier_before == true, "Debe haber una barrera activa antes de pulsar el interruptor")
+	
+	hack_game._activate_button(btn0)
+	assert(btn0["active"] == true, "El botón debe quedar en estado activo")
+	var has_alive_barrier_after = false
+	for b in hack_game.blocks:
+		if b["type"] == hack_game.BLOCK_BARRIER and b["switch_id"] in btn0["links"] and b["alive"]:
+			has_alive_barrier_after = true
+			break
+	assert(has_alive_barrier_after == false, "La barrera vinculada al botón debe desaparecer al activarlo")
+	
+	hack_game.free()
+	level_select.free()
+	print("  [OK] Minijuego de hackeo NieR: Automata, burbujas amarillas y eliminación de glitch validados exitosamente.")
+
+func test_user_fixes_batch() -> void:
+	print("[TEST] Verificando correcciones del usuario: centrado de títulos, audio tutorial reparación, flecha única en sistemas, animación purga glitch y teclas tras salir de tetris...")
+	
+	# 1. Centrado de títulos en LevelSelect: Comprobar SpacerRightDummy y centrado
+	var ls_scene = load("res://scenes/menus/LevelSelect.tscn")
+	assert(ls_scene != null, "LevelSelect.tscn debe cargar")
+	var ls = ls_scene.instantiate()
+	add_child(ls)
+	
+	var top_bar = ls.get_node_or_null("TopBar")
+	assert(top_bar != null, "TopBar debe existir")
+	var dummy = top_bar.get_node_or_null("SpacerRightDummy")
+	assert(dummy != null, "SpacerRightDummy debe existir para balancear BtnVolver y centrar títulos")
+	assert(dummy.custom_minimum_size.x == 130, "SpacerRightDummy debe tener ancho 130px idéntico a BtnVolver")
+	
+	var lbl_title = top_bar.get_node_or_null("ModeHeader/LblModeTitle")
+	var lbl_director = top_bar.get_node_or_null("ModeHeader/LblModeDirector")
+	assert(lbl_title != null and lbl_director != null, "Labels de título y director deben existir")
+	assert(lbl_title.horizontal_alignment == HORIZONTAL_ALIGNMENT_CENTER, "Título debe estar centrado horizontalmente")
+	assert(lbl_director.horizontal_alignment == HORIZONTAL_ALIGNMENT_CENTER, "Director debe estar centrado horizontalmente")
+	print("  1. Centrado horizontal de títulos y subtítulos verificado [OK]")
+
+	# 2. Comprobar que SystemsComputerCase soporta disable_arrow
+	var sys_case_scene = load("res://scenes/components/SystemsComputerCase.tscn")
+	assert(sys_case_scene != null, "SystemsComputerCase.tscn debe cargar")
+	var sys_case = sys_case_scene.instantiate()
+	assert("disable_arrow" in sys_case, "SystemsComputerCase debe tener export disable_arrow")
+	sys_case.disable_arrow = true
+	add_child(sys_case)
+	sys_case.update_3d_state()
+	var arr = sys_case.get_node_or_null("ArrowMesh")
+	assert(arr != null and arr.visible == false, "ArrowMesh en gabinete debe estar oculta cuando disable_arrow es true")
+	sys_case.queue_free()
+	print("  2. Flecha de gabinete en sistemas deshabilitada verificado [OK]")
+
+	# 3. Comprobar ConstellationGraph y animación de purga de glitch
+	var graph = ls.get_node_or_null("ConstellationArea/GraphLines")
+	assert(graph != null, "GraphLines debe existir en LevelSelect")
+	assert(graph.has_method("play_glitch_purge_animation"), "ConstellationGraph debe implementar play_glitch_purge_animation")
+	assert(graph.has_method("set_node_completed"), "ConstellationGraph debe implementar set_node_completed")
+	
+	graph.play_glitch_purge_animation(26)
+	assert(graph.purging_glitch_node_index == 26, "Nodo 26 debe ser el que purga el glitch")
+	print("  3. Animación de purga de glitch en el círculo verificado [OK]")
+
+	# 4. Comprobar cierre de consola de desarrollador y liberación de foco
+	ls._toggle_dev_console()
+	assert(ls.dev_console_overlay.visible == true, "Terminal debe abrirse")
+	assert(ls.dev_console_input.has_focus() == true, "Input debe tener foco al abrir terminal")
+	ls._close_dev_console()
+	assert(ls.dev_console_overlay.visible == false, "Terminal debe cerrarse")
+	assert(ls.dev_console_input.has_focus() == false, "Input debe liberar foco al cerrar terminal para permitir cambio de nivel")
+	print("  4. Cierre de consola y foco de navegación por teclado verificado [OK]")
+
+	# 5. Comprobar navegación de nivel con teclas
+	var initial_mode = ls.current_mode
+	ls._navigate_level_camera(1)
+	assert(ls.active_zoomed_index >= 0, "Navegar nivel debe seleccionar/acercar a un nivel")
+	print("  5. Teclas de cambio de nivel activas verificado [OK]")
+
+	# 6. Comprobar CyberHackingMinigame play_exit configuración de retorno
+	var HackingScript = load("res://scripts/minigames/CyberHackingMinigame.gd")
+	assert(HackingScript != null, "CyberHackingMinigame.gd debe compilar")
+	
+	ls.free()
+	print("  [OK] Todas las correcciones solicitadas por el usuario validadas exitosamente.")
+
+func test_hacking_variety_and_jeremias_tutorial() -> void:
+	print("[TEST] Verificando inducción con Jeremías, variedad de hackeo, prismas reflectores y tetris sound cleanup...")
+	
+	# 1. Cargar e instanciar CyberHackingMinigame
+	var HackScene = load("res://scenes/minigames/CyberHackingMinigame.tscn")
+	assert(HackScene != null, "CyberHackingMinigame.tscn debe cargar")
+	var HackScript = load("res://scripts/minigames/CyberHackingMinigame.gd")
+	assert(HackScript != null, "CyberHackingMinigame.gd debe compilar")
+	var tut_steps = HackScript.get_jeremias_tutorial()
+	assert(tut_steps != null and tut_steps.size() >= 4, "Debe haber al menos 4 pasos explicativos de Jeremías")
+	assert(tut_steps[0]["speaker"] == "JEREMÍAS", "El locutor debe ser Jeremías")
+	var hack = HackScene.instantiate()
+	add_child(hack)
+	
+	hack._start_jeremias_tutorial()
+	assert(hack.is_tutorial_dialog_active == true, "Diálogo tutorial debe estar activo")
+	assert(hack.dialog_box_instance != null, "Instancia de DialogBox debe existir")
+	
+	hack._skip_tutorial_dialog()
+	assert(hack.is_tutorial_dialog_active == false, "Saltar diálogo debe desactivar estado de tutorial")
+	assert(hack.tutorial_already_shown == true, "Tutorial debe quedar marcado como mostrado")
+	print("  1. Diálogo de inducción de Jeremías y sistema de salto verificados [OK]")
+	
+	# 3. Verificar prisma reflector de plasma
+	hack.blocks.clear()
+	hack.player_bullets.clear()
+	hack.enemy_bullets.clear()
+	hack.enemies.clear()
+	hack._add_reflector_block(Rect2(200, 180, 40, 40))
+	assert(hack.blocks.size() == 1, "Debe existir el bloque reflector")
+	assert(hack.blocks[0]["type"] == hack.BLOCK_REFLECTOR, "El tipo de bloque debe ser BLOCK_REFLECTOR")
+	
+	# Disparar bala hacia el prisma reflector
+	hack.player_bullets.append({
+		"pos": Vector2(195, 200),
+		"vel": Vector2(400, 0),
+		"life": 1.0,
+		"is_reflected": false
+	})
+	hack._process_bullets(0.02)
+	assert(hack.player_bullets.size() == 1, "La bala NO debe destruirse al chocar contra el prisma reflector")
+	assert(hack.player_bullets[0]["vel"].x < 0, "La velocidad debe rebotar horizontalmente en dirección opuesta")
+	assert(hack.player_bullets[0].get("is_reflected", false) == true, "La bala debe marcarse como reflejada")
+	print("  2. Mecánica de prisma reflector de plasma verificada [OK]")
+	
+	# 4. Verificar torreta Spread (disparo triple en abanico)
+	hack._add_spread_turret(Vector2(400, 300), 1.0)
+	assert(hack.enemies.size() == 1, "Debe registrarse la torreta spread")
+	var spread_turret = hack.enemies[0]
+	assert(spread_turret["type"] == "spread_turret", "Tipo de enemigo debe ser spread_turret")
+	hack._shoot_spread_turret(spread_turret)
+	assert(hack.enemy_bullets.size() == 3, "Torreta spread debe disparar exactamente 3 balas en abanico")
+	print("  3. Torreta con fuego triple en abanico (Spread) verificada [OK]")
+	
+	# 5. Verificar que las 6 etapas tienen alta variedad (satélites, interruptores, reflectores)
+	var found_reflectors = false
+	var found_spread = false
+	var found_satellites = false
+	for st_idx in range(6):
+		hack._build_stage_layout(st_idx)
+		for b in hack.blocks:
+			if b["type"] == hack.BLOCK_REFLECTOR:
+				found_reflectors = true
+		for e in hack.enemies:
+			if e["type"] == "spread_turret":
+				found_spread = true
+		if hack.red_core.get("has_satellites", false):
+			found_satellites = true
+	assert(found_reflectors == true, "Debe haber bloques reflectores en los niveles")
+	assert(found_spread == true, "Debe haber torretas spread en los niveles")
+	assert(found_satellites == true, "El Núcleo Jefe debe tener satélites orbitantes")
+	print("  4. Variedad de niveles, satélites de jefe y mini-puzzles verificados [OK]")
+	
+	# 6. Verificar limpieza y apagado de sonido en TerminalTetris
+	var TetrisScript = load("res://scripts/minigames/TerminalTetris.gd")
+	assert(TetrisScript != null, "TerminalTetris.gd debe compilar")
+	var tetris = TetrisScript.new()
+	add_child(tetris)
+	assert(tetris.has_method("exit_to_terminal"), "TerminalTetris debe tener exit_to_terminal")
+	tetris.exit_to_terminal()
+	assert(tetris.is_paused == true, "Tetris debe pausarse al salir")
+	assert(tetris.is_game_over == true, "Tetris debe terminar juego al salir")
+	assert(tetris.sfx_player.playing == false, "El reproductor de sonido de Tetris debe detenerse al salir")
+	tetris.free()
+	print("  5. Cierre silencioso y detención de audio en TerminalTetris verificado [OK]")
+	
+	hack.free()
+	print("  [OK] Todas las características de variedad, inducción y tetris verificadas con éxito.")
+
+func test_level_countdown_phrases() -> void:
+	print("[TEST] Verificando cuenta regresiva 3, 2, 1 y frases (Reparar, Programar, Armar)...")
+	var CDScript = load("res://scripts/ui/LevelCountdown.gd")
+	assert(CDScript != null, "LevelCountdown.gd debe compilar")
+	assert(CDScript.get_action_word("reparacion") == "Reparar", "En reparación la frase debe ser Reparar")
+	assert(CDScript.get_action_word("sistema") == "Programar", "En sistemas la frase debe ser Programar")
+	assert(CDScript.get_action_word("servidor") == "Armar", "En servidores la frase debe ser Armar")
+	
+	var modes = ["reparacion", "sistema", "servidor"]
+	var expected = ["Reparar", "Programar", "Armar"]
+	for i in range(modes.size()):
+		var m = modes[i]
+		var exp_phrase = expected[i]
+		var cd = CDScript.start_countdown(get_tree(), self, m)
+		assert(cd != null, "Debe instanciarse LevelCountdown")
+		assert(cd.action_word == exp_phrase, "La palabra clave para %s debe ser %s" % [m, exp_phrase])
+		assert(cd.countdown_steps.size() == 4, "Debe haber 4 pasos (3, 2, 1, Frase)")
+		assert(cd.countdown_steps[0]["text"] == "3", "Paso 0 debe ser '3'")
+		assert(cd.countdown_steps[1]["text"] == "2", "Paso 1 debe ser '2'")
+		assert(cd.countdown_steps[2]["text"] == "1", "Paso 2 debe ser '1'")
+		assert(cd.countdown_steps[3]["text"] == exp_phrase, "Paso 3 debe ser '%s'" % exp_phrase)
+		cd.free()
+	
+	var l1_script = load("res://scripts/gameplay/Level1.gd")
+	var lsys_script = load("res://scripts/gameplay/LevelSystems1.gd")
+	var lsrv_script = load("res://scripts/gameplay/LevelServer1.gd")
+	var lprac_script = load("res://scripts/gameplay/LevelPractice.gd")
+	assert(l1_script != null and lsys_script != null and lsrv_script != null and lprac_script != null, "Todos los scripts de niveles deben compilar")
+	
+	var dummy_node = Node3D.new()
+	dummy_node.set_script(l1_script)
+	assert(dummy_node.has_method("_start_countdown"), "Level1 debe tener método _start_countdown")
+	dummy_node.queue_free()
+	
+	var dummy_sys = Node3D.new()
+	dummy_sys.set_script(lsys_script)
+	assert(dummy_sys.has_method("_start_countdown"), "LevelSystems1 debe tener método _start_countdown")
+	dummy_sys.queue_free()
+	
+	var dummy_srv = Node3D.new()
+	dummy_srv.set_script(lsrv_script)
+	assert(dummy_srv.has_method("_start_countdown"), "LevelServer1 debe tener método _start_countdown")
+	dummy_srv.queue_free()
+	
+	var dummy_prac = Node3D.new()
+	dummy_prac.set_script(lprac_script)
+	assert(dummy_prac.has_method("_start_countdown"), "LevelPractice debe tener método _start_countdown")
+	dummy_prac.queue_free()
+	print("  [OK] Cuenta regresiva 3, 2, 1 y palabras clave Reparar, Programar, Armar validadas exitosamente.")
+
