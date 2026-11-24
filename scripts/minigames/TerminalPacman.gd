@@ -45,6 +45,54 @@ const MAZE_TEMPLATE: Array[String] = [
 	"#####################"
 ]
 
+const MAZE_LEVEL_2: Array[String] = [
+	"#####################",
+	"#o.......###.......o#",
+	"#.#####.#...#.#####.#",
+	"#.#   #.#.#.#.#   #.#",
+	"#.#####.#.#.#.#####.#",
+	"#.......#.#.#.......#",
+	"###.###.#...#.###.###",
+	"#.....#.......#.....#",
+	"#####.### # ###.#####",
+	"    #.#   =   #.#    ",
+	"#####.# GG GG #.#####",
+	"    #.# ===== #.#    ",
+	"#####.# ##### #.#####",
+	"#.........#.........#",
+	"#.#######.#.#######.#",
+	"#o....#...P...#....o#",
+	"#####.#.#####.#.#####",
+	"#.......#...#.......#",
+	"#.#####.#.#.#.#####.#",
+	"#...................#",
+	"#####################"
+]
+
+const MAZE_LEVEL_3: Array[String] = [
+	"#####################",
+	"#o.................o#",
+	"#.###.###########.###",
+	"#.# #.#         #.# #",
+	"#.###.#.#######.#.###",
+	"#.......#.....#.....#",
+	"#.#####.#.###.#.#####",
+	"#.....#...# #...#...#",
+	"#####.### # ###.#####",
+	"    #.#   =   #.#    ",
+	"#####.# GG GG #.#####",
+	"    #.# ===== #.#    ",
+	"#####.# ##### #.#####",
+	"#.........#.........#",
+	"#.#######.#.#######.#",
+	"#o..#.....P.....#..o#",
+	"###.#.###.###.###.###",
+	"#.....# #.# #.#.....#",
+	"#.###.# #.# #.#.###.#",
+	"#o.................o#",
+	"#####################"
+]
+
 # Direcciones cardinales
 const DIR_NONE: Vector2i = Vector2i(0, 0)
 const DIR_UP: Vector2i = Vector2i(0, -1)
@@ -66,6 +114,8 @@ var level: int = 1
 var is_game_over: bool = false
 var is_stage_clear: bool = false
 var is_paused: bool = false
+var is_level_advancing: bool = false
+var level_advance_timer: float = 0.0
 
 # Pacman
 var pac_grid: Vector2i = Vector2i(10, 15)
@@ -198,9 +248,15 @@ func _reset_game_full() -> void:
 func _build_maze() -> void:
 	maze_data.clear()
 	total_dots = 0
+	var template = MAZE_TEMPLATE
+	if level == 2:
+		template = MAZE_LEVEL_2
+	elif level >= 3:
+		template = MAZE_LEVEL_3 if (level % 2 == 1) else MAZE_LEVEL_2
+
 	for y in range(ROWS):
 		var row: Array = []
-		var line: String = MAZE_TEMPLATE[y]
+		var line: String = template[y]
 		for x in range(COLS):
 			var ch: String = line[x]
 			row.append(ch)
@@ -317,7 +373,15 @@ func _process(delta: float) -> void:
 	if not visible or is_paused:
 		return
 
-	if is_game_over or is_stage_clear:
+	if is_game_over:
+		queue_redraw()
+		return
+
+	if is_level_advancing:
+		level_advance_timer -= delta
+		if level_advance_timer <= 0.0:
+			is_level_advancing = false
+			_advance_next_level()
 		queue_redraw()
 		return
 
@@ -440,9 +504,21 @@ func _on_pacman_entered_cell(pos: Vector2i) -> void:
 		high_score = score
 
 func _check_victory() -> void:
-	if dots_remaining <= 0:
-		is_stage_clear = true
+	if dots_remaining <= 0 and not is_level_advancing:
+		is_level_advancing = true
+		level_advance_timer = 1.6
 		_play_sfx("win")
+
+func _advance_next_level() -> void:
+	level += 1
+	score += 1000 * (level - 1)
+	if score > high_score:
+		high_score = score
+	_build_maze()
+	_reset_positions()
+	for g in ghosts:
+		g["speed"] += 0.45 * float(level - 1)
+	energizer_duration = maxf(2.5, 7.5 - float(level - 1) * 0.7)
 
 # =============================================================================
 # MOVIMIENTO Y LÓGICA DE FANTASMAS
@@ -458,23 +534,22 @@ func _update_ghosts(delta: float) -> void:
 
 		# Liberar de la casa progresivamente
 		if g["in_house"]:
-			if g["name"] == "Pinky" and dots_remaining <= total_dots - 5:
-				g["in_house"] = false
-				g["grid"] = Vector2i(10, 8)
-				g["pos"] = Vector2(10, 8)
-			elif g["name"] == "Inky" and dots_remaining <= total_dots - 20:
-				g["in_house"] = false
-				g["grid"] = Vector2i(10, 8)
-				g["pos"] = Vector2(10, 8)
-			elif g["name"] == "Clyde" and dots_remaining <= total_dots - 45:
+			var threshold = 5 if g["name"] == "Pinky" else (20 if g["name"] == "Inky" else 45)
+			if dots_remaining <= total_dots - threshold:
 				g["in_house"] = false
 				g["grid"] = Vector2i(10, 8)
 				g["pos"] = Vector2(10, 8)
 			continue
 
-		# Si el fantasma comido llegó a la casa
-		if g["mode"] == GhostMode.EATEN and g["grid"] == Vector2i(10, 8):
-			g["mode"] = GhostMode.CHASE
+		# Si el fantasma comido llegó al centro de la casa de fantasmas (se revive)
+		if g["mode"] == GhostMode.EATEN:
+			if (g["pos"] - Vector2(10.0, 10.0)).length() < 0.8 or (g["grid"].y >= 9 and g["grid"].y <= 11 and g["grid"].x >= 9 and g["grid"].x <= 11):
+				g["mode"] = GhostMode.CHASE
+				g["grid"] = Vector2i(10, 10)
+				g["pos"] = Vector2(10.0, 10.0)
+				g["dir"] = DIR_UP
+				g["in_house"] = false
+				_play_sfx("power")
 
 		# Movimiento
 		var step: float = speed * delta
@@ -501,7 +576,7 @@ func _choose_ghost_dir(g: Dictionary) -> Vector2i:
 	var mode: GhostMode = g["mode"]
 
 	if mode == GhostMode.EATEN:
-		target = Vector2i(10, 8)
+		target = Vector2i(10, 10) # Centro de la casa para revivir
 	elif mode == GhostMode.FRIGHTENED:
 		# Movimiento aleatorio en modo asustado
 		var valid_dirs: Array[Vector2i] = []
@@ -536,7 +611,8 @@ func _choose_ghost_dir(g: Dictionary) -> Vector2i:
 		if d == -g["dir"]:
 			continue # Los fantasmas no pueden dar media vuelta inmediatamente
 		var next_cell = g["grid"] + d
-		if _can_move_to(next_cell, mode == GhostMode.EATEN):
+		var is_exiting = (g["grid"].y >= 9 and g["grid"].y <= 11 and g["grid"].x >= 8 and g["grid"].x <= 12 and d == DIR_UP)
+		if _can_move_to(next_cell, mode == GhostMode.EATEN, is_exiting):
 			var d_sq = Vector2(next_cell).distance_squared_to(Vector2(target))
 			if d_sq < min_dist:
 				min_dist = d_sq
@@ -544,7 +620,7 @@ func _choose_ghost_dir(g: Dictionary) -> Vector2i:
 
 	return best_dir
 
-func _can_move_to(pos: Vector2i, allow_gate: bool) -> bool:
+func _can_move_to(pos: Vector2i, allow_gate: bool, allow_exit: bool = false) -> bool:
 	# Wrap-around túnel lateral siempre permitido
 	if (pos.y == 9 or pos.y == 10) and (pos.x < 0 or pos.x >= COLS):
 		return true
@@ -553,9 +629,9 @@ func _can_move_to(pos: Vector2i, allow_gate: bool) -> bool:
 	var cell: String = maze_data[pos.y][pos.x]
 	if cell == "#":
 		return false
-	if cell == "=" and not allow_gate:
+	if cell == "=" and not allow_gate and not allow_exit:
 		return false
-	if cell == "G" and not allow_gate:
+	if cell == "G" and not allow_gate and not allow_exit:
 		return false
 	return true
 
@@ -682,8 +758,8 @@ func _draw() -> void:
 	# Overlay de Pausa / Game Over / Victoria
 	if is_game_over:
 		_draw_status_overlay("GAME OVER", "Presiona [R] para reiniciar o [Q / ESC] para salir al terminal", Color(1.0, 0.25, 0.25))
-	elif is_stage_clear:
-		_draw_status_overlay("¡NIVEL COMPLETADO!", "¡Has limpiado todo el laberinto! Presiona [R] para jugar de nuevo", Color(0.25, 1.0, 0.45))
+	elif is_level_advancing:
+		_draw_status_overlay("¡NIVEL %d COMPLETADO!" % level, "PREPARANDO SIGUIENTE LABERINTO...", Color(0.25, 1.0, 0.45))
 	elif is_paused:
 		_draw_status_overlay("PAUSA", "Presiona [P] para continuar", Color(1.0, 0.85, 0.2))
 
@@ -760,6 +836,9 @@ func _draw_terminal_arcade_hud(x: float, y: float, w: float, h: float) -> void:
 	cur_y += 18.0
 	draw_string(font, Vector2(x + 14, cur_y), "HIGH SCORE:", HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, col_dim)
 	draw_string(font, Vector2(x + 110, cur_y), "%06d" % high_score, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, col_green)
+	cur_y += 18.0
+	draw_string(font, Vector2(x + 14, cur_y), "NIVEL:", HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, col_dim)
+	draw_string(font, Vector2(x + 110, cur_y), "%d" % level, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, Color(1.0, 0.4, 0.9))
 	cur_y += 24.0
 
 	# Vidas restantes con iconos de Pacman

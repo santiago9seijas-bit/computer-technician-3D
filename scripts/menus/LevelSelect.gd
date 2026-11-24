@@ -127,6 +127,7 @@ var dev_console_output: RichTextLabel = null
 var dev_console_body_vbox: VBoxContainer = null
 var dev_console_margin_body: MarginContainer = null
 var terminal_pacman_instance: Control = null
+var terminal_tetris_instance: Control = null
 
 # --- Área de Tutoriales (Centro de Entrenamiento) ---
 @onready var tutorial_area: Control = get_node_or_null("TutorialArea")
@@ -2819,6 +2820,10 @@ func _input(event: InputEvent) -> void:
 				get_viewport().set_input_as_handled()
 				terminal_pacman_instance.exit_to_terminal()
 				return
+			if terminal_tetris_instance and terminal_tetris_instance.visible:
+				get_viewport().set_input_as_handled()
+				terminal_tetris_instance.exit_to_terminal()
+				return
 			get_viewport().set_input_as_handled()
 			dev_console_overlay.visible = false
 			return
@@ -3138,6 +3143,7 @@ const ANDROMEDA_BANNER_TEXT: String = """[color=#00e5ff]       /\\         [/col
 [color=#f1fa8c]💡 Comandos disponibles en Andromeda OS:[/color]
   [color=#bd93f9]magnifying glass- skip[/color]               : Desbloquea todos los niveles morados de micro-taller y lupa
   [color=#f1fa8c]andro install pacman[/color]                 : Instala y ejecuta el clásico arcade retro Pac-Man en la terminal
+  [color=#f1fa8c]andro install tetris[/color]                 : Instala y ejecuta el clásico arcade retro Tetris en la terminal
   [color=#00e5ff]/tutorials-skip[/color]                      : Completa y desbloquea todos los tutoriales en los 3 modos
   [color=#00e5ff]/practice-skip[/color]                       : Completa y desbloquea todas las prácticas en los 3 modos
   [color=#00e5ff]/actuallylevelskip-nextlevelunlocked[/color] : Desbloquea el siguiente nivel con animación en los 3 modos
@@ -3348,6 +3354,8 @@ func _on_dev_command_submitted(cmd: String) -> void:
 		_cmd_magnifying_glass_skip()
 	elif lower in ["andro install pacman", "andromeda install pacman", "pacman -s pacman", "sudo pacman -s pacman", "pacman", "./pacman"]:
 		_cmd_andro_install_pacman()
+	elif lower in ["andro install tetris", "andromeda install tetris", "pacman -s tetris", "sudo pacman -s tetris", "tetris", "./tetris"]:
+		_cmd_andro_install_tetris()
 	elif lower in ["/tutorials-skip", "tutorials-skip", "/tutorial-skip", "tutorial-skip"]:
 		_cmd_tutorials_skip()
 	elif lower in ["/practice-skip", "practice-skip", "/practices-skip", "practices-skip"]:
@@ -3369,6 +3377,7 @@ func _on_dev_command_submitted(cmd: String) -> void:
 [b]SINOPSIS[/b]
   [color=#bd93f9]magnifying glass- skip[/color]               Desbloquea todos los niveles morados de inspección y micro-taller (26 al 31).
   [color=#f1fa8c]andro install pacman[/color]                 Instala y ejecuta el clásico arcade Pac-Man (1980) en la terminal.
+  [color=#f1fa8c]andro install tetris[/color]                 Instala y ejecuta el clásico arcade Tetris (1984) en la terminal.
   [color=#00e5ff]/tutorials-skip[/color]                      Completa y desbloquea todos los tutoriales en los 3 modos.
   [color=#00e5ff]/practice-skip[/color]                       Completa y desbloquea todas las prácticas en los 3 modos.
   [color=#00e5ff]/actuallylevelskip-nextlevelunlocked[/color]  Desbloquea el siguiente nivel de campaña con animación
@@ -3382,7 +3391,8 @@ func _on_dev_command_submitted(cmd: String) -> void:
 [b]COMANDOS ALTERNATIVOS[/b]
   [color=#50fa7b]andromeda unlock[/color]   (o pacman -S levels)
   [color=#ff5555]andromeda reset[/color]    (o pacman -R all)
-  [color=#f1fa8c]pacman[/color]             (ejecuta directamente el minijuego instalado)""")
+  [color=#f1fa8c]pacman[/color]             (ejecuta directamente el minijuego instalado)
+  [color=#f1fa8c]tetris[/color]             (ejecuta directamente Tetris arcade instalado)""")
 	elif lower in ["/clear", "clear"]:
 		if dev_console_output:
 			dev_console_output.text = ""
@@ -3483,6 +3493,56 @@ func _on_terminal_pacman_closed(final_score: int) -> void:
 		dev_console_body_vbox.visible = true
 	_print_dev_console("[color=#50fa7b]user@andromeda[/color]:[color=#00e5ff]~[/color]$ [color=#aaaaaa]# Sesión arcade de Pacman finalizada.[/color]")
 	_print_dev_console("[color=#f1fa8c]🕹️ Puntuación obtenida: [b]%d[/b] puntos. Escribe [b]pacman[/b] o [b]andro install pacman[/b] para jugar de nuevo.[/color]" % final_score)
+	if dev_console_input:
+		dev_console_input.grab_focus()
+
+func _cmd_andro_install_tetris() -> void:
+	_print_dev_console("""[color=#00e5ff]:: Sincronizando repositorios de Andromeda OS...[/color]
+[color=#50fa7b]andromeda-core[/color]        [####################################] 100% (14.2 MiB/s)
+[color=#50fa7b]andromeda-extra[/color]       [####################################] 100% ( 9.8 MiB/s)
+[color=#50fa7b]andromeda-arcade[/color]      [####################################] 100% ( 6.4 MiB/s)
+[color=#00e5ff]:: Resolviendo dependencias para 'tetris-arcade-1984'...[/color]
+   Dependencias: libncurses-dev, retro-crt-vga, chiptune-synth
+[color=#00e5ff]:: Procediendo con la instalación de paquetes (1):[/color]
+   tetris-arcade-1984-2.1.0-1-x86_64  [color=#50fa7b]628.0 KiB[/color]
+(1/1) Verificando integridad de paquetes     [####################] 100%
+(1/1) Desempaquetando archivos en /usr/bin/tetris [################] 100%
+(1/1) Configurando emulador VT100 / ANSI Arcade   [################] 100%
+[color=#50fa7b]✓ ¡TETRIS (Alexey Pajitnov 1984 Arcade Terminal Edition) instalado y listo![/color]
+[color=#f1fa8c]:: Iniciando emulador arcade en el búfer de la terminal...[/color]""")
+
+	var gm = get_node_or_null("/root/GameManager")
+	if gm and gm.has_method("play_sfx"):
+		gm.play_sfx("success")
+		
+	get_tree().create_timer(0.8).timeout.connect(func():
+		_launch_terminal_tetris()
+	)
+
+func _launch_terminal_tetris() -> void:
+	if not dev_console_margin_body:
+		return
+	if not terminal_tetris_instance:
+		var TetrisScript = load("res://scripts/minigames/TerminalTetris.gd")
+		if TetrisScript:
+			terminal_tetris_instance = TetrisScript.new()
+			terminal_tetris_instance.name = "TerminalTetrisGame"
+			terminal_tetris_instance.closed.connect(_on_terminal_tetris_closed)
+			dev_console_margin_body.add_child(terminal_tetris_instance)
+	
+	if dev_console_body_vbox:
+		dev_console_body_vbox.visible = false
+	if terminal_tetris_instance:
+		terminal_tetris_instance.visible = true
+		terminal_tetris_instance._reset_game_full()
+
+func _on_terminal_tetris_closed(final_score: int) -> void:
+	if terminal_tetris_instance:
+		terminal_tetris_instance.visible = false
+	if dev_console_body_vbox:
+		dev_console_body_vbox.visible = true
+	_print_dev_console("[color=#50fa7b]user@andromeda[/color]:[color=#00e5ff]~[/color]$ [color=#aaaaaa]# Sesión arcade de Tetris finalizada.[/color]")
+	_print_dev_console("[color=#f1fa8c]🕹️ Puntuación obtenida: [b]%d[/b] puntos. Escribe [b]tetris[/b] o [b]andro install tetris[/b] para jugar de nuevo.[/color]" % final_score)
 	if dev_console_input:
 		dev_console_input.grab_focus()
 

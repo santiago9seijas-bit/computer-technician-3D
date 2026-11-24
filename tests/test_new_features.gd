@@ -9,6 +9,9 @@ func _ready() -> void:
 	test_level_intro_modals_desafios()
 	test_programming_minigame_and_tutorial()
 	test_music_manager_and_buses()
+	test_terminal_pacman_levels_and_ghost_revive()
+	test_malware_invaders_waves()
+	test_terminal_tetris_and_console_install()
 	print("--- TODOS LOS TESTS COMPLETADOS CON ÉXITO [OK] ---")
 	get_tree().quit(0)
 
@@ -586,3 +589,121 @@ func test_music_manager_and_buses() -> void:
 	mm.stop_music(0.0)
 	assert(mm.current_track == "", "MusicManager debe detener la pista activa")
 	print("  [OK] MusicManager y buses de audio validados exitosamente.")
+
+func test_terminal_pacman_levels_and_ghost_revive() -> void:
+	print("[TEST] Verificando niveles de TerminalPacman y resurrección de fantasmas en el centro...")
+	var PacmanScript = load("res://scripts/minigames/TerminalPacman.gd")
+	assert(PacmanScript != null, "TerminalPacman.gd debe existir")
+	var pacman = PacmanScript.new()
+	add_child(pacman)
+	
+	# 1. Probar niveles y generación de laberintos
+	assert(pacman.level == 1, "Nivel inicial de Pacman debe ser 1")
+	assert(pacman.dots_remaining > 0, "Nivel 1 debe tener puntos para comer")
+	var dots_lvl1 = pacman.dots_remaining
+	
+	pacman.level = 2
+	pacman._build_maze()
+	assert(pacman.dots_remaining > 0, "Nivel 2 debe tener puntos")
+	assert(pacman.maze_data.size() == 21, "Laberinto nivel 2 debe tener 21 filas")
+	
+	pacman.level = 3
+	pacman._build_maze()
+	assert(pacman.dots_remaining > 0, "Nivel 3 debe tener puntos")
+	
+	# 2. Probar resurrección de fantasmas al regresar comidos a la casa central
+	pacman._reset_positions()
+	assert(pacman.ghosts.size() == 4, "Debe haber 4 fantasmas")
+	var blinky = pacman.ghosts[0]
+	
+	# Comer a Blinky y colocarlo cerca del centro de la casa (10, 10)
+	blinky["mode"] = pacman.GhostMode.EATEN
+	blinky["pos"] = Vector2(10.0, 10.2)
+	blinky["grid"] = Vector2i(10, 10)
+	
+	# Ejecutar actualización
+	pacman._update_ghosts(0.016)
+	
+	# Debe haber revivido al llegar al centro
+	assert(blinky["mode"] == pacman.GhostMode.CHASE, "Fantasma comido debe revivir a modo CHASE al llegar al centro")
+	assert(blinky["dir"] == pacman.DIR_UP, "Fantasma revivido debe apuntar hacia arriba para salir")
+	
+	pacman.queue_free()
+	print("  [OK] TerminalPacman: Niveles 1, 2, 3 y sistema de revivir fantasmas validados.")
+
+func test_malware_invaders_waves() -> void:
+	print("[TEST] Verificando oleadas y progresión de Malware Invaders...")
+	var InvadersScene = load("res://scenes/minigames/MalwareInvadersMinigame.tscn")
+	assert(InvadersScene != null, "MalwareInvadersMinigame.tscn debe existir")
+	var invaders = InvadersScene.instantiate()
+	add_child(invaders)
+	
+	# 1. Probar oleada 1
+	assert(invaders.current_wave == 1, "Oleada inicial debe ser 1")
+	assert(invaders.alien_rows == 3, "Oleada 1 debe tener 3 filas")
+	assert(invaders.alien_cols == 6, "Oleada 1 debe tener 6 columnas")
+	assert(invaders.bunkers.size() > 0, "Los bunkers deben generarse")
+	
+	# 2. Probar progresión a oleada 2
+	invaders.current_wave = 2
+	invaders._setup_wave(2)
+	assert(invaders.alien_cols == 7, "Oleada 2 debe tener 7 columnas")
+	assert(invaders.alien_bullet_speed > 260.0, "La velocidad de proyectil alienígena debe escalar")
+	
+	# 3. Probar progresión a oleada 3
+	invaders.current_wave = 3
+	invaders._setup_wave(3)
+	assert(invaders.alien_rows == 4, "Oleada 3 debe tener 4 filas")
+	
+	# 4. Probar que al eliminar todos los aliens se dispara _on_wave_cleared
+	for a in invaders.aliens:
+		a["alive"] = false
+	invaders._on_alien_killed()
+	assert(invaders.is_wave_advancing == true, "Al limpiar oleada debe activarse is_wave_advancing")
+	assert(invaders.player_score > 0, "Limpiar oleada debe otorgar bonificación de puntuación")
+	
+	invaders.queue_free()
+	print("  [OK] Malware Invaders: Múltiples oleadas, escalado de dificultad y bunkers validados.")
+
+func test_terminal_tetris_and_console_install() -> void:
+	print("[TEST] Verificando TerminalTetris y comando 'andro install tetris'...")
+	var TetrisScript = load("res://scripts/minigames/TerminalTetris.gd")
+	assert(TetrisScript != null, "TerminalTetris.gd debe existir")
+	var tetris = TetrisScript.new()
+	add_child(tetris)
+	
+	# 1. Dimensiones y cuadrícula clásica
+	assert(tetris.COLS == 10, "Tetris debe tener 10 columnas")
+	assert(tetris.ROWS == 20, "Tetris debe tener 20 filas")
+	assert(tetris.grid.size() == 20, "Cuadrícula debe tener 20 filas")
+	assert(tetris.grid[0].size() == 10, "Cada fila debe tener 10 columnas")
+	assert(tetris.level == 1, "Nivel inicial de Tetris debe ser 1")
+	
+	# 2. Comprobar piezas del 7-bag randomizer
+	var pieces = ["I", "O", "T", "S", "Z", "J", "L"]
+	for p in pieces:
+		assert(tetris.TETROMINOES.has(p), "Tetromino %s debe existir en las definiciones" % p)
+		
+	# 3. Probar rotación y detección de colisión
+	assert(tetris._is_valid_position(Vector2i(3, 0), 0, "T"), "Posición inicial de pieza T debe ser válida")
+	assert(not tetris._is_valid_position(Vector2i(-2, 0), 0, "T"), "Posición fuera de bordes debe ser inválida")
+	
+	# 4. Probar caída y bloqueo
+	tetris._hard_drop()
+	assert(tetris.current_type != "", "Debe generarse una nueva pieza tras hard drop")
+	
+	tetris.queue_free()
+	
+	# 5. Probar comando 'andro install tetris' en LevelSelect
+	var LevelSelectScene = load("res://scenes/menus/LevelSelect.tscn")
+	assert(LevelSelectScene != null, "LevelSelect.tscn debe existir")
+	var level_select = LevelSelectScene.instantiate()
+	add_child(level_select)
+	
+	level_select._on_dev_command_submitted("andro install tetris")
+	assert(level_select.dev_console_output != null, "La consola debe estar inicializada")
+	var out_text = level_select.dev_console_output.text
+	assert(out_text.find("TETRIS") != -1 or out_text.find("tetris") != -1, "La terminal debe confirmar la instalación de Tetris")
+	
+	level_select.queue_free()
+	print("  [OK] TerminalTetris y comando 'andro install tetris' validados con éxito.")
