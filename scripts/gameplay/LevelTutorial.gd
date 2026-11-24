@@ -287,6 +287,10 @@ func _setup_reparacion_environment() -> void:
 		GameManager.backpack_updated.connect(_on_backpack_updated)
 
 func _setup_sistemas_environment() -> void:
+	# Iniciar música de fondo en bucle para los tutoriales del área de sistemas
+	if has_node("/root/MusicManager"):
+		get_node("/root/MusicManager").play_tutorial()
+
 	_set_holo_banner_text("LABORATORIO DE SOFTWARE // SISTEMAS OPERATIVOS")
 	_set_holo_sub_text("[PASO 1] ACÉRCATE A LA TERMINAL Y PRESIONA [E]")
 

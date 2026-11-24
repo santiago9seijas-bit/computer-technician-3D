@@ -19,12 +19,17 @@ config/version="0.0.9"
 run/main_scene="res://scenes/menus/MainMenu.tscn"
 config/features=PackedStringArray("4.7", "Forward Plus")
 
+[audio]
+
+busses/default_bus_layout="res://default_bus_layout.tres"
+
 [autoload]
 
 ResponsiveScreenManager="*res://scripts/autoload/ResponsiveScreenManager.gd"
 LocalizationManager="*res://scripts/autoload/LocalizationManager.gd"
 GameManager="*res://scripts/autoload/GameManager.gd"
 SaveManager="*res://scripts/autoload/SaveManager.gd"
+MusicManager="*res://scripts/autoload/MusicManager.gd"
 
 [display]
 

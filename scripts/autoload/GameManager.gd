@@ -86,6 +86,7 @@ var spares_stock: Dictionary = {
 var is_game_paused: bool = false
 var mouse_sensitivity_multiplier: float = 1.0
 var master_volume: float = 100.0
+var music_volume: float = 80.0
 var sfx_volume: float = 100.0
 var performance_mode: bool = false
 var show_hardware_monitor: bool = false # Consumo / Monitor en off por defecto
@@ -229,18 +230,51 @@ func set_mouse_sensitivity(multiplier: float) -> void:
 	mouse_sensitivity_multiplier = clampf(multiplier, 0.1, 4.0)
 	save_settings()
 
+func _ensure_audio_buses() -> void:
+	if AudioServer.get_bus_index("Music") == -1:
+		AudioServer.add_bus()
+		var idx = AudioServer.bus_count - 1
+		AudioServer.set_bus_name(idx, "Music")
+		AudioServer.set_bus_send(idx, "Master")
+	if AudioServer.get_bus_index("SFX") == -1:
+		AudioServer.add_bus()
+		var idx = AudioServer.bus_count - 1
+		AudioServer.set_bus_name(idx, "SFX")
+		AudioServer.set_bus_send(idx, "Master")
+
 func set_master_volume_val(val: float) -> void:
 	master_volume = clampf(val, 0.0, 100.0)
 	var bus = AudioServer.get_bus_index("Master")
 	if bus >= 0:
-		AudioServer.set_bus_volume_db(bus, linear_to_db(max(master_volume / 100.0, 0.0001)))
+		if master_volume <= 0.0:
+			AudioServer.set_bus_mute(bus, true)
+		else:
+			AudioServer.set_bus_mute(bus, false)
+			AudioServer.set_bus_volume_db(bus, linear_to_db(max(master_volume / 100.0, 0.0001)))
+	save_settings()
+
+func set_music_volume_val(val: float) -> void:
+	music_volume = clampf(val, 0.0, 100.0)
+	_ensure_audio_buses()
+	var bus = AudioServer.get_bus_index("Music")
+	if bus >= 0:
+		if music_volume <= 0.0:
+			AudioServer.set_bus_mute(bus, true)
+		else:
+			AudioServer.set_bus_mute(bus, false)
+			AudioServer.set_bus_volume_db(bus, linear_to_db(max(music_volume / 100.0, 0.0001)))
 	save_settings()
 
 func set_sfx_volume_val(val: float) -> void:
 	sfx_volume = clampf(val, 0.0, 100.0)
+	_ensure_audio_buses()
 	var bus = AudioServer.get_bus_index("SFX")
 	if bus >= 0:
-		AudioServer.set_bus_volume_db(bus, linear_to_db(max(sfx_volume / 100.0, 0.0001)))
+		if sfx_volume <= 0.0:
+			AudioServer.set_bus_mute(bus, true)
+		else:
+			AudioServer.set_bus_mute(bus, false)
+			AudioServer.set_bus_volume_db(bus, linear_to_db(max(sfx_volume / 100.0, 0.0001)))
 	save_settings()
 
 func load_settings() -> void:
@@ -253,6 +287,7 @@ func load_settings() -> void:
 		photosensitive_mode = cfg.get_value("accessibility", "photosensitive_mode", false)
 		performance_mode = cfg.get_value("graphics", "performance_mode", false)
 		master_volume = cfg.get_value("audio", "master_volume", 100.0)
+		music_volume = cfg.get_value("audio", "music_volume", 80.0)
 		sfx_volume = cfg.get_value("audio", "sfx_volume", 100.0)
 		mouse_sensitivity_multiplier = cfg.get_value("controls", "mouse_sensitivity", 1.0)
 		saved_lang = cfg.get_value("general", "language", "es")
@@ -261,12 +296,15 @@ func load_settings() -> void:
 		photosensitive_mode = false
 		performance_mode = false
 		master_volume = 100.0
+		music_volume = 80.0
 		sfx_volume = 100.0
 		mouse_sensitivity_multiplier = 1.0
 		saved_lang = "es"
 
 	# Aplicar volumen cargado
+	_ensure_audio_buses()
 	set_master_volume_val(master_volume)
+	set_music_volume_val(music_volume)
 	set_sfx_volume_val(sfx_volume)
 	set_performance_mode(performance_mode)
 	_apply_photosensitive_mode()
@@ -283,6 +321,7 @@ func save_settings() -> void:
 	cfg.set_value("accessibility", "photosensitive_mode", photosensitive_mode)
 	cfg.set_value("graphics", "performance_mode", performance_mode)
 	cfg.set_value("audio", "master_volume", master_volume)
+	cfg.set_value("audio", "music_volume", music_volume)
 	cfg.set_value("audio", "sfx_volume", sfx_volume)
 	cfg.set_value("controls", "mouse_sensitivity", mouse_sensitivity_multiplier)
 	if has_node("/root/LocalizationManager"):

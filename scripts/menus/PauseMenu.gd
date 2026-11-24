@@ -30,6 +30,8 @@ extends Control
 @onready var options_panel: PanelContainer = $OptionsPanel
 @onready var slider_volume: HSlider = $OptionsPanel/Margin/VBox/SettingsList/VolumeSection/SliderVolume
 @onready var lbl_volume_val: Label = $OptionsPanel/Margin/VBox/SettingsList/VolumeSection/HBox/LblVal
+@onready var slider_music: HSlider = get_node_or_null("OptionsPanel/Margin/VBox/SettingsList/MusicSection/SliderMusic")
+@onready var lbl_music_val: Label = get_node_or_null("OptionsPanel/Margin/VBox/SettingsList/MusicSection/HBox/LblVal")
 @onready var slider_sens: HSlider = $OptionsPanel/Margin/VBox/SettingsList/SensSection/SliderSens
 @onready var lbl_sens_val: Label = $OptionsPanel/Margin/VBox/SettingsList/SensSection/HBox/LblVal
 @onready var btn_consumo: Button = $OptionsPanel/Margin/VBox/SettingsList/ConsumoSection/BtnConsumo
@@ -82,6 +84,8 @@ func _ready() -> void:
 	# Conexiones del panel de opciones
 	btn_cerrar_opciones.pressed.connect(_close_options)
 	slider_volume.value_changed.connect(_on_volume_changed)
+	if slider_music:
+		slider_music.value_changed.connect(_on_music_changed)
 	slider_sens.value_changed.connect(_on_sens_changed)
 	if btn_consumo:
 		btn_consumo.pressed.connect(_on_consumo_toggle)
@@ -352,9 +356,16 @@ func _sync_options_controls() -> void:
 			var pct = clampf(vol_linear * 100.0, 0.0, 100.0)
 			slider_volume.value = pct
 			lbl_volume_val.text = "%d%%" % int(pct)
+
+	# Volumen Música
+	var gm = _get_game_manager()
+	var mus_val = gm.music_volume if gm and "music_volume" in gm else 80.0
+	if slider_music:
+		slider_music.value = mus_val
+	if lbl_music_val:
+		lbl_music_val.text = "%d%%" % int(mus_val)
 			
 	# Sensibilidad del mouse
-	var gm = _get_game_manager()
 	var mult: float = 1.0
 	if gm and "mouse_sensitivity_multiplier" in gm:
 		mult = gm.mouse_sensitivity_multiplier
@@ -437,6 +448,22 @@ func _on_volume_changed(value: float) -> void:
 			else:
 				AudioServer.set_bus_mute(bus_idx, false)
 				var db = linear_to_db(value / 100.0)
+				AudioServer.set_bus_volume_db(bus_idx, db)
+
+func _on_music_changed(value: float) -> void:
+	if lbl_music_val:
+		lbl_music_val.text = "%d%%" % int(value)
+	var gm = _get_game_manager()
+	if gm and gm.has_method("set_music_volume_val"):
+		gm.set_music_volume_val(value)
+	else:
+		var bus_idx = AudioServer.get_bus_index("Music")
+		if bus_idx != -1:
+			if value <= 0.0:
+				AudioServer.set_bus_mute(bus_idx, true)
+			else:
+				AudioServer.set_bus_mute(bus_idx, false)
+				var db = linear_to_db(max(value / 100.0, 0.0001))
 				AudioServer.set_bus_volume_db(bus_idx, db)
 
 func _on_sens_changed(value: float) -> void:

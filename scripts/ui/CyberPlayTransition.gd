@@ -58,6 +58,12 @@ static func play(
 	var old_glitch = tree.root.get_node_or_null("GlitchAudioPlayer")
 	if old_glitch:
 		old_glitch.queue_free()
+
+	var low_path = target_scene_path.to_lower()
+	if "levelselect" in low_path or "mainmenu" in low_path or "saveslots" in low_path:
+		var mm = tree.root.get_node_or_null("MusicManager")
+		if mm and mm.has_method("stop_music"):
+			mm.stop_music(0.8)
 		
 	# Iniciar la carga en segundo plano (threaded loading) inmediatamente
 	# para que los modelos, texturas y shaders de la escena destino se precarguen sin congelar el hilo principal.
@@ -66,7 +72,6 @@ static func play(
 		
 	var resolved_mode = mode.to_lower()
 	if resolved_mode == "" and target_scene_path != "":
-		var low_path = target_scene_path.to_lower()
 		if "system" in low_path:
 			resolved_mode = "sistema"
 		elif "server" in low_path:
@@ -103,6 +108,11 @@ static func play_exit(
 ) -> void:
 	if not tree or not tree.root:
 		return
+
+	var mm = tree.root.get_node_or_null("MusicManager")
+	if mm and mm.has_method("stop_music"):
+		mm.stop_music(0.8)
+
 	var m = mode.to_lower()
 	if title_text == "":
 		if m == "sistema":
@@ -152,6 +162,12 @@ static func play_error_glitch(
 	var old_glitch = tree.root.get_node_or_null("GlitchAudioPlayer")
 	if old_glitch:
 		old_glitch.queue_free()
+
+	var low_path = target_scene_path.to_lower()
+	if "levelselect" in low_path or "mainmenu" in low_path or "saveslots" in low_path:
+		var mm = tree.root.get_node_or_null("MusicManager")
+		if mm and mm.has_method("stop_music"):
+			mm.stop_music(0.8)
 	if target_scene_path != "":
 		ResourceLoader.load_threaded_request(target_scene_path)
 	var transition = CyberPlayTransition.new()
@@ -177,6 +193,12 @@ static func play_code_restored(
 	var old_glitch = tree.root.get_node_or_null("GlitchAudioPlayer")
 	if old_glitch:
 		old_glitch.queue_free()
+
+	var low_path = target_scene_path.to_lower()
+	if "levelselect" in low_path or "mainmenu" in low_path or "saveslots" in low_path:
+		var mm = tree.root.get_node_or_null("MusicManager")
+		if mm and mm.has_method("stop_music"):
+			mm.stop_music(0.8)
 	if target_scene_path != "":
 		ResourceLoader.load_threaded_request(target_scene_path)
 	var transition = CyberPlayTransition.new()

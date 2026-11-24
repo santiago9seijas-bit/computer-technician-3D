@@ -44,6 +44,8 @@ var bg_tween: Tween = null
 # Componentes interactivos de Configuración
 @onready var slider_master: HSlider = $ConfigPanel/Margin/VBox/OptionsVBox/MasterVolRow/SliderMaster
 @onready var lbl_master_val: Label = $ConfigPanel/Margin/VBox/OptionsVBox/MasterVolRow/LblVal
+@onready var slider_music: HSlider = get_node_or_null("ConfigPanel/Margin/VBox/OptionsVBox/MusicVolRow/SliderMusic")
+@onready var lbl_music_val: Label = get_node_or_null("ConfigPanel/Margin/VBox/OptionsVBox/MusicVolRow/LblVal")
 @onready var slider_sfx: HSlider = $ConfigPanel/Margin/VBox/OptionsVBox/SFXVolRow/SliderSFX
 @onready var lbl_sfx_val: Label = $ConfigPanel/Margin/VBox/OptionsVBox/SFXVolRow/LblVal
 @onready var btn_fullscreen: Button = $ConfigPanel/Margin/VBox/OptionsVBox/FullscreenRow/BtnFullscreen
@@ -508,6 +510,19 @@ func _setup_configuration_controls() -> void:
 			var g = _get_game_manager()
 			if g and g.has_method("set_master_volume_val"):
 				g.set_master_volume_val(val)
+		)
+
+	if slider_music:
+		var mus_vol = gm.music_volume if gm and "music_volume" in gm else 80.0
+		slider_music.value = mus_vol
+		if lbl_music_val:
+			lbl_music_val.text = "%d%%" % int(mus_vol)
+		slider_music.value_changed.connect(func(val: float):
+			if lbl_music_val:
+				lbl_music_val.text = "%d%%" % int(val)
+			var g = _get_game_manager()
+			if g and g.has_method("set_music_volume_val"):
+				g.set_music_volume_val(val)
 		)
 		
 	if slider_sfx:

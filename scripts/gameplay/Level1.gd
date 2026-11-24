@@ -28,6 +28,10 @@ func _ready() -> void:
 	GameManager.start_level(GameManager.get_difficulty_time())
 	GameManager.timer_active = false
 
+	# Iniciar música de fondo en bucle para los niveles normales de reparación (círculo rojo)
+	if has_node("/root/MusicManager"):
+		get_node("/root/MusicManager").play_reparacion()
+
 	# Iniciar cinemática de entrada orbital vistosa
 	if player and player.has_method("play_intro_cinematic"):
 		player.play_intro_cinematic(func():

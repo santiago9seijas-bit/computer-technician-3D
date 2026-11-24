@@ -8,6 +8,7 @@ func _ready() -> void:
 	test_server_cases_and_order_desks()
 	test_level_intro_modals_desafios()
 	test_programming_minigame_and_tutorial()
+	test_music_manager_and_buses()
 	print("--- TODOS LOS TESTS COMPLETADOS CON ÉXITO [OK] ---")
 	get_tree().quit(0)
 
@@ -536,3 +537,29 @@ func test_programming_minigame_and_tutorial() -> void:
 	print("  Explicación de comandos con diálogo abajo y avance por [E] validada [OK]")
 
 	print("  [OK] Minijuego de programación y diálogo de Jeremías validados exitosamente.")
+
+func test_music_manager_and_buses() -> void:
+	print("[TEST] Verificando MusicManager, pistas de reparación/tutorial y buses de audio...")
+	var music_bus_idx = AudioServer.get_bus_index("Music")
+	assert(music_bus_idx != -1, "El bus 'Music' debe existir en AudioServer")
+
+	var mm = get_node_or_null("/root/MusicManager")
+	assert(mm != null, "MusicManager debe existir como singleton Autoload")
+
+	# 1. Probar reproducción de música de reparación
+	mm.play_reparacion()
+	assert(mm.current_track == mm.REPARACION_MUSIC_PATH, "MusicManager debe estar reproduciendo 'reparacion'")
+	assert(mm.music_player != null and mm.music_player.bus == "Music", "El reproductor de música debe usar el bus 'Music'")
+
+	# 2. Probar transición a música de tutorial
+	mm.play_tutorial()
+	assert(mm.current_track == mm.TUTORIAL_MUSIC_PATH, "MusicManager debe estar reproduciendo 'tutorial'")
+
+	# 3. Probar control de volumen de música desde GameManager
+	GameManager.set_music_volume_val(60.0)
+	assert(is_equal_approx(GameManager.music_volume, 60.0), "GameManager.music_volume debe ser 60.0")
+
+	# 4. Probar parada de música
+	mm.stop_music(0.0)
+	assert(mm.current_track == "", "MusicManager debe detener la pista activa")
+	print("  [OK] MusicManager y buses de audio validados exitosamente.")

@@ -3048,6 +3048,10 @@ func _launch_minigame(scene: PackedScene) -> void:
 	current_minigame_instance = inst
 	minigame_container.add_child(inst)
 	
+	if active_card_data.get("division", "") == "sistema" or current_mode == "sistema":
+		if has_node("/root/MusicManager"):
+			get_node("/root/MusicManager").play_tutorial()
+	
 	if inst.has_signal("minigame_finished"):
 		inst.minigame_finished.connect(_on_minigame_finished)
 
@@ -3085,6 +3089,8 @@ func _on_minigame_finished(_success: bool) -> void:
 	if is_instance_valid(current_minigame_instance):
 		current_minigame_instance.queue_free()
 		current_minigame_instance = null
+	if has_node("/root/MusicManager"):
+		get_node("/root/MusicManager").stop_music(0.8)
 	is_launching_level = false
 	_sync_progression_from_save()
 

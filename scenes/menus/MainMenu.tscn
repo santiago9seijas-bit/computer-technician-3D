@@ -727,6 +727,31 @@ theme_override_font_sizes/font_size = 13
 text = "100%"
 horizontal_alignment = 2
 
+[node name="MusicVolRow" type="HBoxContainer" parent="ConfigPanel/Margin/VBox/OptionsVBox" unique_id=2042226002]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Lbl" type="Label" parent="ConfigPanel/Margin/VBox/OptionsVBox/MusicVolRow" unique_id=487226621]
+custom_minimum_size = Vector2(230, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 13
+text = "MÚSICA DE FONDO"
+
+[node name="SliderMusic" type="HSlider" parent="ConfigPanel/Margin/VBox/OptionsVBox/MusicVolRow" unique_id=1015416292]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+value = 80.0
+
+[node name="LblVal" type="Label" parent="ConfigPanel/Margin/VBox/OptionsVBox/MusicVolRow" unique_id=606894297]
+custom_minimum_size = Vector2(60, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 13
+text = "80%"
+horizontal_alignment = 2
+
 [node name="SFXVolRow" type="HBoxContainer" parent="ConfigPanel/Margin/VBox/OptionsVBox" unique_id=2042226001]
 layout_mode = 2
 theme_override_constants/separation = 16
