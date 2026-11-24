@@ -296,14 +296,6 @@ flat = true
 script = ExtResource("3_cbtn")
 slant = 14.0
 
-[node name="BtnTutoriales" type="Button" parent="TopBar/Tabs"]
-custom_minimum_size = Vector2(165, 40)
-layout_mode = 2
-text = "TUTORIALES"
-flat = true
-script = ExtResource("3_cbtn")
-slant = 14.0
-
 [node name="Spacer2" type="Control" parent="TopBar"]
 layout_mode = 2
 size_flags_horizontal = 3

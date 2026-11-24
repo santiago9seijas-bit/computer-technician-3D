@@ -13,7 +13,7 @@ static var initial_mode: String = "reparacion"
 @onready var background_rect: ColorRect = $Background
 @onready var btn_volver: Button = $TopBar/BtnVolver
 @onready var btn_niveles: Button = $TopBar/Tabs/BtnNiveles
-@onready var btn_tutoriales: Button = $TopBar/Tabs/BtnTutoriales
+@onready var btn_tutoriales: Button = get_node_or_null("TopBar/Tabs/BtnTutoriales")
 @onready var btn_reparacion: Button = $ModeSelector/BtnReparacion
 @onready var btn_fondo: Button = $ModeSelector/BtnFondo
 @onready var btn_sistema: Button = $ModeSelector/BtnSistema
@@ -1607,9 +1607,10 @@ func _ready() -> void:
 	modulate = Color.WHITE
 	btn_volver.pressed.connect(_on_volver_pressed)
 	
-	# Pestañas principales (Niveles vs Tutoriales) - Conexión instantánea
+	# Pestañas principales (Niveles) - Conexión instantánea
 	btn_niveles.pressed.connect(func(): _switch_main_tab("niveles"))
-	btn_tutoriales.pressed.connect(func(): _switch_main_tab("tutoriales"))
+	if btn_tutoriales:
+		btn_tutoriales.pressed.connect(func(): _switch_main_tab("tutoriales"))
 	
 	# Selectores de modo/división
 	btn_reparacion.pressed.connect(func(): _switch_mode("reparacion"))
@@ -1886,20 +1887,22 @@ func _update_tab_buttons_visuals() -> void:
 		btn_niveles.modulate = Color(1.3, 1.3, 1.3, 1.0)
 		if "border_color" in btn_niveles:
 			btn_niveles.border_color = pal.accent
-		btn_tutoriales.modulate = Color(0.65, 0.65, 0.72, 0.75)
-		if "border_color" in btn_tutoriales:
-			btn_tutoriales.border_color = Color(0.45, 0.15, 0.6, 0.6)
+		if btn_tutoriales:
+			btn_tutoriales.modulate = Color(0.65, 0.65, 0.72, 0.75)
+			if "border_color" in btn_tutoriales:
+				btn_tutoriales.border_color = Color(0.45, 0.15, 0.6, 0.6)
 	else:
-		btn_tutoriales.modulate = Color(1.3, 1.3, 1.3, 1.0)
-		if "border_color" in btn_tutoriales:
-			btn_tutoriales.border_color = pal.accent
+		if btn_tutoriales:
+			btn_tutoriales.modulate = Color(1.3, 1.3, 1.3, 1.0)
+			if "border_color" in btn_tutoriales:
+				btn_tutoriales.border_color = pal.accent
 		btn_niveles.modulate = Color(0.65, 0.65, 0.72, 0.75)
 		if "border_color" in btn_niveles:
 			btn_niveles.border_color = Color(0.45, 0.15, 0.6, 0.6)
 			
 	if btn_niveles.has_method("queue_redraw"):
 		btn_niveles.queue_redraw()
-	if btn_tutoriales.has_method("queue_redraw"):
+	if btn_tutoriales and btn_tutoriales.has_method("queue_redraw"):
 		btn_tutoriales.queue_redraw()
 
 # =============================================================================
