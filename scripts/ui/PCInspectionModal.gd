@@ -734,6 +734,7 @@ func _open_dust_cleaner(comp_name: String) -> void:
 	get_tree().root.add_child(minigame)
 	
 	minigame.connect("minigame_finished", func(success: bool):
+		if not is_instance_valid(self): return
 		if is_instance_valid(minigame) and not minigame.is_queued_for_deletion(): minigame.queue_free()
 		modal_control.visible = true
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
@@ -775,6 +776,7 @@ func _open_ram_static_minigame() -> void:
 	get_tree().root.add_child(minigame)
 	
 	minigame.connect("minigame_finished", func(success: bool):
+		if not is_instance_valid(self): return
 		modal_control.visible = true
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 		if success:
@@ -796,6 +798,7 @@ func _open_ram_pines() -> void:
 	get_tree().root.add_child(minigame)
 	
 	minigame.connect("minigame_finished", func(success: bool):
+		if not is_instance_valid(self): return
 		if is_instance_valid(minigame) and not minigame.is_queued_for_deletion(): minigame.queue_free()
 		modal_control.visible = true
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
@@ -823,6 +826,7 @@ func _open_cpu_limpiar() -> void:
 	get_tree().root.add_child(minigame)
 	
 	minigame.connect("minigame_finished", func(success: bool):
+		if not is_instance_valid(self): return
 		if is_instance_valid(minigame) and not minigame.is_queued_for_deletion(): minigame.queue_free()
 		modal_control.visible = true
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
@@ -842,6 +846,7 @@ func _open_cpu_pines() -> void:
 	get_tree().root.add_child(minigame)
 	
 	minigame.connect("minigame_finished", func(success: bool):
+		if not is_instance_valid(self): return
 		if is_instance_valid(minigame) and not minigame.is_queued_for_deletion(): minigame.queue_free()
 		modal_control.visible = true
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
@@ -887,6 +892,7 @@ func _open_voltimeter(comp_name: String) -> void:
 	get_tree().root.add_child(minigame)
 	
 	minigame.connect("minigame_finished", func(success: bool):
+		if not is_instance_valid(self): return
 		if is_instance_valid(minigame) and not minigame.is_queued_for_deletion(): minigame.queue_free()
 		modal_control.visible = true
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
@@ -1318,6 +1324,7 @@ func _open_cooler_minigame(is_empty: bool) -> void:
 		current_pc.update_3d_state()
 	)
 	minigame.connect("minigame_finished", func(success: bool):
+		if not is_instance_valid(self): return
 		if is_instance_valid(minigame) and not minigame.is_queued_for_deletion(): minigame.queue_free()
 		modal_control.visible = true
 		if success:
@@ -1349,6 +1356,7 @@ func _open_ram_minigame(is_empty: bool, preferred_ram_type: String = "") -> void
 		current_pc.update_3d_state()
 	)
 	minigame.connect("minigame_finished", func(success: bool):
+		if not is_instance_valid(self): return
 		if is_instance_valid(minigame) and not minigame.is_queued_for_deletion(): minigame.queue_free()
 		modal_control.visible = true
 		if success:
@@ -1394,6 +1402,7 @@ func _open_hdd_minigame(is_empty: bool, preferred_drive_type: String = "") -> vo
 			current_pc.update_3d_state()
 	)
 	minigame.connect("minigame_finished", func(success: bool):
+		if not is_instance_valid(self): return
 		if is_instance_valid(minigame) and not minigame.is_queued_for_deletion(): minigame.queue_free()
 		modal_control.visible = true
 		if success and current_pc:
@@ -1419,6 +1428,7 @@ func _open_m2_tutorial_minigame(is_empty: bool = false) -> void:
 	get_tree().root.add_child(minigame)
 	
 	minigame.connect("minigame_finished", func(success: bool):
+		if not is_instance_valid(self): return
 		if is_instance_valid(minigame) and not minigame.is_queued_for_deletion(): minigame.queue_free()
 		modal_control.visible = true
 		if success and is_instance_valid(current_pc):
@@ -1496,6 +1506,7 @@ func _open_gpu_minigame(is_empty: bool, preferred_gpu_type: String = "") -> void
 		current_pc.update_3d_state()
 	)
 	minigame.connect("minigame_finished", func(success: bool):
+		if not is_instance_valid(self): return
 		if is_instance_valid(minigame) and not minigame.is_queued_for_deletion(): minigame.queue_free()
 		modal_control.visible = true
 		if success:
@@ -1529,6 +1540,7 @@ func _open_psu_minigame(is_empty: bool) -> void:
 		current_pc.update_3d_state()
 	)
 	minigame.connect("minigame_finished", func(success: bool):
+		if not is_instance_valid(self): return
 		if is_instance_valid(minigame) and not minigame.is_queued_for_deletion(): minigame.queue_free()
 		modal_control.visible = true
 		if success:
@@ -1556,6 +1568,7 @@ func _open_mobo_minigame(is_empty: bool) -> void:
 		current_pc.update_3d_state()
 	)
 	minigame.connect("minigame_finished", func(success: bool):
+		if not is_instance_valid(self): return
 		if is_instance_valid(minigame) and not minigame.is_queued_for_deletion(): minigame.queue_free()
 		modal_control.visible = true
 		if success:
@@ -1585,6 +1598,7 @@ func _open_cpu_minigame(is_empty: bool) -> void:
 		current_pc.update_3d_state()
 	)
 	minigame.connect("minigame_finished", func(success: bool):
+		if not is_instance_valid(self): return
 		if is_instance_valid(minigame) and not minigame.is_queued_for_deletion(): minigame.queue_free()
 		modal_control.visible = true
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
@@ -1606,6 +1620,7 @@ func _open_liquid_cooling_minigame() -> void:
 	get_tree().root.add_child(minigame)
 	
 	minigame.connect("minigame_finished", func(success: bool):
+		if not is_instance_valid(self): return
 		if is_instance_valid(minigame) and not minigame.is_queued_for_deletion(): minigame.queue_free()
 		modal_control.visible = true
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE

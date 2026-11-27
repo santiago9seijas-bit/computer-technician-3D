@@ -17,6 +17,7 @@ signal minigame_finished(success: bool)
 @onready var heatsink_area: Control = $ModalControl/Panel/VBox/WorkArea/HeatsinkFrame/Margin/HeatsinkArea
 @onready var work_area: Control = $ModalControl/Panel/VBox/WorkArea
 @onready var right_guide_panel: Control = $ModalControl/Panel/VBox/WorkArea/RightGuidePanel
+@onready var guide_text: Label = $ModalControl/Panel/VBox/WorkArea/RightGuidePanel/Margin/VBoxGuide/GuideText
 @onready var warning_label: Label = $ModalControl/Panel/VBox/WarningLabel
 @onready var victory_banner: PanelContainer = $ModalControl/Panel/VBox/VictoryBanner
 @onready var btn_cancel: Button = $ModalControl/Panel/VBox/Footer/BtnCancel
@@ -134,20 +135,16 @@ func _ready() -> void:
 	if get_tree().current_scene == self:
 		_start_joa_intro()
 
-# El texto instructivo NO va dentro del recuadro del minijuego: se elimina el
-# panel de guía interna y se muestra como una línea diminuta en la capa global.
+# La explicación queda en el hueco de la derecha, pegada al marco del componente.
+# No se superpone con el área jugable ni ocupa la franja global de la pantalla.
 func _show_minigame_hint() -> void:
 	if is_instance_valid(right_guide_panel):
-		right_guide_panel.visible = false
-	var gm = get_node_or_null("/root/GameManager")
-	if not gm or not gm.has_method("show_minigame_hint"):
-		return
-	var msg_txt: String
-	if is_psu_mode:
-		msg_txt = "FUENTE [5]: arrastra la tapa y limpia la pelusa interna."
-	else:
-		msg_txt = "RAM [5]: cepilla el polvo hasta dejar los contactos al 100%."
-	gm.show_minigame_hint(msg_txt)
+		right_guide_panel.visible = true
+	if is_instance_valid(guide_text):
+		if is_psu_mode:
+			guide_text.text = "FUENTE [5]: arrastra la tapa y limpia la pelusa interna."
+		else:
+			guide_text.text = "RAM [5]: cepilla el polvo hasta dejar los contactos al 100%."
 
 func _start_joa_intro() -> void:
 	is_intro_active = true
