@@ -365,19 +365,8 @@ func _on_static_fully_discharged() -> void:
 		sm.mark_node_completed("reparacion", 2)  # Tutorial RAM compatibilidad
 		sm.unlock_glossary("ram")
 		
-	# Mostrar panel de victoria
-	victory_panel.visible = true
-	victory_panel.scale = Vector2(0.9, 0.9)
-	victory_panel.pivot_offset = victory_panel.size * 0.5
-	
-	var tw = create_tween().set_parallel(true)
-	tw.tween_property(victory_panel, "modulate:a", 1.0, 0.35)
-	tw.tween_property(victory_panel, "scale", Vector2.ONE, 0.35).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-
-	# La barra vacía termina el minijuego automáticamente, sin esperar a pulsar nada.
-	var finish_tw = create_tween()
-	finish_tw.tween_interval(0.6)
-	finish_tw.tween_callback(_finalize_success)
+	# Sin cartel final: al vaciarse la barra el minijuego termina de inmediato.
+	_finalize_success()
 
 func _finalize_success() -> void:
 	if not is_finishing:

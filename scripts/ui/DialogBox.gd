@@ -150,29 +150,36 @@ func _apply_layout_mode() -> void:
 		return
 
 	if is_compact:
-		# Cuadro pequeño anclado al lado derecho del área de trabajo.
+		# Cuadro pequeño pegado al lado derecho, siempre dentro del área visible.
+		var parent_ctrl := box.get_parent() as Control
+		var pw := parent_ctrl.size.x if parent_ctrl else 0.0
+		var ph := parent_ctrl.size.y if parent_ctrl else 0.0
+		if pw <= 0.0: pw = 1280.0
+		if ph <= 0.0: ph = 720.0
+		var w := minf(290.0, pw - 24.0)
+		var h := minf(270.0, ph - 24.0)
 		box.anchor_left = 1.0
 		box.anchor_right = 1.0
 		box.anchor_top = 0.5
 		box.anchor_bottom = 0.5
-		box.offset_left = -310.0
-		box.offset_top = -150.0
-		box.offset_right = -14.0
-		box.offset_bottom = 150.0
+		box.offset_left = -10.0 - w
+		box.offset_top = -h * 0.5
+		box.offset_right = -10.0
+		box.offset_bottom = h * 0.5
 		z_index = 20
 
 		if is_instance_valid(p_margin):
-			p_margin.add_theme_constant_override("margin_left", 12)
-			p_margin.add_theme_constant_override("margin_right", 12)
-			p_margin.add_theme_constant_override("margin_top", 8)
-			p_margin.add_theme_constant_override("margin_bottom", 8)
+			p_margin.add_theme_constant_override("margin_left", 10)
+			p_margin.add_theme_constant_override("margin_right", 10)
+			p_margin.add_theme_constant_override("margin_top", 6)
+			p_margin.add_theme_constant_override("margin_bottom", 6)
 		if is_instance_valid(speaker):
-			speaker.add_theme_font_size_override("font_size", 12)
+			speaker.add_theme_font_size_override("font_size", 11)
 		if is_instance_valid(message):
-			message.add_theme_font_size_override("font_size", 12)
+			message.add_theme_font_size_override("font_size", 11)
 		if is_instance_valid(btn):
-			btn.custom_minimum_size = Vector2(250, 32)
-			btn.add_theme_font_size_override("font_size", 11)
+			btn.custom_minimum_size = Vector2(230, 30)
+			btn.add_theme_font_size_override("font_size", 10)
 			btn.text = "[ E ] CONTINUAR ▶"
 	else:
 		# Diseño original: cuadro ancho abajo con retrato de JOA.

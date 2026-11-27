@@ -55,6 +55,7 @@ var channel_a_active: bool = false
 var channel_b_active: bool = false
 var channel_c_active: bool = false
 var is_handshake_done: bool = false
+var is_finishing: bool = false
 
 var pulse_tween: Tween = null
 
@@ -270,13 +271,26 @@ func _on_handshake_pressed() -> void:
 	if gm_final and gm_final.has_method("register_repair"):
 		gm_final.register_repair(50, 5.0)
 
-func _on_continue_pressed() -> void:
+	# Termina solo al completar el enlace, sin esperar a pulsar "Continuar".
+	var finish_tw = create_tween()
+	finish_tw.tween_interval(0.6)
+	finish_tw.tween_callback(_finish_success)
+
+func _finish_success() -> void:
+	if is_finishing:
+		return
+	is_finishing = true
 	if pulse_tween and pulse_tween.is_valid():
 		pulse_tween.kill()
 	minigame_finished.emit(true)
 	queue_free()
 
+func _on_continue_pressed() -> void:
+	_finish_success()
+
 func _on_cancel_pressed() -> void:
+	if is_finishing:
+		return
 	if pulse_tween and pulse_tween.is_valid():
 		pulse_tween.kill()
 	minigame_finished.emit(false)
