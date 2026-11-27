@@ -77,7 +77,7 @@ const TOOL_DATA: Dictionary = {
 			"res://herramientas modelos/lupa.glb",
 			"res://modelos de herramientas/lupa.glb"
 		],
-		"pos": Vector3(0.20, -0.09, -0.36),
+		"pos": Vector3(0.20, -0.16, -0.36),
 		"rot": Vector3(12.0, -78.0, -18.0),
 		"scale": Vector3(0.085, 0.085, 0.085),
 		"hide_offset_y": -0.32

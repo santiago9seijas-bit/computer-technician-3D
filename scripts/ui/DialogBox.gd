@@ -155,9 +155,9 @@ func _apply_layout_mode() -> void:
 		box.anchor_right = 1.0
 		box.anchor_top = 0.5
 		box.anchor_bottom = 0.5
-		box.offset_left = -350.0
+		box.offset_left = -310.0
 		box.offset_top = -150.0
-		box.offset_right = -20.0
+		box.offset_right = -14.0
 		box.offset_bottom = 150.0
 		z_index = 20
 

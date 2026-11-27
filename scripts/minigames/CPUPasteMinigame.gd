@@ -121,6 +121,10 @@ func _ready() -> void:
 	apply_progress_bar.value = 0.0
 	warning_label.text = ""
 	
+	# La mancha se encoge/crece desde su centro para quedarse sobre el IHS.
+	old_paste_stain.pivot_offset = old_paste_stain.size * 0.5
+	new_paste_stain.pivot_offset = new_paste_stain.size * 0.5
+
 	old_paste_stain.visible = true
 	old_paste_stain.scale = Vector2(1.0, 1.0)
 	old_paste_stain.modulate.a = 1.0
