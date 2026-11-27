@@ -24,7 +24,6 @@ signal minigame_finished(success: bool)
 const TEX_RAM: Texture2D = preload("res://pixel art minijuegos/ramstipos/ram ddr.png")
 const TEX_FUENTE_CERRADA: Texture2D = preload("res://pixel art minijuegos/fuente/fuente cerrada.png")
 const TEX_FUENTE_ABIERTA: Texture2D = preload("res://pixel art minijuegos/fuente/fuente abierta.png")
-const DIALOG_BOX_SCENE: PackedScene = preload("res://scenes/ui/DialogBox.tscn")
 
 # =============================================================================
 # SPRITES DE PELUSA EN PIXEL ART
@@ -90,7 +89,6 @@ var is_finishing: bool = false
 var is_brush_pressed: bool = false
 var is_intro_active: bool = false
 var countdown_overlay: CanvasLayer = null
-var dialog_box_inst: Control = null
 var clump_nodes: Array[Control] = []
 var ram_sprite_node: TextureRect = null
 
@@ -131,43 +129,33 @@ func _ready() -> void:
 		_spawn_dust_clumps()
 	_update_component_texts()
 	_update_ui()
-	
+	_show_minigame_hint()
+
 	if get_tree().current_scene == self:
 		_start_joa_intro()
+
+# El texto instructivo NO va dentro del recuadro del minijuego: se elimina el
+# panel de guía interna y se muestra como una línea diminuta en la capa global.
+func _show_minigame_hint() -> void:
+	if is_instance_valid(right_guide_panel):
+		right_guide_panel.visible = false
+	var gm = get_node_or_null("/root/GameManager")
+	if not gm or not gm.has_method("show_minigame_hint"):
+		return
+	var msg_txt: String
+	if is_psu_mode:
+		msg_txt = "FUENTE [5]: arrastra la tapa y limpia la pelusa interna."
+	else:
+		msg_txt = "RAM [5]: cepilla el polvo hasta dejar los contactos al 100%."
+	gm.show_minigame_hint(msg_txt)
 
 func _start_joa_intro() -> void:
 	is_intro_active = true
 	if heatsink_area:
 		heatsink_area.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	
-	var msg_txt = ""
-	if is_psu_mode:
-		msg_txt = "FUENTE: arrastra la tapa metálica y limpia la pelusa interna con el limpiador [5]."
-	else:
-		msg_txt = "RAM: usa el cepillo [5] sobre el polvo hasta dejar los contactos al 100%."
-
-	# El aviso va como tarjeta pequeña en la esquina, separada del área de juego.
-	if DIALOG_BOX_SCENE:
-		dialog_box_inst = DIALOG_BOX_SCENE.instantiate()
-		add_child(dialog_box_inst)
-		if dialog_box_inst.has_method("show_message"):
-			dialog_box_inst.show_message(
-				"JOA",
-				msg_txt,
-				func():
-					if is_instance_valid(right_guide_panel):
-						right_guide_panel.visible = true
-					_start_countdown(),
-				true
-			)
-		else:
-			_on_intro_skipped()
-	else:
-		_on_intro_skipped()
+	_start_countdown()
 
 func _on_intro_skipped() -> void:
-	if is_instance_valid(right_guide_panel):
-		right_guide_panel.visible = true
 	_start_countdown()
 
 func _start_countdown() -> void:
@@ -245,12 +233,14 @@ func _run_countdown_step(index: int, steps: Array[Dictionary], label: Label, roo
 	)
 
 func _unhandled_input(event: InputEvent) -> void:
+	if is_finishing or not is_inside_tree():
+		return
 	if event.is_action_pressed("ui_cancel") or (event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE):
 		get_viewport().set_input_as_handled()
-		minigame_finished.emit(false)
+		_on_cancel_pressed()
 
 func _input(event: InputEvent) -> void:
-	if is_game_completed:
+	if is_game_completed or is_finishing or not is_inside_tree():
 		return
 		
 	# Si estamos en modo Fuente y la tapa aún no se ha deslizado completamente, procesar arrastre de la tapa
@@ -752,9 +742,12 @@ func _on_cancel_pressed() -> void:
 	_finish(is_game_completed)
 
 func _finish(success: bool) -> void:
-	if is_finishing:
+	if is_finishing or not is_inside_tree():
 		return
 	is_finishing = true
+	var gm = get_node_or_null("/root/GameManager")
+	if gm and gm.has_method("clear_minigame_hint"):
+		gm.clear_minigame_hint()
 	minigame_finished.emit(success)
 
 	if get_tree().current_scene == self:

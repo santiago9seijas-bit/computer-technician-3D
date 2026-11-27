@@ -141,7 +141,6 @@ var is_short_repaired: bool = false
 var is_completed: bool = false
 var is_intro_active: bool = false
 var countdown_overlay: CanvasLayer = null
-var dialog_box_inst: Control = null
 var tp_button_nodes: Array[Button] = []
 
 func setup_component(comp_name: String) -> void:
@@ -332,6 +331,9 @@ func _ready() -> void:
 	repair_box.visible = false
 	
 	btn_cancel.pressed.connect(func():
+		var gm = get_node_or_null("/root/GameManager")
+		if gm and gm.has_method("clear_minigame_hint"):
+			gm.clear_minigame_hint()
 		minigame_finished.emit(false)
 		if get_tree().current_scene == self:
 			get_tree().change_scene_to_file("res://scenes/menus/LevelSelect.tscn")
@@ -355,28 +357,20 @@ func _ready() -> void:
 	
 	target_mark.visible = false
 	needle.visible = false
-	
+	_show_minigame_hint()
+
 	if get_tree().current_scene == self:
 		_start_joa_intro()
 
+# Aviso diminuto en la capa global, fuera del recuadro del minijuego.
+func _show_minigame_hint() -> void:
+	var gm = get_node_or_null("/root/GameManager")
+	if gm and gm.has_method("show_minigame_hint"):
+		gm.show_minigame_hint("Mide cada TP con el voltímetro [3]: ajusta DC/AC/Ohm y calibra la aguja.")
+
 func _start_joa_intro() -> void:
 	is_intro_active = true
-	var dlg_scene = load("res://scenes/ui/DialogBox.tscn")
-	if dlg_scene:
-		dialog_box_inst = dlg_scene.instantiate()
-		add_child(dialog_box_inst)
-		if dialog_box_inst.has_method("show_message"):
-			dialog_box_inst.show_message(
-				"JOA",
-				"Mide cada TP con el voltímetro [3]: ajusta DC/AC/Ohm y calibra la aguja.",
-				func():
-					_start_countdown(),
-				true
-			)
-		else:
-			_start_countdown()
-	else:
-		_start_countdown()
+	_start_countdown()
 
 func _start_countdown() -> void:
 	if countdown_overlay:
@@ -900,6 +894,8 @@ func _check_victory() -> void:
 	var gm = get_node_or_null("/root/GameManager")
 	if gm and gm.has_method("add_score"):
 		gm.add_score(200)
+	if gm and gm.has_method("clear_minigame_hint"):
+		gm.clear_minigame_hint()
 		
 	status_label.text = "★ ¡TODOS LOS RIELES MEDIDOS, CALIBRADOS Y REPARADOS! DIAGNÓSTICO EXITOSO (+200 PTS) ★"
 	status_label.modulate = Color(0.2, 1.0, 0.5)

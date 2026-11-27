@@ -136,6 +136,9 @@ func is_any_modal_open() -> bool:
 # Capas globales de UI
 var feedback_canvas_layer: CanvasLayer = null
 var feedback_container: Control = null
+# Aviso diminuto de minijuego: vive en la capa global, nunca dentro del recuadro del minijuego.
+var _minigame_hint: Label = null
+var _minigame_hint_tween: Tween = null
 var hardware_monitor_layer: CanvasLayer = null
 var hardware_monitor_instance: Control = null
 
@@ -581,6 +584,53 @@ func spawn_floating_text(text: String, is_positive: bool, custom_origin: Vector2
 	tween.parallel().tween_property(label, "position", label.position + move_offset, 0.95).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	tween.parallel().tween_property(label, "modulate:a", 0.0, 0.95).set_delay(0.25)
 	tween.tween_callback(label.queue_free)
+
+# =============================================================================
+# AVISO DE MINIJUEGO (fuera del recuadro del minijuego)
+# Una sola línea en la franja superior de la pantalla, sin cuadro, sin botón y
+# sin capturar clics. Se oculta sola para no molestar durante la partida.
+# =============================================================================
+func show_minigame_hint(text: String, duration: float = 7.0) -> void:
+	if not is_instance_valid(feedback_container):
+		return
+	clear_minigame_hint()
+	if _minigame_hint_tween and _minigame_hint_tween.is_valid():
+		_minigame_hint_tween.kill()
+	var label := Label.new()
+	label.name = "MinigameHint"
+	label.text = text
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.add_theme_font_size_override("font_size", 10)
+	label.add_theme_color_override("font_color", Color(0.65, 1.0, 0.85, 0.95))
+	label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 1.0))
+	label.add_theme_constant_override("outline_size", 4)
+	label.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	label.offset_left = 12.0
+	label.offset_right = -12.0
+	label.offset_top = 2.0
+	label.offset_bottom = 22.0
+	feedback_container.add_child(label)
+	_minigame_hint = label
+
+	_minigame_hint_tween = feedback_container.create_tween()
+	_minigame_hint_tween.tween_interval(duration)
+	_minigame_hint_tween.tween_property(label, "modulate:a", 0.0, 0.6)
+	_minigame_hint_tween.tween_callback(func():
+		if _minigame_hint == label:
+			_minigame_hint = null
+		if is_instance_valid(label):
+			label.queue_free()
+	)
+
+func clear_minigame_hint() -> void:
+	if _minigame_hint_tween and _minigame_hint_tween.is_valid():
+		_minigame_hint_tween.kill()
+	_minigame_hint_tween = null
+	if is_instance_valid(_minigame_hint):
+		_minigame_hint.queue_free()
+	_minigame_hint = null
 
 func add_item_to_backpack(item: Dictionary) -> bool:
 	if backpack.size() >= MAX_BACKPACK_SLOTS:

@@ -70,8 +70,8 @@ const MAX_APPLY_CLICKS: int = 5
 var cursor_hotspot: Vector2 = Vector2(42, 40)
 var is_busy_animating: bool = false
 var is_intro_active: bool = false
+var is_finishing: bool = false
 var countdown_overlay: CanvasLayer = null
-var dialog_box_inst: Control = null
 
 func _get_game_manager() -> Node:
 	if not is_inside_tree():
@@ -100,12 +100,7 @@ func _ready() -> void:
 		
 	# Conexiones de botones
 	btn_cancel.pressed.connect(func():
-		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-		minigame_finished.emit(false)
-		if get_tree().current_scene == self:
-			get_tree().change_scene_to_file("res://scenes/menus/LevelSelect.tscn")
-		else:
-			queue_free()
+		_finish(false)
 	)
 	
 	btn_tool_1.pressed.connect(func(): _select_tool(1))
@@ -136,34 +131,28 @@ func _ready() -> void:
 	_select_tool(1)
 	_update_cursor_visual()
 	_update_status()
-	
+	_show_minigame_hint()
+
 	if get_tree().current_scene == self:
 		_start_joa_intro()
 	else:
 		Input.mouse_mode = Input.MOUSE_MODE_HIDDEN
+
+# Guía fuera del recuadro: se oculta el panel interno y se usa la capa global.
+func _show_minigame_hint() -> void:
+	var guide = get_node_or_null("ModalControl/Panel/VBox/WorkArea/RightGuidePanel")
+	if is_instance_valid(guide):
+		guide.visible = false
+	var gm = _get_game_manager()
+	if gm and gm.has_method("show_minigame_hint"):
+		gm.show_minigame_hint("CPU: retira pasta vieja con [1] y aplica nueva con [2] hasta 100%.")
 
 func _start_joa_intro() -> void:
 	is_intro_active = true
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	if cursor_sprite:
 		cursor_sprite.visible = false
-		
-	var dlg_scene = load("res://scenes/ui/DialogBox.tscn")
-	if dlg_scene:
-		dialog_box_inst = dlg_scene.instantiate()
-		add_child(dialog_box_inst)
-		if dialog_box_inst.has_method("show_message"):
-			dialog_box_inst.show_message(
-				"JOA",
-				"CPU: retira la pasta vieja con [1] y aplica pasta nueva con [2] hasta 100%.",
-				func():
-					_start_countdown(),
-				true
-			)
-		else:
-			_start_countdown()
-	else:
-		_start_countdown()
+	_start_countdown()
 
 func _start_countdown() -> void:
 	if countdown_overlay:
@@ -401,8 +390,18 @@ func _complete_apply_phase() -> void:
 		sm.unlock_glossary("cpu")
 		
 	# Termina en cuanto se aplica la última pasta, sin espera adicional.
-	minigame_finished.emit(true)
-	
+	_finish(true)
+
+func _finish(success: bool) -> void:
+	if is_finishing or not is_inside_tree():
+		return
+	is_finishing = true
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	var gm = _get_game_manager()
+	if gm and gm.has_method("clear_minigame_hint"):
+		gm.clear_minigame_hint()
+	minigame_finished.emit(success)
+
 	if get_tree().current_scene == self:
 		CyberPlayTransition.play_exit(
 			get_tree(),

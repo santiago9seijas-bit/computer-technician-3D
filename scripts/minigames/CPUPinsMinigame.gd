@@ -13,7 +13,6 @@ signal minigame_finished(success: bool)
 const TEX_PIN: Texture2D = preload("res://pixel art minijuegos/limpiezaprofunda/pines/pines.png")
 const TEX_FONDO: Texture2D = preload("res://pixel art minijuegos/limpiezaprofunda/pines/fondo gris.png")
 const TEX_LENTE: Texture2D = preload("res://pixel art minijuegos/limpiezaprofunda/pines/lente.png")
-const DIALOG_BOX_SCENE: PackedScene = preload("res://scenes/ui/DialogBox.tscn")
 
 @onready var status_label: Label = $ModalControl/Panel/VBox/Header/StatusLabel
 @onready var progress_label: Label = $ModalControl/Panel/VBox/Header/ProgressLabel
@@ -47,9 +46,9 @@ var bent_pins_data: Array[Dictionary] = [
 var total_bent_pins: int = 0
 var fixed_pins_count: int = 0
 var is_game_completed: bool = false
+var is_finishing: bool = false
 var is_intro_active: bool = false
 var countdown_overlay: CanvasLayer = null
-var dialog_box_inst: Control = null
 
 # Referencias a los botones de cada pin
 var pin_nodes: Dictionary = {}
@@ -57,13 +56,7 @@ var pin_nodes: Dictionary = {}
 func _ready() -> void:
 	layer = 12
 	GameManager.select_tool(3)
-	btn_cancel.pressed.connect(func():
-		minigame_finished.emit(false)
-		if get_tree().current_scene == self:
-			get_tree().change_scene_to_file("res://scenes/menus/LevelSelect.tscn")
-		else:
-			queue_free()
-	)
+	btn_cancel.pressed.connect(func(): _finish(false))
 	victory_banner.visible = false
 	warning_label.text = ""
 	total_bent_pins = bent_pins_data.size()
@@ -72,35 +65,25 @@ func _ready() -> void:
 	_build_pin_matrix()
 	_update_ui()
 	_play_microscope_intro_animation.call_deferred()
-	
+	_show_minigame_hint()
+
 	if get_tree().current_scene == self:
 		_start_joa_intro()
 
+# Instrucciones fuera del recuadro: se retira el panel de guía interno y se
+# muestra una línea diminuta en la capa global de la pantalla.
+func _show_minigame_hint() -> void:
+	if is_instance_valid(right_guide_panel):
+		right_guide_panel.visible = false
+	var gm = get_node_or_null("/root/GameManager")
+	if gm and gm.has_method("show_minigame_hint"):
+		gm.show_minigame_hint("CPU [4]: clic en los 6 pines naranjas para enderezarlos.")
+
 func _start_joa_intro() -> void:
 	is_intro_active = true
-
-	# Aviso diminuto en la esquina, fuera del tablero de pines.
-	if DIALOG_BOX_SCENE:
-		dialog_box_inst = DIALOG_BOX_SCENE.instantiate()
-		add_child(dialog_box_inst)
-		if dialog_box_inst.has_method("show_message"):
-			dialog_box_inst.show_message(
-				"JOA",
-				"CPU: con la lupa [4], haz clic en los 6 pines naranjas para enderezarlos.",
-				func():
-					if is_instance_valid(right_guide_panel):
-						right_guide_panel.visible = true
-					_start_countdown(),
-				true
-			)
-		else:
-			_on_intro_skipped()
-	else:
-		_on_intro_skipped()
+	_start_countdown()
 
 func _on_intro_skipped() -> void:
-	if is_instance_valid(right_guide_panel):
-		right_guide_panel.visible = true
 	_start_countdown()
 
 func _start_countdown() -> void:
@@ -223,9 +206,11 @@ func _start_lens_idle_breathing() -> void:
 	lens_idle_tween.tween_property(lente_overlay, "scale", Vector2(0.995, 0.995), 2.0).set_trans(Tween.TRANS_SINE)
 
 func _unhandled_input(event: InputEvent) -> void:
+	if is_finishing or not is_inside_tree():
+		return
 	if event.is_action_pressed("ui_cancel") or (event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE):
 		get_viewport().set_input_as_handled()
-		minigame_finished.emit(false)
+		_finish(false)
 
 func _build_pin_matrix() -> void:
 	for child in grid_container.get_children():
@@ -338,7 +323,16 @@ func _trigger_victory() -> void:
 		sm.unlock_glossary("cpu")
 
 	# Termina de inmediato al enderezar el último pin.
-	minigame_finished.emit(true)
+	_finish(true)
+
+func _finish(success: bool) -> void:
+	if is_finishing or not is_inside_tree():
+		return
+	is_finishing = true
+	var gm = get_node_or_null("/root/GameManager")
+	if gm and gm.has_method("clear_minigame_hint"):
+		gm.clear_minigame_hint()
+	minigame_finished.emit(success)
 
 	if get_tree().current_scene == self:
 		CyberPlayTransition.play_exit(

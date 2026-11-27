@@ -2,7 +2,6 @@ extends CanvasLayer
 
 signal minigame_finished(success: bool)
 
-const DIALOG_BOX_SCENE: PackedScene = preload("res://scenes/ui/DialogBox.tscn")
 
 @export var is_tutorial_mode: bool = true
 
@@ -38,7 +37,6 @@ var is_completed: bool = false
 var is_finishing: bool = false
 var is_intro_active: bool = false
 var countdown_overlay: CanvasLayer = null
-var dialog_box_inst: Control = null
 var prev_mouse_pos: Vector2 = Vector2.ZERO
 var is_touching_screwdriver: bool = false
 
@@ -68,32 +66,24 @@ func _ready() -> void:
 	sparks_canvas.draw.connect(_on_sparks_draw)
 	
 	prev_mouse_pos = work_area.get_local_mouse_position()
-	
+	_show_minigame_hint()
+
 	if get_tree().current_scene == self:
 		_start_joa_intro()
 	else:
 		Input.mouse_mode = Input.MOUSE_MODE_HIDDEN
 
+# Aviso en la franja superior global, nunca dentro del recuadro del minijuego.
+func _show_minigame_hint() -> void:
+	var gm = get_node_or_null("/root/GameManager")
+	if gm and gm.has_method("show_minigame_hint"):
+		gm.show_minigame_hint("RAM [1]: frota el módulo contra la varilla a tierra hasta 0%.")
+
 func _start_joa_intro() -> void:
 	is_intro_active = true
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	ram_cursor.visible = false
-	
-	if DIALOG_BOX_SCENE:
-		dialog_box_inst = DIALOG_BOX_SCENE.instantiate()
-		add_child(dialog_box_inst)
-		if dialog_box_inst.has_method("show_message"):
-			dialog_box_inst.show_message(
-				"JOA",
-				"RAM: frota el módulo contra la varilla a tierra hasta bajar la estática a 0%.",
-				func():
-					_start_countdown(),
-				true
-			)
-		else:
-			_start_countdown()
-	else:
-		_start_countdown()
+	_start_countdown()
 
 func _start_countdown() -> void:
 	if countdown_overlay:
@@ -369,6 +359,9 @@ func _finalize_success() -> void:
 	if not is_finishing:
 		return
 	is_finishing = false
+	var gm = get_node_or_null("/root/GameManager")
+	if gm and gm.has_method("clear_minigame_hint"):
+		gm.clear_minigame_hint()
 	minigame_finished.emit(true)
 
 	if get_tree().current_scene == self:
@@ -401,7 +394,13 @@ func _on_finish_pressed() -> void:
 	_finalize_success()
 
 func _on_salir_pressed() -> void:
+	if is_finishing:
+		return
+	is_finishing = true
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	var gm = get_node_or_null("/root/GameManager")
+	if gm and gm.has_method("clear_minigame_hint"):
+		gm.clear_minigame_hint()
 	minigame_finished.emit(false)
 	
 	if get_tree().current_scene == self:
