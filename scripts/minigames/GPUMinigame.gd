@@ -451,8 +451,8 @@ func _on_screw_pressed(idx: int) -> void:
 	if screws_removed[idx]:
 		return
 		
-	var req_tool = 1 if screw_types[idx] == "cruz" else 2
-	var tool_name = "Cruz (+)" if req_tool == 1 else "Pala (-)"
+	var req_tool = 2 if screw_types[idx] == "cruz" else 1
+	var tool_name = "Cruz (+)" if req_tool == 2 else "Pala (-)"
 	
 	if GameManager.equipped_tool != req_tool:
 		GameManager.register_error(2.0)
@@ -611,8 +611,8 @@ func _on_screw_pressed_install(idx: int) -> void:
 	if not screws_removed[idx]:
 		return
 		
-	var req_tool = 1 if screw_types[idx] == "cruz" else 2
-	var tool_name = "Cruz (+)" if req_tool == 1 else "Pala (-)"
+	var req_tool = 2 if screw_types[idx] == "cruz" else 1
+	var tool_name = "Cruz (+)" if req_tool == 2 else "Pala (-)"
 	
 	if GameManager.equipped_tool != req_tool:
 		GameManager.register_error(2.0)
@@ -726,7 +726,7 @@ func _update_status() -> void:
 			status_label.modulate = Color(1.0, 0.85, 0.2)
 		State.UNSCREW_SOPORTE:
 			var s_rem = (1 if not screws_removed[0] else 0) + (1 if not screws_removed[1] else 0)
-			status_label.text = prefix + "[%s] PASO 2: Quita los 2 tornillos junto al puerto HDMI con [1] Cruz o [2] Pala (%d restantes)." % [model_str, s_rem]
+			status_label.text = prefix + "[%s] PASO 2: Quita los 2 tornillos junto al puerto HDMI con [1] Pala o [2] Cruz (%d restantes)." % [model_str, s_rem]
 			status_label.modulate = Color(1.0, 0.85, 0.2)
 		State.EXTRACT_DRAG_UP:
 			status_label.text = prefix + "[%s] PASO 3: Arrastra la GPU hacia ARRIBA (el soporte permanece fijo en el sitio)." % model_str

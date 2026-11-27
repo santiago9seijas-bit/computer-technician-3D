@@ -1,4 +1,8 @@
+class_name CyberHackingMinigame
 extends CanvasLayer
+
+# Almacén estático para transferir datos de nodo antes de instanciar la escena
+static var pending_stage_data: Dictionary = {}
 
 # =============================================================================
 # MINIJUEGO CIBERNÉTICO: HACKEO NIE-R AUTOMATA (SISTEMAS // ANOMALÍAS GLITCH)
@@ -70,9 +74,10 @@ var circuit_links: Array[Dictionary] = []  # from_pos, to_pos, active
 const BLOCK_DATA = 0       # Normal destructible (1-2 hits)
 const BLOCK_ARMOR = 1      # Blindado (4 hits)
 const BLOCK_EXPLOSIVE = 2  # Explosivo (cadena)
-const BLOCK_BARRIER = 3    # Barrera láser (inmune a balas, baja con botón)
+const BLOCK_BARRIER = 3    # Barrera láser (inmune a balas, baja con botón o evento)
 const BLOCK_WALL = 4       # Muro perimetral indestructible
 const BLOCK_REFLECTOR = 5  # Prisma reflector (rebota el plasma de la nave)
+const BLOCK_RED_HAZARD = 6 # Caja Roja de Corrupción (¡NO TOCAR! Daña a la nave si colisiona)
 
 # Diálogo de inducción con Jeremías
 const DIALOG_BOX_SCENE: PackedScene = preload("res://scenes/ui/DialogBox.tscn")
@@ -87,7 +92,7 @@ const JEREMIAS_HACKING_TUTORIAL: Array[Dictionary] = [
 	},
 	{
 		"speaker": "JEREMÍAS",
-		"text": "Controlas una nave cursor flecha. Muévete por el mapa con [W, A, S, D] o [Flechas], y apunta libremente en 360° con el ratón."
+		"text": "Controlas una nave cursor flecha limpia y ágil. Muévete por el mapa con [W, A, S, D] o [Flechas], y apunta libremente en 360° con el ratón."
 	},
 	{
 		"speaker": "JEREMÍAS",
@@ -95,15 +100,15 @@ const JEREMIAS_HACKING_TUTORIAL: Array[Dictionary] = [
 	},
 	{
 		"speaker": "JEREMÍAS",
-		"text": "Los bloques azules son paquetes de datos vulnerables. Los bloques reforzados resisten más, los anaranjados explotan en cadena y los prismas esmeralda rebotan tus disparos."
+		"text": "Encontrarás diversos sectores: romper cajas y guardianes, campos minados con Cajas Rojas que no debes tocar, rondas de amenazas e interruptores en secuencia estricta."
 	},
 	{
 		"speaker": "JEREMÍAS",
-		"text": "Para abrir las barreras láser que sellan el Núcleo, dispara o pasa sobre los interruptores de circuito [Switch]."
+		"text": "Para abrir las barreras láser que sellan el Núcleo, activa los interruptores [Switch] o cumple el protocolo del sector."
 	},
 	{
 		"speaker": "JEREMÍAS",
-		"text": "Cuidado con las torretas defensivas y drones patrulleros. ¡Tu misión es abrirte paso y aniquilar el Núcleo Rojo central para restaurar el sector!"
+		"text": "Cuidado con las defensas enemigas. ¡Tu misión es abrirte paso y aniquilar el Núcleo Rojo central para restaurar el sector!"
 	}
 ]
 
@@ -114,6 +119,16 @@ static func get_jeremias_tutorial() -> Array[Dictionary]:
 var current_node_index: int = 26
 var current_stage_index: int = 0
 var stage_title: String = "ANOMALÍA // GLITCH FORENSE VRAM"
+
+# Estados y mecánicas de etapas variadas
+var stage1_guardians_alive: int = 0
+var stage1_barrier_cleared: bool = false
+var stage3_enemies_remaining: int = 0
+var stage3_barrier_cleared: bool = false
+var stage4_current_step: int = 1
+var stage4_barrier_cleared: bool = false
+var stage_status_override: String = ""
+var stage_status_timer: float = 0.0
 
 # Efectos visuales de pantalla y glitch
 var screen_shake_amp: float = 0.0
@@ -140,16 +155,15 @@ func _ready() -> void:
 	if victory_banner:
 		victory_banner.visible = false
 
-	# Si se instanció directamente, iniciar etapa correspondiente
-	_start_game()
+	# Si se configuraron datos de etapa estática previa a instanciar la escena
+	if not pending_stage_data.is_empty():
+		current_node_index = pending_stage_data.get("number", 26)
+		current_stage_index = pending_stage_data.get("stage_index", current_node_index - 26)
+		stage_title = pending_stage_data.get("title", "ANOMALÍA // CORRUPCIÓN DE KERNEL")
+		pending_stage_data.clear()
 
-func _notification(what: int) -> void:
-	if what == NOTIFICATION_PREDELETE:
-		is_game_active = false
-		sfx_queue.clear()
-		if is_instance_valid(audio_player) and audio_player.playing:
-			audio_player.stop()
-		audio_playback = null
+	# Iniciar la etapa correspondiente
+	_start_game()
 
 func _exit_tree() -> void:
 	is_game_active = false
@@ -221,6 +235,15 @@ func _start_game() -> void:
 	particles.clear()
 	circuit_links.clear()
 	
+	stage1_guardians_alive = 0
+	stage1_barrier_cleared = false
+	stage3_enemies_remaining = 0
+	stage3_barrier_cleared = false
+	stage4_current_step = 1
+	stage4_barrier_cleared = false
+	stage_status_override = ""
+	stage_status_timer = 0.0
+	
 	if game_over_panel:
 		game_over_panel.visible = false
 	if victory_banner:
@@ -269,7 +292,7 @@ func _build_stage_layout(stage_idx: int) -> void:
 	match stage_idx:
 		0:
 			# --- ETAPA 0 (Nodo 26): INDUCCIÓN & PROTOCOLO NIE-R // TUTORIAL CON JEREMÍAS ---
-			# Nivel didáctico: Destrucción de paquetes de datos, esquiva/anulación de disparos y activación de switch.
+			# Nivel didáctico con la nave limpia sin glitch: controles, disparo y destrucción de núcleo
 			player_pos = Vector2(90, 220)
 			red_core = {"pos": Vector2(780, 220), "radius": 26.0, "hp": 12, "max_hp": 12, "alive": true, "flash_timer": 0.0, "rot": 0.0}
 			
@@ -282,146 +305,127 @@ func _build_stage_layout(stage_idx: int) -> void:
 			# Bloques de datos protegiendo el camino inicial
 			for y in range(4):
 				_add_data_block(Rect2(260, 80 + y * 75, 36, 55), 2)
+			_add_reflector_block(Rect2(260, 350, 36, 36))
 				
 			# 1 Torreta defensiva para practicar el derribo de balas enemigas
 			_add_turret(Vector2(450, 350), 2.4)
 			
 		1:
-			# --- ETAPA 1 (Nodo 27): OVERFLOW · CADENA EXPLOSIVA Y DRONES ---
-			# Objetivo: Detonar bloques volátiles en cadena para despejar el camino a los botones.
-			player_pos = Vector2(90, 370)
-			red_core = {"pos": Vector2(450, 220), "radius": 28.0, "hp": 16, "max_hp": 16, "alive": true, "flash_timer": 0.0, "rot": 0.0}
+			# --- ETAPA 1 (Nodo 27): ROMPER CAJAS, 2 ENEMIGOS Y DESTRUIR EL NÚCLEO ---
+			# Objetivo expreso: Romper el muro de cajas, abatir a los 2 enemigos guardianes y después romper el núcleo.
+			player_pos = Vector2(90, 220)
+			red_core = {"pos": Vector2(780, 220), "radius": 28.0, "hp": 16, "max_hp": 16, "alive": true, "flash_timer": 0.0, "rot": 0.0}
 			
-			# Jaula láser protegiendo el Núcleo Rojo central
-			_add_barrier(Rect2(360, 140, 18, 160), 0)
-			_add_barrier(Rect2(522, 140, 18, 160), 0)
-			_add_barrier(Rect2(360, 130, 180, 16), 0)
-			_add_barrier(Rect2(360, 294, 180, 16), 0)
+			# Barrera que sella el Núcleo hasta que los 2 enemigos guardianes sean eliminados
+			_add_barrier(Rect2(660, 60, 18, 320), 10)
+			_add_button(10, Vector2(610, 220), 20.0, [10])
+			_add_circuit_link(Vector2(610, 220), Vector2(660, 220))
 			
-			# Switch [A] en la esquina superior derecha
-			_add_button(0, Vector2(810, 80), 22.0, [0])
-			_add_circuit_link(Vector2(810, 80), Vector2(522, 220))
+			# Muro defensivo de cajas de datos y blindadas que hay que romper
+			for y in range(5):
+				_add_data_block(Rect2(270, 60 + y * 68, 36, 52), 2)
+			for y in range(3):
+				_add_armor_block(Rect2(480, 90 + y * 95, 36, 55))
+			_add_reflector_block(Rect2(360, 45, 36, 36))
+			_add_reflector_block(Rect2(360, 360, 36, 36))
 			
-			# Cadena de bloques explosivos que abren paso entre bloques blindados
-			for i in range(5):
-				_add_explosive_block(Rect2(200 + i * 90, 100, 42, 42))
-			for i in range(6):
-				_add_armor_block(Rect2(180 + i * 90, 60, 40, 32))
-				_add_armor_block(Rect2(180 + i * 90, 150, 40, 32))
-				
-			# 2 Drones patrulleros
-			_add_patrol_drone(Vector2(200, 220), Vector2(1, 0), 180.0, 1.9)
-			_add_patrol_drone(Vector2(700, 340), Vector2(-1, 0), 220.0, 1.7)
+			# Exactamente 2 enemigos guardianes
+			_add_spread_turret(Vector2(380, 140), 2.2)
+			_add_patrol_drone(Vector2(380, 290), Vector2(0, 1), 160.0, 1.8)
+			stage1_guardians_alive = 2
+			stage1_barrier_cleared = false
 			
 		2:
-			# --- ETAPA 2 (Nodo 28): CRIPTOMINERO · PRISMAS REFLECTORES & DOBLE SWITCH ---
-			# Objetivo: Usar prismas reflectores para rebotar plasma hacia los switches en los flancos.
-			player_pos = Vector2(450, 380)
-			red_core = {"pos": Vector2(450, 140), "radius": 28.0, "hp": 18, "max_hp": 18, "alive": true, "flash_timer": 0.0, "rot": 0.0}
+			# --- ETAPA 2 (Nodo 28): CAMPO MINADO · NO TOCAR LAS CAJAS ROJAS ---
+			# Objetivo expreso: Navegar el pasillo de Cajas Rojas de corrupción SIN TOCARLAS con la nave para llegar al Núcleo.
+			player_pos = Vector2(80, 80)
+			red_core = {"pos": Vector2(800, 360), "radius": 28.0, "hp": 18, "max_hp": 18, "alive": true, "flash_timer": 0.0, "rot": 0.0}
 			
-			# Barreras duales: Barrera Izquierda (Switch 0) y Derecha (Switch 1)
-			_add_barrier(Rect2(340, 60, 18, 160), 0)
-			_add_barrier(Rect2(542, 60, 18, 160), 1)
-			_add_barrier(Rect2(340, 210, 220, 18), 0)
+			# Barrera que protege la bahía del Núcleo
+			_add_barrier(Rect2(680, 260, 18, 160), 20)
+			_add_button(20, Vector2(450, 370), 20.0, [20])
+			_add_circuit_link(Vector2(450, 370), Vector2(680, 340))
 			
-			# Switch Alpha (Izquierda) y Switch Beta (Derecha)
-			_add_button(0, Vector2(100, 90), 22.0, [0])
-			_add_button(1, Vector2(800, 90), 22.0, [1])
-			_add_circuit_link(Vector2(100, 90), Vector2(340, 140))
-			_add_circuit_link(Vector2(800, 90), Vector2(542, 140))
+			# Laberinto de CAJAS ROJAS (BLOCK_RED_HAZARD): ¡Dañan a la nave si las toca!
+			# Columna 1 de cajas rojas (cierra arriba, paso abajo)
+			for y in range(4):
+				_add_red_hazard_block(Rect2(200, 20 + y * 65, 38, 55))
+			# Columna 2 de cajas rojas (cierra abajo, paso arriba)
+			for y in range(4):
+				_add_red_hazard_block(Rect2(380, 160 + y * 65, 38, 55))
+			# Columna 3 de cajas rojas (cierra arriba, paso abajo)
+			for y in range(4):
+				_add_red_hazard_block(Rect2(560, 20 + y * 65, 38, 55))
+				
+			# Cajas de datos normales destruibles como atajos
+			_add_data_block(Rect2(200, 290, 38, 45), 2)
+			_add_data_block(Rect2(380, 90, 38, 45), 2)
+			_add_data_block(Rect2(560, 290, 38, 45), 2)
+			_add_reflector_block(Rect2(100, 370, 36, 36))
 			
-			# Muros protectores de los switches y PRISMAS REFLECTORES para rebotar plasma
-			_add_armor_block(Rect2(160, 50, 24, 100))
-			_add_armor_block(Rect2(716, 50, 24, 100))
-			_add_reflector_block(Rect2(160, 170, 48, 48))
-			_add_reflector_block(Rect2(692, 170, 48, 48))
-			
-			# Coberturas y explosivos
-			for y in range(3):
-				_add_armor_block(Rect2(240, 90 + y * 65, 36, 48))
-				_add_armor_block(Rect2(624, 90 + y * 65, 36, 48))
-			_add_explosive_block(Rect2(240, 220, 36, 36))
-			_add_explosive_block(Rect2(624, 220, 36, 36))
-			
-			# Torreta Spread en el centro y Drone
-			_add_spread_turret(Vector2(450, 290), 2.3)
-			_add_patrol_drone(Vector2(450, 230), Vector2(1, 0), 220.0, 1.8)
+			# Enemigos que disparan proyectiles a esquivar mientras se pilotea entre cajas rojas
+			_add_turret(Vector2(450, 80), 2.2)
+			_add_patrol_drone(Vector2(640, 180), Vector2(0, 1), 160.0, 1.8)
 			
 		3:
-			# --- ETAPA 3 (Nodo 29): DRIVER CORRUPTO · TRÍADA WHQL & FUEGO EN ABANICO ---
-			# Objetivo: 3 Nodos de verificación en triángulo bajo fuego cruzado de torretas de 3 cañones.
+			# --- ETAPA 3 (Nodo 29): RONDA DE AMENAZAS · ENJAMBRE DEFENSIVO ---
+			# Objetivo expreso: Eliminar la ronda completa de enemigos para desactivar el cortafuegos y acceder al Núcleo.
 			player_pos = Vector2(90, 220)
-			red_core = {"pos": Vector2(700, 220), "radius": 30.0, "hp": 20, "max_hp": 20, "alive": true, "flash_timer": 0.0, "rot": 0.0}
+			red_core = {"pos": Vector2(800, 220), "radius": 28.0, "hp": 20, "max_hp": 20, "alive": true, "flash_timer": 0.0, "rot": 0.0}
 			
-			# 3 Barreras que forman un anillo defensivo triangular
-			_add_barrier(Rect2(580, 100, 18, 240), 0)
-			_add_barrier(Rect2(598, 100, 160, 18), 1)
-			_add_barrier(Rect2(598, 322, 160, 18), 2)
+			# Barrera principal que solo se retira al matar a toda la ronda
+			_add_barrier(Rect2(680, 60, 20, 320), 300)
+			_add_button(300, Vector2(740, 90), 20.0, [300])
+			_add_circuit_link(Vector2(740, 90), Vector2(680, 220))
 			
-			# 3 Switches
-			_add_button(0, Vector2(250, 90), 20.0, [0])
-			_add_button(1, Vector2(250, 350), 20.0, [1])
-			_add_button(2, Vector2(430, 220), 20.0, [2])
-			_add_circuit_link(Vector2(250, 90), Vector2(580, 150))
-			_add_circuit_link(Vector2(250, 350), Vector2(598, 330))
-			_add_circuit_link(Vector2(430, 220), Vector2(598, 110))
-			
-			# Prismas reflectores para permitir rebotes
+			# Coberturas y prismas en la arena
+			for y in range(3):
+				_add_data_block(Rect2(240, 100 + y * 85, 34, 50), 2)
 			_add_reflector_block(Rect2(170, 80, 40, 40))
 			_add_reflector_block(Rect2(170, 320, 40, 40))
+			_add_explosive_block(Rect2(420, 200, 40, 40))
 			
-			# Coberturas y bloques
-			for i in range(4):
-				_add_data_block(Rect2(330, 80 + i * 75, 34, 55), 2)
-			_add_explosive_block(Rect2(430, 140, 36, 36))
-			_add_explosive_block(Rect2(430, 280, 36, 36))
+			# Ronda de enemigos: 5 amenazas tácticas activas
+			_add_spread_turret(Vector2(320, 90), 2.1)
+			_add_spread_turret(Vector2(320, 350), 2.1)
+			_add_turret(Vector2(500, 220), 2.0)
+			_add_patrol_drone(Vector2(420, 120), Vector2(1, 0), 160.0, 1.5)
+			_add_patrol_drone(Vector2(420, 310), Vector2(-1, 0), 160.0, 1.5)
 			
-			# Torretas de disparo triple (Spread) custodiando el sector
-			_add_spread_turret(Vector2(500, 80), 2.2)
-			_add_spread_turret(Vector2(500, 360), 2.2)
-			_add_turret(Vector2(250, 220), 2.0)
+			stage3_enemies_remaining = 5
+			stage3_barrier_cleared = false
 			
 		4:
-			# --- ETAPA 4 (Nodo 30): GPT SALVAGE · LABERINTO DE PARTICIONADO & COMPUERTAS ---
-			# Objetivo: Abrir 3 compuertas secuenciales en un laberinto cibernético.
-			player_pos = Vector2(70, 70)
-			red_core = {"pos": Vector2(810, 70), "radius": 30.0, "hp": 22, "max_hp": 22, "alive": true, "flash_timer": 0.0, "rot": 0.0}
+			# --- ETAPA 4 (Nodo 30): SECUENCIA DE INTERRUPTORES EN ORDEN ---
+			# Objetivo expreso: Tocar los 3 botones en orden estricto [ 1 ➔ 2 ➔ 3 ] y después romper el núcleo.
+			player_pos = Vector2(80, 220)
+			red_core = {"pos": Vector2(790, 220), "radius": 28.0, "hp": 20, "max_hp": 20, "alive": true, "flash_timer": 0.0, "rot": 0.0}
 			
-			# Muros internos del laberinto
-			_add_wall_rect(Rect2(180, 0, 16, 280))
-			_add_wall_rect(Rect2(360, 160, 16, 280))
-			_add_wall_rect(Rect2(540, 0, 16, 280))
-			_add_wall_rect(Rect2(700, 160, 16, 280))
+			# Barrera que sella el Núcleo
+			_add_barrier(Rect2(680, 60, 20, 320), 400)
 			
-			# Barreras láser bloqueando accesos secuenciales
-			_add_barrier(Rect2(180, 280, 16, 160), 0)
-			_add_barrier(Rect2(540, 280, 16, 160), 1)
-			_add_barrier(Rect2(700, 0, 16, 160), 2)
+			# 3 Botones con orden estricto secuencial: 1, 2, 3
+			_add_ordered_button(1, Vector2(230, 90), 24.0, 1)
+			_add_ordered_button(2, Vector2(450, 350), 24.0, 2)
+			_add_ordered_button(3, Vector2(600, 100), 24.0, 3)
+			_add_circuit_link(Vector2(230, 90), Vector2(450, 350))
+			_add_circuit_link(Vector2(450, 350), Vector2(600, 100))
+			_add_circuit_link(Vector2(600, 100), Vector2(680, 220))
 			
-			# Switches en los extremos del laberinto
-			_add_button(0, Vector2(100, 370), 20.0, [0])
-			_add_button(1, Vector2(450, 70), 20.0, [1])
-			_add_button(2, Vector2(620, 370), 20.0, [2])
-			_add_circuit_link(Vector2(100, 370), Vector2(180, 360))
-			_add_circuit_link(Vector2(450, 70), Vector2(540, 360))
-			_add_circuit_link(Vector2(620, 370), Vector2(700, 80))
+			stage4_current_step = 1
+			stage4_barrier_cleared = false
 			
-			# Prismas reflectores para tiros en esquina dentro de pasillos
-			_add_reflector_block(Rect2(250, 15, 36, 36))
-			_add_reflector_block(Rect2(430, 385, 36, 36))
-			
-			# Bloques destructibles y trampas explosivas
+			# Muros protectores, bloques y prismas
+			_add_armor_block(Rect2(310, 60, 22, 100))
+			_add_armor_block(Rect2(530, 280, 22, 100))
+			_add_reflector_block(Rect2(230, 350, 38, 38))
+			_add_reflector_block(Rect2(600, 350, 38, 38))
 			for i in range(3):
-				_add_data_block(Rect2(260, 70 + i * 75, 35, 55), 2)
-				_add_armor_block(Rect2(440, 160 + i * 70, 35, 55))
-			_add_explosive_block(Rect2(260, 330, 35, 35))
-			_add_explosive_block(Rect2(620, 180, 35, 35))
-			
-			# Defensas del laberinto
-			_add_spread_turret(Vector2(270, 220), 2.2)
-			_add_patrol_drone(Vector2(450, 250), Vector2(0, 1), 160.0, 1.5)
-			_add_spread_turret(Vector2(620, 100), 2.0)
-			_add_turret(Vector2(810, 250), 2.0)
+				_add_data_block(Rect2(370, 120 + i * 75, 32, 50), 2)
+				
+			# Defensas del sector
+			_add_spread_turret(Vector2(450, 100), 2.2)
+			_add_patrol_drone(Vector2(370, 220), Vector2(0, 1), 140.0, 1.6)
 			
 		5:
 			# --- ETAPA 5 (Nodo 31): PURGA RAÍZ · NÚCLEO JEFE CON SATÉLITES GIRATORIOS ---
@@ -479,6 +483,9 @@ func _add_explosive_block(r: Rect2) -> void:
 func _add_reflector_block(r: Rect2) -> void:
 	blocks.append({"rect": r, "type": BLOCK_REFLECTOR, "hp": 9999, "max_hp": 9999, "alive": true, "switch_id": -1})
 
+func _add_red_hazard_block(r: Rect2) -> void:
+	blocks.append({"rect": r, "type": BLOCK_RED_HAZARD, "hp": 9999, "max_hp": 9999, "alive": true, "switch_id": -1})
+
 func _add_barrier(r: Rect2, switch_id: int) -> void:
 	blocks.append({"rect": r, "type": BLOCK_BARRIER, "hp": 999, "max_hp": 999, "alive": true, "switch_id": switch_id})
 
@@ -486,7 +493,16 @@ func _add_wall_rect(r: Rect2) -> void:
 	blocks.append({"rect": r, "type": BLOCK_WALL, "hp": 9999, "max_hp": 9999, "alive": true, "switch_id": -1})
 
 func _add_button(id: int, pos: Vector2, radius: float, links: Array[int]) -> void:
-	buttons.append({"id": id, "pos": pos, "radius": radius, "active": false, "links": links, "pulse": 0.0})
+	buttons.append({"id": id, "pos": pos, "radius": radius, "active": false, "links": links, "pulse": 0.0, "order": 0})
+
+func _add_ordered_button(id: int, pos: Vector2, radius: float, order: int, links: Array[int] = []) -> void:
+	buttons.append({"id": id, "pos": pos, "radius": radius, "active": false, "links": links, "pulse": 0.0, "order": order})
+
+func _clear_barriers_with_id(id: int) -> void:
+	for b in blocks:
+		if b["type"] == BLOCK_BARRIER and (b["switch_id"] == id or id == -1):
+			b["alive"] = false
+			_spawn_block_shatter_particles(b["rect"])
 
 func _add_circuit_link(from_p: Vector2, to_p: Vector2) -> void:
 	circuit_links.append({"from": from_p, "to": to_p, "active": false})
@@ -529,6 +545,12 @@ func _process(delta: float) -> void:
 	_process_buttons(delta)
 	_process_particles(delta)
 	
+	if stage_status_timer > 0.0:
+		stage_status_timer -= delta
+		if stage_status_timer <= 0.0:
+			stage_status_override = ""
+			_update_ui()
+	
 	if screen_shake_amp > 0.0:
 		screen_shake_amp = maxf(0.0, screen_shake_amp - delta * 12.0)
 		game_area.position = Vector2(randf_range(-screen_shake_amp, screen_shake_amp), randf_range(-screen_shake_amp, screen_shake_amp))
@@ -565,12 +587,15 @@ func _process_player(delta: float) -> void:
 	next_pos.x = clampf(next_pos.x, 22.0, FIELD_WIDTH - 22.0)
 	next_pos.y = clampf(next_pos.y, 22.0, FIELD_HEIGHT - 22.0)
 	
-	# Colisión del jugador con bloques sólidos y muros
+	# Colisión del jugador con bloques sólidos, muros y Cajas Rojas (BLOCK_RED_HAZARD)
 	var p_rect = Rect2(next_pos.x - 12.0, next_pos.y - 12.0, 24.0, 24.0)
 	var collided = false
+	var touched_hazard = false
 	for b in blocks:
 		if b["alive"] and b["rect"].intersects(p_rect):
 			collided = true
+			if b["type"] == BLOCK_RED_HAZARD:
+				touched_hazard = true
 			break
 	if not collided:
 		player_pos = next_pos
@@ -580,7 +605,10 @@ func _process_player(delta: float) -> void:
 		var coll_x = false
 		for b in blocks:
 			if b["alive"] and b["rect"].intersects(Rect2(try_x.x - 12, try_x.y - 12, 24, 24)):
-				coll_x = true; break
+				coll_x = true
+				if b["type"] == BLOCK_RED_HAZARD:
+					touched_hazard = true
+				break
 		if not coll_x:
 			player_pos = try_x
 		else:
@@ -588,9 +616,15 @@ func _process_player(delta: float) -> void:
 			var coll_y = false
 			for b in blocks:
 				if b["alive"] and b["rect"].intersects(Rect2(try_y.x - 12, try_y.y - 12, 24, 24)):
-					coll_y = true; break
+					coll_y = true
+					if b["type"] == BLOCK_RED_HAZARD:
+						touched_hazard = true
+					break
 			if not coll_y:
 				player_pos = try_y
+				
+	if touched_hazard and not is_invulnerable:
+		_player_take_hazard_damage()
 				
 	# Apuntado estilo NieR: Automata (Hacia el puntero del ratón o dirección de movimiento)
 	var mouse_p = game_area.get_local_mouse_position()
@@ -674,6 +708,11 @@ func _process_bullets(delta: float) -> void:
 						_play_sfx("armor_hit")
 						hit = false
 						break
+					elif blk["type"] == BLOCK_RED_HAZARD:
+						_spawn_hit_spark(b_pos, Color(1.0, 0.1, 0.2))
+						_play_sfx("armor_hit")
+						hit = true
+						break
 					else:
 						_damage_block(blk)
 						_spawn_hit_spark(b_pos, Color(0.2, 0.9, 1.0) if blk["type"] == BLOCK_DATA else Color(1.0, 0.6, 0.1))
@@ -746,7 +785,7 @@ func _process_bullets(delta: float) -> void:
 	enemy_bullets = kept_e_bullets
 
 func _damage_block(b: Dictionary) -> void:
-	if b["type"] == BLOCK_WALL or b["type"] == BLOCK_BARRIER or b["type"] == BLOCK_REFLECTOR:
+	if b["type"] == BLOCK_WALL or b["type"] == BLOCK_BARRIER or b["type"] == BLOCK_REFLECTOR or b["type"] == BLOCK_RED_HAZARD:
 		_play_sfx("armor_hit")
 		return
 	if b["type"] == BLOCK_EXPLOSIVE:
@@ -778,7 +817,7 @@ func _explode_block(b: Dictionary) -> void:
 			if other["rect"].get_center().distance_to(c_pos) < blast_radius:
 				if other["type"] == BLOCK_EXPLOSIVE:
 					_explode_block(other) # Reacción en cadena
-				elif other["type"] != BLOCK_WALL and other["type"] != BLOCK_BARRIER and other["type"] != BLOCK_REFLECTOR:
+				elif other["type"] != BLOCK_WALL and other["type"] != BLOCK_BARRIER and other["type"] != BLOCK_REFLECTOR and other["type"] != BLOCK_RED_HAZARD:
 					other["hp"] -= 3
 					if other["hp"] <= 0:
 						other["alive"] = false
@@ -791,6 +830,7 @@ func _explode_block(b: Dictionary) -> void:
 				e["alive"] = false
 				score += 200
 				_spawn_explosion_particles(e["pos"], Color(1.0, 0.4, 0.1))
+				_check_stage_progression()
 				
 	for eb in enemy_bullets:
 		if eb["pos"].distance_to(c_pos) < blast_radius:
@@ -806,8 +846,37 @@ func _damage_enemy(e: Dictionary) -> void:
 		screen_shake_amp = 4.0
 		_play_sfx("explosion")
 		_spawn_explosion_particles(e["pos"], Color(1.0, 0.5, 0.2))
+		_check_stage_progression()
 	else:
 		_play_sfx("armor_hit")
+
+func _check_stage_progression() -> void:
+	if current_stage_index == 1 and not stage1_barrier_cleared:
+		var alive_count = 0
+		for e in enemies:
+			if e["alive"]:
+				alive_count += 1
+		stage1_guardians_alive = alive_count
+		if alive_count <= 0:
+			stage1_barrier_cleared = true
+			_clear_barriers_with_id(10)
+			_play_sfx("button_on")
+			stage_status_override = "¡GUARDIANES DESTRUIDOS! CORTAFUEGOS DEL NÚCLEO DESACTIVADO"
+			stage_status_timer = 3.5
+		_update_ui()
+	elif current_stage_index == 3 and not stage3_barrier_cleared:
+		var alive_count = 0
+		for e in enemies:
+			if e["alive"]:
+				alive_count += 1
+		stage3_enemies_remaining = alive_count
+		if alive_count <= 0:
+			stage3_barrier_cleared = true
+			_clear_barriers_with_id(300)
+			_play_sfx("victory")
+			stage_status_override = "¡RONDA COMPLETADA! CORTAFUEGOS DESACTIVADO - DESTRUYE EL NÚCLEO"
+			stage_status_timer = 4.0
+		_update_ui()
 
 func _process_enemies(delta: float) -> void:
 	if is_tutorial_dialog_active:
@@ -896,6 +965,40 @@ func _process_buttons(delta: float) -> void:
 			_activate_button(btn)
 
 func _activate_button(btn: Dictionary) -> void:
+	var ord_val: int = btn.get("order", 0)
+	if ord_val > 0:
+		# Lógica de secuencia para Stage 4
+		if ord_val == stage4_current_step + 1:
+			stage4_current_step += 1
+			btn["active"] = true
+			score += 300
+			_play_sfx("button_on")
+			_spawn_explosion_particles(btn["pos"], Color(0.2, 1.0, 0.6))
+			
+			if stage4_current_step >= 3:
+				stage4_barrier_cleared = true
+				_clear_barriers_with_id(400)
+				stage_status_override = "¡SECUENCIA CORRECTA (1-2-3)! CORTAFUEGOS DESACTIVADO"
+				stage_status_timer = 4.0
+				_play_sfx("victory")
+			else:
+				stage_status_override = "✓ BOTÓN %d ACTIVADO · SIGUIENTE: BOTÓN %d" % [stage4_current_step, stage4_current_step + 1]
+				stage_status_timer = 2.5
+			_update_ui()
+		else:
+			# Orden incorrecto: resetear botones ordenados y sonar error
+			_play_sfx("error")
+			screen_shake_amp = 7.0
+			stage4_current_step = 0
+			for b in buttons:
+				if b.get("order", 0) > 0:
+					b["active"] = false
+			stage_status_override = "¡ERROR DE SECUENCIA! ORDEN INCORRECTO · REINICIANDO A BOTÓN 1"
+			stage_status_timer = 3.0
+			_update_ui()
+		return
+
+	# Lógica normal para interruptores convencionales
 	btn["active"] = true
 	score += 250
 	_play_sfx("button_on")
@@ -921,6 +1024,21 @@ func _player_take_damage() -> void:
 	invulnerable_timer = 1.4
 	screen_shake_amp = 9.0
 	_play_sfx("player_hit")
+	_update_ui()
+	
+	if player_shields <= 0:
+		_game_over()
+
+func _player_take_hazard_damage() -> void:
+	if is_invulnerable:
+		return
+	player_shields -= 1
+	is_invulnerable = true
+	invulnerable_timer = 1.6
+	screen_shake_amp = 11.0
+	_play_sfx("hazard")
+	stage_status_override = "¡ALERTA! DAÑO POR CONTACTO CON CAJA ROJA"
+	stage_status_timer = 2.2
 	_update_ui()
 	
 	if player_shields <= 0:
@@ -968,34 +1086,56 @@ func _victory() -> void:
 	
 	await get_tree().create_timer(2.6).timeout
 	minigame_finished.emit(true)
-	if get_tree().current_scene == self:
-		CyberPlayTransition.play_exit(
-			get_tree(),
-			"sistema",
-			"res://scenes/menus/LevelSelect.tscn",
-			"PURGA DE KERNEL FINALIZADA",
-			"// SECTOR RESTAURADO · RETORNANDO A MATRIZ DE SISTEMAS //"
-		)
+	CyberPlayTransition.play_exit(
+		get_tree(),
+		"sistema",
+		"res://scenes/menus/LevelSelect.tscn",
+		"PURGA DE KERNEL FINALIZADA",
+		"// SECTOR RESTAURADO · RETORNANDO A MATRIZ DE SISTEMAS //"
+	)
 
 func _on_cancel_pressed() -> void:
 	is_game_active = false
 	LevelSelect.initial_mode = "sistema"
 	LevelSelect.initial_tab = "niveles"
 	minigame_finished.emit(false)
-	if get_tree().current_scene == self:
-		CyberPlayTransition.play_exit(
-			get_tree(),
-			"sistema",
-			"res://scenes/menus/LevelSelect.tscn",
-			"HACKEO ABORTADO",
-			"// DESCONECTANDO INTERFAZ DE SISTEMAS //"
-		)
+	CyberPlayTransition.play_exit(
+		get_tree(),
+		"sistema",
+		"res://scenes/menus/LevelSelect.tscn",
+		"HACKEO ABORTADO",
+		"// DESCONECTANDO INTERFAZ DE SISTEMAS //"
+	)
 
 func _update_ui() -> void:
 	if lbl_title:
 		lbl_title.text = "HACKEO // %s" % stage_title.to_upper()
 	if lbl_status:
-		lbl_status.text = "Dispara a los bloques y activa interruptores para penetrar el Núcleo Rojo."
+		if stage_status_override != "":
+			lbl_status.text = stage_status_override
+		else:
+			match current_stage_index:
+				0:
+					lbl_status.text = "TUTORIAL: Aprende controles con Jeremías, destruye paquetes y penetra el Núcleo."
+				1:
+					if not stage1_barrier_cleared:
+						lbl_status.text = "Rompe las cajas y destruye a los 2 guardianes (%d restantes) para abrir el núcleo." % stage1_guardians_alive
+					else:
+						lbl_status.text = "¡Defensas colapsadas! Destruye el Núcleo Rojo para terminar."
+				2:
+					lbl_status.text = "PELIGRO: ¡No toques las cajas rojas! Esquívalas con precisión para llegar al núcleo."
+				3:
+					if not stage3_barrier_cleared:
+						lbl_status.text = "⚔️ RONDA DE AMENAZAS: Elimina los %d enemigos restantes para desactivar el escudo." % stage3_enemies_remaining
+					else:
+						lbl_status.text = "¡Ronda de amenazas eliminada! Destruye el Núcleo Rojo."
+				4:
+					if not stage4_barrier_cleared:
+						lbl_status.text = "SECUENCIA: Toca los botones en orden (1 ➔ 2 ➔ 3). Siguiente: Botón %d." % (stage4_current_step + 1)
+					else:
+						lbl_status.text = "¡Secuencia correcta activada! Núcleo expuesto, destrúyelo."
+				_:
+					lbl_status.text = "Dispara a los bloques y activa interruptores para penetrar el Núcleo Rojo."
 	if lbl_score:
 		lbl_score.text = "PUNTUACIÓN: %05d" % score
 	if lbl_shields:
@@ -1123,8 +1263,9 @@ func _draw_buttons() -> void:
 		var bp: Vector2 = btn["pos"]
 		var br: float = btn["radius"]
 		var is_act: bool = btn["active"]
-		var ring_col = Color(0.2, 1.0, 0.5, 0.95) if is_act else Color(1.0, 0.2, 0.3, 0.8)
-		var bg_col = Color(0.05, 0.25, 0.12, 0.5) if is_act else Color(0.25, 0.05, 0.08, 0.4)
+		var ord_val: int = btn.get("order", 0)
+		var ring_col = Color(0.2, 1.0, 0.5, 0.95) if is_act else (Color(1.0, 0.8, 0.2, 0.95) if ord_val > 0 else Color(1.0, 0.2, 0.3, 0.8))
+		var bg_col = Color(0.05, 0.25, 0.12, 0.5) if is_act else (Color(0.25, 0.2, 0.05, 0.45) if ord_val > 0 else Color(0.25, 0.05, 0.08, 0.4))
 		
 		# Anillo exterior
 		render_canvas.draw_circle(bp, br, bg_col)
@@ -1133,6 +1274,12 @@ func _draw_buttons() -> void:
 		if is_act:
 			render_canvas.draw_circle(bp, br * 0.45, Color(0.2, 1.0, 0.5))
 			render_canvas.draw_circle(bp, br * 0.2, Color.WHITE)
+		elif ord_val > 0:
+			var num_font = ThemeDB.fallback_font
+			var num_str = str(ord_val)
+			var f_sz = 18
+			var str_size = num_font.get_string_size(num_str, HORIZONTAL_ALIGNMENT_CENTER, -1, f_sz)
+			render_canvas.draw_string(num_font, bp + Vector2(-str_size.x * 0.5, str_size.y * 0.35), num_str, HORIZONTAL_ALIGNMENT_CENTER, -1, f_sz, ring_col)
 		else:
 			render_canvas.draw_arc(bp, br * 0.55, btn["pulse"], btn["pulse"] + PI * 1.2, 12, ring_col, 2.0)
 			render_canvas.draw_circle(bp, 3.0, ring_col)
@@ -1165,6 +1312,14 @@ func _draw_blocks() -> void:
 				render_canvas.draw_rect(r, exp_col, false, 2.0)
 				# Símbolo de radiación / explosión
 				render_canvas.draw_circle(r.get_center(), 4.5, exp_col)
+			BLOCK_RED_HAZARD:
+				# Caja Roja de advertencia / alto voltaje (Peligro crítico de contacto)
+				var pulse_haz = sin(Time.get_ticks_msec() * 0.009) * 0.2 + 0.8
+				render_canvas.draw_rect(r, Color(0.35, 0.04, 0.06, 0.92))
+				render_canvas.draw_rect(r, Color(1.0, 0.15, 0.25, pulse_haz), false, 2.0)
+				render_canvas.draw_line(r.position, r.end, Color(1.0, 0.2, 0.3, 0.75), 1.6)
+				render_canvas.draw_line(Vector2(r.end.x, r.position.y), Vector2(r.position.x, r.end.y), Color(1.0, 0.2, 0.3, 0.75), 1.6)
+				render_canvas.draw_circle(r.get_center(), 3.5, Color(1.0, 0.9, 0.2, pulse_haz))
 			BLOCK_REFLECTOR:
 				# Prisma Reflector (Espejo Esmeralda / Cian reflectante de plasma)
 				var pulse_ref = sin(Time.get_ticks_msec() * 0.008) * 0.15 + 0.85
@@ -1357,6 +1512,10 @@ func _play_sfx(sfx_name: String) -> void:
 			sfx_queue.append({"type": "sweep", "f_start": 523.0, "f_end": 1046.0, "dur": 0.35, "vol": 0.40, "t": 0.0})
 		"game_over":
 			sfx_queue.append({"type": "sweep", "f_start": 350.0, "f_end": 90.0, "dur": 0.40, "vol": 0.40, "t": 0.0})
+		"error":
+			sfx_queue.append({"type": "square", "freq": 110.0, "dur": 0.25, "vol": 0.35, "t": 0.0})
+		"hazard":
+			sfx_queue.append({"type": "noise", "dur": 0.28, "vol": 0.50, "t": 0.0})
 		"start":
 			sfx_queue.append({"type": "sweep", "f_start": 300.0, "f_end": 750.0, "dur": 0.18, "vol": 0.28, "t": 0.0})
 

@@ -22,6 +22,7 @@ var _stamina_regen_timer: float = 0.0
 @onready var animation_player: AnimationPlayer = $ModelRoot/AnimationPlayer
 @onready var intro_camera_pivot: Node3D = $IntroCameraPivot
 @onready var intro_camera: Camera3D = $IntroCameraPivot/IntroCamera3D
+@onready var first_person_tools = get_node_or_null("Camera3D/FirstPersonTools")
 
 var can_move: bool = true
 var hud_node: Control = null
@@ -46,6 +47,7 @@ func _ready() -> void:
 	_ensure_action("pickup", KEY_F)
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	_setup_held_cabinet()
+	_setup_first_person_tools()
 	if character_model:
 		var found = character_model.find_children("*", "MeshInstance3D")
 		for node in found:
@@ -125,6 +127,8 @@ func play_intro_cinematic(on_finished: Callable = Callable()) -> void:
 	
 	# Mostrar el modelo 3D completo en la cinemática aérea
 	set_character_shadows_only(false)
+	if first_person_tools:
+		first_person_tools.visible = false
 	
 	if hud_node and hud_node.has_method("setup_cinematic_mode"):
 		hud_node.setup_cinematic_mode()
@@ -182,6 +186,8 @@ func _finish_intro_cinematic() -> void:
 	
 	# Mover el modelo a modo solo sombra para no obstruir la vista interna
 	set_character_shadows_only(true)
+	if first_person_tools:
+		first_person_tools.visible = true
 	
 	if hud_node and hud_node.has_method("skip_cinematic"):
 		hud_node.skip_cinematic()
@@ -261,6 +267,32 @@ func _unhandled_input(event: InputEvent) -> void:
 
 	if not can_move or GameManager.is_game_paused:
 		return
+
+	# Selección y alternancia de herramientas 3D con teclas [1] a [5] y [0] para guardar
+	if event is InputEventKey and event.pressed and not event.echo:
+		var target_tool = -1
+		match event.keycode:
+			KEY_1, KEY_KP_1: target_tool = 1
+			KEY_2, KEY_KP_2: target_tool = 2
+			KEY_3, KEY_KP_3: target_tool = 3
+			KEY_4, KEY_KP_4: target_tool = 4
+			KEY_5, KEY_KP_5: target_tool = 5
+			KEY_0, KEY_KP_0: target_tool = 0
+
+		if target_tool != -1:
+			var gm = get_node_or_null("/root/GameManager")
+			if target_tool == 0:
+				if first_person_tools:
+					first_person_tools.holster_tool()
+				if gm and gm.has_method("select_tool"):
+					gm.select_tool(0, false)
+			else:
+				if first_person_tools:
+					first_person_tools.toggle_tool(target_tool)
+				elif gm and gm.has_method("select_tool"):
+					gm.select_tool(target_tool, true)
+			get_viewport().set_input_as_handled()
+			return
 
 	# Solo permitir rotación de cámara si el ratón está estrictamente capturado
 	if event is InputEventMouseMotion:
@@ -419,6 +451,19 @@ func _setup_held_cabinet() -> void:
 		held_cabinet_node.add_child(gab_inst)
 		
 	camera.add_child(held_cabinet_node)
+
+func _setup_first_person_tools() -> void:
+	if not camera:
+		return
+	if not first_person_tools:
+		first_person_tools = camera.get_node_or_null("FirstPersonTools")
+	if not first_person_tools:
+		var fp_script = load("res://scripts/player/FirstPersonTools.gd")
+		if fp_script:
+			first_person_tools = Node3D.new()
+			first_person_tools.name = "FirstPersonTools"
+			first_person_tools.set_script(fp_script)
+			camera.add_child(first_person_tools)
 
 var _f_hold_time: float = 0.0
 var _ignore_f_until_release: bool = false

@@ -437,8 +437,8 @@ func _on_screw_pressed(idx: int) -> void:
 		if not screws_removed[idx]:
 			return # Ya asegurado
 			
-		var req = 1 if screw_types[idx] == "cruz" else 2
-		var tool_name = "Cruz (+)" if req == 1 else "Pala (-)"
+		var req = 2 if screw_types[idx] == "cruz" else 1
+		var tool_name = "Cruz (+)" if req == 2 else "Pala (-)"
 		
 		if GameManager.equipped_tool != req:
 			GameManager.register_error(2.0)
@@ -468,8 +468,8 @@ func _on_screw_pressed(idx: int) -> void:
 	if screws_removed[idx]:
 		return
 	
-	var req = 1 if screw_types[idx] == "cruz" else 2
-	var tool_name = "Cruz (+)" if req == 1 else "Pala (-)"
+	var req = 2 if screw_types[idx] == "cruz" else 1
+	var tool_name = "Cruz (+)" if req == 2 else "Pala (-)"
 	
 	if GameManager.equipped_tool != req:
 		GameManager.register_error(2.0)
@@ -571,7 +571,7 @@ func _update_status() -> void:
 			status_label.text = "PASO 2: Desconecta el conector auxiliar EPS de 8 pines de la CPU."
 			status_label.modulate = Color(1.0, 0.85, 0.2)
 		State.UNSCREW_CHASSIS:
-			status_label.text = "PASO 3: Retira los 4 tornillos de sujeción traseros del chasis con [1] Cruz o [2] Pala."
+			status_label.text = "PASO 3: Retira los 4 tornillos de sujeción traseros del chasis con [1] Pala o [2] Cruz."
 			status_label.modulate = Color(1.0, 0.4, 0.8)
 		State.SLIDE_OUT_PSU:
 			status_label.text = "PASO 4: ¡Todo desconectado! Arrastra la fuente a la derecha o haz clic en el botón."

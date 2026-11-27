@@ -13,6 +13,7 @@ signal minigame_finished(success: bool)
 const TEX_PIN: Texture2D = preload("res://pixel art minijuegos/limpiezaprofunda/pines/pines.png")
 const TEX_FONDO: Texture2D = preload("res://pixel art minijuegos/limpiezaprofunda/pines/fondo gris.png")
 const TEX_LENTE: Texture2D = preload("res://pixel art minijuegos/limpiezaprofunda/pines/lente.png")
+const DIALOG_BOX_SCENE: PackedScene = preload("res://scenes/ui/DialogBox.tscn")
 
 @onready var status_label: Label = $ModalControl/Panel/VBox/Header/StatusLabel
 @onready var progress_label: Label = $ModalControl/Panel/VBox/Header/ProgressLabel
@@ -21,6 +22,7 @@ const TEX_LENTE: Texture2D = preload("res://pixel art minijuegos/limpiezaprofund
 @onready var socket_frame: PanelContainer = $ModalControl/Panel/VBox/WorkArea/SocketFrame
 @onready var grid_container: GridContainer = $ModalControl/Panel/VBox/WorkArea/SocketFrame/Margin/PinGrid
 @onready var lente_overlay: TextureRect = $ModalControl/Panel/VBox/WorkArea/LenteOverlay
+@onready var right_guide_panel: Control = $ModalControl/Panel/VBox/WorkArea/RightGuidePanel
 @onready var microscope_iris: ColorRect = $ModalControl/Panel/VBox/WorkArea/MicroscopeIris
 @onready var warning_label: Label = $ModalControl/Panel/VBox/WarningLabel
 @onready var victory_banner: PanelContainer = $ModalControl/Panel/VBox/VictoryBanner
@@ -76,21 +78,35 @@ func _ready() -> void:
 
 func _start_joa_intro() -> void:
 	is_intro_active = true
-	var dlg_scene = load("res://scenes/ui/DialogBox.tscn")
-	if dlg_scene:
-		dialog_box_inst = dlg_scene.instantiate()
-		add_child(dialog_box_inst)
+	# La guía derecha se oculta mientras se muestra la explicación compacta para no superponer UI.
+	if is_instance_valid(right_guide_panel):
+		right_guide_panel.visible = false
+
+	if DIALOG_BOX_SCENE:
+		dialog_box_inst = DIALOG_BOX_SCENE.instantiate()
+		if is_instance_valid(work_area):
+			work_area.add_child(dialog_box_inst)
+		else:
+			add_child(dialog_box_inst)
 		if dialog_box_inst.has_method("show_message"):
 			dialog_box_inst.show_message(
 				"JOA",
 				"¡Máxima concentración técnica! Un pin doblado o torcido en el socket o procesador impedirá el arranque del equipo o causará cortocircuito.\n\nUsa el microscopio para localizar los pines fuera de eje (resaltados en naranja) y haz clic sobre cada uno con la pinza de precisión para enderezarlo a 90°.",
 				func():
-					_start_countdown()
+					if is_instance_valid(right_guide_panel):
+						right_guide_panel.visible = true
+					_start_countdown(),
+				true
 			)
 		else:
-			_start_countdown()
+			_on_intro_skipped()
 	else:
-		_start_countdown()
+		_on_intro_skipped()
+
+func _on_intro_skipped() -> void:
+	if is_instance_valid(right_guide_panel):
+		right_guide_panel.visible = true
+	_start_countdown()
 
 func _start_countdown() -> void:
 	if countdown_overlay:

@@ -81,7 +81,7 @@ alignment = 1
 [node name="BtnTool1" type="Button" parent="ModalControl/Panel/VBox/Header/ToolBar"]
 custom_minimum_size = Vector2(230, 36)
 layout_mode = 2
-text = "[1] Destornillador Cruz"
+text = "text = "[1] Destornillador Pala""
 flat = true
 script = ExtResource("2_cbtn")
 slant = 14.0
@@ -89,7 +89,7 @@ slant = 14.0
 [node name="BtnTool2" type="Button" parent="ModalControl/Panel/VBox/Header/ToolBar"]
 custom_minimum_size = Vector2(230, 36)
 layout_mode = 2
-text = "[2] Destornillador Pala"
+text = "[2] Destornillador Cruz"
 flat = true
 script = ExtResource("2_cbtn")
 slant = 14.0

@@ -248,16 +248,20 @@ func _spawn_next_piece() -> void:
 		_play_sfx("game_over")
 
 func _notification(what: int) -> void:
-	if what == NOTIFICATION_VISIBILITY_CHANGED or what == NOTIFICATION_PREDELETE:
-		if not is_visible_in_tree():
-			if sfx_player:
+	if what == NOTIFICATION_VISIBILITY_CHANGED:
+		if is_inside_tree() and not is_visible_in_tree():
+			if is_instance_valid(sfx_player):
 				sfx_player.stop()
 			is_paused = true
 			set_process(false)
 			set_process_input(false)
 
 func _exit_tree() -> void:
-	if sfx_player:
+	is_paused = true
+	is_game_over = true
+	set_process(false)
+	set_process_input(false)
+	if is_instance_valid(sfx_player):
 		sfx_player.stop()
 
 # =============================================================================
@@ -265,17 +269,21 @@ func _exit_tree() -> void:
 # =============================================================================
 
 func _input(event: InputEvent) -> void:
-	if not is_visible_in_tree() or not visible or not is_processing_input():
+	if not is_inside_tree() or not is_visible_in_tree() or not visible or not is_processing_input():
 		return
 
 	if event is InputEventKey and event.pressed and not event.echo:
 		if is_game_over:
 			if event.keycode == KEY_R:
+				if is_inside_tree():
+					get_viewport().set_input_as_handled()
+				accept_event()
 				_reset_game_full()
-				accept_event()
 			elif event.keycode == KEY_Q or event.keycode == KEY_ESCAPE:
-				exit_to_terminal()
+				if is_inside_tree():
+					get_viewport().set_input_as_handled()
 				accept_event()
+				exit_to_terminal()
 			return
 
 		match event.keycode:
@@ -305,8 +313,10 @@ func _input(event: InputEvent) -> void:
 				_reset_game_full()
 				accept_event()
 			KEY_Q, KEY_ESCAPE:
-				exit_to_terminal()
+				if is_inside_tree():
+					get_viewport().set_input_as_handled()
 				accept_event()
+				exit_to_terminal()
 
 func exit_to_terminal() -> void:
 	visible = false
@@ -314,7 +324,7 @@ func exit_to_terminal() -> void:
 	is_game_over = true
 	set_process(false)
 	set_process_input(false)
-	if sfx_player:
+	if is_instance_valid(sfx_player):
 		sfx_player.stop()
 	closed.emit(score)
 
@@ -489,6 +499,8 @@ func _finish_line_clearing() -> void:
 # =============================================================================
 
 func _draw() -> void:
+	if not visible or not is_inside_tree() or grid.is_empty():
+		return
 	var total_w = size.x
 	var total_h = size.y
 

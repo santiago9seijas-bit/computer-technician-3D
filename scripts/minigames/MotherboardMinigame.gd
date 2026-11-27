@@ -731,8 +731,8 @@ func _on_ghost_cooler_clicked() -> void:
 
 func _on_reinstall_cooler_screw(idx: int) -> void:
 	if reinstall_cooler_screws_done[idx]: return
-	var req = 1 if cooler_screw_types[idx] == "cruz" else 2
-	var tname = "Cruz [1]" if req == 1 else "Pala [2]"
+	var req = 2 if cooler_screw_types[idx] == "cruz" else 1
+	var tname = "Cruz [2]" if req == 2 else "Pala [1]"
 	if GameManager.equipped_tool != req:
 		_show_warning("Usa Destornillador " + tname + " para este tornillo del cooler.", Color(1.0, 0.3, 0.3))
 		return
@@ -885,8 +885,8 @@ func _on_reinstall_gpu_latch() -> void:
 
 func _on_reinstall_gpu_bracket() -> void:
 	if is_reinstall_gpu_bracket_done: return
-	var req = 1 if gpu_bracket_screw_type == "cruz" else 2
-	var tname = "Cruz [1]" if req == 1 else "Pala [2]"
+	var req = 2 if gpu_bracket_screw_type == "cruz" else 1
+	var tname = "Cruz [2]" if req == 2 else "Pala [1]"
 	if GameManager.equipped_tool != req:
 		_show_warning("Usa Destornillador " + tname + " para el tornillo del bracket PCI.", Color(1.0, 0.3, 0.3))
 		return
@@ -1013,8 +1013,8 @@ func _on_gpu_bracket_pressed() -> void:
 		return
 
 	if is_gpu_bracket_unscrewed: return
-	var req = 1 if gpu_bracket_screw_type == "cruz" else 2
-	var tname = "Cruz [1]" if req == 1 else "Pala [2]"
+	var req = 2 if gpu_bracket_screw_type == "cruz" else 1
+	var tname = "Cruz [2]" if req == 2 else "Pala [1]"
 	if GameManager.equipped_tool != req:
 		_show_warning("Usa el Destornillador " + tname + " para el tornillo del bracket PCI.", Color(1.0, 0.3, 0.3))
 		return
@@ -1081,8 +1081,8 @@ func _on_cooler_screw_pressed(idx: int) -> void:
 		return
 
 	if cooler_screws_removed[idx]: return
-	var req = 1 if cooler_screw_types[idx] == "cruz" else 2
-	var tname = "Cruz [1]" if req == 1 else "Pala [2]"
+	var req = 2 if cooler_screw_types[idx] == "cruz" else 1
+	var tname = "Cruz [2]" if req == 2 else "Pala [1]"
 	if GameManager.equipped_tool != req:
 		_show_warning("Usa Destornillador " + tname + " para este tornillo del disipador.", Color(1.0, 0.3, 0.3))
 		return
@@ -1201,8 +1201,8 @@ func _on_extract_ram_pressed() -> void:
 func _on_standoff_pressed(idx: int) -> void:
 	if current_phase == Phase.STANDOFFS_INSTALL:
 		if not standoff_screws_removed[idx]: return
-		var req = 1 if standoff_screw_types[idx] == "cruz" else 2
-		var tname = "Cruz [1]" if req == 1 else "Pala [2]"
+		var req = 2 if standoff_screw_types[idx] == "cruz" else 1
+		var tname = "Cruz [2]" if req == 2 else "Pala [1]"
 		if GameManager.equipped_tool != req:
 			_show_warning("Usa Destornillador " + tname + " para este standoff de chasis.", Color(1.0, 0.3, 0.3))
 			return
@@ -1228,8 +1228,8 @@ func _on_standoff_pressed(idx: int) -> void:
 		return
 
 	if current_phase != Phase.STANDOFFS or standoff_screws_removed[idx]: return
-	var req = 1 if standoff_screw_types[idx] == "cruz" else 2
-	var tname = "Cruz [1]" if req == 1 else "Pala [2]"
+	var req = 2 if standoff_screw_types[idx] == "cruz" else 1
+	var tname = "Cruz [2]" if req == 2 else "Pala [1]"
 	if GameManager.equipped_tool != req:
 		_show_warning("Usa Destornillador " + tname + " para este standoff de chasis.", Color(1.0, 0.3, 0.3))
 		return
@@ -1307,7 +1307,7 @@ func _update_status() -> void:
 			for r in standoff_screws_removed:
 				if not r: rem += 1
 			phase_tracker.text = "STANDOFFS AL CHASIS (%d/6 restantes)" % rem
-			status_label.text = "Usa Destornillador Cruz [1] o Pala [2] para retirar los 6 tornillos de fijación al gabinete."
+			status_label.text = "Usa Destornillador Pala [1] o Cruz [2] para retirar los 6 tornillos de fijación al gabinete."
 			status_label.modulate = Color(1.0, 0.75, 0.2)
 		Phase.EXTRACT_MOBO:
 			phase_tracker.text = "EXTRACCIÓN FINAL DE PLACA MADRE"
@@ -1322,7 +1322,7 @@ func _update_status() -> void:
 			for r in standoff_screws_removed:
 				if r: s_rem += 1
 			phase_tracker.text = "MONTAJE: ATORNILLAR STANDOFFS (%d/6 restantes)" % s_rem
-			status_label.text = "Paso 2: Atornilla los 6 tornillos Standoff al gabinete con [1] Cruz o [2] Pala (%d restantes)." % s_rem
+			status_label.text = "Paso 2: Atornilla los 6 tornillos Standoff al gabinete con [1] Pala o [2] Cruz (%d restantes)." % s_rem
 			status_label.modulate = Color(1.0, 0.85, 0.2)
 		Phase.REINSTALL_COMPONENTS:
 			var pending: Array[String] = []

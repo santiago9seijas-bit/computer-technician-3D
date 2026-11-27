@@ -289,10 +289,7 @@ func _ready() -> void:
 	# Botones de selección rápida de herramientas
 	btn_tool_1.pressed.connect(func(): GameManager.select_tool(1))
 	btn_tool_2.pressed.connect(func(): GameManager.select_tool(2))
-	btn_tool_3.pressed.connect(func():
-		GameManager.select_tool(3)
-		_open_ram_static_minigame()
-	)
+	btn_tool_3.pressed.connect(func(): GameManager.select_tool(3))
 	btn_tool_4.pressed.connect(func(): GameManager.select_tool(4))
 	btn_tool_5.pressed.connect(func(): GameManager.select_tool(5))
 	
@@ -348,10 +345,9 @@ func _unhandled_input(event: InputEvent) -> void:
 				GameManager.select_tool(1)
 			KEY_2, KEY_KP_2:
 				GameManager.select_tool(2)
-			KEY_3, KEY_KP_3, KEY_L:
+			KEY_3, KEY_KP_3:
 				GameManager.select_tool(3)
-				_open_ram_static_minigame()
-			KEY_4, KEY_KP_4:
+			KEY_4, KEY_KP_4, KEY_L:
 				GameManager.select_tool(4)
 			KEY_5, KEY_KP_5:
 				GameManager.select_tool(5)
@@ -399,11 +395,10 @@ func _unhandled_key_input(event: InputEvent) -> void:
 			KEY_2, KEY_KP_2:
 				GameManager.select_tool(2)
 				get_viewport().set_input_as_handled()
-			KEY_3, KEY_KP_3, KEY_L:
+			KEY_3, KEY_KP_3:
 				GameManager.select_tool(3)
-				_open_ram_static_minigame()
 				get_viewport().set_input_as_handled()
-			KEY_4, KEY_KP_4:
+			KEY_4, KEY_KP_4, KEY_L:
 				GameManager.select_tool(4)
 				get_viewport().set_input_as_handled()
 			KEY_5, KEY_KP_5:
@@ -592,17 +587,20 @@ func _on_sacar_pressed(comp_name: String) -> void:
 		
 	var status = current_pc.components.get(comp_name, "ok")
 	
-	# Acción contextual de herramienta especial si la pieza está presente
+	# Acción contextual según la herramienta equipada (solo si la pieza está presente)
 	if status != "empty":
-		if GameManager.is_cleaning_tool_equipped():
-			_on_limpiar_pressed(comp_name)
-			return
-		elif GameManager.is_voltimeter_equipped() and (comp_name in ["RAM", "Fuente", "Fan Cooler"]):
-			_on_voltimeter_pressed(comp_name)
-			return
-		elif GameManager.is_soldering_tool_equipped() and (comp_name in ["CPU", "RAM"]):
-			_on_pines_pressed(comp_name)
-			return
+		match GameManager.equipped_tool:
+			3: # Voltímetro: medir en cualquier pieza
+				_on_voltimeter_pressed(comp_name)
+				return
+			4: # Lupa: inspeccionar RAM y CPU
+				if comp_name in ["RAM", "CPU"]:
+					_on_pines_pressed(comp_name)
+					return
+			5: # Limpiador: RAM/Fuente con soplador, CPU con pasta térmica
+				if comp_name in ["RAM", "Fuente", "CPU"]:
+					_on_limpiar_pressed(comp_name)
+					return
 
 	if status == "empty":
 		var spare_idx = _find_spare_in_backpack(comp_name)
@@ -746,8 +744,8 @@ func _open_dust_cleaner(comp_name: String) -> void:
 	)
 
 func _on_pines_pressed(comp_name: String) -> void:
-	if not GameManager.is_soldering_tool_equipped():
-		_show_feedback("⚠️ Necesitas seleccionar la Lupa [3] para inspeccionar y alinear pines.", false)
+	if GameManager.equipped_tool != 4:
+		_show_feedback("⚠️ Necesitas seleccionar la Lupa [4] para inspeccionar y alinear pines.", false)
 		return
 	if current_pc == null:
 		return
@@ -762,11 +760,15 @@ func _on_pines_pressed(comp_name: String) -> void:
 		_open_ram_static_minigame()
 	else:
 		GameManager.register_repair(50, 3.0)
-		_show_feedback("✓ ¡Inspección con Lupa [3] en [%s] completada! Pines y contactos reparados." % comp_name, true)
+		_show_feedback("✓ ¡Inspección con Lupa [4] en [%s] completada! Pines y contactos reparados." % comp_name, true)
 		_refresh_ui()
 
 func _open_ram_static_minigame() -> void:
+	# Solo dentro del gabinete y con la lupa [4] equipada
 	if not modal_control or not modal_control.visible:
+		return
+	if GameManager.equipped_tool != 4:
+		_show_feedback("⚠️ Necesitas seleccionar la Lupa [4] para descargar la estática de la RAM.", false)
 		return
 	modal_control.visible = false
 	var minigame = ram_static_minigame_scene.instantiate()
@@ -786,8 +788,8 @@ func _open_ram_static_minigame() -> void:
 	)
 
 func _open_ram_pines() -> void:
-	if not GameManager.is_soldering_tool_equipped():
-		_show_feedback("⚠️ Necesitas seleccionar la Lupa [3] para inspeccionar los pines de la RAM.", false)
+	if GameManager.equipped_tool != 4:
+		_show_feedback("⚠️ Necesitas seleccionar la Lupa [4] para inspeccionar los pines de la RAM.", false)
 		return
 	modal_control.visible = false
 	var minigame = cpupins_minigame_scene.instantiate()
@@ -799,7 +801,7 @@ func _open_ram_pines() -> void:
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 		if success:
 			GameManager.register_repair(80, 5.0)
-			_show_feedback("✓ ¡Pines y contactos de la RAM inspeccionados con Lupa [3] y enderezados!", true)
+			_show_feedback("✓ ¡Pines y contactos de la RAM inspeccionados con Lupa [4] y enderezados!", true)
 			if current_pc and current_pc.components.get("RAM", "") == "broken":
 				current_pc.components["RAM"] = "ok"
 				_set_examined_status("RAM", "ok")
@@ -832,8 +834,8 @@ func _open_cpu_limpiar() -> void:
 	)
 
 func _open_cpu_pines() -> void:
-	if not GameManager.is_soldering_tool_equipped():
-		_show_feedback("⚠️ Necesitas seleccionar la Lupa [3] para manipular los pines.", false)
+	if GameManager.equipped_tool != 4:
+		_show_feedback("⚠️ Necesitas seleccionar la Lupa [4] para manipular los pines.", false)
 		return
 	modal_control.visible = false
 	var minigame = cpupins_minigame_scene.instantiate()
@@ -863,8 +865,8 @@ func _check_cpu_repaired_status(msg: String) -> void:
 		_show_feedback(msg, true)
 
 func _on_voltimeter_pressed(comp_name: String) -> void:
-	if not GameManager.is_voltimeter_equipped():
-		_show_feedback("⚠️ Necesitas seleccionar el Multímetro [4] para medir.", false)
+	if GameManager.equipped_tool != 3:
+		_show_feedback("⚠️ Necesitas seleccionar el Voltímetro [3] para medir.", false)
 		return
 	if current_pc == null:
 		return
@@ -875,8 +877,8 @@ func _on_voltimeter_pressed(comp_name: String) -> void:
 	_open_voltimeter(comp_name)
 
 func _open_voltimeter(comp_name: String) -> void:
-	if not GameManager.is_voltimeter_equipped():
-		_show_feedback("⚠️ Necesitas seleccionar el Multímetro [4] para medir.", false)
+	if GameManager.equipped_tool != 3:
+		_show_feedback("⚠️ Necesitas seleccionar el Voltímetro [3] para medir.", false)
 		return
 	modal_control.visible = false
 	var minigame = voltimeter_minigame_scene.instantiate()
@@ -894,7 +896,7 @@ func _open_voltimeter(comp_name: String) -> void:
 				current_pc.components[comp_name] = "fixed"
 				_set_examined_status(comp_name, "ok")
 				current_pc.update_3d_state()
-			_show_feedback("✓ ¡Diagnóstico con Multímetro [4] en [%s] completado al 100%%! Rieles y voltajes calibrados." % comp_name, true)
+			_show_feedback("✓ ¡Diagnóstico con Voltímetro [3] en [%s] completado al 100%%! Amperios, ohmios y voltajes DC/AC calibrados." % comp_name, true)
 		_refresh_ui()
 	)
 
@@ -1069,6 +1071,21 @@ func _refresh_ui() -> void:
 				btn_sacar.disabled = true
 				btn_sacar.modulate = Color(0.5, 0.5, 0.5, 0.6)
 				
+		# Etiqueta contextual del botón principal según la herramienta equipada
+		if status != "empty" and not btn_sacar.disabled:
+			match GameManager.equipped_tool:
+				3: # Voltímetro: medir en todas las piezas
+					btn_sacar.text = "⚡ MEDIR"
+					btn_sacar.modulate = Color(1.0, 0.85, 0.2, 1.0)
+				4: # Lupa: inspeccionar RAM y CPU
+					if comp_name in ["RAM", "CPU"]:
+						btn_sacar.text = "🔍 INSPECCIONAR"
+						btn_sacar.modulate = Color(0.4, 0.9, 1.0, 1.0)
+				5: # Limpiador: soplador en RAM/Fuente, pasta en CPU
+					if comp_name in ["RAM", "Fuente", "CPU"]:
+						btn_sacar.text = "🧹 LIMPIAR"
+						btn_sacar.modulate = Color(0.35, 1.0, 0.65, 1.0)
+
 		if comp_name == "CPU":
 			btn_cpu_limpiar.visible = false
 			btn_cpu_pines.visible = false

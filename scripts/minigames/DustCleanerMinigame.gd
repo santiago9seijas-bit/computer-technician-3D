@@ -15,6 +15,8 @@ signal minigame_finished(success: bool)
 @onready var progress_label: Label = $ModalControl/Panel/VBox/Header/ProgressLabel
 @onready var progress_bar: ProgressBar = $ModalControl/Panel/VBox/Header/ProgressBar
 @onready var heatsink_area: Control = $ModalControl/Panel/VBox/WorkArea/HeatsinkFrame/Margin/HeatsinkArea
+@onready var work_area: Control = $ModalControl/Panel/VBox/WorkArea
+@onready var right_guide_panel: Control = $ModalControl/Panel/VBox/WorkArea/RightGuidePanel
 @onready var warning_label: Label = $ModalControl/Panel/VBox/WarningLabel
 @onready var victory_banner: PanelContainer = $ModalControl/Panel/VBox/VictoryBanner
 @onready var btn_cancel: Button = $ModalControl/Panel/VBox/Footer/BtnCancel
@@ -22,6 +24,7 @@ signal minigame_finished(success: bool)
 const TEX_RAM: Texture2D = preload("res://pixel art minijuegos/ramstipos/ram ddr.png")
 const TEX_FUENTE_CERRADA: Texture2D = preload("res://pixel art minijuegos/fuente/fuente cerrada.png")
 const TEX_FUENTE_ABIERTA: Texture2D = preload("res://pixel art minijuegos/fuente/fuente abierta.png")
+const DIALOG_BOX_SCENE: PackedScene = preload("res://scenes/ui/DialogBox.tscn")
 
 # =============================================================================
 # SPRITES DE PELUSA EN PIXEL ART
@@ -142,21 +145,35 @@ func _start_joa_intro() -> void:
 	else:
 		msg_txt = "¡Atento técnico! Los contactos dorados y ranuras de la memoria RAM están cubiertos de polvo y residuos que causan fallas de lectura y falsos contactos.\n\nUsa el cepillo de precisión para desincrustar y remover todos los cúmulos de suciedad hasta dejar la pieza 100% limpia."
 	
-	var dlg_scene = load("res://scenes/ui/DialogBox.tscn")
-	if dlg_scene:
-		dialog_box_inst = dlg_scene.instantiate()
-		add_child(dialog_box_inst)
+	# La guía derecha se oculta mientras se muestra la explicación compacta para no superponer UI.
+	if is_instance_valid(right_guide_panel):
+		right_guide_panel.visible = false
+
+	if DIALOG_BOX_SCENE:
+		dialog_box_inst = DIALOG_BOX_SCENE.instantiate()
+		if is_instance_valid(work_area):
+			work_area.add_child(dialog_box_inst)
+		else:
+			add_child(dialog_box_inst)
 		if dialog_box_inst.has_method("show_message"):
 			dialog_box_inst.show_message(
 				"JOA",
 				msg_txt,
 				func():
-					_start_countdown()
+					if is_instance_valid(right_guide_panel):
+						right_guide_panel.visible = true
+					_start_countdown(),
+				true
 			)
 		else:
-			_start_countdown()
+			_on_intro_skipped()
 	else:
-		_start_countdown()
+		_on_intro_skipped()
+
+func _on_intro_skipped() -> void:
+	if is_instance_valid(right_guide_panel):
+		right_guide_panel.visible = true
+	_start_countdown()
 
 func _start_countdown() -> void:
 	if countdown_overlay:

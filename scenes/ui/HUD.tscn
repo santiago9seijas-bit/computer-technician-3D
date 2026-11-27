@@ -247,10 +247,11 @@ layout_mode = 2
 flat = true
 script = ExtResource("11_circle_btn")
 tool_id = 1
-tool_name = "Cruz ★"
+tool_name = "Pala ▬"
 key_shortcut = "[ 1 ]"
 icon_texture = ExtResource("13_ico_reparacion")
 icon_modulate = Color(1, 0.35, 0.45, 1)
+icon_flip_h = true
 circle_texture = ExtResource("12_circulo_obj")
 
 [node name="Tool2" type="Button" parent="BottomCenter/ToolsBar"]
@@ -259,11 +260,10 @@ layout_mode = 2
 flat = true
 script = ExtResource("11_circle_btn")
 tool_id = 2
-tool_name = "Pala ▬"
+tool_name = "Cruz ★"
 key_shortcut = "[ 2 ]"
 icon_texture = ExtResource("13_ico_reparacion")
 icon_modulate = Color(0.2, 0.9, 1, 1)
-icon_flip_h = true
 circle_texture = ExtResource("12_circulo_obj")
 
 [node name="Tool3" type="Button" parent="BottomCenter/ToolsBar"]
@@ -272,10 +272,10 @@ layout_mode = 2
 flat = true
 script = ExtResource("11_circle_btn")
 tool_id = 3
-tool_name = "Lupa"
+tool_name = "Voltímetro"
 key_shortcut = "[ 3 ]"
-icon_texture = ExtResource("16_ico_lupa")
-icon_modulate = Color(1, 0.5, 0.2, 1)
+icon_texture = ExtResource("14_ico_rayo")
+icon_modulate = Color(1, 0.85, 0.1, 1)
 circle_texture = ExtResource("12_circulo_obj")
 
 [node name="Tool4" type="Button" parent="BottomCenter/ToolsBar"]
@@ -284,10 +284,10 @@ layout_mode = 2
 flat = true
 script = ExtResource("11_circle_btn")
 tool_id = 4
-tool_name = "Multímetro"
+tool_name = "Lupa"
 key_shortcut = "[ 4 ]"
-icon_texture = ExtResource("14_ico_rayo")
-icon_modulate = Color(0.2, 1, 0.7, 1)
+icon_texture = ExtResource("16_ico_lupa")
+icon_modulate = Color(0.3, 0.9, 1, 1)
 circle_texture = ExtResource("12_circulo_obj")
 
 [node name="Tool5" type="Button" parent="BottomCenter/ToolsBar"]
@@ -296,7 +296,7 @@ layout_mode = 2
 flat = true
 script = ExtResource("11_circle_btn")
 tool_id = 5
-tool_name = "Limpiador"
+tool_name = "Aspiradora"
 key_shortcut = "[ 5 ]"
 icon_texture = ExtResource("15_ico_limpieza")
 icon_modulate = Color(0.3, 0.85, 1, 1)

@@ -124,7 +124,7 @@ func set_drive_type(type_name: String) -> void:
 func _update_level_screw_visuals() -> void:
 	if is_instance_valid(screw_icon):
 		screw_icon.texture = TEX_SCREW_CRUZ if screw_type == "cruz" else TEX_SCREW_PALA
-	required_tool_id = 1 if screw_type == "cruz" else 2
+	required_tool_id = 2 if screw_type == "cruz" else 1
 
 func _setup_level_removal_phase() -> void:
 	level_phase = LevelPhase.REMOVE_SCREW
@@ -252,7 +252,7 @@ func _on_level_rear_screw_pressed() -> void:
 		
 	if GameManager.equipped_tool != required_tool_id:
 		GameManager.register_error(2.0)
-		var expected = "CRUZ / ESTRELLA (Tecla 1)" if screw_type == "cruz" else "PALA / PLANO (Tecla 2)"
+		var expected = "CRUZ / ESTRELLA (Tecla 2)" if screw_type == "cruz" else "PALA / PLANO (Tecla 1)"
 		status_label.text = "¡Herramienta incorrecta! Este tornillo requiere %s." % expected
 		status_label.modulate = Color(1, 0.2, 0.3, 1)
 		_shake_node(rear_screw_btn)

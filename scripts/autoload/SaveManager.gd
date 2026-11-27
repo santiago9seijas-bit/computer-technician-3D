@@ -318,6 +318,20 @@ func is_node_unlocked(mode: String, node_idx: int) -> bool:
 			return true
 		if (node_idx == 30 or node_idx == 31) and is_node_completed("reparacion", 12):
 			return true
+	elif mode == "sistema":
+		if node_idx == 26:
+			# Nivel de inducción de hackeo siempre desbloqueado
+			return true
+		if node_idx == 27 and (is_node_completed("sistema", 26) or is_node_completed("sistema", 7)):
+			return true
+		if node_idx == 28 and (is_node_completed("sistema", 27) or is_node_completed("sistema", 8)):
+			return true
+		if node_idx == 29 and (is_node_completed("sistema", 28) or is_node_completed("sistema", 9)):
+			return true
+		if node_idx == 30 and (is_node_completed("sistema", 29) or is_node_completed("sistema", 10)):
+			return true
+		if node_idx == 31 and (is_node_completed("sistema", 30) or is_node_completed("sistema", 11)):
+			return true
 	var data = get_slot(current_slot)
 	var unl_dict = data.get("unlocked_nodes", {})
 	var list = unl_dict.get(mode, [0])

@@ -3,17 +3,14 @@ extends Node3D
 const LevelCountdown = preload("res://scripts/ui/LevelCountdown.gd")
 const INTRO_SCENE: PackedScene = preload("res://scenes/ui/LevelIntroModal.tscn")
 const DELIVERED_CABINET_SCENE: PackedScene = preload("res://scenes/components/DeliveredCabinet.tscn")
-const RAM_STATIC_MINIGAME_SCENE: PackedScene = preload("res://scenes/minigames/RAMStaticMinigame.tscn")
 const DELIVERY_WALL_POS: Vector3 = Vector3(4.5, 0.0, 1.2)
 
 @onready var player: CharacterBody3D = $Player
 @onready var hud: Control = $CanvasLayerHUD/HUD
-var current_ram_minigame: Node = null
 
 func _ready() -> void:
 	GameManager.order_accepted.connect(_on_order_accepted)
 	GameManager.order_completed.connect(_on_order_completed)
-	GameManager.tool_selected.connect(_on_tool_selected)
 	if player and hud:
 		player.hud_node = hud
 		
@@ -150,50 +147,3 @@ func _on_order_completed(order_data: Dictionary) -> void:
 			
 	if hud and hud.has_method("set_interaction_prompt"):
 		hud.set_interaction_prompt("🎉 ¡Pedido completado y retirado con éxito!")
-
-func _on_tool_selected(tool_id: int) -> void:
-	if tool_id == 3:
-		open_ram_static_minigame()
-
-func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventKey and event.pressed and not event.echo:
-		if event.keycode == KEY_3 or event.keycode == KEY_KP_3 or event.keycode == KEY_L:
-			open_ram_static_minigame()
-
-func open_ram_static_minigame() -> void:
-	if is_instance_valid(current_ram_minigame):
-		return
-		
-	# Si la intro de misión está en pantalla, no abrir
-	var intro_modal = get_node_or_null("CanvasLayerHUD/LevelIntroModal")
-	if intro_modal and intro_modal.visible:
-		return
-		
-	# Si la inspección de PC está abierta en root, esa tiene su propio manejador
-	var root_node = get_tree().root
-	for child in root_node.get_children():
-		if child.name.begins_with("PCInspectionModal") and child.visible:
-			return
-			
-	if player and player.has_method("set_movement_enabled"):
-		player.set_movement_enabled(false)
-		
-	var minigame = RAM_STATIC_MINIGAME_SCENE.instantiate()
-	current_ram_minigame = minigame
-	
-	var hud_layer = get_node_or_null("CanvasLayerHUD")
-	if hud_layer:
-		hud_layer.add_child(minigame)
-	else:
-		add_child(minigame)
-		
-	minigame.connect("minigame_finished", func(success: bool):
-		current_ram_minigame = null
-		if player and player.has_method("set_movement_enabled"):
-			player.set_movement_enabled(true)
-		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
-		if success:
-			if hud and hud.has_method("set_interaction_prompt"):
-				hud.set_interaction_prompt("⚡ ¡Descarga electrostática de RAM completada con éxito!")
-			GameManager.register_repair(100, 5.0)
-	)

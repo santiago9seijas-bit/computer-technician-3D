@@ -942,6 +942,100 @@ func test_hacking_variety_and_jeremias_tutorial() -> void:
 	assert(found_spread == true, "Debe haber torretas spread en los niveles")
 	assert(found_satellites == true, "El Núcleo Jefe debe tener satélites orbitantes")
 	print("  4. Variedad de niveles, satélites de jefe y mini-puzzles verificados [OK]")
+
+	# 5.1 Verificar Stage 1: Destrucción de 2 guardianes abre el cortafuegos del núcleo (switch_id 10)
+	hack.current_stage_index = 1
+	hack._build_stage_layout(1)
+	assert(hack.enemies.size() == 2, "Stage 1 debe tener exactamente 2 guardianes")
+	var s1_barrier_found = false
+	for b in hack.blocks:
+		if b["type"] == hack.BLOCK_BARRIER and b["switch_id"] == 10:
+			assert(b["alive"] == true, "La barrera 10 debe comenzar activa")
+			s1_barrier_found = true
+	assert(s1_barrier_found, "Debe existir barrera con switch_id 10 en Stage 1")
+	for e in hack.enemies:
+		e["hp"] = 1
+		hack._damage_enemy(e)
+	assert(hack.stage1_barrier_cleared == true, "Stage 1 debe marcar stage1_barrier_cleared al liquidar los 2 guardianes")
+	for b in hack.blocks:
+		if b["type"] == hack.BLOCK_BARRIER and b["switch_id"] == 10:
+			assert(b["alive"] == false, "La barrera 10 debe abrirse al morir los guardianes")
+	print("  5. Stage 1 (Romper cajas + 2 guardianes) verificado [OK]")
+
+	# 5.2 Verificar Stage 2: Cajas rojas (BLOCK_RED_HAZARD) y daño por contacto
+	hack.current_stage_index = 2
+	hack._build_stage_layout(2)
+	var found_red_hazard = false
+	for b in hack.blocks:
+		if b["type"] == hack.BLOCK_RED_HAZARD:
+			found_red_hazard = true
+			break
+	assert(found_red_hazard == true, "Stage 2 debe contener bloques BLOCK_RED_HAZARD (Cajas Rojas)")
+	hack.player_shields = 4
+	hack.is_invulnerable = false
+	hack._player_take_hazard_damage()
+	assert(hack.player_shields == 3, "El contacto con caja roja debe restar 1 escudo")
+	assert(hack.is_invulnerable == true, "Debe otorgar invulnerabilidad temporal tras daño")
+	print("  6. Stage 2 (Campo de Cajas Rojas que no se pueden tocar) verificado [OK]")
+
+	# 5.3 Verificar Stage 3: Ronda de amenazas (5 enemigos) para colapsar cortafuegos 300
+	hack.current_stage_index = 3
+	hack._build_stage_layout(3)
+	assert(hack.enemies.size() == 5, "Stage 3 debe tener una ronda completa de 5 enemigos")
+	for e in hack.enemies:
+		e["hp"] = 1
+		hack._damage_enemy(e)
+	assert(hack.stage3_barrier_cleared == true, "Stage 3 debe superar la barrera al eliminar la ronda de amenazas")
+	for b in hack.blocks:
+		if b["type"] == hack.BLOCK_BARRIER and b["switch_id"] == 300:
+			assert(b["alive"] == false, "La barrera 300 debe abrirse tras limpiar la ronda")
+	print("  7. Stage 3 (Ronda completa de enemigos) verificado [OK]")
+
+	# 5.4 Verificar Stage 4: Interruptores secuenciales (1 -> 2 -> 3)
+	hack.current_stage_index = 4
+	hack._build_stage_layout(4)
+	var btn_1: Dictionary = {}
+	var btn_2: Dictionary = {}
+	var btn_3: Dictionary = {}
+	for btn in hack.buttons:
+		if btn.get("order", 0) == 1:
+			btn_1 = btn
+		elif btn.get("order", 0) == 2:
+			btn_2 = btn
+		elif btn.get("order", 0) == 3:
+			btn_3 = btn
+	assert(btn_1.size() > 0 and btn_2.size() > 0 and btn_3.size() > 0, "Stage 4 debe tener botones ordenados 1, 2 y 3")
+	hack.stage4_current_step = 0
+	# Pulsar botón 2 primero (error)
+	hack._activate_button(btn_2)
+	assert(hack.stage4_current_step == 0, "Pulsar fuera de orden debe resetear a paso 0")
+	# Pulsar en orden correcto 1 -> 2 -> 3
+	hack._activate_button(btn_1)
+	assert(hack.stage4_current_step == 1, "Pulsar botón 1 debe avanzar a paso 1")
+	assert(btn_1["active"] == true, "Botón 1 debe quedar activo")
+	hack._activate_button(btn_2)
+	assert(hack.stage4_current_step == 2, "Pulsar botón 2 debe avanzar a paso 2")
+	assert(btn_2["active"] == true, "Botón 2 debe quedar activo")
+	hack._activate_button(btn_3)
+	assert(hack.stage4_current_step == 3, "Pulsar botón 3 debe completar secuencia a paso 3")
+	assert(hack.stage4_barrier_cleared == true, "Secuencia 1-2-3 completada debe despejar la barrera del núcleo")
+	for b in hack.blocks:
+		if b["type"] == hack.BLOCK_BARRIER and b["switch_id"] == 400:
+			assert(b["alive"] == false, "La barrera 400 debe abrirse al completar la secuencia")
+	print("  8. Stage 4 (Botones en orden secuencial 1 ➔ 2 ➔ 3) verificado [OK]")
+
+	# 5.5 Verificar pending_stage_data al instanciar CyberHackingMinigame directamente
+	HackScript.pending_stage_data = {
+		"number": 28,
+		"stage_index": 2,
+		"title": "HACKEO // LABERINTO DE CAJAS ROJAS"
+	}
+	var test_hack_inst = HackScene.instantiate()
+	add_child(test_hack_inst)
+	assert(test_hack_inst.current_stage_index == 2, "Debe iniciar en la etapa 2 según pending_stage_data")
+	assert(test_hack_inst.is_tutorial_dialog_active == false, "Etapas > 0 NO deben activar el tutorial de inducción de Jeremías")
+	test_hack_inst.free()
+	print("  9. Inyección de etapa directa (pending_stage_data) verificada [OK]")
 	
 	# 6. Verificar limpieza y apagado de sonido en TerminalTetris
 	var TetrisScript = load("res://scripts/minigames/TerminalTetris.gd")

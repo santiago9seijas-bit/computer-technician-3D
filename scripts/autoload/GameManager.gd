@@ -354,29 +354,72 @@ func _process(delta: float) -> void:
 		else:
 			time_updated.emit(time_left, -delta)
 
+# Pool de AudioStreamPlayer pre-asignados y caché de sonidos (0% I/O en disco durante gameplay)
+const SFX_STREAMS: Dictionary = {
+	"click": preload("res://efectos/teclado_click.wav"),
+	"error": preload("res://efectos/audio de error.ogg"),
+	"success": preload("res://efectos/sonido de entrada.ogg"),
+	"win": preload("res://efectos/sonido de entrada.ogg"),
+	"start": preload("res://efectos/sonido de entrada.ogg")
+}
+var _sfx_players_pool: Array[AudioStreamPlayer] = []
+var _sfx_pool_index: int = 0
+const MAX_SFX_PLAYERS: int = 8
+
+func play_sfx(sound_name: String = "click") -> void:
+	if not is_inside_tree() or sfx_volume <= 0.0:
+		return
+	var stream: AudioStream = SFX_STREAMS.get(sound_name, SFX_STREAMS["click"])
+	if not stream:
+		return
+		
+	# Inicializar pool bajo demanda si está vacío
+	if _sfx_players_pool.is_empty():
+		for i in range(MAX_SFX_PLAYERS):
+			var asp = AudioStreamPlayer.new()
+			asp.name = "SfxPoolPlayer_%d" % i
+			asp.bus = "SFX" if AudioServer.get_bus_index("SFX") != -1 else "Master"
+			add_child(asp)
+			_sfx_players_pool.append(asp)
+			
+	var player = _sfx_players_pool[_sfx_pool_index]
+	_sfx_pool_index = (_sfx_pool_index + 1) % MAX_SFX_PLAYERS
+	
+	player.stream = stream
+	player.volume_db = linear_to_db(max(sfx_volume / 100.0, 0.0001))
+	player.play()
+
 func _unhandled_key_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.is_echo():
 		match event.keycode:
 			KEY_1, KEY_KP_1:
-				select_tool(1)
+				select_tool(1, true)
 			KEY_2, KEY_KP_2:
-				select_tool(2)
+				select_tool(2, true)
 			KEY_3, KEY_KP_3:
-				select_tool(3)
+				select_tool(3, true)
 			KEY_4, KEY_KP_4:
-				select_tool(4)
+				select_tool(4, true)
 			KEY_5, KEY_KP_5:
-				select_tool(5)
+				select_tool(5, true)
+			KEY_0, KEY_KP_0:
+				select_tool(0, false)
 
-func select_tool(tool_id: int) -> void:
-	equipped_tool = tool_id
+func select_tool(tool_id: int, allow_toggle: bool = false) -> void:
+	var prev_tool = equipped_tool
+	if allow_toggle and equipped_tool == tool_id:
+		equipped_tool = 0
+	else:
+		equipped_tool = tool_id
+	if prev_tool != equipped_tool:
+		play_sfx("click")
 	tool_selected.emit(equipped_tool)
 
 func is_soldering_tool_equipped() -> bool:
-	return equipped_tool == 3
+	return equipped_tool == 4 or equipped_tool == 3
 
 func is_voltimeter_equipped() -> bool:
-	return equipped_tool == 4
+	return equipped_tool == 3 or equipped_tool == 4
 
 func is_cleaning_tool_equipped() -> bool:
 	return equipped_tool == 5

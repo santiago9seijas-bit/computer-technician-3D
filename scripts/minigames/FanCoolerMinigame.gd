@@ -538,8 +538,8 @@ func _on_screw_clicked(index: int) -> void:
 	if current_state == State.FASTEN_SCREWS or current_state == State.CONNECT_CABLE:
 		if screws_fastened[index]:
 			return
-		var req = 1 if screw_types[index] == "cruz" else 2
-		var req_name = "Destornillador Cruz" if req == 1 else "Destornillador Pala"
+		var req = 2 if screw_types[index] == "cruz" else 1
+		var req_name = "Destornillador Cruz" if req == 2 else "Destornillador Pala"
 		if GameManager.equipped_tool != req:
 			GameManager.register_error(2.0)
 			_show_floating_feedback("HERRAMIENTA INCORRECTA: USA " + req_name.to_upper(), Color(1.0, 0.85, 0.1))
@@ -560,8 +560,8 @@ func _on_screw_clicked(index: int) -> void:
 	if screws_removed[index]:
 		return
 		
-	var required_tool = 1 if screw_types[index] == "cruz" else 2
-	var required_name = "Destornillador Cruz" if required_tool == 1 else "Destornillador Pala"
+	var required_tool = 2 if screw_types[index] == "cruz" else 1
+	var required_name = "Destornillador Cruz" if required_tool == 2 else "Destornillador Pala"
 	
 	if GameManager.equipped_tool != required_tool:
 		GameManager.register_error(2.0)
@@ -725,7 +725,7 @@ func _update_status() -> void:
 				status_label.text = "Fase Montaje: ¡Tornillos asegurados! Haz clic en el cable PWM para conectarlo."
 				status_label.add_theme_color_override("font_color", Color(0.2, 1.0, 0.5, 1.0))
 			elif not is_cable_disconnected and rem_fasten > 0:
-				status_label.text = "Fase Montaje: ¡Cable conectado! Ajusta los %d tornillos restantes con [1] Cruz o [2] Pala." % rem_fasten
+				status_label.text = "Fase Montaje: ¡Cable conectado! Ajusta los %d tornillos restantes con [1] Pala o [2] Cruz." % rem_fasten
 				status_label.add_theme_color_override("font_color", Color(0.0, 0.9, 1.0, 1.0))
 			return
 		State.COMPLETED:
@@ -749,7 +749,7 @@ func _update_status() -> void:
 		status_label.text = "¡Tornillos retirados! Desconecta el cable de alimentación para liberar."
 		status_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.2, 1.0))
 	elif is_cable_disconnected and rem > 0:
-		status_label.text = "Ventilador detenido. Retira los tornillos restantes (%d/4) con Cruz [1] o Pala [2]." % rem
+		status_label.text = "Ventilador detenido. Retira los tornillos restantes (%d/4) con Pala [1] o Cruz [2]." % rem
 		status_label.add_theme_color_override("font_color", Color(0.9, 0.5, 1.0, 1.0))
 	else:
 		status_label.text = "Desconecta el cable y retira los 4 tornillos (cualquier orden). [%s · Restan: %d tornillos]" % [plate_tag, rem]

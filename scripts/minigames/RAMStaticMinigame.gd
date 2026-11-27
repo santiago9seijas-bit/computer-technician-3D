@@ -33,6 +33,7 @@ var screwdriver_angle_deg: float = -35.0
 var static_charge: float = 100.0
 var max_charge: float = 100.0
 var is_completed: bool = false
+var is_finishing: bool = false
 var is_intro_active: bool = false
 var countdown_overlay: CanvasLayer = null
 var dialog_box_inst: Control = null
@@ -42,6 +43,8 @@ var is_touching_screwdriver: bool = false
 # Sistema de Chispas / Partículas
 var active_sparks: Array[Dictionary] = []
 var spark_sound_timer: float = 0.0
+var had_sparks: bool = false
+var spark_rng: RandomNumberGenerator = RandomNumberGenerator.new()
 
 # Audio synth
 var asp_spark: AudioStreamPlayer = null
@@ -56,6 +59,7 @@ func _ready() -> void:
 	victory_panel.visible = false
 	victory_panel.modulate.a = 0.0
 	
+	spark_rng.randomize()
 	_setup_audio()
 	_setup_positions()
 	
@@ -195,7 +199,11 @@ func _process(delta: float) -> void:
 		if spk["life"] <= 0.0:
 			active_sparks.remove_at(i)
 	
-	sparks_canvas.queue_redraw()
+	# Solo redibujar mientras haya chispas (o en el último frame en que desaparecen).
+	var has_sparks = not active_sparks.is_empty()
+	if has_sparks or had_sparks or is_touching_screwdriver:
+		sparks_canvas.queue_redraw()
+	had_sparks = has_sparks
 	
 	# Mover el sprite de RAM con el cursor del mouse
 	var mouse_pos = work_area.get_local_mouse_position()
@@ -240,8 +248,7 @@ func _get_shaft_end_world() -> Vector2:
 	return screwdriver_center + shaft_end_local.rotated(deg_to_rad(screwdriver_angle_deg))
 
 func _spawn_sparks(contact_pt: Vector2, ram_pt: Vector2) -> void:
-	var rng = RandomNumberGenerator.new()
-	rng.randomize()
+	var rng = spark_rng
 	
 	# Chispas en el punto de contacto
 	for i in range(3):
@@ -317,8 +324,15 @@ func _on_sparks_draw() -> void:
 		sparks_canvas.draw_polyline(points, Color.WHITE, 1.0)
 
 func _on_static_fully_discharged() -> void:
+	if is_completed or is_finishing:
+		return
 	is_completed = true
+	is_finishing = true
+	static_charge = 0.0
+	_update_ui()
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	btn_repeat.disabled = true
+	btn_finish.disabled = true
 	
 	# Sonido triunfal
 	var asp_win = AudioStreamPlayer.new()
@@ -355,19 +369,17 @@ func _on_static_fully_discharged() -> void:
 	tw.tween_property(victory_panel, "modulate:a", 1.0, 0.35)
 	tw.tween_property(victory_panel, "scale", Vector2.ONE, 0.35).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
-func _on_repeat_pressed() -> void:
-	static_charge = 100.0
-	is_completed = false
-	active_sparks.clear()
-	victory_panel.visible = false
-	victory_panel.modulate.a = 0.0
-	Input.mouse_mode = Input.MOUSE_MODE_HIDDEN
-	prev_mouse_pos = work_area.get_local_mouse_position()
+	# La barra vacía termina el minijuego automáticamente, sin esperar a pulsar nada.
+	var finish_tw = create_tween()
+	finish_tw.tween_interval(0.6)
+	finish_tw.tween_callback(_finalize_success)
 
-func _on_finish_pressed() -> void:
-	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+func _finalize_success() -> void:
+	if not is_finishing:
+		return
+	is_finishing = false
 	minigame_finished.emit(true)
-	
+
 	if get_tree().current_scene == self:
 		CyberPlayTransition.play_exit(
 			get_tree(),
@@ -378,6 +390,24 @@ func _on_finish_pressed() -> void:
 		)
 	else:
 		queue_free()
+
+func _on_repeat_pressed() -> void:
+	if is_finishing:
+		return
+	static_charge = 100.0
+	is_completed = false
+	active_sparks.clear()
+	victory_panel.visible = false
+	victory_panel.modulate.a = 0.0
+	Input.mouse_mode = Input.MOUSE_MODE_HIDDEN
+	prev_mouse_pos = work_area.get_local_mouse_position()
+
+func _on_finish_pressed() -> void:
+	if is_finishing:
+		return
+	is_finishing = true
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	_finalize_success()
 
 func _on_salir_pressed() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE

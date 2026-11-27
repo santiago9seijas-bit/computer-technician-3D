@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://dol1urugva5f4" path="res://scripts/menus/MainMenu.gd" id="1_main"]
 [ext_resource type="Script" uid="uid://cmewdfi3mll7f" path="res://scripts/menus/SynthwaveBackground.gd" id="2_bg"]
 [ext_resource type="Script" uid="uid://b6m8mfwedfgj8" path="res://scripts/menus/MenuTextureButton.gd" id="4_tex_btn"]
-[ext_resource type="Theme" path="res://styles/cyberpunk_theme.tres" id="5_theme"]
+[ext_resource type="Theme" uid="uid://q1qipx3pn035" path="res://styles/cyberpunk_theme.tres" id="5_theme"]
 [ext_resource type="Texture2D" uid="uid://bpemd5djputrv" path="res://pixel art menus/botones/fondo de boton.png" id="6_btn_normal"]
 [ext_resource type="Texture2D" uid="uid://b86mg812vtc17" path="res://pixel art menus/botones/fondo de boton mouse encima.png" id="7_btn_hover"]
 [ext_resource type="Material" uid="uid://bvyg7oipb3y1a" path="res://styles/cyber_button_hologram.tres" id="8_holo_mat"]
@@ -13,8 +13,6 @@
 [ext_resource type="Material" uid="uid://btr8ra3p7mk41" path="res://styles/cyber_title_glow.tres" id="12_title_mat"]
 [ext_resource type="PackedScene" path="res://scenes/ui/CyberBackgroundFrame.tscn" id="13_bg_frame"]
 [ext_resource type="Script" uid="uid://d4gb3yskr5yf1" path="res://scripts/menus/CyberButton.gd" id="14_cbtn"]
-[ext_resource type="Texture2D" uid="uid://dmrt507recfdq" path="res://pixel art menus/menus/boton de volver.png" id="15_volver_tex"]
-[ext_resource type="Material" uid="uid://5ra4e5h4fgni" path="res://styles/cyber_glitch_sprite.tres" id="16_glitch_mat"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_panel"]
 content_margin_left = 28.0
@@ -29,9 +27,11 @@ border_color = Color(0.85, 0.1, 0.95, 0.8)
 corner_radius_top_left = 2
 corner_radius_bottom_left = 2
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_volver"]
-
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_volver_normal"]
+content_margin_left = 20.0
+content_margin_top = 8.0
+content_margin_right = 20.0
+content_margin_bottom = 8.0
 bg_color = Color(0.06, 0.08, 0.14, 0.85)
 border_width_left = 2
 border_width_top = 2
@@ -42,28 +42,12 @@ corner_radius_top_left = 4
 corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
-content_margin_left = 20.0
-content_margin_top = 8.0
-content_margin_right = 20.0
-content_margin_bottom = 8.0
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_volver_hover"]
-bg_color = Color(0.12, 0.16, 0.28, 0.95)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.4, 1, 1, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
-content_margin_left = 20.0
-content_margin_top = 8.0
-content_margin_right = 20.0
-content_margin_bottom = 8.0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_volver_pressed"]
+content_margin_left = 20.0
+content_margin_top = 8.0
+content_margin_right = 20.0
+content_margin_bottom = 8.0
 bg_color = Color(0.85, 0.15, 0.5, 0.85)
 border_width_left = 2
 border_width_top = 2
@@ -74,10 +58,22 @@ corner_radius_top_left = 4
 corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_volver_hover"]
 content_margin_left = 20.0
 content_margin_top = 8.0
 content_margin_right = 20.0
 content_margin_bottom = 8.0
+bg_color = Color(0.12, 0.16, 0.28, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.4, 1, 1, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
 
 [node name="MainMenu" type="Control" unique_id=1799927486]
 layout_mode = 3
@@ -627,8 +623,8 @@ custom_minimum_size = Vector2(160, 40)
 layout_mode = 2
 mouse_default_cursor_shape = 2
 theme_override_colors/font_color = Color(0.85, 0.95, 1, 1)
-theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
 theme_override_colors/font_pressed_color = Color(1, 0.8, 0.95, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
 theme_override_fonts/font = ExtResource("9_title_font")
 theme_override_font_sizes/font_size = 14
 theme_override_styles/normal = SubResource("StyleBoxFlat_volver_normal")
@@ -820,6 +816,10 @@ theme_override_constants/separation = 8
 [node name="BtnPrevLang" type="Button" parent="ConfigPanel/Margin/VBox/OptionsVBox/LanguageRow/ControlsHBox" unique_id=987654343]
 custom_minimum_size = Vector2(46, 38)
 layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 0)
+theme_override_colors/font_focus_color = Color(0, 0, 0, 0)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 0)
+theme_override_colors/font_hover_color = Color(0, 0, 0, 0)
 text = "◀"
 flat = true
 script = ExtResource("14_cbtn")
@@ -829,6 +829,10 @@ slant = 8.0
 custom_minimum_size = Vector2(200, 38)
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0, 0, 0, 0)
+theme_override_colors/font_focus_color = Color(0, 0, 0, 0)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 0)
+theme_override_colors/font_hover_color = Color(0, 0, 0, 0)
 text = "ESPAÑOL"
 flat = true
 script = ExtResource("14_cbtn")
@@ -837,6 +841,10 @@ slant = 12.0
 [node name="BtnNextLang" type="Button" parent="ConfigPanel/Margin/VBox/OptionsVBox/LanguageRow/ControlsHBox" unique_id=987654345]
 custom_minimum_size = Vector2(46, 38)
 layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 0)
+theme_override_colors/font_focus_color = Color(0, 0, 0, 0)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 0)
+theme_override_colors/font_hover_color = Color(0, 0, 0, 0)
 text = "▶"
 flat = true
 script = ExtResource("14_cbtn")
@@ -951,8 +959,8 @@ custom_minimum_size = Vector2(160, 40)
 layout_mode = 2
 mouse_default_cursor_shape = 2
 theme_override_colors/font_color = Color(0.85, 0.95, 1, 1)
-theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
 theme_override_colors/font_pressed_color = Color(1, 0.8, 0.95, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
 theme_override_fonts/font = ExtResource("9_title_font")
 theme_override_font_sizes/font_size = 14
 theme_override_styles/normal = SubResource("StyleBoxFlat_volver_normal")

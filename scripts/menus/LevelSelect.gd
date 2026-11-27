@@ -978,10 +978,10 @@ var LEVELS_DATA: Dictionary = {
 			"stage": "ZONA DE ENTRENAMIENTO // INDUCCIÓN CON JEREMÍAS",
 			"mode_name": "SISTEMA",
 			"color_accent": Color(1.0, 0.88, 0.15),
-			"description": "Nivel introductorio de hackeo ciberespacial guiado paso a paso por Jeremías.\nAprende los controles de la nave, destrucción de paquetes de datos, relays de seguridad y purga de núcleos anómalos.",
-			"requirements": "INSTRUCTOR: Jeremías · NAVE: Ciberespacial · PROTOCOLO: Inducción",
-			"jeremias_speech": "¡Atento, técnico! He configurado este sector de entrenamiento para enseñarte las bases del hackeo ciberespacial. Te explicaré los controles, cómo romper las defensas y cómo derribar el Núcleo Rojo.",
-			"can_play": false
+			"description": "Nivel de inducción guiado por Jeremías con nave limpia sin glitch.\nAprende controles 360°, cómo romper paquetes de datos, neutralizar balas enemigas, activar switches y destruir el Núcleo.",
+			"requirements": "INSTRUCTOR: Jeremías · NAVE: Ciberespacial Limpia · PROTOCOLO: Inducción",
+			"jeremias_speech": "¡Atento, técnico! He configurado este sector de entrenamiento con tu nave completamente limpia y sin interferencias glitch. Te explicaré los controles, cómo romper las defensas y cómo derribar el Núcleo Rojo.",
+			"can_play": true
 		},
 		{
 			"number": 27,
@@ -991,13 +991,13 @@ var LEVELS_DATA: Dictionary = {
 			"stage_index": 1,
 			"inspection_id": "buffer_overflow",
 			"target_scene": "res://scenes/minigames/CyberHackingMinigame.tscn",
-			"title": "HACKEO // OVERFLOW & CADENA EXPLOSIVA",
+			"title": "HACKEO // BARRICADA & DOBLE GUARDIÁN",
 			"stage": "ZONA DE ANOMALÍAS // KERNEL STACK",
 			"mode_name": "SISTEMA",
 			"color_accent": Color(1.0, 0.88, 0.15),
-			"description": "Exploit en el Call Stack con drones patrulleros.\nDetona bloques volátiles en reacción en cadena para abrir paso al interruptor y purgar el Núcleo.",
-			"requirements": "PROTOCOLO: Reacción en Cadena · TIEMPO: Libre",
-			"jeremias_speech": "¡Alerta en la pila! Un proceso anómalo levantó drones patrulleros para blindar el Núcleo. Aprovecha los bloques explosivos para detonar las defensas en cadena y destruye las balas enemigas con tus disparos.",
+			"description": "Barricada reforzada de bloques de datos y armaduras.\nRompe las cajas, elimina a los 2 guardianes de seguridad y destruye el Núcleo Rojo una vez desactivado su escudo.",
+			"requirements": "OBJETIVO: Romper cajas + 2 Guardianes · TIEMPO: Libre",
+			"jeremias_speech": "¡El sector está bloqueado! Tienes que romper las cajas de datos, liquidar a los 2 guardianes que custodian el área y una vez caigan sus defensas, destruye el Núcleo Rojo.",
 			"can_play": false
 		},
 		{
@@ -1008,13 +1008,13 @@ var LEVELS_DATA: Dictionary = {
 			"stage_index": 2,
 			"inspection_id": "adware_miner",
 			"target_scene": "res://scenes/minigames/CyberHackingMinigame.tscn",
-			"title": "HACKEO // CRIPTOMINERO RESIDUAL",
-			"stage": "ZONA DE ANOMALÍAS // MINERO EN CUARENTENA",
+			"title": "HACKEO // LABERINTO DE CAJAS ROJAS",
+			"stage": "ZONA DE ANOMALÍAS // CAMPO DE ALTO VOLTAJE",
 			"mode_name": "SISTEMA",
 			"color_accent": Color(1.0, 0.88, 0.15),
-			"description": "Proceso oculto consumiendo recursos con doble cierre de seguridad.\nActiva los interruptores Alpha y Beta simultáneos para neutralizar la jaula de fuerza.",
-			"requirements": "PROTOCOLO: Doble Interruptor Alpha/Beta",
-			"jeremias_speech": "El script minero ha cerrado el Núcleo bajo una jaula electromagnética dual. Debes llegar a ambos interruptores en los flancos para bajar las barreras antes de atacar el núcleo.",
+			"description": "Laberinto repleto de cajas rojas de alto voltaje.\n¡Prohibido tocar las cajas rojas! Esquívalas con precisión para alcanzar el Núcleo Rojo y destruirlo.",
+			"requirements": "REGLA: No tocar cajas rojas · DAÑO POR CONTACTO: Crítico",
+			"jeremias_speech": "¡Mucho cuidado aquí, técnico! El campo está infestado de cajas rojas de alta tensión. Si tu nave las roza, perderás escudos de inmediato. Navega con precisión quirúrgica y destruye el núcleo.",
 			"can_play": false
 		},
 		{
@@ -1025,13 +1025,13 @@ var LEVELS_DATA: Dictionary = {
 			"stage_index": 3,
 			"inspection_id": "driver_corrupt",
 			"target_scene": "res://scenes/minigames/CyberHackingMinigame.tscn",
-			"title": "HACKEO // TRÍADA WHQL CORRUPTA",
-			"stage": "ZONA DE ANOMALÍAS // CONTROLADOR GPU",
+			"title": "HACKEO // RONDA DE AMENAZAS",
+			"stage": "ZONA DE ANOMALÍAS // ARENA DE SEGURIDAD",
 			"mode_name": "SISTEMA",
 			"color_accent": Color(1.0, 0.88, 0.15),
-			"description": "Firma digital rota protegida por 3 torretas de defensa.\nSobrecarga los 3 relays de seguridad para retirar las capas del escudo del Núcleo.",
-			"requirements": "PROTOCOLO: Tríada de Seguridad WHQL",
-			"jeremias_speech": "El controlador gráfico no pasa la comprobación criptográfica y sus subprocesos defienden el sector con fuego cruzado. Neutraliza los 3 nodos de la tríada para dejar al descubierto el núcleo dañado.",
+			"description": "Arena de combate con una oleada de defensas activas.\nElimina a toda la ronda de drones y torretas para colapsar el cortafuegos y purgar el Núcleo Rojo.",
+			"requirements": "OBJETIVO: Eliminar ronda completa de enemigos (5 amenazas)",
+			"jeremias_speech": "¡Emboscada en el subsector! El Núcleo tiene un cortafuegos maestro impenetrable mientras sigan activos los hostiles. Elimina la ronda completa de drones y torretas para desbloquearlo.",
 			"can_play": false
 		},
 		{
@@ -1042,13 +1042,13 @@ var LEVELS_DATA: Dictionary = {
 			"stage_index": 4,
 			"inspection_id": "gpt_salvage",
 			"target_scene": "res://scenes/minigames/CyberHackingMinigame.tscn",
-			"title": "HACKEO // LABERINTO GPT & RESCATE EFI",
-			"stage": "ZONA DE ANOMALÍAS // GPT SALVAGE",
+			"title": "HACKEO // SECUENCIA NUMÉRICA 1-2-3",
+			"stage": "ZONA DE ANOMALÍAS // MATRIZ CRIPTOGRÁFICA",
 			"mode_name": "SISTEMA",
 			"color_accent": Color(1.0, 0.88, 0.15),
-			"description": "Sectores de arranque primarios infectados organizados en un laberinto fortificado.\nNavega entre torretas y compuertas secuenciales hasta la raíz.",
-			"requirements": "PROTOCOLO: Infiltración de Laberinto EFI",
-			"jeremias_speech": "La cabecera de partición GPT fue secuestrada dentro de un laberinto de cortafuegos. Ábrete paso disparando a través de las compuertas y purga el Núcleo corrupto para restaurar la tabla de arranque.",
+			"description": "Cerradura criptográfica con 3 interruptores secuenciales.\nToca los botones estrictamente en orden (1 ➔ 2 ➔ 3). Si fallas, la secuencia se reinicia. Tras desbloquear el cortafuegos, destruye el Núcleo.",
+			"requirements": "PROTOCOLO: Secuencia Criptográfica (1 ➔ 2 ➔ 3)",
+			"jeremias_speech": "Este núcleo está protegido por una clave secuencial. Fíjate en los números de los interruptores: debes activarlos en estricto orden 1, 2 y 3. ¡Si tocas el equivocado, saltará el error y tendrás que empezar desde el 1!",
 			"can_play": false
 		},
 		{
@@ -2178,6 +2178,10 @@ func _play_inspection_level(node_data: Dictionary) -> void:
 	var sub_text = "// TALLER TÉCNICO CON LUPA //"
 	var target_comp = node_data.get("target_component", "")
 	
+	var HackScript = load("res://scripts/minigames/CyberHackingMinigame.gd")
+	if HackScript:
+		HackScript.pending_stage_data = node_data.duplicate()
+
 	CyberPlayTransition.play(
 		get_tree(),
 		target_scene,
@@ -2941,11 +2945,11 @@ func _input(event: InputEvent) -> void:
 
 	if dev_console_overlay and dev_console_overlay.visible:
 		if event.is_action_pressed("ui_cancel") or (event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE):
-			if terminal_pacman_instance and terminal_pacman_instance.visible:
+			if is_instance_valid(terminal_pacman_instance) and terminal_pacman_instance.visible:
 				get_viewport().set_input_as_handled()
 				terminal_pacman_instance.exit_to_terminal()
 				return
-			if terminal_tetris_instance and terminal_tetris_instance.visible:
+			if is_instance_valid(terminal_tetris_instance) and terminal_tetris_instance.visible:
 				get_viewport().set_input_as_handled()
 				terminal_tetris_instance.exit_to_terminal()
 				return
@@ -3251,8 +3255,9 @@ func _on_level_unlock_requested(node_data: Dictionary) -> void:
 	elif node_data.get("is_tutorial", false):
 		if tutorial_info_panel:
 			tutorial_info_panel.open_for_tutorial_node(node_data, req_points, player_points, true)
+	elif node_data.get("is_inspection", false):
 		if tutorial_info_panel:
-			tutorial_info_panel.open_for_practice(node_data, req_points, player_points, true)
+			tutorial_info_panel.open_for_inspection_node(node_data, req_points, player_points, true)
 	else:
 		if difficulty_selector:
 			difficulty_selector.open_for_level(node_data, req_points, player_points, true)
@@ -3295,13 +3300,19 @@ const ANDROMEDA_BANNER_TEXT: String = """[color=#00e5ff]       /\\         [/col
 
 func _close_dev_console() -> void:
 	if is_instance_valid(terminal_tetris_instance):
-		terminal_tetris_instance.exit_to_terminal()
-		terminal_tetris_instance.queue_free()
+		var tetris_to_close = terminal_tetris_instance
 		terminal_tetris_instance = null
+		tetris_to_close.exit_to_terminal()
+	else:
+		terminal_tetris_instance = null
+
 	if is_instance_valid(terminal_pacman_instance):
-		terminal_pacman_instance.exit_to_terminal()
-		terminal_pacman_instance.queue_free()
+		var pacman_to_close = terminal_pacman_instance
 		terminal_pacman_instance = null
+		pacman_to_close.exit_to_terminal()
+	else:
+		terminal_pacman_instance = null
+
 	if dev_console_body_vbox:
 		dev_console_body_vbox.visible = true
 	if dev_console_overlay:
@@ -3629,26 +3640,31 @@ func _cmd_andro_install_pacman() -> void:
 func _launch_terminal_pacman() -> void:
 	if not dev_console_margin_body:
 		return
-	if not terminal_pacman_instance:
-		var PacmanScript = load("res://scripts/minigames/TerminalPacman.gd")
-		if PacmanScript:
-			terminal_pacman_instance = PacmanScript.new()
-			terminal_pacman_instance.name = "TerminalPacmanGame"
-			terminal_pacman_instance.closed.connect(_on_terminal_pacman_closed)
-			dev_console_margin_body.add_child(terminal_pacman_instance)
+	if is_instance_valid(terminal_pacman_instance):
+		terminal_pacman_instance.queue_free()
+		terminal_pacman_instance = null
+	var PacmanScript = load("res://scripts/minigames/TerminalPacman.gd")
+	if PacmanScript:
+		terminal_pacman_instance = PacmanScript.new()
+		terminal_pacman_instance.name = "TerminalPacmanGame"
+		terminal_pacman_instance.closed.connect(_on_terminal_pacman_closed)
+		dev_console_margin_body.add_child(terminal_pacman_instance)
 	
 	if dev_console_body_vbox:
 		dev_console_body_vbox.visible = false
-	if terminal_pacman_instance:
+	if is_instance_valid(terminal_pacman_instance):
 		terminal_pacman_instance.visible = true
 		terminal_pacman_instance._reset_game_full()
 
 func _on_terminal_pacman_closed(final_score: int) -> void:
 	if is_instance_valid(terminal_pacman_instance):
-		terminal_pacman_instance.visible = false
-		terminal_pacman_instance.set_process(false)
-		terminal_pacman_instance.set_process_input(false)
-		terminal_pacman_instance.queue_free()
+		var pac_inst = terminal_pacman_instance
+		terminal_pacman_instance = null
+		pac_inst.visible = false
+		pac_inst.set_process(false)
+		pac_inst.set_process_input(false)
+		pac_inst.queue_free()
+	else:
 		terminal_pacman_instance = null
 	if dev_console_body_vbox:
 		dev_console_body_vbox.visible = true
@@ -3695,16 +3711,19 @@ func _launch_terminal_tetris() -> void:
 	
 	if dev_console_body_vbox:
 		dev_console_body_vbox.visible = false
-	if terminal_tetris_instance:
+	if is_instance_valid(terminal_tetris_instance):
 		terminal_tetris_instance.visible = true
 		terminal_tetris_instance._reset_game_full()
 
 func _on_terminal_tetris_closed(final_score: int) -> void:
 	if is_instance_valid(terminal_tetris_instance):
-		terminal_tetris_instance.visible = false
-		terminal_tetris_instance.set_process(false)
-		terminal_tetris_instance.set_process_input(false)
-		terminal_tetris_instance.queue_free()
+		var tet_inst = terminal_tetris_instance
+		terminal_tetris_instance = null
+		tet_inst.visible = false
+		tet_inst.set_process(false)
+		tet_inst.set_process_input(false)
+		tet_inst.queue_free()
+	else:
 		terminal_tetris_instance = null
 	if dev_console_body_vbox:
 		dev_console_body_vbox.visible = true

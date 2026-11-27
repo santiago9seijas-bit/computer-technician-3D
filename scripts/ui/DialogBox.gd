@@ -2,6 +2,7 @@ extends Control
 
 signal dialog_closed
 
+@onready var box_margin: MarginContainer = $BoxMargin
 @onready var panel: PanelContainer = $BoxMargin/Panel
 @onready var speaker_label: Label = $BoxMargin/Panel/Margin/VBox/SpeakerLabel
 @onready var message_label: Label = $BoxMargin/Panel/Margin/VBox/MessageLabel
@@ -17,6 +18,7 @@ const TEX_JOA_NORMAL = preload("res://sprite de dialogos/joa normal.png")
 const TEX_JOA_CRYING = preload("res://sprite de dialogos/joa llorando.png")
 
 var is_active: bool = false
+var is_compact: bool = false
 var on_finish_callback: Callable = Callable()
 var tween_prompt: Tween
 var tween_open: Tween
@@ -57,10 +59,12 @@ func set_speaker(speaker: String = "JOA") -> void:
 		else:
 			speaker_label.text = speaker
 
-func show_message(speaker: String, text: String, callback: Callable = Callable()) -> void:
+func show_message(speaker: String, text: String, callback: Callable = Callable(), compact: bool = false) -> void:
 	on_finish_callback = callback
 	is_active = true
 	is_choice_mode = false
+	is_compact = compact
+	_apply_layout_mode()
 	visible = true
 	
 	if btn_choice_a: btn_choice_a.visible = false
@@ -94,6 +98,8 @@ func show_choice(speaker: String, text: String, option_a_text: String, option_b_
 	on_choice_b_cb = on_b
 	is_active = true
 	is_choice_mode = true
+	is_compact = false
+	_apply_layout_mode()
 	visible = true
 	
 	_ensure_choice_buttons()
@@ -128,7 +134,80 @@ func show_choice(speaker: String, text: String, option_a_text: String, option_b_
 		tween_open.parallel().tween_property(panel, "scale", Vector2.ONE, 0.2).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 		tween_open.parallel().tween_property(panel, "modulate:a", 1.0, 0.2)
 
+func _apply_layout_mode() -> void:
+	# Resolver los nodos también si show_message se llama justo al instanciar.
+	var box := get_node_or_null("BoxMargin") as Control
+	var p_margin := get_node_or_null("BoxMargin/Panel/Margin") as Control
+	var speaker := get_node_or_null("BoxMargin/Panel/Margin/VBox/SpeakerLabel") as Label
+	var message := get_node_or_null("BoxMargin/Panel/Margin/VBox/MessageLabel") as Label
+	var btn := get_node_or_null("BoxMargin/Panel/Margin/VBox/PromptHBox/BtnContinue") as Button
+	box_margin = box as MarginContainer
+	panel_margin = p_margin as MarginContainer
+	speaker_label = speaker
+	message_label = message
+	btn_continue = btn
+	if not is_instance_valid(box):
+		return
+
+	if is_compact:
+		# Cuadro pequeño anclado al lado derecho del área de trabajo.
+		box.anchor_left = 1.0
+		box.anchor_right = 1.0
+		box.anchor_top = 0.5
+		box.anchor_bottom = 0.5
+		box.offset_left = -350.0
+		box.offset_top = -150.0
+		box.offset_right = -20.0
+		box.offset_bottom = 150.0
+		z_index = 20
+
+		if is_instance_valid(p_margin):
+			p_margin.add_theme_constant_override("margin_left", 12)
+			p_margin.add_theme_constant_override("margin_right", 12)
+			p_margin.add_theme_constant_override("margin_top", 8)
+			p_margin.add_theme_constant_override("margin_bottom", 8)
+		if is_instance_valid(speaker):
+			speaker.add_theme_font_size_override("font_size", 12)
+		if is_instance_valid(message):
+			message.add_theme_font_size_override("font_size", 12)
+		if is_instance_valid(btn):
+			btn.custom_minimum_size = Vector2(250, 32)
+			btn.add_theme_font_size_override("font_size", 11)
+			btn.text = "[ E ] CONTINUAR ▶"
+	else:
+		# Diseño original: cuadro ancho abajo con retrato de JOA.
+		box.anchor_left = 0.0
+		box.anchor_right = 1.0
+		box.anchor_top = 1.0
+		box.anchor_bottom = 1.0
+		box.offset_left = 50.0
+		box.offset_top = -205.0
+		box.offset_right = -50.0
+		box.offset_bottom = -25.0
+		z_index = 0
+
+		if is_instance_valid(p_margin):
+			p_margin.add_theme_constant_override("margin_left", 36)
+			p_margin.add_theme_constant_override("margin_right", 32)
+			p_margin.add_theme_constant_override("margin_top", 18)
+			p_margin.add_theme_constant_override("margin_bottom", 14)
+		if is_instance_valid(speaker):
+			speaker.add_theme_font_size_override("font_size", 16)
+		if is_instance_valid(message):
+			message.add_theme_font_size_override("font_size", 18)
+		if is_instance_valid(btn):
+			btn.custom_minimum_size = Vector2(340, 42)
+			btn.add_theme_font_size_override("font_size", 14)
+			btn.text = "[ ⌨ PRESIONA 'E' PARA CONTINUAR ▶ ]"
+
+	box.queue_sort()
+
 func _update_portrait(speaker: String, text: String, is_escape: bool = false) -> void:
+	if is_compact:
+		if is_instance_valid(portrait_root):
+			portrait_root.visible = false
+		return
+
 	if not is_instance_valid(portrait_root) or not is_instance_valid(portrait_texture):
 		return
 		

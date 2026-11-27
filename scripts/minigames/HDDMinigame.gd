@@ -225,7 +225,7 @@ func _auto_detect_operation_mode() -> void:
 			guide_text.text = spare_msg + "1. Arrastra el disco nuevo hacia la IZQUIERDA sobre la placa.\n2. Conecta el cable SATA (clic en conector).\n3. Ajusta los 4 tornillos en las esquinas del disco con el destornillador."
 	else:
 		if is_instance_valid(guide_text):
-			guide_text.text = "1. Quita los 4 tornillos en las esquinas del disco con tu destornillador ([1] Cruz o [2] Pala).\n2. Clic en el conector SATA para desconectarlo.\n3. Arrastra el Disco HDD hacia la DERECHA para extraerlo."
+			guide_text.text = "1. Quita los 4 tornillos en las esquinas del disco con tu destornillador ([1] Pala o [2] Cruz).\n2. Clic en el conector SATA para desconectarlo.\n3. Arrastra el Disco HDD hacia la DERECHA para extraerlo."
 
 func _setup_removal_phase() -> void:
 	current_state = State.UNSCREW_4_CORNERS
@@ -293,8 +293,8 @@ func _on_screw_pressed(idx: int) -> void:
 	if screws_removed[idx]:
 		return
 		
-	var req_tool = 1 if screw_types[idx] == "cruz" else 2
-	var tool_name = "Cruz (+)" if req_tool == 1 else "Pala (-)"
+	var req_tool = 2 if screw_types[idx] == "cruz" else 1
+	var tool_name = "Cruz (+)" if req_tool == 2 else "Pala (-)"
 	
 	if GameManager.equipped_tool != req_tool:
 		GameManager.register_error(2.0)
@@ -482,8 +482,8 @@ func _on_screw_pressed_install(idx: int) -> void:
 	if not screws_removed[idx]:
 		return # Ya ajustado
 		
-	var req_tool = 1 if screw_types[idx] == "cruz" else 2
-	var tool_name = "Cruz (+)" if req_tool == 1 else "Pala (-)"
+	var req_tool = 2 if screw_types[idx] == "cruz" else 1
+	var tool_name = "Cruz (+)" if req_tool == 2 else "Pala (-)"
 	
 	if GameManager.equipped_tool != req_tool:
 		GameManager.register_error(2.0)
@@ -615,7 +615,7 @@ func _update_status() -> void:
 			var remaining = 0
 			for r in screws_removed:
 				if not r: remaining += 1
-			status_label.text = prefix + "PASO 1: Quita los 4 tornillos de las esquinas del disco con [1] Cruz o [2] Pala (%d restantes)." % remaining
+			status_label.text = prefix + "PASO 1: Quita los 4 tornillos de las esquinas del disco con [1] Pala o [2] Cruz (%d restantes)." % remaining
 			status_label.modulate = Color(1.0, 0.85, 0.2)
 		State.DISCONNECT_SATA:
 			status_label.text = prefix + "PASO 2: Haz clic en el CABLE SATA (conector resaltado) para desconectarlo."

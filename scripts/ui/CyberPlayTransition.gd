@@ -1060,6 +1060,7 @@ func _perform_scene_swap_and_reveal(
 		
 	tw_open.chain().tween_callback(func():
 		if on_finished.is_valid():
+
 			on_finished.call()
 		transition_completed.emit()
 		queue_free()
