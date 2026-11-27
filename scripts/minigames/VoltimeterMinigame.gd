@@ -368,9 +368,10 @@ func _start_joa_intro() -> void:
 		if dialog_box_inst.has_method("show_message"):
 			dialog_box_inst.show_message(
 				"JOA",
-				"¡Bienvenido al laboratorio de medición eléctrica! Los rieles de voltaje inestables o cortocircuitos impiden que la máquina arranque.\n\nSelecciona cada punto de prueba (TP), ajusta el dial en DC, AC u Ohmios según corresponda y pulsa [ESPACIO] o CALIBRAR cuando la aguja coincida con la marca para calibrar el riel.",
+				"Mide cada TP con el voltímetro [3]: ajusta DC/AC/Ohm y calibra la aguja.",
 				func():
-					_start_countdown()
+					_start_countdown(),
+				true
 			)
 		else:
 			_start_countdown()
@@ -893,7 +894,7 @@ func _check_victory() -> void:
 			return
 			
 	is_completed = true
-	victory_banner.visible = true
+	victory_banner.visible = false
 	is_needle_spinning = false
 	
 	var gm = get_node_or_null("/root/GameManager")
@@ -908,7 +909,7 @@ func _check_victory() -> void:
 		sm.mark_node_completed("reparacion", 30)
 		sm.unlock_glossary("psu")
 		
-	await get_tree().create_timer(1.8).timeout
+	# Termina en cuanto se calibra el último punto, sin cartel ni espera extra.
 	minigame_finished.emit(true)
 	
 	if get_tree().current_scene == self:

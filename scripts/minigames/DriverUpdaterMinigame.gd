@@ -253,15 +253,7 @@ func _on_all_devices_updated() -> void:
 	is_completed = true
 	_update_status("¡TODOS LOS DRIVERS HAN SIDO ACTUALIZADOS! Hardware operando a máxima capacidad.")
 	
-	victory_banner.visible = true
-	victory_banner.scale = Vector2(0.6, 0.6)
-	victory_banner.modulate.a = 0.0
-	
-	var tw = create_tween().set_parallel(true)
-	tw.tween_property(victory_banner, "scale", Vector2(1.0, 1.0), 0.35).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	tw.tween_property(victory_banner, "modulate:a", 1.0, 0.25)
-	
-	await get_tree().create_timer(2.3).timeout
+	victory_banner.visible = false
 	minigame_finished.emit(true)
 
 func _update_metrics() -> void:

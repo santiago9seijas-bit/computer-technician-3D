@@ -318,15 +318,7 @@ func _on_all_ads_cleared() -> void:
 	_update_metrics()
 	_update_status("¡ESCRITORIO 100% LIMPIO! Adware eliminado y consumo de recursos restablecido.")
 	
-	victory_banner.visible = true
-	victory_banner.scale = Vector2(0.5, 0.5)
-	victory_banner.modulate.a = 0.0
-	
-	var tw = create_tween().set_parallel(true)
-	tw.tween_property(victory_banner, "scale", Vector2(1.0, 1.0), 0.4).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	tw.tween_property(victory_banner, "modulate:a", 1.0, 0.3)
-	
-	await get_tree().create_timer(2.2).timeout
+	victory_banner.visible = false
 	minigame_finished.emit(true)
 
 func _update_metrics() -> void:

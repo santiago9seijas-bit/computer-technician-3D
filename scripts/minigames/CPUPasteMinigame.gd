@@ -155,9 +155,10 @@ func _start_joa_intro() -> void:
 		if dialog_box_inst.has_method("show_message"):
 			dialog_box_inst.show_message(
 				"JOA",
-				"¡Atención al procesador! La pasta térmica vieja se ha solidificado y perdió su conductividad térmica.\n\nPrimero selecciona el [1] Pañuelo y haz clic sobre el IHS para retirar toda la pasta seca. Luego selecciona la [2] Pasta Térmica y aplica una gota limpia hasta lograr 100% de cobertura.",
+				"CPU: retira la pasta vieja con [1] y aplica pasta nueva con [2] hasta 100%.",
 				func():
-					_start_countdown()
+					_start_countdown(),
+				true
 			)
 		else:
 			_start_countdown()
@@ -399,7 +400,7 @@ func _complete_apply_phase() -> void:
 		sm.mark_node_completed("reparacion", 28)
 		sm.unlock_glossary("cpu")
 		
-	await get_tree().create_timer(1.2).timeout
+	# Termina en cuanto se aplica la última pasta, sin espera adicional.
 	minigame_finished.emit(true)
 	
 	if get_tree().current_scene == self:

@@ -556,7 +556,7 @@ func _play_epic_deployment_sequence() -> void:
 	var modal_ctrl = get_node_or_null("ModalControl")
 	if not modal_ctrl:
 		if victory_banner:
-			victory_banner.visible = true
+			victory_banner.visible = false
 		minigame_finished.emit(true)
 		return
 		
@@ -693,12 +693,6 @@ func _run_deployment_phases(d_prog: ProgressBar, stage_badge: Label, log_txt: Ri
 		gm.spawn_floating_text("🚀 ¡SISTEMA DESPLEGADO AL 100%!", true)
 		
 	if victory_banner:
-		victory_banner.visible = true
-		victory_banner.scale = Vector2(0.6, 0.6)
-		victory_banner.modulate.a = 0.0
-		var tw = create_tween().set_parallel(true)
-		tw.tween_property(victory_banner, "scale", Vector2.ONE, 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-		tw.tween_property(victory_banner, "modulate:a", 1.0, 0.25)
-		
-	await get_tree().create_timer(1.0).timeout
+		victory_banner.visible = false
+
 	minigame_finished.emit(true)

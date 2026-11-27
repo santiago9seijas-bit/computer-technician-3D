@@ -86,6 +86,7 @@ var dust_data: Array[Dictionary] = [
 var total_clumps: int = 0
 var cleaned_clumps: int = 0
 var is_game_completed: bool = false
+var is_finishing: bool = false
 var is_brush_pressed: bool = false
 var is_intro_active: bool = false
 var countdown_overlay: CanvasLayer = null
@@ -141,20 +142,14 @@ func _start_joa_intro() -> void:
 	
 	var msg_txt = ""
 	if is_psu_mode:
-		msg_txt = "¡Atención al mantenimiento de la fuente de poder! La acumulación de pelusa y polvo en bobinas y disipadores de potencia puede causar sobrecalentamiento crítico.\n\nPrimero haz clic y desliza la tapa metálica hacia la derecha para abrir la fuente. Luego usa la brocha antiestática para limpiar toda la suciedad interna."
+		msg_txt = "FUENTE: arrastra la tapa metálica y limpia la pelusa interna con el limpiador [5]."
 	else:
-		msg_txt = "¡Atento técnico! Los contactos dorados y ranuras de la memoria RAM están cubiertos de polvo y residuos que causan fallas de lectura y falsos contactos.\n\nUsa el cepillo de precisión para desincrustar y remover todos los cúmulos de suciedad hasta dejar la pieza 100% limpia."
-	
-	# La guía derecha se oculta mientras se muestra la explicación compacta para no superponer UI.
-	if is_instance_valid(right_guide_panel):
-		right_guide_panel.visible = false
+		msg_txt = "RAM: usa el cepillo [5] sobre el polvo hasta dejar los contactos al 100%."
 
+	# El aviso va como tarjeta pequeña en la esquina, separada del área de juego.
 	if DIALOG_BOX_SCENE:
 		dialog_box_inst = DIALOG_BOX_SCENE.instantiate()
-		if is_instance_valid(work_area):
-			work_area.add_child(dialog_box_inst)
-		else:
-			add_child(dialog_box_inst)
+		add_child(dialog_box_inst)
 		if dialog_box_inst.has_method("show_message"):
 			dialog_box_inst.show_message(
 				"JOA",
@@ -731,13 +726,15 @@ func _update_ui() -> void:
 		status_label.text = "✓ ¡%s COMPLETAMENTE DESOBSTRUIDA! Limpieza al 100%%." % comp_name.to_upper()
 
 func _trigger_victory() -> void:
+	if is_game_completed:
+		return
 	is_game_completed = true
-	victory_banner.visible = true
+	victory_banner.visible = false
 	var is_ram: bool = "ram" in target_component.to_lower()
 	var comp_name: String = "Memoria RAM" if is_ram else ("Fuente de Poder" if is_psu_mode else "Disipador")
 	warning_label.text = "✓ ¡Mantenimiento completado! %s al 100%% limpia y libre de obstrucciones." % comp_name
 	warning_label.modulate = Color(0.2, 1.0, 0.5)
-	
+
 	# Guardar progreso en SaveManager
 	var sm = get_node_or_null("/root/SaveManager")
 	if sm:
@@ -747,18 +744,19 @@ func _trigger_victory() -> void:
 		else:
 			sm.mark_node_completed("reparacion", 26) # Nivel morado: Limpieza Polvo RAM
 			sm.unlock_glossary("ram")
-	
-	btn_cancel.text = "✓ FINALIZAR MANTENIMIENTO"
-	btn_cancel.modulate = Color(0.2, 1.0, 0.5)
-	
-	# Destello de éxito en el área de trabajo
-	var tw = create_tween().set_parallel(true)
-	tw.tween_property(heatsink_area, "modulate", Color(1.3, 1.4, 1.2), 0.25)
-	tw.chain().tween_property(heatsink_area, "modulate", Color.WHITE, 0.4)
+
+	# Se cierra solo en cuanto termina la limpieza, sin botón extra.
+	_finish(true)
 
 func _on_cancel_pressed() -> void:
-	minigame_finished.emit(is_game_completed)
-	
+	_finish(is_game_completed)
+
+func _finish(success: bool) -> void:
+	if is_finishing:
+		return
+	is_finishing = true
+	minigame_finished.emit(success)
+
 	if get_tree().current_scene == self:
 		var exit_title = "LIMPIEZA DE FUENTE ATX COMPLETADA" if is_psu_mode else "LIMPIEZA DE RAM COMPLETADA"
 		var exit_sub = "// PELUSA INTERNA Y DISIPADORES DESOBSTRUIDOS AL 100% //" if is_psu_mode else "// CONTACTOS DORADOS DESOBSTRUIDOS AL 100% //"

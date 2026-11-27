@@ -78,20 +78,15 @@ func _ready() -> void:
 
 func _start_joa_intro() -> void:
 	is_intro_active = true
-	# La guía derecha se oculta mientras se muestra la explicación compacta para no superponer UI.
-	if is_instance_valid(right_guide_panel):
-		right_guide_panel.visible = false
 
+	# Aviso diminuto en la esquina, fuera del tablero de pines.
 	if DIALOG_BOX_SCENE:
 		dialog_box_inst = DIALOG_BOX_SCENE.instantiate()
-		if is_instance_valid(work_area):
-			work_area.add_child(dialog_box_inst)
-		else:
-			add_child(dialog_box_inst)
+		add_child(dialog_box_inst)
 		if dialog_box_inst.has_method("show_message"):
 			dialog_box_inst.show_message(
 				"JOA",
-				"¡Máxima concentración técnica! Un pin doblado o torcido en el socket o procesador impedirá el arranque del equipo o causará cortocircuito.\n\nUsa el microscopio para localizar los pines fuera de eje (resaltados en naranja) y haz clic sobre cada uno con la pinza de precisión para enderezarlo a 90°.",
+				"CPU: con la lupa [4], haz clic en los 6 pines naranjas para enderezarlos.",
 				func():
 					if is_instance_valid(right_guide_panel):
 						right_guide_panel.visible = true
@@ -332,23 +327,19 @@ func _update_ui() -> void:
 		status_label.modulate = Color(0.2, 1.0, 0.5)
 
 func _trigger_victory() -> void:
+	if is_game_completed:
+		return
 	is_game_completed = true
-	victory_banner.visible = true
-	victory_banner.scale = Vector2(0.6, 0.6)
-	victory_banner.modulate.a = 0.0
-	
-	var tw = create_tween().set_parallel(true)
-	tw.tween_property(victory_banner, "scale", Vector2(1.0, 1.0), 0.35).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	tw.tween_property(victory_banner, "modulate:a", 1.0, 0.25)
-	
+	victory_banner.visible = false
+
 	var sm = get_node_or_null("/root/SaveManager")
 	if sm:
 		sm.mark_node_completed("reparacion", 29)
 		sm.unlock_glossary("cpu")
-	
-	await get_tree().create_timer(1.8).timeout
+
+	# Termina de inmediato al enderezar el último pin.
 	minigame_finished.emit(true)
-	
+
 	if get_tree().current_scene == self:
 		CyberPlayTransition.play_exit(
 			get_tree(),

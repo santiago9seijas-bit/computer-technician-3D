@@ -265,16 +265,14 @@ func _on_handshake_pressed() -> void:
 	cable_status_lbl.modulate = Color(0.2, 1.0, 0.4)
 	
 	btn_handshake.visible = false
-	success_banner.visible = true
+	success_banner.visible = false
 	
 	var gm_final = get_node_or_null("/root/GameManager")
 	if gm_final and gm_final.has_method("register_repair"):
 		gm_final.register_repair(50, 5.0)
 
-	# Termina solo al completar el enlace, sin esperar a pulsar "Continuar".
-	var finish_tw = create_tween()
-	finish_tw.tween_interval(0.6)
-	finish_tw.tween_callback(_finish_success)
+	# Termina en el mismo instante en que se completa el enlace.
+	_finish_success()
 
 func _finish_success() -> void:
 	if is_finishing:

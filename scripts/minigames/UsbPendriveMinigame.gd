@@ -276,15 +276,7 @@ func _trigger_usb_ejected() -> void:
 	pendrive_led.color = Color(0.2, 0.2, 0.25)
 	_update_state(State.COMPLETED)
 	
-	victory_banner.visible = true
-	victory_banner.scale = Vector2(0.6, 0.6)
-	victory_banner.modulate.a = 0.0
-	
-	var tw_v = create_tween().set_parallel(true)
-	tw_v.tween_property(victory_banner, "scale", Vector2(1.0, 1.0), 0.35).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	tw_v.tween_property(victory_banner, "modulate:a", 1.0, 0.25)
-	
-	await get_tree().create_timer(2.4).timeout
+	victory_banner.visible = false
 	minigame_finished.emit(true)
 
 # =============================================================================

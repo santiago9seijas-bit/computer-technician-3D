@@ -22,6 +22,7 @@ var is_compact: bool = false
 var on_finish_callback: Callable = Callable()
 var tween_prompt: Tween
 var tween_open: Tween
+var compact_close_tween: Tween = null
 
 # Sistema de máquina de escribir (Typewriter)
 var is_typing: bool = false
@@ -60,6 +61,8 @@ func set_speaker(speaker: String = "JOA") -> void:
 			speaker_label.text = speaker
 
 func show_message(speaker: String, text: String, callback: Callable = Callable(), compact: bool = false) -> void:
+	if compact_close_tween and compact_close_tween.is_valid():
+		compact_close_tween.kill()
 	on_finish_callback = callback
 	is_active = true
 	is_choice_mode = false
@@ -69,8 +72,10 @@ func show_message(speaker: String, text: String, callback: Callable = Callable()
 	
 	if btn_choice_a: btn_choice_a.visible = false
 	if btn_choice_b: btn_choice_b.visible = false
-	if btn_continue: btn_continue.visible = true
-	
+	if btn_continue: btn_continue.visible = not compact
+	var prompt_hbox_ctrl := get_node_or_null("BoxMargin/Panel/Margin/VBox/PromptHBox") as Control
+	if prompt_hbox_ctrl: prompt_hbox_ctrl.visible = not compact
+
 	if Input.mouse_mode != Input.MOUSE_MODE_VISIBLE:
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	
@@ -150,37 +155,46 @@ func _apply_layout_mode() -> void:
 		return
 
 	if is_compact:
-		# Cuadro pequeño pegado al lado derecho, siempre dentro del área visible.
+		# Tarjeta diminuta en la esquina superior derecha, FUERA del área de juego.
 		var parent_ctrl := box.get_parent() as Control
-		var pw := parent_ctrl.size.x if parent_ctrl else 0.0
-		var ph := parent_ctrl.size.y if parent_ctrl else 0.0
-		if pw <= 0.0: pw = 1280.0
-		if ph <= 0.0: ph = 720.0
-		var w := minf(290.0, pw - 24.0)
-		var h := minf(270.0, ph - 24.0)
+		var vp_size := get_viewport_rect().size
+		var pw := parent_ctrl.size.x if parent_ctrl else vp_size.x
+		var ph := parent_ctrl.size.y if parent_ctrl else vp_size.y
+		if pw <= 0.0: pw = vp_size.x if vp_size.x > 0.0 else 1280.0
+		if ph <= 0.0: ph = vp_size.y if vp_size.y > 0.0 else 720.0
+		var w := minf(220.0, pw - 16.0)
+		var h := minf(104.0, ph - 16.0)
 		box.anchor_left = 1.0
 		box.anchor_right = 1.0
-		box.anchor_top = 0.5
-		box.anchor_bottom = 0.5
-		box.offset_left = -10.0 - w
-		box.offset_top = -h * 0.5
-		box.offset_right = -10.0
-		box.offset_bottom = h * 0.5
-		z_index = 20
+		box.anchor_top = 0.0
+		box.anchor_bottom = 0.0
+		box.offset_left = -8.0 - w
+		box.offset_top = 8.0
+		box.offset_right = -8.0
+		box.offset_bottom = 8.0 + h
+		z_index = 30
+
+		# No interceptar clics: el minijuego sigue siendo totalmente jugable.
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var panel_ctrl := get_node_or_null("BoxMargin/Panel") as Control
+		if panel_ctrl: panel_ctrl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		if p_margin: p_margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var vbox := get_node_or_null("BoxMargin/Panel/Margin/VBox") as Control
+		if vbox: vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var prompt := get_node_or_null("BoxMargin/Panel/Margin/VBox/PromptHBox") as Control
+		if prompt: prompt.visible = false
+		if btn: btn.visible = false
+		if speaker: speaker.visible = false
 
 		if is_instance_valid(p_margin):
-			p_margin.add_theme_constant_override("margin_left", 10)
-			p_margin.add_theme_constant_override("margin_right", 10)
-			p_margin.add_theme_constant_override("margin_top", 6)
-			p_margin.add_theme_constant_override("margin_bottom", 6)
-		if is_instance_valid(speaker):
-			speaker.add_theme_font_size_override("font_size", 11)
+			p_margin.add_theme_constant_override("margin_left", 7)
+			p_margin.add_theme_constant_override("margin_right", 7)
+			p_margin.add_theme_constant_override("margin_top", 5)
+			p_margin.add_theme_constant_override("margin_bottom", 5)
 		if is_instance_valid(message):
-			message.add_theme_font_size_override("font_size", 11)
-		if is_instance_valid(btn):
-			btn.custom_minimum_size = Vector2(230, 30)
-			btn.add_theme_font_size_override("font_size", 10)
-			btn.text = "[ E ] CONTINUAR ▶"
+			message.add_theme_font_size_override("font_size", 9)
+			message.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	else:
 		# Diseño original: cuadro ancho abajo con retrato de JOA.
 		box.anchor_left = 0.0
@@ -192,6 +206,18 @@ func _apply_layout_mode() -> void:
 		box.offset_right = -50.0
 		box.offset_bottom = -25.0
 		z_index = 0
+
+		mouse_filter = Control.MOUSE_FILTER_PASS
+		box.mouse_filter = Control.MOUSE_FILTER_PASS
+		var panel_ctrl := get_node_or_null("BoxMargin/Panel") as Control
+		if panel_ctrl: panel_ctrl.mouse_filter = Control.MOUSE_FILTER_PASS
+		if p_margin: p_margin.mouse_filter = Control.MOUSE_FILTER_PASS
+		var vbox := get_node_or_null("BoxMargin/Panel/Margin/VBox") as Control
+		if vbox: vbox.mouse_filter = Control.MOUSE_FILTER_PASS
+		var prompt := get_node_or_null("BoxMargin/Panel/Margin/VBox/PromptHBox") as Control
+		if prompt: prompt.visible = true
+		if btn: btn.visible = true
+		if speaker: speaker.visible = true
 
 		if is_instance_valid(p_margin):
 			p_margin.add_theme_constant_override("margin_left", 36)
@@ -265,6 +291,19 @@ func _start_typewriter(text: String) -> void:
 	
 	typing_tween.finished.connect(func():
 		_finish_typing()
+		if is_compact:
+			_schedule_compact_close()
+	)
+
+func _schedule_compact_close() -> void:
+	# El cartel compacto se cierra solo: no pide pulsar [E] ni ningún botón.
+	if compact_close_tween and compact_close_tween.is_valid():
+		compact_close_tween.kill()
+	compact_close_tween = create_tween()
+	compact_close_tween.tween_interval(1.2)
+	compact_close_tween.tween_callback(func():
+		if is_instance_valid(self) and is_compact and is_active:
+			close_dialog()
 	)
 
 func _finish_typing() -> void:
@@ -278,6 +317,8 @@ func _finish_typing() -> void:
 
 func _exit_tree() -> void:
 	is_typing = false
+	if compact_close_tween and compact_close_tween.is_valid():
+		compact_close_tween.kill()
 	if typing_tween and typing_tween.is_valid():
 		typing_tween.kill()
 	if is_instance_valid(typing_audio):
@@ -387,6 +428,9 @@ func _gui_input(event: InputEvent) -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not is_active or not visible:
+		return
+	# El cartel compacto es solo informativo: se cierra solo, sin esperar teclas.
+	if is_compact:
 		return
 		
 	if is_choice_mode:

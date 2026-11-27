@@ -1068,23 +1068,12 @@ func _victory() -> void:
 		sm.mark_node_completed("sistema", current_node_index)
 		
 	if victory_banner:
-		victory_banner.visible = true
-		victory_banner.modulate.a = 0.0
-		var banner_title = victory_banner.get_node_or_null("VBox/Title")
-		if banner_title:
-			banner_title.text = "✓ ¡HACKEO COMPLETADO! NÚCLEO PURGADO"
-		var banner_desc = victory_banner.get_node_or_null("VBox/Desc")
-		if banner_desc:
-			banner_desc.text = "Subsector de Sistemas desinfectado con éxito.\nEl nodo ahora luce limpio y asegurado en la matriz."
-		var tw = create_tween().set_parallel(true)
-		tw.tween_property(victory_banner, "scale", Vector2.ONE, 0.35).from(Vector2(0.6, 0.6)).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-		tw.tween_property(victory_banner, "modulate:a", 1.0, 0.25)
-		
+		victory_banner.visible = false
+
 	LevelSelect.initial_mode = "sistema"
 	LevelSelect.initial_tab = "niveles"
 	LevelSelect.pending_glitch_purge_node = current_node_index
 	
-	await get_tree().create_timer(2.6).timeout
 	minigame_finished.emit(true)
 	CyberPlayTransition.play_exit(
 		get_tree(),

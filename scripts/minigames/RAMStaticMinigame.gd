@@ -81,14 +81,11 @@ func _start_joa_intro() -> void:
 	
 	if DIALOG_BOX_SCENE:
 		dialog_box_inst = DIALOG_BOX_SCENE.instantiate()
-		if is_instance_valid(work_area):
-			work_area.add_child(dialog_box_inst)
-		else:
-			add_child(dialog_box_inst)
+		add_child(dialog_box_inst)
 		if dialog_box_inst.has_method("show_message"):
 			dialog_box_inst.show_message(
 				"JOA",
-				"¡Cuidado con la estática! Una descarga electrostática imperceptible puede freír un chip de memoria RAM.\n\nToma el módulo de memoria y frótalo con firmeza contra la varilla metálica del destornillador aterrizado a tierra hasta drenar la carga a cero.",
+				"RAM: frota el módulo contra la varilla a tierra hasta bajar la estática a 0%.",
 				func():
 					_start_countdown(),
 				true
