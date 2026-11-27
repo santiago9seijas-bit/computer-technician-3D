@@ -4,18 +4,18 @@ En este directorio se mantiene el registro y métodos de descarga de todas las v
 
 ---
 
-## 📌 Versión 0.0.9 Alpha (Lanzamiento Actual)
+## 📌 demo version 0.1.0 (Lanzamiento Actual)
 
-- **Nombre de la versión:** `Version 0.0.9 Alpha`
-- **Estado:** Alpha
-- **Archivo:** `ComputerTechnician3D-Windows-v0.0.9-alpha.zip`
+- **Nombre de la versión:** `demo version 0.1.0`
+- **Estado:** Demo
+- **Archivo:** `ComputerTechnician3D-Windows-v0.1.0-demo.zip`
 - **Enlace de descarga directa:**  
-  👉 **[Descargar ComputerTechnician3D-Windows-v0.0.9-alpha.zip](https://github.com/santiago9seijas-bit/computer-technician-3D/releases/download/v0.0.9-alpha/ComputerTechnician3D-Windows-v0.0.9-alpha.zip)**
+  👉 **[Descargar ComputerTechnician3D-Windows-v0.1.0-demo.zip](https://github.com/santiago9seijas-bit/computer-technician-3D/releases/download/v0.1.0-demo/ComputerTechnician3D-Windows-v0.1.0-demo.zip)**
 
 ### 💻 Método de Descarga e Instalación
 
 1. **Descarga:**
-   - Haz clic en el enlace de descarga directa anterior, o entra a la página de [GitHub Releases](https://github.com/santiago9seijas-bit/computer-technician-3D/releases/tag/v0.0.9-alpha) y descarga `ComputerTechnician3D-Windows-v0.0.9-alpha.zip`.
+   - Haz clic en el enlace de descarga directa anterior, o entra a la página de [GitHub Releases](https://github.com/santiago9seijas-bit/computer-technician-3D/releases/tag/v0.1.0-demo) y descarga `ComputerTechnician3D-Windows-v0.1.0-demo.zip`.
 2. **Extracción:**
    - Haz clic derecho sobre el archivo `.zip` descargado.
    - Selecciona **"Extraer todo..."** y elige una carpeta de tu preferencia.
@@ -25,6 +25,13 @@ En este directorio se mantiene el registro y métodos de descarga de todas las v
 ---
 
 ## 🗄️ Historial de Versiones Anteriores
+
+### 📦 Versión 0.0.9 Alpha
+- **Nombre de la versión:** `Version 0.0.9 Alpha`
+- **Archivo:** `ComputerTechnician3D-Windows-v0.0.9-alpha.zip`
+- 👉 **[Descargar ComputerTechnician3D-Windows-v0.0.9-alpha.zip](https://github.com/santiago9seijas-bit/computer-technician-3D/releases/download/v0.0.9-alpha/ComputerTechnician3D-Windows-v0.0.9-alpha.zip)**
+
+---
 
 ### 📦 Versión 0.0.8 Alpha
 - **Nombre de la versión:** `Version 0.0.8 Alpha`

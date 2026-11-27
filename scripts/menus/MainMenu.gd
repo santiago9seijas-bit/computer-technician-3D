@@ -35,6 +35,7 @@ const EXTRAS_TOP_COLOR: Color = Color(0.02, 0.05, 0.12, 1.0)
 const EXTRAS_HORIZON_COLOR: Color = Color(0.05, 0.22, 0.26, 1.0)
 const EXTRAS_BOTTOM_COLOR: Color = Color(0.03, 0.07, 0.09, 1.0)
 const EXTRAS_LINE_COLOR: Color = Color(0.0, 0.95, 0.75, 1.0)
+const DEMO_VERSION_TEXT: String = "demo version 0.1.0"
 
 var bg_tween: Tween = null
 
@@ -83,8 +84,7 @@ func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	modulate = Color.WHITE
 	if version_label:
-		var cfg_ver = ProjectSettings.get_setting("application/config/version", "0.0.9")
-		version_label.text = "Version %s Alpha" % cfg_ver
+		version_label.text = DEMO_VERSION_TEXT
 		version_label.mouse_filter = Control.MOUSE_FILTER_STOP
 		version_label.gui_input.connect(func(ev: InputEvent):
 			if ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT:
@@ -697,9 +697,7 @@ func _refresh_all_ui_texts() -> void:
 	if os_lbl:
 		os_lbl.text = loc.translate_text("HARDWARE WORKSHOP // REPAIR OS v2.0")
 	if version_label:
-		var cfg_ver = ProjectSettings.get_setting("application/config/version", "0.0.9")
-		var v_prefix = "Versión" if loc.get_locale() == "es" else loc.translate_text("Version")
-		version_label.text = "%s %s Alpha" % [v_prefix, cfg_ver]
+		version_label.text = DEMO_VERSION_TEXT
 
 func _refresh_language_button() -> void:
 	if not btn_lang: return

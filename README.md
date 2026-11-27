@@ -1,8 +1,8 @@
-# 🛠️ Computer Technician 3D (Version 0.0.9 Alpha)
+# 🛠️ Computer Technician 3D (demo version 0.1.0)
 
 [![Godot Engine](https://img.shields.io/badge/Godot-4.x-blue.svg?logo=godotengine)](https://godotengine.org)
 [![Platform](https://img.shields.io/badge/Platforms-Linux%20%7C%20Windows-green.svg)](#descargas--instalaci%C3%B3n)
-[![Release](https://img.shields.io/badge/Release-Version%200.0.9%20Alpha-magenta.svg)](https://github.com/santiago9seijas-bit/computer-technician-3D/releases)
+[![Release](https://img.shields.io/badge/Release-demo%20version%200.1.0-magenta.svg)](https://github.com/santiago9seijas-bit/computer-technician-3D/releases)
 [![Versiones](https://img.shields.io/badge/Carpeta-Versiones-orange.svg)](versiones/README.md)
 
 **Computer Technician 3D** es un simulador inmersivo en primera persona desarrollado en Godot 4 con estética cyberpunk/sci-fi. Asume el papel de un técnico informático del futuro en un taller especializado, diagnostica componentes dañados, realiza pruebas de hardware e interactúa con minijuegos dinámicos para reparar PCs y módulos cibernéticos.
@@ -56,10 +56,10 @@ Puedes descargar los binarios compilados directamente desde la pestaña de **[Re
 
 ### 🐧 Linux (x86_64)
 
-1. Descarga el archivo `ComputerTechnician3D-Linux-v0.0.9-alpha.zip`.
+1. Descarga el archivo `ComputerTechnician3D-Linux-v0.1.0-demo.zip`.
 2. Descomprime el archivo en la carpeta que desees:
    ```bash
-   unzip ComputerTechnician3D-Linux-v0.0.9-alpha.zip -d ComputerTechnician3D-Linux
+   unzip ComputerTechnician3D-Linux-v0.1.0-demo.zip -d ComputerTechnician3D-Linux
    cd ComputerTechnician3D-Linux
    ```
 3. Otorga permisos de ejecución al ejecutable:
@@ -77,7 +77,7 @@ Puedes descargar los binarios compilados directamente desde la pestaña de **[Re
 
 ### 🪟 Windows (x86_64)
 
-1. Descarga el archivo `ComputerTechnician3D-Windows-v0.0.9-alpha.zip`.
+1. Descarga el archivo `ComputerTechnician3D-Windows-v0.1.0-demo.zip`.
 2. Haz clic derecho y selecciona **Extraer todo...**.
 3. Abre la carpeta resultante y ejecuta `ComputerTechnician3D.exe`.
 *(Nota: Asegúrate de mantener el archivo `.pck` en la misma carpeta que el ejecutable).*
